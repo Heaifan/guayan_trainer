@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/wuxing_colors.dart';
-import 'wuxing_study_page.dart';
+import 'wuxing_study_menu_page.dart';
 import 'dizhi_study_page.dart';
 import 'relation_study_page.dart';
 
@@ -25,7 +25,7 @@ class StudyPage extends StatelessWidget {
             subtitle: '用颜色记五行，用转轮记生克',
             color: WuxingColors.getColor('木'),
             bgColor: WuxingColors.getSoftColor('木'),
-            page: const WuxingStudyPage(),
+            page: const WuxingStudyMenuPage(),
           ),
           const SizedBox(height: 12),
           _card(
