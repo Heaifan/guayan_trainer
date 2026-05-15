@@ -166,6 +166,15 @@ class _WuxingWheelState extends State<WuxingWheel>
             ? generateEdges[_activeEdgeIndex]
             : null;
 
+        // Center effect: 木→火 persists during full display + pause
+        final bool showWoodFire = widget.autoPlayAccumulate
+            ? (_activeEdgeIndex == 0) ||
+              (_activeEdgeIndex == 1 && !isAnimating)
+            : widget.hasAnswered &&
+              widget.sourceElement == '木' &&
+              widget.correctAnswer == '火';
+        final double effectSize = size * 0.38;
+
         return Center(
           child: SizedBox(
             width: size,
@@ -205,21 +214,23 @@ class _WuxingWheelState extends State<WuxingWheel>
 
                 // ---- Center effect (木→火 flame) ----
                 Positioned(
-                  left: size * 0.37,
-                  top: size * 0.37,
-                  width: size * 0.26,
-                  height: size * 0.26,
-                  child: HtmlRelationEffect(
-                    sourceElement: widget.autoPlayAccumulate
-                        ? activeEdge?.from
-                        : widget.sourceElement,
-                    targetElement: widget.autoPlayAccumulate
-                        ? activeEdge?.to
-                        : widget.correctAnswer,
-                    visible: widget.autoPlayAccumulate
-                        ? activeEdge != null && _anim.value > 0.05
-                        : widget.hasAnswered,
-                    size: size * 0.26,
+                  left: (size - effectSize) / 2,
+                  top: (size - effectSize) / 2,
+                  width: effectSize,
+                  height: effectSize,
+                  child: AnimatedOpacity(
+                    opacity: showWoodFire ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 180),
+                    child: HtmlRelationEffect(
+                      sourceElement: widget.autoPlayAccumulate
+                          ? generateEdges[0].from
+                          : widget.sourceElement,
+                      targetElement: widget.autoPlayAccumulate
+                          ? generateEdges[0].to
+                          : widget.correctAnswer,
+                      visible: widget.autoPlayAccumulate ? true : showWoodFire,
+                      size: effectSize,
+                    ),
                   ),
                 ),
 

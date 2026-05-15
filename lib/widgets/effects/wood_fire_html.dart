@@ -54,7 +54,7 @@ const String woodFireHtml = r'''
 </style>
 </head>
 <body>
-<svg viewBox="0 0 200 300">
+<svg viewBox="20 80 160 210" preserveAspectRatio="xMidYMid meet">
   <g id="wood">
     <rect x="50" y="240" width="100" height="20" rx="8" fill="#5c3a21" transform="rotate(25 100 250)"/>
     <rect x="50" y="240" width="100" height="20" rx="8" fill="#4a2c16" transform="rotate(-25 100 250)"/>

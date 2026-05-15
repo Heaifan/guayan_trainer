@@ -1,35 +1,34 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.3.1
+> **当前版本：** v0.1.3.5
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-15 17:30
+> **最后编辑：** 2026-05-16 11:00
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.3.1
+## 当前版本更新日志 — v0.1.3.5
 
-> 发布日期：2026-05-15
-
-### 新增
-- **五行相生完整学习页**：`WuxingGeneratePage` — 说明卡 + 相生顺序卡(Wrap) + 轮盘展示 + 五条解释
-- **相生专项训练**：`TrainingMode.wuxingGenerate` — 只出"X生谁？"题，配合轮盘点选
-- **箭头动画**：`WuxingArrowPainter` — CustomPainter 绘制从起点到终点的渐变动画箭头
-- **TrainingQuestion 扩展**：新增 `sourceElement`、`targetElement`、`relationType` 字段
-
-### 修复
-- **关闭火焰特效**：`FlameEffectPainter` 禁用，消除黑色异常图形和闪退
-- **轮盘裁切修复**：`WuxingWheel` 使用 `min(maxWidth, maxHeight)` 确保不溢出容器
-- **箭头动画重置**：换题时自动 `reset()`，每道题从 0 开始播放
-- **箭头 Painter 安全**：添加 `null` 保护和零距离检查，传错元素不崩溃
-- **相生顺序闭环**：Row 改为 Wrap，完整显示"木→火→土→金→水→木"
-- **学习页轮盘高度**：260 → 340，五个节点完整显示
+> 发布日期：2026-05-16
 
 ### 优化
-- **颜色页按钮**："开始五行练习" → "进入五行相生"，跳转到相生学习页
-- **颜色页金文字**：`WuxingColors.textOnColor()`，白底自动使用深色字
+- **中央火焰动画放大**：`size * 0.26` → `size * 0.38`，视觉更醒目
+- **火焰显示时长修正**：木→火全程持续显示（含动画+暂停期），直到火→土开始才消失
+- **SVG viewBox 裁切**：`0 0 200 300` → `20 80 160 210`，火焰主体占比更大
+- **淡入淡出过渡**：`AnimatedOpacity` 180ms，出现和消失更自然
+- **应用图标替换**：`应用图标.png` 替换所有 mipmap 密度目录
+- **应用名称**：`guayan_trainer` → `卦眼`
+
+### 新增
+- **WebView 中央特效**：`HtmlRelationEffect` + `wood_fire_html.dart` — 木生火 HTML/SVG 动画嵌入轮盘中央
+- **webview_flutter 依赖**：v4.13.1 用于加载 HTML 动画
+
+### 修复
+- **学习页动画不显示**：`_onTick` 缺失 `setState`，HtmlRelationEffect 无法随动画帧更新
+- **activeEdge 间隙 Bug**：`_ctrl.isAnimating` 为 false 时 `activeEdge` 置 null，350ms 暂停期正确隐藏活动边
+- **箭头贝塞尔→圆弧**：`quadraticBezierTo` → `addArc`，沿轮盘圆周绘制相生弧线
 
 ---
 
@@ -228,8 +227,10 @@ lib/
 
 | 文件 | 职责 |
 | --- | --- |
-| `wuxing_wheel.dart` | 五行轮盘组件：固定位置布局，节点选中/正确/来源态高亮，答题箭头动画 |
-| `wuxing_arrow_painter.dart` | 箭头绘制 CustomPainter：从起点到终点渐变动画，含箭头部 |
+| `wuxing_wheel.dart` | 五行轮盘组件：累计箭头动画、自动循环、节点高亮、中央特效 |
+| `wuxing_arrow_painter.dart` | 圆弧箭头 CustomPainter：沿轮盘圆周绘制相生弧线 |
+| `effects/wood_fire_html.dart` | 木生火 HTML/SVG 动画字符串，嵌入 WebView |
+| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截，仅木→火时显示 |
 
 ### 5.14 test/
 
@@ -296,6 +297,10 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.3.5` | 2026-05-16 | 优化 | 中央火焰放大至 0.38、全程持续显示、SVG 裁切、淡入淡出 |
+| `v0.1.3.4` | 2026-05-16 | 新增 | WebView 木生火中央 HTML 特效接入 |
+| `v0.1.3.3` | 2026-05-16 | 修复 | 累计箭头正确暂停还原、圆弧箭头、addStatusListener |
+| `v0.1.3.2` | 2026-05-15 | 重构 | 删除顺序卡、轮盘循环动画、金色银灰、弧线箭头 |
 | `v0.1.3.1` | 2026-05-15 | 修复 | 关闭火焰特效、轮盘裁切修复、箭头动画重置、Painter 安全兜底 |
 | `v0.1.3` | 2026-05-15 | 新增 | 五行相生学习页、相生专项训练、箭头动画 |
 | `v0.1.2.2` | 2026-05-15 | 新增 | 五行轮盘 UI 组件 + 练习集成 |
