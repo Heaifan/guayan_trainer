@@ -16,6 +16,9 @@ class TrainingQuestion {
   final List<String> options;
   final String knowledgeKey;
   final String explanation;
+  final String? sourceElement;
+  final String? targetElement;
+  final String? relationType;
 
   const TrainingQuestion({
     required this.type,
@@ -24,5 +27,8 @@ class TrainingQuestion {
     required this.options,
     required this.knowledgeKey,
     required this.explanation,
+    this.sourceElement,
+    this.targetElement,
+    this.relationType,
   });
 }

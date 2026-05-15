@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
-import '../practice/training_page.dart';
+import 'wuxing_generate_page.dart';
 
 class WuxingColorPage extends StatelessWidget {
   const WuxingColorPage({super.key});
@@ -33,14 +32,11 @@ class WuxingColorPage extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const TrainingPage(
-                      title: '五行训练',
-                      mode: TrainingMode.wuxing,
-                    ),
+                    builder: (_) => const WuxingGeneratePage(),
                   ),
                 );
               },
-              child: const Text('开始五行练习'),
+              child: const Text('进入五行相生'),
             ),
           ),
           const SizedBox(height: 16),

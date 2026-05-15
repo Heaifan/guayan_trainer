@@ -101,7 +101,6 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Color? _optionBg(String option) {
     if (!_hasAnswered) {
-      // Try to color by wuxing or branch
       final wuxing = WuxingColors.mainColor.containsKey(option)
           ? option
           : WuxingColors.getWuxingByBranch(option);
@@ -126,7 +125,9 @@ class _TrainingPageState extends State<TrainingPage> {
   @override
   Widget build(BuildContext context) {
     final progress = '${_index + 1}/${_questions.length}';
-    final useWheel = widget.mode == TrainingMode.wuxing;
+    final useWheel = widget.mode == TrainingMode.wuxing ||
+        widget.mode == TrainingMode.wuxingGenerate;
+    final showArrow = widget.mode == TrainingMode.wuxingGenerate;
 
     return Scaffold(
       appBar: AppBar(
@@ -159,6 +160,9 @@ class _TrainingPageState extends State<TrainingPage> {
                         selected: _selectedAnswer,
                         correctAnswer: _current.correctAnswer,
                         hasAnswered: _hasAnswered,
+                        sourceElement: _current.sourceElement,
+                        showArrow: showArrow,
+                        showEffect: showArrow,
                         onTap: _answer,
                       ),
                     ),
@@ -274,6 +278,12 @@ class _TrainingPageState extends State<TrainingPage> {
             ),
           ),
           const SizedBox(height: 8),
+          if (!isCorrect)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text('你选了$_selectedAnswer。 正确是：${_current.correctAnswer}。',
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
           Text(
             _current.explanation,
             style: const TextStyle(fontSize: 16, height: 1.4),

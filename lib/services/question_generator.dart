@@ -11,6 +11,7 @@ enum TrainingMode {
   sixChong,
   sixHe,
   mixed,
+  wuxingGenerate,
 }
 
 class QuestionGenerator {
@@ -24,6 +25,8 @@ class QuestionGenerator {
       switch (mode) {
         case TrainingMode.wuxing:
           return _generateWuxingQuestion();
+        case TrainingMode.wuxingGenerate:
+          return _generatePureGenerateQuestion();
         case TrainingMode.dizhi:
           return _generateDizhiWuxingQuestion();
         case TrainingMode.sixChong:
@@ -34,6 +37,35 @@ class QuestionGenerator {
           return _generateMixedQuestion();
       }
     });
+  }
+
+  /// Pure "X生谁？" questions for wuxingGenerate mode.
+  TrainingQuestion _generatePureGenerateQuestion() {
+    final element = _pick(WuxingData.elements);
+    final answer = WuxingData.generates[element]!;
+
+    return TrainingQuestion(
+      type: QuestionType.wuxingGenerate,
+      prompt: '$element 生谁？',
+      correctAnswer: answer,
+      options: WuxingData.elements,
+      knowledgeKey: '$element生$answer',
+      explanation: _generateExplanation(element, answer),
+      sourceElement: element,
+      targetElement: answer,
+      relationType: 'generate',
+    );
+  }
+
+  String _generateExplanation(String from, String to) {
+    const explanations = {
+      '木火': '木燃则生火，所以木生火。',
+      '火土': '火尽成灰，灰归于土，所以火生土。',
+      '土金': '金藏于土，土中生金，所以土生金。',
+      '金水': '金寒生水，金气凝水，所以金生水。',
+      '水木': '水润生木，万木得水而生，所以水生木。',
+    };
+    return explanations['$from$to'] ?? '$from 生 $to。';
   }
 
   TrainingQuestion _generateMixedQuestion() {
@@ -60,6 +92,9 @@ class QuestionGenerator {
         options: _makeOptions(answer, WuxingData.elements),
         knowledgeKey: '$element生$answer',
         explanation: '$element 生 $answer。',
+        sourceElement: element,
+        targetElement: answer,
+        relationType: 'generate',
       );
     }
 
