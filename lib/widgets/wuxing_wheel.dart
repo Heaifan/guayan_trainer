@@ -91,15 +91,16 @@ class _WuxingWheelState extends State<WuxingWheel>
     _ctrl.forward(from: 0);
   }
 
-  /// Fires every animation frame — used for 50% target activation.
+  /// Fires every animation frame — used for 50% target activation and
+  /// rebuilding the center effect visibility check.
   void _onTick() {
     if (!widget.autoPlayAccumulate) return;
-    if (_activeEdgeIndex >= generateEdges.length) return;
-
-    if (_anim.value >= 0.5) {
-      final to = generateEdges[_activeEdgeIndex].to;
-      _activatedElements.add(to);
-    }
+    setState(() {
+      if (_activeEdgeIndex >= generateEdges.length) return;
+      if (_anim.value >= 0.5) {
+        _activatedElements.add(generateEdges[_activeEdgeIndex].to);
+      }
+    });
   }
 
   /// Fires on status changes — used for edge-complete scheduling.
