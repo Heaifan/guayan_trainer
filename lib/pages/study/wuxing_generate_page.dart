@@ -18,9 +18,13 @@ class WuxingGeneratePage extends StatelessWidget {
           _section('五行相生',
               '相生，就是生扶、滋养、接续的关系。\n记住五行相生顺序，是后面判断生扶、原神、六亲关系的基础。'),
           const SizedBox(height: 16),
-          _sequenceCard(),
-          const SizedBox(height: 16),
           _wheelCard(),
+          const SizedBox(height: 8),
+          const Center(
+            child: Text('相生顺行，生生不息',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF2F6F5E))),
+          ),
+          const SizedBox(height: 16),
           const SizedBox(height: 16),
           _explanationsCard(),
           const SizedBox(height: 24),
@@ -66,80 +70,18 @@ class WuxingGeneratePage extends StatelessWidget {
     );
   }
 
-  Widget _sequenceCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE0C28A)),
-      ),
-      child: Column(
-        children: [
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 6,
-            runSpacing: 8,
-            children: [
-              _seqNode('木'), _arrow(), _seqNode('火'), _arrow(), _seqNode('土'),
-              _arrow(), _seqNode('金'), _arrow(), _seqNode('水'), _arrow(), _seqNode('木'),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2F6F5E).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(99),
-            ),
-            child: const Text('相生顺行，生生不息',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF2F6F5E))),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _arrow() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4),
-      child: Text('→', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF2F6F5E))),
-    );
-  }
-
-  Widget _seqNode(String element) {
-    return Container(
-      width: 40, height: 40,
-      decoration: BoxDecoration(
-        color: WuxingColors.getColor(element),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: element == '金' ? WuxingColors.getBorderColor('金') : Colors.white,
-          width: 2,
-        ),
-      ),
-      child: Center(
-        child: Text(element,
-            style: TextStyle(
-              color: WuxingColors.textOnColor(element),
-              fontSize: 16, fontWeight: FontWeight.w900)),
-      ),
-    );
-  }
-
   Widget _wheelCard() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: const SizedBox(
+      child: SizedBox(
         height: 340,
-        child: WuxingWheel(
+        child: const WuxingWheel(
           selected: null,
           correctAnswer: null,
           hasAnswered: false,
-          sourceElement: null,
           onTap: null,
+          autoPlayGenerate: true,
         ),
       ),
     );

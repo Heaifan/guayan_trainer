@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class WuxingColors {
-  /// Element main colors (matching HTML wheel design)
+  /// Element main colors
   static const Map<String, Color> mainColor = {
     '木': Color(0xFF528747),
     '火': Color(0xFFCE3E30),
     '土': Color(0xFFE1AC24),
-    '金': Color(0xFFFFFFFF),
+    '金': Color(0xFFE2E2E2),
     '水': Color(0xFF3E7DBF),
   };
 
@@ -15,25 +15,25 @@ class WuxingColors {
     '木': Color(0xFFE7F4EC),
     '火': Color(0xFFFBEAE7),
     '土': Color(0xFFFFF2C2),
-    '金': Color(0xFFF8F5EC),
+    '金': Color(0xFFF2F2F0),
     '水': Color(0xFFE6EEF7),
   };
 
-  /// Border/ring colors for each element
+  /// Border/ring colors
   static const Map<String, Color> borderColor = {
     '木': Color(0xFF528747),
     '火': Color(0xFFCE3E30),
     '土': Color(0xFFE1AC24),
-    '金': Color(0xFFD5B274),
+    '金': Color(0xFFB8A98A),
     '水': Color(0xFF3E7DBF),
   };
 
-  /// Text color for gold element (white bg needs dark text)
+  /// Text/foreground color when element is used as background
   static const Map<String, Color> textColor = {
     '木': Color(0xFFFFFFFF),
     '火': Color(0xFFFFFFFF),
     '土': Color(0xFFFFFFFF),
-    '金': Color(0xFFA47631),
+    '金': Color(0xFF8A6A32),
     '水': Color(0xFFFFFFFF),
   };
 

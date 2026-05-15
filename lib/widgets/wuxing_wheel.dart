@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,7 @@ class WuxingWheel extends StatefulWidget {
   final String? sourceElement;
   final bool showArrow;
   final ValueChanged<String>? onTap;
+  final bool autoPlayGenerate;
 
   const WuxingWheel({
     super.key,
@@ -26,6 +28,7 @@ class WuxingWheel extends StatefulWidget {
     this.sourceElement,
     this.showArrow = false,
     this.onTap,
+    this.autoPlayGenerate = false,
   });
 
   @override
@@ -37,47 +40,92 @@ class _WuxingWheelState extends State<WuxingWheel>
   late AnimationController _arrowController;
   late Animation<double> _arrowAnimation;
 
+  // Auto-play state
+  static const _generatePairs = [
+    ('木', '火'),
+    ('火', '土'),
+    ('土', '金'),
+    ('金', '水'),
+    ('水', '木'),
+  ];
+  int _autoPairIndex = 0;
+  Timer? _autoTimer;
+  String? _autoSource;
+  String? _autoTarget;
+
   @override
   void initState() {
     super.initState();
     _arrowController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 650),
     );
     _arrowAnimation = CurvedAnimation(
       parent: _arrowController,
       curve: Curves.easeInOut,
     );
+    _arrowController.addListener(_onArrowTick);
+
+    if (widget.autoPlayGenerate) {
+      _startAutoPlay();
+    }
   }
 
   @override
   void didUpdateWidget(WuxingWheel oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // Start auto-play when turned on
+    if (!oldWidget.autoPlayGenerate && widget.autoPlayGenerate) {
+      _startAutoPlay();
+    }
+
+    // Practice mode: reset and play on answer
     final questionChanged =
         oldWidget.sourceElement != widget.sourceElement ||
         oldWidget.correctAnswer != widget.correctAnswer;
 
-    // Reset animation when question changes
     if (questionChanged) {
       _arrowController.reset();
     }
-
-    // Start animation when newly answered
     if (!oldWidget.hasAnswered && widget.hasAnswered && widget.showArrow) {
       _arrowController.forward(from: 0);
     }
   }
 
+  void _startAutoPlay() {
+    _autoPairIndex = 0;
+    _autoSource = _generatePairs[0].$1;
+    _autoTarget = _generatePairs[0].$2;
+    _arrowController.forward(from: 0);
+  }
+
+  void _onArrowTick() {
+    if (!widget.autoPlayGenerate) return;
+    if (_arrowController.isCompleted) {
+      _autoTimer?.cancel();
+      _autoTimer = Timer(const Duration(milliseconds: 700), () {
+        if (!mounted) return;
+        _autoPairIndex = (_autoPairIndex + 1) % _generatePairs.length;
+        setState(() {
+          _autoSource = _generatePairs[_autoPairIndex].$1;
+          _autoTarget = _generatePairs[_autoPairIndex].$2;
+        });
+        _arrowController.forward(from: 0);
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _autoTimer?.cancel();
+    _arrowController.removeListener(_onArrowTick);
     _arrowController.dispose();
     super.dispose();
   }
 
   static const _elements = ['木', '火', '土', '金', '水'];
 
-  /// Node center positions as fraction of container size (shared with painter).
   static const Map<String, Offset> positions = {
     '木': Offset(0.50, 0.14),
     '火': Offset(0.84, 0.39),
@@ -93,6 +141,12 @@ class _WuxingWheelState extends State<WuxingWheel>
         final size = math.min(constraints.maxWidth, constraints.maxHeight);
         final nodeSize = size * 0.17;
 
+        // Determine effective source/target (from auto-play or practice)
+        final effSource = widget.autoPlayGenerate ? _autoSource : widget.sourceElement;
+        final effTarget = widget.autoPlayGenerate ? _autoTarget : widget.correctAnswer;
+        final showArrowNow = widget.autoPlayGenerate ||
+            (widget.hasAnswered && widget.showArrow && widget.sourceElement != null && widget.correctAnswer != null);
+
         return Center(
           child: SizedBox(
             width: size,
@@ -100,18 +154,15 @@ class _WuxingWheelState extends State<WuxingWheel>
             child: Stack(
               children: [
                 // Arrow layer (behind nodes)
-                if (widget.hasAnswered &&
-                    widget.showArrow &&
-                    widget.sourceElement != null &&
-                    widget.correctAnswer != null)
+                if (showArrowNow && effSource != null && effTarget != null)
                   AnimatedBuilder(
                     animation: _arrowAnimation,
                     builder: (context, child) {
                       return CustomPaint(
                         size: Size(size, size),
                         painter: WuxingArrowPainter(
-                          sourceElement: widget.sourceElement!,
-                          targetElement: widget.correctAnswer!,
+                          sourceElement: effSource,
+                          targetElement: effTarget,
                           progress: _arrowAnimation.value,
                           containerSize: size,
                           nodeSize: nodeSize,
@@ -136,9 +187,11 @@ class _WuxingWheelState extends State<WuxingWheel>
                       size: nodeSize,
                       isSelected: widget.selected == e,
                       isCorrect: widget.correctAnswer == e,
-                      isSource: widget.sourceElement == e,
-                      hasAnswered: widget.hasAnswered,
-                      onTap: widget.onTap != null ? () => widget.onTap!(e) : null,
+                      isSource: effSource == e && showArrowNow,
+                      hasAnswered: widget.hasAnswered || widget.autoPlayGenerate,
+                      onTap: (widget.autoPlayGenerate || widget.onTap == null)
+                          ? null
+                          : () => widget.onTap!(e),
                     ),
                   );
                 }),
