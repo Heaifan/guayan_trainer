@@ -1,8 +1,8 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/wuxing_colors.dart';
 import 'wuxing_arrow_painter.dart';
-import 'wuxing_effect_painter.dart';
 
 /// Five-element wheel selector for wuxing training.
 ///
@@ -17,7 +17,6 @@ class WuxingWheel extends StatefulWidget {
   final String? sourceElement;
   final bool showArrow;
   final ValueChanged<String>? onTap;
-  final bool showEffect;
 
   const WuxingWheel({
     super.key,
@@ -27,7 +26,6 @@ class WuxingWheel extends StatefulWidget {
     this.sourceElement,
     this.showArrow = false,
     this.onTap,
-    this.showEffect = false,
   });
 
   @override
@@ -38,8 +36,6 @@ class _WuxingWheelState extends State<WuxingWheel>
     with SingleTickerProviderStateMixin {
   late AnimationController _arrowController;
   late Animation<double> _arrowAnimation;
-
-  bool _wasAnswered = false;
 
   @override
   void initState() {
@@ -55,12 +51,22 @@ class _WuxingWheelState extends State<WuxingWheel>
   }
 
   @override
-  void didUpdateWidget(WuxingWheel old) {
-    super.didUpdateWidget(old);
-    if (!_wasAnswered && widget.hasAnswered && widget.showArrow) {
-      _arrowController.forward();
+  void didUpdateWidget(WuxingWheel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final questionChanged =
+        oldWidget.sourceElement != widget.sourceElement ||
+        oldWidget.correctAnswer != widget.correctAnswer;
+
+    // Reset animation when question changes
+    if (questionChanged) {
+      _arrowController.reset();
     }
-    _wasAnswered = widget.hasAnswered;
+
+    // Start animation when newly answered
+    if (!oldWidget.hasAnswered && widget.hasAnswered && widget.showArrow) {
+      _arrowController.forward(from: 0);
+    }
   }
 
   @override
@@ -71,6 +77,7 @@ class _WuxingWheelState extends State<WuxingWheel>
 
   static const _elements = ['木', '火', '土', '金', '水'];
 
+  /// Node center positions as fraction of container size (shared with painter).
   static const Map<String, Offset> positions = {
     '木': Offset(0.50, 0.14),
     '火': Offset(0.84, 0.39),
@@ -79,34 +86,11 @@ class _WuxingWheelState extends State<WuxingWheel>
     '水': Offset(0.16, 0.39),
   };
 
-  /// Whether this wheel should show the flame effect (木→火).
-  bool get _showFlame {
-    if (!widget.showEffect) return false;
-    final src = widget.sourceElement;
-    final tgt = widget.correctAnswer;
-    return src == '木' && tgt == '火';
-  }
-
-  /// Position at 70% along source→target for the effect icon.
-  Offset _effectPosition(double size) {
-    if (widget.sourceElement == null || widget.correctAnswer == null) {
-      return Offset(size * 0.5, size * 0.5);
-    }
-    final from = positions[widget.sourceElement]!;
-    final to = positions[widget.correctAnswer]!;
-    final mx = from.dx + (to.dx - from.dx) * 0.7;
-    final my = from.dy + (to.dy - from.dy) * 0.7;
-    return Offset(mx * size, my * size);
-  }
-
-  /// Flame size (relative to container)
-  double _flameSize(double containerSize) => containerSize * 0.18;
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final size = constraints.maxWidth;
+        final size = math.min(constraints.maxWidth, constraints.maxHeight);
         final nodeSize = size * 0.17;
 
         return Center(
@@ -123,38 +107,17 @@ class _WuxingWheelState extends State<WuxingWheel>
                   AnimatedBuilder(
                     animation: _arrowAnimation,
                     builder: (context, child) {
-                      // Flame effect opacity tied to arrow progress
-                      final effectOpacity = _showFlame
-                          ? ((_arrowAnimation.value - 0.3) / 0.7).clamp(0.0, 1.0)
-                          : 0.0;
-                      final effectPos = _effectPosition(size);
-
                       return CustomPaint(
                         size: Size(size, size),
-                        painter: CombinedArrowPainter(
+                        painter: WuxingArrowPainter(
                           sourceElement: widget.sourceElement!,
                           targetElement: widget.correctAnswer!,
                           progress: _arrowAnimation.value,
                           containerSize: size,
                           nodeSize: nodeSize,
-                          showFlame: _showFlame,
-                          flameCenter: effectPos,
-                          flameSize: _flameSize(size),
-                          flameOpacity: effectOpacity,
                         ),
                       );
                     },
-                  ),
-
-                // Static effect for study page
-                if (!widget.hasAnswered && _showFlame)
-                  CustomPaint(
-                    size: Size(size, size),
-                    painter: FlameEffectPainter(
-                      center: _effectPosition(size),
-                      size: _flameSize(size),
-                      opacity: 0.9,
-                    ),
                   ),
 
                 // Node layer
@@ -186,58 +149,6 @@ class _WuxingWheelState extends State<WuxingWheel>
       },
     );
   }
-}
-
-/// Combines arrow drawing + flame effect in one CustomPainter
-/// so they share the same animation timing.
-class CombinedArrowPainter extends CustomPainter {
-  final String sourceElement;
-  final String targetElement;
-  final double progress;
-  final double containerSize;
-  final double nodeSize;
-  final bool showFlame;
-  final Offset flameCenter;
-  final double flameSize;
-  final double flameOpacity;
-
-  CombinedArrowPainter({
-    required this.sourceElement,
-    required this.targetElement,
-    required this.progress,
-    required this.containerSize,
-    required this.nodeSize,
-    required this.showFlame,
-    required this.flameCenter,
-    required this.flameSize,
-    required this.flameOpacity,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Draw arrow first
-    final arrow = WuxingArrowPainter(
-      sourceElement: sourceElement,
-      targetElement: targetElement,
-      progress: progress,
-      containerSize: containerSize,
-      nodeSize: nodeSize,
-    );
-    arrow.paint(canvas, size);
-
-    // Draw flame overlay
-    if (showFlame && flameOpacity > 0.01) {
-      final flame = FlameEffectPainter(
-        center: flameCenter,
-        size: flameSize,
-        opacity: flameOpacity,
-      );
-      flame.paint(canvas, size);
-    }
-  }
-
-  @override
-  bool shouldRepaint(CombinedArrowPainter old) => old.progress != progress;
 }
 
 class _NodeWidget extends StatelessWidget {

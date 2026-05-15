@@ -162,7 +162,6 @@ class _TrainingPageState extends State<TrainingPage> {
                         hasAnswered: _hasAnswered,
                         sourceElement: _current.sourceElement,
                         showArrow: showArrow,
-                        showEffect: showArrow,
                         onTap: _answer,
                       ),
                     ),

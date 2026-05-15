@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../data/wuxing_data.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../widgets/wuxing_wheel.dart';
@@ -68,7 +67,6 @@ class WuxingGeneratePage extends StatelessWidget {
   }
 
   Widget _sequenceCard() {
-    final elements = WuxingData.elements;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -78,17 +76,14 @@ class WuxingGeneratePage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 6,
+            runSpacing: 8,
             children: [
-              for (int i = 0; i < elements.length; i++) ...[
-                if (i > 0)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6),
-                    child: Text('→', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF2F6F5E))),
-                  ),
-                _seqNode(elements[i]),
-              ],
+              _seqNode('木'), _arrow(), _seqNode('火'), _arrow(), _seqNode('土'),
+              _arrow(), _seqNode('金'), _arrow(), _seqNode('水'), _arrow(), _seqNode('木'),
             ],
           ),
           const SizedBox(height: 12),
@@ -106,6 +101,13 @@ class WuxingGeneratePage extends StatelessWidget {
     );
   }
 
+  Widget _arrow() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
+      child: Text('→', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF2F6F5E))),
+    );
+  }
+
   Widget _seqNode(String element) {
     return Container(
       width: 40, height: 40,
@@ -114,7 +116,7 @@ class WuxingGeneratePage extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(
           color: element == '金' ? WuxingColors.getBorderColor('金') : Colors.white,
-          width: element == '金' ? 2 : 2,
+          width: 2,
         ),
       ),
       child: Center(
@@ -131,13 +133,12 @@ class WuxingGeneratePage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: const SizedBox(
-        height: 260,
+        height: 340,
         child: WuxingWheel(
           selected: null,
-          correctAnswer: '火',
+          correctAnswer: null,
           hasAnswered: false,
-          sourceElement: '木',
-          showEffect: true,
+          sourceElement: null,
           onTap: null,
         ),
       ),
@@ -158,40 +159,50 @@ class WuxingGeneratePage extends StatelessWidget {
           const Text('五条相生关系',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
           const SizedBox(height: 12),
-          _explanationRow('木', '火', '木燃则生火', WuxingColors.getColor('木'), WuxingColors.getColor('火')),
-          _explanationRow('火', '土', '火尽成灰，灰归于土', WuxingColors.getColor('火'), WuxingColors.getColor('土')),
-          _explanationRow('土', '金', '金藏于土，土中生金', WuxingColors.getColor('土'), WuxingColors.getColor('金')),
-          _explanationRow('金', '水', '金寒生水，金气凝水', WuxingColors.getColor('金'), WuxingColors.getColor('水')),
-          _explanationRow('水', '木', '水润生木，万木得水而生', WuxingColors.getColor('水'), WuxingColors.getColor('木')),
+          _explanationRow('木', '火', '木燃则生火'),
+          _explanationRow('火', '土', '火尽成灰，灰归于土'),
+          _explanationRow('土', '金', '金藏于土，土中生金'),
+          _explanationRow('金', '水', '金寒生水，金气凝水'),
+          _explanationRow('水', '木', '水润生木，万木得水而生'),
         ],
       ),
     );
   }
 
-  Widget _explanationRow(String from, String to, String text, Color fromColor, Color toColor) {
+  Widget _explanationRow(String from, String to, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Container(
-            width: 32, height: 32,
-            decoration: BoxDecoration(color: fromColor, shape: BoxShape.circle,
-                border: Border.all(color: from == '金' ? WuxingColors.getBorderColor('金') : Colors.white, width: 1.5)),
-            child: Center(child: Text(from, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900))),
-          ),
+          _chip(from),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 6),
             child: Text('→', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF2F6F5E))),
           ),
-          Container(
-            width: 32, height: 32,
-            decoration: BoxDecoration(color: toColor, shape: BoxShape.circle,
-                border: Border.all(color: to == '金' ? WuxingColors.getBorderColor('金') : Colors.white, width: 1.5)),
-            child: Center(child: Text(to, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900))),
-          ),
+          _chip(to),
           const SizedBox(width: 12),
           Expanded(child: Text(text, style: const TextStyle(fontSize: 14, color: Color(0xFF6B4E2E)))),
         ],
+      ),
+    );
+  }
+
+  Widget _chip(String element) {
+    return Container(
+      width: 32, height: 32,
+      decoration: BoxDecoration(
+        color: WuxingColors.getColor(element),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: element == '金' ? WuxingColors.getBorderColor('金') : Colors.white,
+          width: 1.5,
+        ),
+      ),
+      child: Center(
+        child: Text(element,
+            style: TextStyle(
+              color: WuxingColors.textOnColor(element),
+              fontSize: 13, fontWeight: FontWeight.w900)),
       ),
     );
   }

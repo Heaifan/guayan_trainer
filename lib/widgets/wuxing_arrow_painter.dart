@@ -26,8 +26,9 @@ class WuxingArrowPainter extends CustomPainter {
     required this.nodeSize,
   });
 
-  Offset _center(String element) {
-    final f = _positions[element]!;
+  Offset? _center(String element) {
+    final f = _positions[element];
+    if (f == null) return null;
     return Offset(f.dx * containerSize, f.dy * containerSize);
   }
 
@@ -35,6 +36,10 @@ class WuxingArrowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final from = _center(sourceElement);
     final to = _center(targetElement);
+
+    // Safety: skip if positions not found
+    if (from == null || to == null) return;
+
     final paint = Paint()
       ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.85)
       ..style = PaintingStyle.stroke
@@ -44,6 +49,8 @@ class WuxingArrowPainter extends CustomPainter {
     final dx = to.dx - from.dx;
     final dy = to.dy - from.dy;
     final totalDist = sqrt(dx * dx + dy * dy);
+
+    if (totalDist < 0.001) return; // safety: nodes overlap
 
     // Animate: draw line from source toward target
     final drawnDist = totalDist * progress;
@@ -55,7 +62,7 @@ class WuxingArrowPainter extends CustomPainter {
 
     // Draw arrowhead when progress is near complete (last 15%)
     if (progress > 0.85) {
-      final arrowProgress = (progress - 0.85) / 0.15; // 0→1 in the tail
+      final arrowProgress = (progress - 0.85) / 0.15;
       final headSize = 12.0 * arrowProgress;
 
       if (headSize > 1) {
