@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../models/training_question.dart';
-import '../models/training_result.dart';
-import '../services/mistake_store.dart';
-import '../services/question_generator.dart';
+import '../../models/training_question.dart';
+import '../../models/training_result.dart';
+import '../../services/mistake_store.dart';
+import '../../services/question_generator.dart';
+import '../../theme/wuxing_colors.dart';
 import 'result_page.dart';
 
 class TrainingPage extends StatefulWidget {
@@ -97,6 +98,30 @@ class _TrainingPageState extends State<TrainingPage> {
     });
   }
 
+  Color? _optionBg(String option) {
+    if (!_hasAnswered) {
+      // Try to color by wuxing or branch
+      final wuxing = WuxingColors.mainColor.containsKey(option)
+          ? option
+          : WuxingColors.getWuxingByBranch(option);
+      if (wuxing != null) {
+        return WuxingColors.getSoftColor(wuxing);
+      }
+      return null;
+    }
+
+    if (option == _current.correctAnswer) return WuxingColors.getColor(option);
+    if (option == _selectedAnswer) return const Color(0xFFC0392B);
+    return null;
+  }
+
+  Color? _optionFg(String option) {
+    if (!_hasAnswered) return null;
+    if (option == _current.correctAnswer) return Colors.white;
+    if (option == _selectedAnswer) return Colors.white;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final progress = '${_index + 1}/${_questions.length}';
@@ -153,16 +178,13 @@ class _TrainingPageState extends State<TrainingPage> {
         children: [
           const Text(
             '请判断',
-            style: TextStyle(
-              color: Color(0xFF8A6A3A),
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Color(0xFF8A6A3A), fontSize: 14),
           ),
           const SizedBox(height: 12),
           Text(
             _current.prompt,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w900,
               color: Color(0xFF3B2A1A),
@@ -174,18 +196,8 @@ class _TrainingPageState extends State<TrainingPage> {
   }
 
   Widget _answerButton(String option) {
-    Color? bg;
-    Color? fg;
-
-    if (_hasAnswered) {
-      if (option == _current.correctAnswer) {
-        bg = const Color(0xFF2F6F5E);
-        fg = Colors.white;
-      } else if (option == _selectedAnswer) {
-        bg = const Color(0xFFC0392B);
-        fg = Colors.white;
-      }
-    }
+    final bg = _optionBg(option);
+    final fg = _optionFg(option);
 
     return SizedBox(
       width: double.infinity,

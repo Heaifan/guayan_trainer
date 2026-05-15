@@ -55,7 +55,7 @@ class QuestionGenerator {
       final answer = WuxingData.generates[element]!;
       return TrainingQuestion(
         type: QuestionType.wuxingGenerate,
-        prompt: '$element 生什么？',
+        prompt: '$element 生谁？',
         correctAnswer: answer,
         options: _makeOptions(answer, WuxingData.elements),
         knowledgeKey: '$element生$answer',
@@ -67,7 +67,7 @@ class QuestionGenerator {
       final answer = WuxingData.controls[element]!;
       return TrainingQuestion(
         type: QuestionType.wuxingControl,
-        prompt: '$element 克什么？',
+        prompt: '$element 克谁？',
         correctAnswer: answer,
         options: _makeOptions(answer, WuxingData.elements),
         knowledgeKey: '$element克$answer',
@@ -79,7 +79,7 @@ class QuestionGenerator {
       final answer = WuxingData.getGeneratedBy(element)!;
       return TrainingQuestion(
         type: QuestionType.wuxingGeneratedBy,
-        prompt: '谁生 $element？',
+        prompt: '谁来生 $element？',
         correctAnswer: answer,
         options: _makeOptions(answer, WuxingData.elements),
         knowledgeKey: '$answer生$element',
@@ -90,7 +90,7 @@ class QuestionGenerator {
     final answer = WuxingData.getControlledBy(element)!;
     return TrainingQuestion(
       type: QuestionType.wuxingControlledBy,
-      prompt: '谁克 $element？',
+      prompt: '谁克$element？',
       correctAnswer: answer,
       options: _makeOptions(answer, WuxingData.elements),
       knowledgeKey: '$answer克$element',
@@ -116,7 +116,7 @@ class QuestionGenerator {
 
     return TrainingQuestion(
       type: QuestionType.sixChong,
-      prompt: '$branch 冲谁？',
+      prompt: '$branch 的冲神是谁？',
       correctAnswer: answer,
       options: _makeOptions(answer, DizhiData.names),
       knowledgeKey: '$branch$answer冲',
@@ -130,7 +130,7 @@ class QuestionGenerator {
 
     return TrainingQuestion(
       type: QuestionType.sixHe,
-      prompt: '$branch 合谁？',
+      prompt: '$branch 的合神是谁？',
       correctAnswer: answer,
       options: _makeOptions(answer, DizhiData.names),
       knowledgeKey: '$branch$answer合',

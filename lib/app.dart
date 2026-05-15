@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/home_page.dart';
+import 'shell/main_shell.dart';
 
 class GuayanTrainerApp extends StatelessWidget {
   const GuayanTrainerApp({super.key});
@@ -20,7 +20,7 @@ class GuayanTrainerApp extends StatelessWidget {
         ),
         fontFamily: 'sans',
       ),
-      home: const HomePage(),
+      home: const MainShell(),
     );
   }
 }

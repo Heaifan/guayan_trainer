@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../models/training_result.dart';
-import 'mistake_page.dart';
+import '../../models/training_result.dart';
+import '../../theme/wuxing_colors.dart';
+import '../review/review_page.dart';
 
 class ResultPage extends StatelessWidget {
   final TrainingSessionResult result;
@@ -67,17 +68,41 @@ class ResultPage extends StatelessWidget {
             subtitle: '答对但超过 4 秒，说明还没形成反射。',
             color: const Color(0xFFB9770E),
           ),
+          if (result.wrongResults.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Text('错题列表',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            ...result.wrongResults.map((r) => Card(
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: WuxingColors.getColor(r.question.correctAnswer == '木' ? '木' : '土')
+                          .withValues(alpha: 0.2),
+                      child: Text('✗',
+                          style: const TextStyle(fontWeight: FontWeight.w900)),
+                    ),
+                    title: Text(r.question.prompt),
+                    subtitle: Text('正确: ${r.question.correctAnswer}  你选: ${r.selectedAnswer}'),
+                  ),
+                )),
+          ],
           const SizedBox(height: 20),
           FilledButton(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MistakePage()),
+                MaterialPageRoute(builder: (_) => const ReviewPage()),
               );
             },
-            child: const Text('查看错题回炉'),
+            child: const Text('立即回炉'),
           ),
           const SizedBox(height: 12),
           OutlinedButton(
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            child: const Text('再练一轮'),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
             onPressed: () {
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
