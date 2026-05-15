@@ -5,6 +5,7 @@ import '../../models/training_result.dart';
 import '../../services/mistake_store.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
+import '../../widgets/wuxing_wheel.dart';
 import 'result_page.dart';
 
 class TrainingPage extends StatefulWidget {
@@ -125,6 +126,7 @@ class _TrainingPageState extends State<TrainingPage> {
   @override
   Widget build(BuildContext context) {
     final progress = '${_index + 1}/${_questions.length}';
+    final useWheel = widget.mode == TrainingMode.wuxing;
 
     return Scaffold(
       appBar: AppBar(
@@ -148,16 +150,43 @@ class _TrainingPageState extends State<TrainingPage> {
             const SizedBox(height: 24),
             _questionCard(),
             const SizedBox(height: 20),
-            Expanded(
-              child: ListView.separated(
-                itemCount: _current.options.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (context, i) {
-                  final option = _current.options[i];
-                  return _answerButton(option);
-                },
+            if (useWheel)
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: WuxingWheel(
+                        selected: _selectedAnswer,
+                        correctAnswer: _current.correctAnswer,
+                        hasAnswered: _hasAnswered,
+                        onTap: _answer,
+                      ),
+                    ),
+                    if (!_hasAnswered)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          '根据五行关系，点击答案',
+                          style: TextStyle(
+                            color: Color(0xFF8A6A3A),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.separated(
+                  itemCount: _current.options.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (context, i) {
+                    final option = _current.options[i];
+                    return _answerButton(option);
+                  },
+                ),
               ),
-            ),
             if (_hasAnswered) _feedbackArea(),
           ],
         ),
