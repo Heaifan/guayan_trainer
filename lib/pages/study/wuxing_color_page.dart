@@ -34,7 +34,7 @@ class WuxingColorPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const TrainingPage(
-                      title: '五行转轮',
+                      title: '五行训练',
                       mode: TrainingMode.wuxing,
                     ),
                   ),
@@ -74,7 +74,7 @@ class WuxingColorPage extends StatelessWidget {
       _ColorItem('木', '绿色', '生发、树木', WuxingColors.getColor('木')),
       _ColorItem('火', '红色', '炎上、光热', WuxingColors.getColor('火')),
       _ColorItem('土', '黄色', '承载、中土', WuxingColors.getColor('土')),
-      _ColorItem('金', '白色', '金石、肃杀', const Color(0xFFF0EDE6)),
+      _ColorItem('金', '白色', '金石、肃杀', WuxingColors.getColor('金')),
       _ColorItem('水', '蓝色', '润下、寒水', WuxingColors.getColor('水')),
     ];
 
@@ -86,19 +86,30 @@ class WuxingColorPage extends StatelessWidget {
           decoration: BoxDecoration(
             color: item.color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: item.color.withValues(alpha: 0.4)),
+            border: Border.all(color: WuxingColors.getBorderColor(item.element).withValues(alpha: 0.4)),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 width: 48, height: 48,
                 decoration: BoxDecoration(
                   color: item.color,
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: item.element == '金'
+                        ? WuxingColors.getBorderColor('金')
+                        : Colors.transparent,
+                    width: 1.5,
+                  ),
                 ),
                 child: Center(
                   child: Text(item.element,
-                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                      style: TextStyle(
+                        color: WuxingColors.textOnColor(item.element),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      )),
                 ),
               ),
               const SizedBox(width: 16),
@@ -106,12 +117,13 @@ class WuxingColorPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
                         Text(item.element,
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                        const SizedBox(width: 8),
-                        Text('|  $item.colorName',
+                        Text('｜${item.colorName}',
                             style: TextStyle(fontSize: 15, color: item.color)),
                       ],
                     ),
@@ -152,7 +164,7 @@ class WuxingColorPage extends StatelessWidget {
   TableRow _row(String a, String b, String c, {bool isHeader = false}) {
     final style = TextStyle(
       fontWeight: isHeader ? FontWeight.w800 : FontWeight.w500,
-      color: isHeader ? const Color(0xFF3B2A1A) : const Color(0xFF3B2A1A),
+      color: const Color(0xFF3B2A1A),
     );
     return TableRow(
       children: [

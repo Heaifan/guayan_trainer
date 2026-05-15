@@ -4,17 +4,25 @@ class WuxingColors {
   static const Map<String, Color> mainColor = {
     '木': Color(0xFF2F8F5B),
     '火': Color(0xFFC0392B),
-    '土': Color(0xFFB8863B),
-    '金': Color(0xFFD6B46A),
-    '水': Color(0xFF2F5F8F),
+    '土': Color(0xFFD8A600),
+    '金': Color(0xFFF2EFE6),
+    '水': Color(0xFF1F5F8B),
   };
 
   static const Map<String, Color> softColor = {
     '木': Color(0xFFE7F4EC),
     '火': Color(0xFFFBEAE7),
-    '土': Color(0xFFF7EEDC),
-    '金': Color(0xFFF8F0D8),
+    '土': Color(0xFFFFF2C2),
+    '金': Color(0xFFF8F5EC),
     '水': Color(0xFFE6EEF7),
+  };
+
+  static const Map<String, Color> borderColor = {
+    '木': Color(0xFF2F8F5B),
+    '火': Color(0xFFC0392B),
+    '土': Color(0xFFC99A00),
+    '金': Color(0xFFB8A98A),
+    '水': Color(0xFF1F5F8B),
   };
 
   static Color getColor(String wuxing) {
@@ -23,6 +31,10 @@ class WuxingColors {
 
   static Color getSoftColor(String wuxing) {
     return softColor[wuxing] ?? const Color(0xFFFFF4DC);
+  }
+
+  static Color getBorderColor(String wuxing) {
+    return borderColor[wuxing] ?? getColor(wuxing);
   }
 
   static String? getWuxingByBranch(String branch) {
