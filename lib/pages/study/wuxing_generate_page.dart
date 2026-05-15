@@ -81,7 +81,7 @@ class WuxingGeneratePage extends StatelessWidget {
           correctAnswer: null,
           hasAnswered: false,
           onTap: null,
-          autoPlayGenerate: true,
+          autoPlayAccumulate: true,
         ),
       ),
     );

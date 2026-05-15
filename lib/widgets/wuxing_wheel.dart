@@ -18,7 +18,7 @@ class WuxingWheel extends StatefulWidget {
   final String? sourceElement;
   final bool showArrow;
   final ValueChanged<String>? onTap;
-  final bool autoPlayGenerate;
+  final bool autoPlayAccumulate;
 
   const WuxingWheel({
     super.key,
@@ -28,30 +28,36 @@ class WuxingWheel extends StatefulWidget {
     this.sourceElement,
     this.showArrow = false,
     this.onTap,
-    this.autoPlayGenerate = false,
+    this.autoPlayAccumulate = false,
   });
 
   @override
   State<WuxingWheel> createState() => _WuxingWheelState();
 }
 
+// ---------------------------------------------------------------------------
+// Accumulation data
+// ---------------------------------------------------------------------------
+const _generateCycle = [
+  GenerateEdge('木', '火'),
+  GenerateEdge('火', '土'),
+  GenerateEdge('土', '金'),
+  GenerateEdge('金', '水'),
+  GenerateEdge('水', '木'),
+];
+
 class _WuxingWheelState extends State<WuxingWheel>
     with SingleTickerProviderStateMixin {
   late AnimationController _arrowController;
   late Animation<double> _arrowAnimation;
 
-  // Auto-play state
-  static const _generatePairs = [
-    ('木', '火'),
-    ('火', '土'),
-    ('土', '金'),
-    ('金', '水'),
-    ('水', '木'),
-  ];
-  int _autoPairIndex = 0;
-  Timer? _autoTimer;
-  String? _autoSource;
-  String? _autoTarget;
+  // Accumulation mode state
+  int _edgeIndex = 0;
+  List<GenerateEdge> _completedEdges = [];
+  Timer? _loopTimer;
+
+  /// Elements that are currently "activated" (highlighted).
+  Set<String> _activeElements = {};
 
   @override
   void initState() {
@@ -66,8 +72,8 @@ class _WuxingWheelState extends State<WuxingWheel>
     );
     _arrowController.addListener(_onArrowTick);
 
-    if (widget.autoPlayGenerate) {
-      _startAutoPlay();
+    if (widget.autoPlayAccumulate) {
+      _startAccumulation();
     }
   }
 
@@ -75,55 +81,79 @@ class _WuxingWheelState extends State<WuxingWheel>
   void didUpdateWidget(WuxingWheel oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Start auto-play when turned on
-    if (!oldWidget.autoPlayGenerate && widget.autoPlayGenerate) {
-      _startAutoPlay();
+    if (!oldWidget.autoPlayAccumulate && widget.autoPlayAccumulate) {
+      _startAccumulation();
     }
 
-    // Practice mode: reset and play on answer
-    final questionChanged =
-        oldWidget.sourceElement != widget.sourceElement ||
+    // Practice mode
+    final qChanged = oldWidget.sourceElement != widget.sourceElement ||
         oldWidget.correctAnswer != widget.correctAnswer;
-
-    if (questionChanged) {
-      _arrowController.reset();
-    }
+    if (qChanged) _arrowController.reset();
     if (!oldWidget.hasAnswered && widget.hasAnswered && widget.showArrow) {
       _arrowController.forward(from: 0);
     }
   }
 
-  void _startAutoPlay() {
-    _autoPairIndex = 0;
-    _autoSource = _generatePairs[0].$1;
-    _autoTarget = _generatePairs[0].$2;
+  // -----------------------------------------------------------------------
+  // Accumulation logic
+  // -----------------------------------------------------------------------
+  void _startAccumulation() {
+    _edgeIndex = 0;
+    _completedEdges = [];
+    _activeElements = {'木'}; // first source is always highlighted
     _arrowController.forward(from: 0);
   }
 
   void _onArrowTick() {
-    if (!widget.autoPlayGenerate) return;
+    if (!widget.autoPlayAccumulate) return;
+
+    // Activate target node at 50% progress
+    if (_edgeIndex < _generateCycle.length) {
+      final edge = _generateCycle[_edgeIndex];
+      if (_arrowAnimation.value >= 0.5) {
+        _activeElements = {..._activeElements, edge.to};
+      }
+    }
+
+    // Edge complete → accumulate
     if (_arrowController.isCompleted) {
-      _autoTimer?.cancel();
-      _autoTimer = Timer(const Duration(milliseconds: 700), () {
-        if (!mounted) return;
-        _autoPairIndex = (_autoPairIndex + 1) % _generatePairs.length;
-        setState(() {
-          _autoSource = _generatePairs[_autoPairIndex].$1;
-          _autoTarget = _generatePairs[_autoPairIndex].$2;
+      if (_edgeIndex < _generateCycle.length) {
+        _completedEdges = [..._completedEdges, _generateCycle[_edgeIndex]];
+        _edgeIndex++;
+      }
+
+      if (_edgeIndex >= _generateCycle.length) {
+        // All 5 edges done → pause then restart
+        _loopTimer?.cancel();
+        _loopTimer = Timer(const Duration(milliseconds: 1000), () {
+          if (!mounted) return;
+          setState(_startAccumulation);
         });
-        _arrowController.forward(from: 0);
-      });
+      } else {
+        // More edges to play → short pause then next
+        _loopTimer?.cancel();
+        _loopTimer = Timer(const Duration(milliseconds: 350), () {
+          if (!mounted) return;
+          setState(() {
+            _activeElements = {..._activeElements, _generateCycle[_edgeIndex - 1].to};
+          });
+          _arrowController.forward(from: 0);
+        });
+      }
     }
   }
 
   @override
   void dispose() {
-    _autoTimer?.cancel();
+    _loopTimer?.cancel();
     _arrowController.removeListener(_onArrowTick);
     _arrowController.dispose();
     super.dispose();
   }
 
+  // -----------------------------------------------------------------------
+  // Helpers
+  // -----------------------------------------------------------------------
   static const _elements = ['木', '火', '土', '金', '水'];
 
   static const Map<String, Offset> positions = {
@@ -134,6 +164,12 @@ class _WuxingWheelState extends State<WuxingWheel>
     '水': Offset(0.16, 0.39),
   };
 
+  GenerateEdge? get _activeEdge =>
+      _edgeIndex < _generateCycle.length ? _generateCycle[_edgeIndex] : null;
+
+  // -----------------------------------------------------------------------
+  // Build
+  // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -141,11 +177,12 @@ class _WuxingWheelState extends State<WuxingWheel>
         final size = math.min(constraints.maxWidth, constraints.maxHeight);
         final nodeSize = size * 0.17;
 
-        // Determine effective source/target (from auto-play or practice)
-        final effSource = widget.autoPlayGenerate ? _autoSource : widget.sourceElement;
-        final effTarget = widget.autoPlayGenerate ? _autoTarget : widget.correctAnswer;
-        final showArrowNow = widget.autoPlayGenerate ||
-            (widget.hasAnswered && widget.showArrow && widget.sourceElement != null && widget.correctAnswer != null);
+        // Practice mode: single arrow
+        final isPractice = !widget.autoPlayAccumulate &&
+            widget.hasAnswered &&
+            widget.showArrow &&
+            widget.sourceElement != null &&
+            widget.correctAnswer != null;
 
         return Center(
           child: SizedBox(
@@ -153,29 +190,51 @@ class _WuxingWheelState extends State<WuxingWheel>
             height: size,
             child: Stack(
               children: [
-                // Arrow layer (behind nodes)
-                if (showArrowNow && effSource != null && effTarget != null)
+                // ── Arrow layer ──
+                if (isPractice)
                   AnimatedBuilder(
                     animation: _arrowAnimation,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        size: Size(size, size),
-                        painter: WuxingArrowPainter(
-                          sourceElement: effSource,
-                          targetElement: effTarget,
-                          progress: _arrowAnimation.value,
-                          containerSize: size,
-                          nodeSize: nodeSize,
-                        ),
-                      );
-                    },
+                    builder: (context, child) => CustomPaint(
+                      size: Size(size, size),
+                      painter: WuxingArrowPainter(
+                        completedEdges: const [],
+                        activeEdge: GenerateEdge(
+                            widget.sourceElement!, widget.correctAnswer!),
+                        activeProgress: _arrowAnimation.value,
+                        containerSize: size,
+                        nodeSize: nodeSize,
+                      ),
+                    ),
+                  )
+                else if (widget.autoPlayAccumulate)
+                  AnimatedBuilder(
+                    animation: _arrowAnimation,
+                    builder: (context, child) => CustomPaint(
+                      size: Size(size, size),
+                      painter: WuxingArrowPainter(
+                        completedEdges: _completedEdges,
+                        activeEdge: _activeEdge,
+                        activeProgress: _arrowAnimation.value,
+                        containerSize: size,
+                        nodeSize: nodeSize,
+                      ),
+                    ),
                   ),
 
-                // Node layer
+                // ── Node layer ──
                 ..._elements.map((e) {
                   final pos = positions[e]!;
                   final left = pos.dx * size - nodeSize / 2;
                   final top = pos.dy * size - nodeSize / 2;
+
+                  final isActive = _activeElements.contains(e);
+                  final isCurrentSource = widget.autoPlayAccumulate &&
+                      _activeEdge != null &&
+                      _activeEdge!.from == e;
+                  final isCurrentTarget = widget.autoPlayAccumulate &&
+                      _activeEdge != null &&
+                      _activeEdge!.to == e &&
+                      _arrowAnimation.value >= 0.5;
 
                   return Positioned(
                     left: left,
@@ -185,11 +244,11 @@ class _WuxingWheelState extends State<WuxingWheel>
                     child: _NodeWidget(
                       element: e,
                       size: nodeSize,
-                      isSelected: widget.selected == e,
-                      isCorrect: widget.correctAnswer == e,
-                      isSource: effSource == e && showArrowNow,
-                      hasAnswered: widget.hasAnswered || widget.autoPlayGenerate,
-                      onTap: (widget.autoPlayGenerate || widget.onTap == null)
+                      isActive: isActive,
+                      isCurrentSource: isCurrentSource,
+                      isCurrentTarget: isCurrentTarget,
+                      hasAnswered: widget.hasAnswered || widget.autoPlayAccumulate,
+                      onTap: (widget.autoPlayAccumulate || widget.onTap == null)
                           ? null
                           : () => widget.onTap!(e),
                     ),
@@ -204,21 +263,24 @@ class _WuxingWheelState extends State<WuxingWheel>
   }
 }
 
+// ---------------------------------------------------------------------------
+// Node widget
+// ---------------------------------------------------------------------------
 class _NodeWidget extends StatelessWidget {
   final String element;
   final double size;
-  final bool isSelected;
-  final bool isCorrect;
-  final bool isSource;
+  final bool isActive;
+  final bool isCurrentSource;
+  final bool isCurrentTarget;
   final bool hasAnswered;
   final VoidCallback? onTap;
 
   const _NodeWidget({
     required this.element,
     required this.size,
-    required this.isSelected,
-    required this.isCorrect,
-    required this.isSource,
+    required this.isActive,
+    required this.isCurrentSource,
+    required this.isCurrentTarget,
     required this.hasAnswered,
     required this.onTap,
   });
@@ -229,38 +291,44 @@ class _NodeWidget extends StatelessWidget {
     final borderColor = WuxingColors.getBorderColor(element);
     final textColor = WuxingColors.textOnColor(element);
 
-    final bool dimmed = hasAnswered && !isCorrect && !isSelected && !isSource;
+    // Dim if not active and in accumulation mode
+    final bool dimmed = hasAnswered && !isActive;
 
     return GestureDetector(
       onTap: (hasAnswered || onTap == null) ? null : onTap,
       child: AnimatedOpacity(
-        opacity: dimmed ? 0.35 : 1.0,
+        opacity: dimmed ? 0.30 : 1.0,
         duration: const Duration(milliseconds: 300),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: bgColor,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isSource && hasAnswered
+              color: isCurrentSource
                   ? const Color(0xFF2F6F5E)
-                  : element == '金'
-                      ? borderColor
-                      : Colors.white,
-              width: isSource && hasAnswered ? 3.5 : element == '金' ? 2.5 : 3.0,
+                  : isCurrentTarget
+                      ? const Color(0xFF2F6F5E)
+                      : element == '金'
+                          ? borderColor
+                          : Colors.white,
+              width: isCurrentSource
+                  ? 4.0
+                  : isCurrentTarget
+                      ? 4.0
+                      : element == '金'
+                          ? 2.5
+                          : 3.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: isCorrect && hasAnswered
-                    ? const Color(0xFF2F6F5E).withValues(alpha: 0.8)
-                    : isSelected && hasAnswered && !isCorrect
-                        ? const Color(0xFFC0392B).withValues(alpha: 0.8)
-                        : borderColor.withValues(alpha: 0.6),
-                blurRadius: 0,
-                spreadRadius: isCorrect && hasAnswered
-                    ? 4
-                    : isSelected && hasAnswered && !isCorrect
-                        ? 4
-                        : 2.5,
+                color: isCurrentSource
+                    ? const Color(0xFF2F6F5E).withValues(alpha: 0.7)
+                    : isCurrentTarget
+                        ? const Color(0xFF2F6F5E).withValues(alpha: 0.7)
+                        : borderColor.withValues(alpha: 0.5),
+                blurRadius: isCurrentSource || isCurrentTarget ? 6 : 0,
+                spreadRadius: isCurrentSource || isCurrentTarget ? 4 : 2.5,
               ),
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),

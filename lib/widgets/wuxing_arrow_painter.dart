@@ -1,13 +1,24 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Draws a curved animated arrow from [sourceElement] to [targetElement] on the
-/// five-element wheel. The arrow follows a bezier curve outward from the wheel
-/// center and goes from node edge to node edge with a proper arrowhead.
+/// A single directed edge between two elements on the wheel.
+class GenerateEdge {
+  final String from;
+  final String to;
+  const GenerateEdge(this.from, this.to);
+}
+
+/// Draws curved arrows on the five-element wheel.
+///
+/// Supports two modes:
+/// - **Practice**: draw a single animated arrow ([completedEdges] empty,
+///   [activeEdge] + [activeProgress] for the current answer).
+/// - **Study accumulation**: draw multiple full arrows ([completedEdges])
+///   plus one animated arrow ([activeEdge] + [activeProgress]).
 class WuxingArrowPainter extends CustomPainter {
-  final String sourceElement;
-  final String targetElement;
-  final double progress;
+  final List<GenerateEdge> completedEdges;
+  final GenerateEdge? activeEdge;
+  final double activeProgress;
   final double containerSize;
   final double nodeSize;
 
@@ -20,9 +31,9 @@ class WuxingArrowPainter extends CustomPainter {
   };
 
   WuxingArrowPainter({
-    required this.sourceElement,
-    required this.targetElement,
-    required this.progress,
+    required this.completedEdges,
+    this.activeEdge,
+    this.activeProgress = 0,
     required this.containerSize,
     required this.nodeSize,
   });
@@ -33,72 +44,88 @@ class WuxingArrowPainter extends CustomPainter {
     return Offset(f.dx * containerSize, f.dy * containerSize);
   }
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final fromCenter = _center(sourceElement);
-    final toCenter = _center(targetElement);
-    if (fromCenter == null || toCenter == null) return;
+  /// Build a curved bezier path from [from] node edge to [to] node edge.
+  (Path, double) _buildEdgePath(String from, String to) {
+    final fromCenter = _center(from);
+    final toCenter = _center(to);
+    if (fromCenter == null || toCenter == null) return (Path(), 0);
 
     final nodeRadius = nodeSize / 2;
-    final pw = containerSize; // shorthand
-
-    // Direction from source to target (normalized)
     final dx = toCenter.dx - fromCenter.dx;
     final dy = toCenter.dy - fromCenter.dy;
     final dist = sqrt(dx * dx + dy * dy);
-    if (dist < 0.001) return;
+    if (dist < 0.001) return (Path(), 0);
 
     final nx = dx / dist;
     final ny = dy / dist;
 
-    // Edge points: start at source perimeter toward target, end at target perimeter
     final start = Offset(fromCenter.dx + nx * nodeRadius, fromCenter.dy + ny * nodeRadius);
     final end = Offset(toCenter.dx - nx * nodeRadius, toCenter.dy - ny * nodeRadius);
 
-    // Control point: outward from wheel center for a nice arc
-    final wheelCenter = Offset(pw * 0.5, pw * 0.5);
+    final wheelCenter = Offset(containerSize * 0.5, containerSize * 0.5);
     final mid = Offset((start.dx + end.dx) / 2, (start.dy + end.dy) / 2);
     final outwardX = mid.dx - wheelCenter.dx;
     final outwardY = mid.dy - wheelCenter.dy;
     final outwardDist = sqrt(outwardX * outwardX + outwardY * outwardY);
-    final push = pw * 0.12;
+    final push = containerSize * 0.12;
     final controlX = mid.dx + (outwardDist > 0.001 ? outwardX / outwardDist * push : push);
     final controlY = mid.dy + (outwardDist > 0.001 ? outwardY / outwardDist * push : push);
-    final control = Offset(controlX, controlY);
 
-    // Build bezier path
     final path = Path()
       ..moveTo(start.dx, start.dy)
-      ..quadraticBezierTo(control.dx, control.dy, end.dx, end.dy);
+      ..quadraticBezierTo(controlX, controlY, end.dx, end.dy);
 
-    // Animate via path metrics
+    return (path, dist);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 1. Draw completed edges as full arrows
+    for (final edge in completedEdges) {
+      _drawArrow(canvas, edge.from, edge.to, 1.0, fullArrowhead: true);
+    }
+
+    // 2. Draw active edge with animation progress
+    if (activeEdge != null) {
+      _drawArrow(canvas, activeEdge!.from, activeEdge!.to, activeProgress,
+          fullArrowhead: activeProgress > 0.85);
+    }
+  }
+
+  void _drawArrow(Canvas canvas, String from, String to, double progress,
+      {bool fullArrowhead = false}) {
+    if (progress <= 0.001) return;
+
+    final (path, dist) = _buildEdgePath(from, to);
+    if (dist < 0.001) return;
+
     final metrics = path.computeMetrics();
     final metric = metrics.first;
     final totalLength = metric.length;
     final drawLength = totalLength * progress.clamp(0.0, 1.0);
 
+    // Draw arrow shaft
     final arrowPaint = Paint()
-      ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.88)
+      ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.85)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5
+      ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round;
 
     if (drawLength > 0.5) {
-      final extractPath = metric.extractPath(0, drawLength);
-      canvas.drawPath(extractPath, arrowPaint);
+      canvas.drawPath(metric.extractPath(0, drawLength), arrowPaint);
     }
 
-    // Arrowhead at the end
-    final arrowProgress = (progress - 0.85) / 0.15;
-    if (arrowProgress > 0 && drawLength > 1) {
+    // Draw arrowhead
+    final headProgress = fullArrowhead ? 1.0 : (progress - 0.85) / 0.15;
+    if (headProgress > 0 && drawLength > 1) {
       final tangent = metric.getTangentForOffset(drawLength.clamp(0, totalLength));
       if (tangent != null) {
-        final headSize = 14.0 * arrowProgress.clamp(0.0, 1.0);
+        final headSize = 13.0 * headProgress.clamp(0.0, 1.0);
         final angle = tangent.angle;
         final tip = tangent.position;
 
         final headPaint = Paint()
-          ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.88)
+          ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.85)
           ..style = PaintingStyle.fill;
 
         final headPath = Path();
@@ -116,17 +143,33 @@ class WuxingArrowPainter extends CustomPainter {
       }
     }
 
-    // Small dot at arrow start
-    final dotPaint = Paint()
-      ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.6)
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(start, 3.0, dotPaint);
+    // Start dot
+    if (progress == 1.0 || progress > 0.1) {
+      final fromCenter = _center(from);
+      final toCenter = _center(to);
+      if (fromCenter != null && toCenter != null) {
+        final nodeRadius = nodeSize / 2;
+        final dx = toCenter.dx - fromCenter.dx;
+        final dy = toCenter.dy - fromCenter.dy;
+        final d = sqrt(dx * dx + dy * dy);
+        if (d > 0.001) {
+          final start = Offset(
+            fromCenter.dx + dx / d * nodeRadius,
+            fromCenter.dy + dy / d * nodeRadius,
+          );
+          final dotPaint = Paint()
+            ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.55)
+            ..style = PaintingStyle.fill;
+          canvas.drawCircle(start, 2.5, dotPaint);
+        }
+      }
+    }
   }
 
   @override
   bool shouldRepaint(WuxingArrowPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.sourceElement != sourceElement ||
-        oldDelegate.targetElement != targetElement;
+    return oldDelegate.activeProgress != activeProgress ||
+        oldDelegate.completedEdges.length != completedEdges.length ||
+        oldDelegate.activeEdge != activeEdge;
   }
 }
