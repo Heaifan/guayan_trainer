@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/wuxing_colors.dart';
+import 'effects/html_relation_effect.dart';
 import 'wuxing_arrow_painter.dart';
 
 /// Five-element wheel selector.
@@ -200,6 +201,26 @@ class _WuxingWheelState extends State<WuxingWheel>
                       ),
                     ),
                   ),
+
+                // ---- Center effect (木→火 flame) ----
+                Positioned(
+                  left: size * 0.37,
+                  top: size * 0.37,
+                  width: size * 0.26,
+                  height: size * 0.26,
+                  child: HtmlRelationEffect(
+                    sourceElement: widget.autoPlayAccumulate
+                        ? activeEdge?.from
+                        : widget.sourceElement,
+                    targetElement: widget.autoPlayAccumulate
+                        ? activeEdge?.to
+                        : widget.correctAnswer,
+                    visible: widget.autoPlayAccumulate
+                        ? activeEdge != null && _anim.value > 0.05
+                        : widget.hasAnswered,
+                    size: size * 0.26,
+                  ),
+                ),
 
                 // ---- Node layer ----
                 ..._elements.map((e) {
