@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/mistake_item.dart';
 import '../../models/training_question.dart';
 import '../../models/training_result.dart';
 import '../../services/mistake_store.dart';
@@ -77,7 +78,7 @@ class _TrainingPageState extends State<TrainingPage> {
     _questionStartTime = DateTime.now();
   }
 
-  void _answer(String answer) {
+  Future<void> _answer(String answer) async {
     if (_hasAnswered) return;
 
     final used = DateTime.now().difference(_questionStartTime).inMilliseconds;
@@ -93,15 +94,26 @@ class _TrainingPageState extends State<TrainingPage> {
     _results.add(result);
 
     if (!isCorrect) {
-      MistakeStore.instance.markWrong(
-        knowledgeKey: _current.knowledgeKey,
-        explanation: _current.explanation,
-      );
-    } else if (used >= 4000) {
-      MistakeStore.instance.markSlow(
-        knowledgeKey: _current.knowledgeKey,
-        explanation: _current.explanation,
-      );
+      // 写入持久化错题库（仅相生模式）
+      if (widget.mode == TrainingMode.wuxingGenerate) {
+        final now = DateTime.now();
+        await MistakeStore.instance.addOrUpdateMistake(
+          MistakeItem(
+            id: 'wuxing_generate_${_current.sourceElement}_${_current.correctAnswer}',
+            module: 'wuxing',
+            topic: 'generate',
+            questionText: _current.prompt,
+            sourceElement: _current.sourceElement ?? '',
+            correctAnswer: _current.correctAnswer,
+            wrongAnswer: answer,
+            relationText: '${_current.sourceElement}生${_current.correctAnswer}',
+            practiceStyle: _currentStyle.name,
+            wrongCount: 1,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+      }
     }
 
     setState(() {

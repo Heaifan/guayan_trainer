@@ -11,7 +11,7 @@ class PracticePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mistakeCount = MistakeStore.instance.records.length;
+    final mistakeCount = MistakeStore.instance.all.length;
 
     return Scaffold(
       appBar: AppBar(

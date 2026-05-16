@@ -15,9 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    final mistakes = MistakeStore.instance.records;
-    final mistakeCount = mistakes.length;
-    final slowCount = mistakes.where((e) => e.slowCount > 0).length;
+    final mistakeCount = MistakeStore.instance.all.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,9 +27,9 @@ class _HomePageState extends State<HomePage> {
         children: [
           _heroCard(),
           const SizedBox(height: 16),
-          _statusCard(mistakeCount, slowCount),
+          _statusCard(mistakeCount),
           const SizedBox(height: 16),
-          if (mistakeCount > 0) _reviewReminder(mistakes.take(3).toList()),
+          if (mistakeCount > 0) _reviewReminder(),
           if (mistakeCount > 0) const SizedBox(height: 16),
           _quickActions(),
         ],
@@ -68,7 +66,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _statusCard(int mistakeCount, int slowCount) {
+  Widget _statusCard(int mistakeCount) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -85,7 +83,7 @@ class _HomePageState extends State<HomePage> {
           _statusRow('六冲', 0.1),
           _statusRow('六合', 0.1),
           const SizedBox(height: 8),
-          Text('回炉项: $mistakeCount  迟疑项: $slowCount',
+          Text('回炉项: $mistakeCount',
               style: const TextStyle(color: Color(0xFF6B4E2E))),
         ],
       ),
@@ -113,7 +111,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _reviewReminder(List records) {
+  Widget _reviewReminder() {
+    final records = MistakeStore.instance.all.take(3).toList();
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -134,7 +133,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 8),
           ...records.map((r) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Text('• ${r.knowledgeKey}  (错${r.wrongCount}次)',
+            child: Text('• ${r.relationText}  (错${r.wrongCount}次)',
                 style: const TextStyle(fontSize: 14)),
           )),
         ],
