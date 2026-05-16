@@ -22,7 +22,7 @@ class GenerateRelationEffectsLayer extends StatelessWidget {
   });
 
   static const Map<String, Offset> _slotPositions = {
-    '木火': Offset(0.68, 0.28),
+    '木火': Offset(0.60, 0.34),
     '火土': Offset(0.80, 0.64),
     '土金': Offset(0.50, 0.84),
     '金水': Offset(0.20, 0.64),

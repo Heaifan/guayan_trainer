@@ -50,7 +50,7 @@ class _WuxingWheelState extends State<WuxingWheel>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 650));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
     _ctrl.addListener(_onTick);
     _ctrl.addStatusListener(_onStatus);
@@ -119,14 +119,14 @@ class _WuxingWheelState extends State<WuxingWheel>
     if (_activeEdgeIndex >= generateEdges.length) {
       // All 5 edges done → pause, then reset
       _autoTimer?.cancel();
-      _autoTimer = Timer(const Duration(milliseconds: 1000), () {
+      _autoTimer = Timer(const Duration(milliseconds: 1400), () {
         if (!mounted) return;
         setState(_startCycle);
       });
     } else {
-      // More edges to play → short pause, then next
+      // More edges to play → pause, then next
       _autoTimer?.cancel();
-      _autoTimer = Timer(const Duration(milliseconds: 350), () {
+      _autoTimer = Timer(const Duration(milliseconds: 650), () {
         if (!mounted) return;
         setState(() {});
         _ctrl.forward(from: 0);
@@ -176,18 +176,21 @@ class _WuxingWheelState extends State<WuxingWheel>
                 ? [WuxingEdge(widget.sourceElement!, widget.correctAnswer!)]
                 : [];
 
-        // Center title (current relationship label)
+        // Center title — follows activeEdge (not _activeEdgeIndex) so it
+        // tracks the currently-animating edge, not the soon-to-play one.
+        // Delayed until arrow progress >= 18% to avoid "text outruns arrow".
+        final double activeProgress = _anim.value;
         final String? centerTitle;
-        if (widget.autoPlayAccumulate) {
-          centerTitle = _activeEdgeIndex < generateEdges.length
-              ? '${generateEdges[_activeEdgeIndex].from}生${generateEdges[_activeEdgeIndex].to}'
-              : null;
+        if (widget.autoPlayAccumulate && activeEdge != null) {
+          centerTitle = '${activeEdge.from}生${activeEdge.to}';
         } else if (isPractice) {
           centerTitle = '${widget.sourceElement}生${widget.correctAnswer}';
         } else {
           centerTitle = null;
         }
-        final bool showTitle = widget.autoPlayAccumulate ? isAnimating : isPractice;
+        final bool showTitle = widget.autoPlayAccumulate
+            ? activeEdge != null && activeProgress >= 0.18
+            : isPractice;
 
         return Center(
           child: SizedBox(
@@ -230,7 +233,7 @@ class _WuxingWheelState extends State<WuxingWheel>
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: size * 0.42,
+                  top: size * 0.46,
                   child: AnimatedOpacity(
                     opacity: showTitle ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
