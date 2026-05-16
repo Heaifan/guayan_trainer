@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/wuxing_colors.dart';
-import 'effects/html_relation_effect.dart';
+import 'effects/generate_relation_effects_layer.dart';
 import 'wuxing_arrow_painter.dart';
 
 /// Five-element wheel selector.
@@ -166,14 +166,28 @@ class _WuxingWheelState extends State<WuxingWheel>
             ? generateEdges[_activeEdgeIndex]
             : null;
 
-        // Center effect: 木→火 persists during full display + pause
-        final bool showWoodFire = widget.autoPlayAccumulate
-            ? (_activeEdgeIndex == 0) ||
-              (_activeEdgeIndex == 1 && !isAnimating)
-            : widget.hasAnswered &&
-              widget.sourceElement == '木' &&
-              widget.correctAnswer == '火';
-        final double effectSize = size * 0.38;
+        // Visible effect edges for the 5-slot layer
+        final List<WuxingEdge> visibleEffectEdges = widget.autoPlayAccumulate
+            ? ([..._completedEdges] +
+                (activeEdge != null && _anim.value > 0.05
+                    ? [activeEdge]
+                    : []))
+            : isPractice
+                ? [WuxingEdge(widget.sourceElement!, widget.correctAnswer!)]
+                : [];
+
+        // Center title (current relationship label)
+        final String? centerTitle;
+        if (widget.autoPlayAccumulate) {
+          centerTitle = _activeEdgeIndex < generateEdges.length
+              ? '${generateEdges[_activeEdgeIndex].from}生${generateEdges[_activeEdgeIndex].to}'
+              : null;
+        } else if (isPractice) {
+          centerTitle = '${widget.sourceElement}生${widget.correctAnswer}';
+        } else {
+          centerTitle = null;
+        }
+        final bool showTitle = widget.autoPlayAccumulate ? isAnimating : isPractice;
 
         return Center(
           child: SizedBox(
@@ -212,26 +226,31 @@ class _WuxingWheelState extends State<WuxingWheel>
                     ),
                   ),
 
-                // ---- Center effect (木→火 flame) ----
+                // ---- Center title (current relationship) ----
                 Positioned(
-                  left: (size - effectSize) / 2,
-                  top: (size - effectSize) / 2,
-                  width: effectSize,
-                  height: effectSize,
+                  left: 0,
+                  right: 0,
+                  top: size * 0.42,
                   child: AnimatedOpacity(
-                    opacity: showWoodFire ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 180),
-                    child: HtmlRelationEffect(
-                      sourceElement: widget.autoPlayAccumulate
-                          ? generateEdges[0].from
-                          : widget.sourceElement,
-                      targetElement: widget.autoPlayAccumulate
-                          ? generateEdges[0].to
-                          : widget.correctAnswer,
-                      visible: widget.autoPlayAccumulate ? true : showWoodFire,
-                      size: effectSize,
+                    opacity: showTitle ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Text(
+                      centerTitle ?? '',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: size * 0.075,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF2F6F5E),
+                        letterSpacing: 2,
+                      ),
                     ),
                   ),
+                ),
+
+                // ---- 5 fixed effect slots ----
+                GenerateRelationEffectsLayer(
+                  visibleEdges: visibleEffectEdges,
+                  wheelSize: size,
                 ),
 
                 // ---- Node layer ----

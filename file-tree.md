@@ -1,15 +1,33 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.3.5
+> **当前版本：** v0.1.3.6
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-16 11:00
+> **最后编辑：** 2026-05-16 09:16
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.3.5
+## 当前版本更新日志 — v0.1.3.6
+
+> 发布日期：2026-05-16
+
+### 重构
+- **中央单动画→五固定槽位**：移除中央 `HtmlRelationEffect` 单层动画，改为 `GenerateRelationEffectsLayer` 五槽位架构
+- **新增中央关系标题**：`AnimatedOpacity` 显示当前播放中的相生关系名（如「木生火」「火生土」），动画结束时淡出
+- **累计保留逻辑**：每条关系完成后，动画在对应槽位循环保留；到整轮结束再一起清空
+
+### 新增
+- **`GenerateRelationEffectsLayer`**：`lib/widgets/effects/generate_relation_effects_layer.dart` — 5 个固定坐标槽位，根据 `visibleEdges` 列表渲染对应的关系动画
+- **槽位预留**：木生火槽位接入 `HtmlRelationEffect`（现有 HTML 动画），其余火土、土金、金水、水生木四个槽位预留占位
+
+### 修复
+- **`isAnimating` 时序 Bug**：`_onStatus` 回调中 `setState` 触发重建时，`isAnimating` 仍为 true 导致效果提前消失。改用显式 `_showWoodFire` 标记后废弃（v0.1.3.6 改用五槽位后彻底解决）
+
+---
+
+## 前版更新日志 — v0.1.3.5
 
 > 发布日期：2026-05-16
 
@@ -230,7 +248,8 @@ lib/
 | `wuxing_wheel.dart` | 五行轮盘组件：累计箭头动画、自动循环、节点高亮、中央特效 |
 | `wuxing_arrow_painter.dart` | 圆弧箭头 CustomPainter：沿轮盘圆周绘制相生弧线 |
 | `effects/wood_fire_html.dart` | 木生火 HTML/SVG 动画字符串，嵌入 WebView |
-| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截，仅木→火时显示 |
+| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截 |
+| `effects/generate_relation_effects_layer.dart` | 五槽位关系动画层：固定坐标渲染多条关系动画 |
 
 ### 5.14 test/
 
@@ -297,6 +316,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.3.6` | 2026-05-16 | 重构 | 五固定槽位 + 中央关系标题，废弃中央单动画 |
 | `v0.1.3.5` | 2026-05-16 | 优化 | 中央火焰放大至 0.38、全程持续显示、SVG 裁切、淡入淡出 |
 | `v0.1.3.4` | 2026-05-16 | 新增 | WebView 木生火中央 HTML 特效接入 |
 | `v0.1.3.3` | 2026-05-16 | 修复 | 累计箭头正确暂停还原、圆弧箭头、addStatusListener |
