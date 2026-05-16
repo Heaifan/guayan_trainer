@@ -8,6 +8,18 @@ import '../../theme/wuxing_colors.dart';
 import '../../widgets/wuxing_wheel.dart';
 import 'result_page.dart';
 
+/// 五行相生练习的三种题型阶段。
+enum GeneratePracticeStyle {
+  /// 轮盘题：在五行轮盘上点击答案
+  wheel,
+
+  /// 彩色单选：五张五行彩色选项卡
+  colorChoice,
+
+  /// 无色单选：去掉颜色提示，纯文字卡
+  textChoice,
+}
+
 class TrainingPage extends StatefulWidget {
   final String title;
   final TrainingMode mode;
@@ -36,12 +48,31 @@ class _TrainingPageState extends State<TrainingPage> {
 
   TrainingQuestion get _current => _questions[_index];
 
+  /// 当前题型阶段（仅 wuxingGenerate 模式有效）。
+  GeneratePracticeStyle get _currentStyle {
+    if (_index < 4) return GeneratePracticeStyle.wheel;
+    if (_index < 8) return GeneratePracticeStyle.colorChoice;
+    return GeneratePracticeStyle.textChoice;
+  }
+
+  /// 阶段标签文案。
+  String get _stageLabel {
+    switch (_currentStyle) {
+      case GeneratePracticeStyle.wheel:
+        return '阶段一 · 轮盘题';
+      case GeneratePracticeStyle.colorChoice:
+        return '阶段二 · 彩色单选';
+      case GeneratePracticeStyle.textChoice:
+        return '阶段三 · 无色单选';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _questions = _generator.generateSession(
       mode: widget.mode,
-      count: 10,
+      count: widget.mode == TrainingMode.wuxingGenerate ? 12 : 10,
     );
     _questionStartTime = DateTime.now();
   }
@@ -125,9 +156,8 @@ class _TrainingPageState extends State<TrainingPage> {
   @override
   Widget build(BuildContext context) {
     final progress = '${_index + 1}/${_questions.length}';
-    final useWheel = widget.mode == TrainingMode.wuxing ||
-        widget.mode == TrainingMode.wuxingGenerate;
-    final showArrow = widget.mode == TrainingMode.wuxingGenerate;
+    final isGenerate = widget.mode == TrainingMode.wuxingGenerate;
+    final showArrow = isGenerate && _currentStyle == GeneratePracticeStyle.wheel;
 
     return Scaffold(
       appBar: AppBar(
@@ -144,52 +174,20 @@ class _TrainingPageState extends State<TrainingPage> {
               borderRadius: BorderRadius.circular(99),
             ),
             const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(progress),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (isGenerate)
+                  Text(_stageLabel,
+                      style: const TextStyle(
+                          color: Color(0xFF8A6A3A), fontSize: 13)),
+                Text(progress),
+              ],
             ),
             const SizedBox(height: 24),
             _questionCard(),
             const SizedBox(height: 20),
-            if (useWheel)
-              Expanded(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: WuxingWheel(
-                        selected: _selectedAnswer,
-                        correctAnswer: _current.correctAnswer,
-                        hasAnswered: _hasAnswered,
-                        sourceElement: _current.sourceElement,
-                        showArrow: showArrow,
-                        onTap: _answer,
-                      ),
-                    ),
-                    if (!_hasAnswered)
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          '根据五行关系，点击答案',
-                          style: TextStyle(
-                            color: Color(0xFF8A6A3A),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.separated(
-                  itemCount: _current.options.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, i) {
-                    final option = _current.options[i];
-                    return _answerButton(option);
-                  },
-                ),
-              ),
+            Expanded(child: _answerArea()),
             if (_hasAnswered) _feedbackArea(),
           ],
         ),
@@ -223,6 +221,139 @@ class _TrainingPageState extends State<TrainingPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 根据当前题型阶段返回对应的答题区域。
+  Widget _answerArea() {
+    if (widget.mode == TrainingMode.wuxingGenerate) {
+      switch (_currentStyle) {
+        case GeneratePracticeStyle.wheel:
+          return _wheelArea();
+        case GeneratePracticeStyle.colorChoice:
+          return _colorChoiceArea();
+        case GeneratePracticeStyle.textChoice:
+          return _textChoiceArea();
+      }
+    }
+    // 非相生模式：使用原有的垂直列表
+    return ListView.separated(
+      itemCount: _current.options.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (context, i) => _answerButton(_current.options[i]),
+    );
+  }
+
+  Widget _wheelArea() {
+    return Column(
+      children: [
+        Expanded(
+          child: WuxingWheel(
+            selected: _selectedAnswer,
+            correctAnswer: _current.correctAnswer,
+            hasAnswered: _hasAnswered,
+            sourceElement: _current.sourceElement,
+            showArrow: true,
+            onTap: _answer,
+          ),
+        ),
+        if (!_hasAnswered)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              '根据五行关系，点击答案',
+              style: TextStyle(color: Color(0xFF8A6A3A), fontSize: 14),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// 彩色单选：五张五行颜色卡片，以 3+2 Wrap 布局。
+  Widget _colorChoiceArea() {
+    final options = _current.options;
+    return Center(
+      child: Wrap(
+        spacing: 14,
+        runSpacing: 14,
+        alignment: WrapAlignment.center,
+        children: options.map((opt) {
+          final bg = _optionBg(opt);
+          final fg = _optionFg(opt);
+          final wuxing = WuxingColors.mainColor.containsKey(opt) ? opt : null;
+          final cardColor = wuxing != null ? WuxingColors.getSoftColor(wuxing) : null;
+          final textColor = wuxing != null ? WuxingColors.getColor(wuxing) : null;
+
+          return SizedBox(
+            width: 64,
+            height: 80,
+            child: FilledButton.tonal(
+              style: FilledButton.styleFrom(
+                backgroundColor: _hasAnswered ? bg : cardColor,
+                foregroundColor: _hasAnswered ? fg : textColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: _hasAnswered && opt == _current.correctAnswer
+                        ? const Color(0xFF2F6F5E)
+                        : Colors.transparent,
+                    width: 2.5,
+                  ),
+                ),
+                padding: EdgeInsets.zero,
+              ),
+              onPressed: () => _answer(opt),
+              child: Text(
+                opt,
+                style: const TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.w900),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// 无色单选：五张统一浅色卡片，去掉颜色提示。
+  Widget _textChoiceArea() {
+    final options = _current.options;
+    return Center(
+      child: Wrap(
+        spacing: 14,
+        runSpacing: 14,
+        alignment: WrapAlignment.center,
+        children: options.map((opt) {
+          return SizedBox(
+            width: 64,
+            height: 80,
+            child: FilledButton.tonal(
+              style: FilledButton.styleFrom(
+                backgroundColor: _hasAnswered && opt != _selectedAnswer && opt != _current.correctAnswer
+                    ? null
+                    : _optionBg(opt),
+                foregroundColor: _optionFg(opt),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: _hasAnswered && opt == _current.correctAnswer
+                        ? const Color(0xFF2F6F5E)
+                        : const Color(0xFFE0C28A),
+                    width: _hasAnswered && opt == _current.correctAnswer ? 2.5 : 1.5,
+                  ),
+                ),
+                padding: EdgeInsets.zero,
+              ),
+              onPressed: () => _answer(opt),
+              child: Text(
+                opt,
+                style: const TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.w900),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
