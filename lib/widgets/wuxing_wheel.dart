@@ -50,7 +50,7 @@ class _WuxingWheelState extends State<WuxingWheel>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 3500));
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
     _ctrl.addListener(_onTick);
     _ctrl.addStatusListener(_onStatus);
@@ -119,14 +119,14 @@ class _WuxingWheelState extends State<WuxingWheel>
     if (_activeEdgeIndex >= generateEdges.length) {
       // All 5 edges done → pause, then reset
       _autoTimer?.cancel();
-      _autoTimer = Timer(const Duration(milliseconds: 1400), () {
+      _autoTimer = Timer(const Duration(milliseconds: 500), () {
         if (!mounted) return;
         setState(_startCycle);
       });
     } else {
       // More edges to play → pause, then next
       _autoTimer?.cancel();
-      _autoTimer = Timer(const Duration(milliseconds: 650), () {
+      _autoTimer = Timer(const Duration(milliseconds: 1400), () {
         if (!mounted) return;
         setState(() {});
         _ctrl.forward(from: 0);
