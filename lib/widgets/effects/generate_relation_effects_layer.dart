@@ -22,18 +22,18 @@ class GenerateRelationEffectsLayer extends StatelessWidget {
   });
 
   static const Map<String, Offset> _slotPositions = {
-    '木火': Offset(0.60, 0.34),
-    '火土': Offset(0.80, 0.64),
-    '土金': Offset(0.50, 0.84),
-    '金水': Offset(0.20, 0.64),
-    '水木': Offset(0.32, 0.28),
+    '木火': Offset(0.66, 0.25),
+    '火土': Offset(0.82, 0.56),
+    '土金': Offset(0.50, 0.88),
+    '金水': Offset(0.18, 0.56),
+    '水木': Offset(0.34, 0.25),
   };
 
   String _slotKey(WuxingEdge e) => '${e.from}${e.to}';
 
   @override
   Widget build(BuildContext context) {
-    final slotSize = wheelSize * 0.20;
+    final slotSize = wheelSize * 0.18;
 
     return Stack(
       children: visibleEdges.map((edge) {

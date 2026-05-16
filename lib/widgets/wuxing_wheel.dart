@@ -229,7 +229,15 @@ class _WuxingWheelState extends State<WuxingWheel>
                     ),
                   ),
 
-                // ---- Center title (current relationship) ----
+                // ---- 5 fixed effect slots ----
+                GenerateRelationEffectsLayer(
+                  visibleEdges: visibleEffectEdges,
+                  wheelSize: size,
+                ),
+
+                // ---- Node layer ----
+
+                // ---- Center title (current relationship, topmost) ----
                 Positioned(
                   left: 0,
                   right: 0,
@@ -249,14 +257,6 @@ class _WuxingWheelState extends State<WuxingWheel>
                     ),
                   ),
                 ),
-
-                // ---- 5 fixed effect slots ----
-                GenerateRelationEffectsLayer(
-                  visibleEdges: visibleEffectEdges,
-                  wheelSize: size,
-                ),
-
-                // ---- Node layer ----
                 ..._elements.map((e) {
                   final pos = positions[e]!;
                   final left = pos.dx * size - nodeSize / 2;
