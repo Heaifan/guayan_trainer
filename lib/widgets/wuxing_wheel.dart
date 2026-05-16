@@ -50,7 +50,7 @@ class _WuxingWheelState extends State<WuxingWheel>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
     _ctrl.addListener(_onTick);
     _ctrl.addStatusListener(_onStatus);
