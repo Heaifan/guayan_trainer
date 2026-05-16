@@ -1,15 +1,28 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.3.10
+> **当前版本：** v0.1.3.11
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-16 09:40
+> **最后编辑：** 2026-05-16 09:49
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.3.10
+## 当前版本更新日志 — v0.1.3.11
+
+> 发布日期：2026-05-16
+
+### 新增
+- **土生金 HTML 动画**：`earth_metal_html.dart` — 土层拱起→金石破土→光晕闪烁→土粒滑落
+- **金生水 HTML 动画**：`metal_water_html.dart` — 金石呼吸→寒风拂过→水珠凝结→滴落涟漪
+- **水生木 HTML 动画**：`water_wood_html.dart` — 春雨淅沥→原木润泽→发芽抽条→树冠繁茂
+- **HtmlRelationEffect 全关系支持**：`_htmlFor()` 覆盖全部 5 条相生
+
+### 修复
+- **轮盘节奏还原为慢速**：箭头 1200ms + 暂停 650ms + 整轮停留 1400ms
+
+---
 
 > 发布日期：2026-05-16
 
@@ -290,10 +303,13 @@ lib/
 | --- | --- |
 | `wuxing_wheel.dart` | 五行轮盘组件：累计箭头动画、自动循环、节点高亮、中央特效 |
 | `wuxing_arrow_painter.dart` | 圆弧箭头 CustomPainter：沿轮盘圆周绘制相生弧线 |
-| `effects/wood_fire_html.dart` | 木生火钻木取火 HTML/SVG 动画，嵌入 WebView |
-| `effects/fire_earth_html.dart` | 火生土 HTML/SVG 动画字符串，灰烬掩埋火苗循环 |
-| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截，支持多关系 HTML |
+| `effects/earth_metal_html.dart` | 土生金 HTML/SVG 动画，金石破土而出 |
+| `effects/fire_earth_html.dart` | 火生土 HTML/SVG 动画，灰烬掩埋火苗循环 |
 | `effects/generate_relation_effects_layer.dart` | 五槽位关系动画层：固定坐标渲染多条关系动画 |
+| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截，支持全部五条相生 |
+| `effects/metal_water_html.dart` | 金生水 HTML/SVG 动画，寒风凝水珠滴落 |
+| `effects/water_wood_html.dart` | 水生木 HTML/SVG 动画，春雨润木发芽繁茂 |
+| `effects/wood_fire_html.dart` | 木生火钻木取火 HTML/SVG 动画 |
 
 ### 5.14 test/
 
@@ -360,6 +376,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.3.11` | 2026-05-16 | 新增 | 全部五条相生 HTML 动画接入，轮盘还原慢速 |
 | `v0.1.3.10` | 2026-05-16 | 优化 | 轮盘加速至 5 秒一轮 |
 | `v0.1.3.9` | 2026-05-16 | 变更 | 木生火替换为钻木取火动画 |
 | `v0.1.3.8` | 2026-05-16 | 新增 | 火生土 HTML 动画，HtmlRelationEffect 泛化 |
