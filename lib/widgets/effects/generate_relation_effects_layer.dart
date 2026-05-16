@@ -53,15 +53,11 @@ class GenerateRelationEffectsLayer extends StatelessWidget {
   }
 
   Widget _buildEffectForEdge(WuxingEdge edge, double slotSize) {
-    if (edge.from == '木' && edge.to == '火') {
-      return HtmlRelationEffect(
-        sourceElement: edge.from,
-        targetElement: edge.to,
-        visible: true,
-        size: slotSize,
-      );
-    }
-    // Placeholder for future relations (火生土, 土生金, 金生水, 水生木)
-    return const SizedBox.shrink();
+    return HtmlRelationEffect(
+      sourceElement: edge.from,
+      targetElement: edge.to,
+      visible: true,
+      size: slotSize,
+    );
   }
 }

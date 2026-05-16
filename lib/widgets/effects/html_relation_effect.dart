@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'fire_earth_html.dart';
 import 'wood_fire_html.dart';
 
-/// Shows an HTML/SVG center effect (火焰 animation) when the current
-/// wheel relationship is 木→火.
+/// Shows an HTML/SVG effect in a WebView for a given relationship pair.
+///
+/// Supported pairs:
+/// - 木→火: flame animation (wood_fire_html)
+/// - 火→土: ash smother fire animation (fire_earth_html)
 class HtmlRelationEffect extends StatefulWidget {
   final String? sourceElement;
   final String? targetElement;
@@ -26,11 +30,15 @@ class HtmlRelationEffect extends StatefulWidget {
 class _HtmlRelationEffectState extends State<HtmlRelationEffect> {
   WebViewController? _controller;
 
-  /// Only show for 木→火 relationship.
-  bool get _shouldShow =>
-      widget.visible &&
-      widget.sourceElement == '木' &&
-      widget.targetElement == '火';
+  String get _htmlContent => _htmlFor(widget.sourceElement, widget.targetElement);
+
+  bool get _shouldShow => widget.visible && _htmlContent.isNotEmpty;
+
+  static String _htmlFor(String? from, String? to) {
+    if (from == '木' && to == '火') return woodFireHtml;
+    if (from == '火' && to == '土') return fireEarthHtml;
+    return '';
+  }
 
   @override
   void initState() {
@@ -39,20 +47,22 @@ class _HtmlRelationEffectState extends State<HtmlRelationEffect> {
   }
 
   void _initController() {
+    final html = _htmlContent;
+    if (html.isEmpty) return;
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00FFF4DC))
-      ..loadHtmlString(woodFireHtml);
+      ..loadHtmlString(html);
   }
 
   @override
   void didUpdateWidget(HtmlRelationEffect old) {
     super.didUpdateWidget(old);
-
-    // Rebuild WebView when relationship changes into 木→火
-    final wasShowing = old.visible && old.sourceElement == '木' && old.targetElement == '火';
-    if (_shouldShow && !wasShowing) {
-      _controller?.loadHtmlString(woodFireHtml);
+    final oldHtml = _htmlFor(old.sourceElement, old.targetElement);
+    final newHtml = _htmlContent;
+    if (newHtml != oldHtml && newHtml.isNotEmpty) {
+      _controller?.loadHtmlString(newHtml);
     }
   }
 

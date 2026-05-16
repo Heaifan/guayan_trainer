@@ -1,15 +1,29 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.3.7
+> **当前版本：** v0.1.3.8
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-16 09:19
+> **最后编辑：** 2026-05-16 09:31
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.3.7
+## 当前版本更新日志 — v0.1.3.8
+
+> 发布日期：2026-05-16
+
+### 新增
+- **火生土 HTML 动画**：`fire_earth_html.dart` — 火苗燃烧→灰烬落下→灰堆长高掩埋火苗→循环，接入火土槽位
+- **HtmlRelationEffect 多关系支持**：`_htmlFor()` 方法根据 `from`/`to` 返回对应 HTML（木火/火土），不再硬编码只支持木生火
+- **GenerateRelationEffectsLayer 泛化**：对所有 `visibleEdges` 统一创建 `HtmlRelationEffect`，由组件内部判断是否有对应 HTML
+
+### 优化
+- **火生土性能**：灰烬粒子生成从 25ms→55ms，粒子大小 `2.5+1`→`2+0.8`，手机端更流畅
+
+---
+
+## 前版更新日志 — v0.1.3.7
 
 > 发布日期：2026-05-16
 
@@ -261,7 +275,8 @@ lib/
 | `wuxing_wheel.dart` | 五行轮盘组件：累计箭头动画、自动循环、节点高亮、中央特效 |
 | `wuxing_arrow_painter.dart` | 圆弧箭头 CustomPainter：沿轮盘圆周绘制相生弧线 |
 | `effects/wood_fire_html.dart` | 木生火 HTML/SVG 动画字符串，嵌入 WebView |
-| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截 |
+| `effects/fire_earth_html.dart` | 火生土 HTML/SVG 动画字符串，灰烬掩埋火苗循环 |
+| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截，支持多关系 HTML |
 | `effects/generate_relation_effects_layer.dart` | 五槽位关系动画层：固定坐标渲染多条关系动画 |
 
 ### 5.14 test/
@@ -329,6 +344,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.3.8` | 2026-05-16 | 新增 | 火生土 HTML 动画，HtmlRelationEffect 泛化 |
 | `v0.1.3.7` | 2026-05-16 | 优化 | 放慢节奏、标题延迟、木火槽位内移 |
 | `v0.1.3.6` | 2026-05-16 | 重构 | 五固定槽位 + 中央关系标题，废弃中央单动画 |
 | `v0.1.3.5` | 2026-05-16 | 优化 | 中央火焰放大至 0.38、全程持续显示、SVG 裁切、淡入淡出 |
