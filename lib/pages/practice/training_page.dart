@@ -97,9 +97,12 @@ class _TrainingPageState extends State<TrainingPage> {
       // 写入持久化错题库（仅相生模式）
       if (widget.mode == TrainingMode.wuxingGenerate) {
         final now = DateTime.now();
+        final id = 'wuxing_generate_${_current.sourceElement}_${_current.correctAnswer}';
+        // 查找已有错题，累加 wrongCount
+        final existing = MistakeStore.instance.all.where((e) => e.id == id).firstOrNull;
         await MistakeStore.instance.addOrUpdateMistake(
           MistakeItem(
-            id: 'wuxing_generate_${_current.sourceElement}_${_current.correctAnswer}',
+            id: id,
             module: 'wuxing',
             topic: 'generate',
             questionText: _current.prompt,
@@ -108,8 +111,8 @@ class _TrainingPageState extends State<TrainingPage> {
             wrongAnswer: answer,
             relationText: '${_current.sourceElement}生${_current.correctAnswer}',
             practiceStyle: _currentStyle.name,
-            wrongCount: 1,
-            createdAt: now,
+            wrongCount: existing != null ? existing.wrongCount + 1 : 1,
+            createdAt: existing?.createdAt ?? now,
             updatedAt: now,
           ),
         );

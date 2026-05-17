@@ -69,19 +69,44 @@ class _ReviewTrainingPageState extends State<ReviewTrainingPage> {
     });
   }
 
-  void _showResult() {
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          widget.isBulk
-              ? '回炉完成：对了 $_correctCount 题，错了 $_wrongCount 题'
-              : '回炉完成',
+  Future<void> _showResult() async {
+    if (!widget.isBulk) {
+      Navigator.of(context).pop();
+      return;
+    }
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('本次回炉完成'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _resultRow('已掌握', _correctCount, const Color(0xFF2F6F5E)),
+            const SizedBox(height: 8),
+            _resultRow('仍需回炉', _wrongCount, const Color(0xFFC0392B)),
+          ],
         ),
-        backgroundColor: _wrongCount == 0
-            ? const Color(0xFF2F6F5E)
-            : const Color(0xFFB9770E),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('返回回炉'),
+          ),
+        ],
       ),
+    );
+    if (ok == true) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }
+
+  Widget _resultRow(String label, int count, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 16)),
+        Text('$count',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
+      ],
     );
   }
 

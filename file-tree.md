@@ -1,25 +1,31 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.4.1
+> **当前版本：** v0.1.5
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-16 10:45
+> **最后编辑：** 2026-05-16 11:10
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.4.2
+## 当前版本更新日志 — v0.1.5
 
-> 发布日期：2026-05-16 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.4.2)
+> 发布日期：2026-05-16 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.5)
+
+### 新增
+- **五行相克学习页**：正式替代「即将开放」占位页，包含说明卡、五角星相克图、五条相克解释、断卦提示
+- **相克五角星图**：`WuxingControlPainter` — 朱砂红克制线（#9C3B2E），五角跨位箭头，区别于相生的墨绿圆弧
 
 ### 修复
-- **金元素文字色修正**：`WuxingColors.textColor['金']` 从 `#8A6A32` 改为 `#666666`（深灰），所有金背景上的文字统一灰色可读
-- **答题反馈文字色修正**：`_optionFg` 和回炉页选项正确/错误反馈改用 `WuxingColors.textOnColor()`，不再硬编码 `Colors.white`
+- **wrongCount 累加**：同一道错题重复答错不再重置为 1，改为 `old.wrongCount + 1`，`createdAt` 保留首次时间
+- **回炉结果弹窗**：重做全部完成后弹出结果对话框，显示「已掌握 / 仍需回炉」数量
+- **回炉阶段中文名**：错题卡片显示来源阶段（轮盘题/彩色单选/无色单选）
+
+### 新增文件
+- `lib/widgets/wuxing_control_painter.dart` — 相克五角星 CustomPainter
 
 ---
-
-## 前版更新日志 — v0.1.4.1
 
 > 发布日期：2026-05-16
 
@@ -349,7 +355,7 @@ lib/
 | `wuxing_study_menu_page.dart` | 五行模块目录页：4 个知识点导航卡片 + 学习建议 |
 | `wuxing_color_page.dart` | 五行颜色与意象详情页：颜色卡片、对照表、记忆提示 |
 | `wuxing_generate_page.dart` | 五行相生（占位：即将开放） |
-| `wuxing_control_page.dart` | 五行相克（占位：即将开放） |
+| `wuxing_control_page.dart` | 五行相克学习页：五角星图、关系解释、断卦提示 |
 | `wuxing_center_page.dart` | 以我为中心（占位：即将开放） |
 | `dizhi_study_page.dart` | 地支学习详情：地支彩色网格、五行归类、地支分类 |
 | `relation_study_page.dart` | 六冲六合学习详情：冲合对展示、跳转练习 |
@@ -375,6 +381,7 @@ lib/
 | --- | --- |
 | `wuxing_wheel.dart` | 五行轮盘组件：累计箭头动画、自动循环、节点高亮、中央特效 |
 | `wuxing_arrow_painter.dart` | 圆弧箭头 CustomPainter：沿轮盘圆周绘制相生弧线 |
+| `wuxing_control_painter.dart` | 五角星克制线 CustomPainter：跨节点相克箭头 |
 | `effects/earth_metal_html.dart` | 土生金 HTML/SVG 动画，金石破土而出 |
 | `effects/fire_earth_html.dart` | 火生土 HTML/SVG 动画，灰烬掩埋火苗循环 |
 | `effects/generate_relation_effects_layer.dart` | 五槽位关系动画层：固定坐标渲染多条关系动画 |
@@ -448,6 +455,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.5` | 2026-05-16 | 新增 | 五行相克学习页，wrongCount 修复，回炉弹窗，阶段标签 |
 | `v0.1.4.2` | 2026-05-16 | 修复 | 金元素灰色文字，答题反馈色通用化 |
 | `v0.1.4.1` | 2026-05-16 | 新增 | 回炉错题重做系统，持久化存储 |
 | `v0.1.4` | 2026-05-16 | 新增 | 相生练习三阶段：轮盘→彩色单选→无色单选 |

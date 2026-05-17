@@ -92,6 +92,19 @@ class _ReviewPageState extends State<ReviewPage> {
     );
   }
 
+  String _stageLabel(String style) {
+    switch (style) {
+      case 'wheel':
+        return '轮盘题';
+      case 'colorChoice':
+        return '彩色单选';
+      case 'textChoice':
+        return '无色单选';
+      default:
+        return '相生练习';
+    }
+  }
+
   Widget _overviewCard(int count) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -146,7 +159,7 @@ class _ReviewPageState extends State<ReviewPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              '${m.relationText} · 错了 ${m.wrongCount} 次',
+              '${m.relationText} · 错了 ${m.wrongCount} 次 · ${_stageLabel(m.practiceStyle)}',
               style: const TextStyle(color: Color(0xFF6B4E2E), fontSize: 14),
             ),
             const SizedBox(height: 10),
