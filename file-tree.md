@@ -446,29 +446,29 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 ## 8. 版本历史
 
-| 版本 | 日期 | 类型 | 说明 |
-| --- | --- | --- | --- |
-| `v0.1.4.2` | 2026-05-16 | 修复 | 金元素灰色文字，答题反馈色通用化 |
-| `v0.1.4.1` | 2026-05-16 | 新增 | 回炉错题重做系统，持久化存储 |
-| `v0.1.4` | 2026-05-16 | 新增 | 相生练习三阶段：轮盘→彩色单选→无色单选 |
-| `v0.1.3.13` | 2026-05-16 | 优化 | 箭头 3500ms 对齐 5s 特效，一轮 25 秒 |
-| `v0.1.3.12` | 2026-05-16 | 优化 | 箭头 1800ms、火生土纯 CSS 版修复 viewBox |
-| `v0.1.3.11` | 2026-05-16 | 新增 | 全部五条相生 HTML 动画接入，轮盘还原慢速 |
-| `v0.1.3.10` | 2026-05-16 | 优化 | 轮盘加速至 5 秒一轮 |
-| `v0.1.3.9` | 2026-05-16 | 变更 | 木生火替换为钻木取火动画 |
-| `v0.1.3.8` | 2026-05-16 | 新增 | 火生土 HTML 动画，HtmlRelationEffect 泛化 |
-| `v0.1.3.7` | 2026-05-16 | 优化 | 放慢节奏、标题延迟、木火槽位内移 |
-| `v0.1.3.6` | 2026-05-16 | 重构 | 五固定槽位 + 中央关系标题，废弃中央单动画 |
-| `v0.1.3.5` | 2026-05-16 | 优化 | 中央火焰放大至 0.38、全程持续显示、SVG 裁切、淡入淡出 |
-| `v0.1.3.4` | 2026-05-16 | 新增 | WebView 木生火中央 HTML 特效接入 |
-| `v0.1.3.3` | 2026-05-16 | 修复 | 累计箭头正确暂停还原、圆弧箭头、addStatusListener |
-| `v0.1.3.2` | 2026-05-15 | 重构 | 删除顺序卡、轮盘循环动画、金色银灰、弧线箭头 |
-| `v0.1.3.1` | 2026-05-15 | 修复 | 关闭火焰特效、轮盘裁切修复、箭头动画重置、Painter 安全兜底 |
-| `v0.1.3` | 2026-05-15 | 新增 | 五行相生学习页、相生专项训练、箭头动画 |
-| `v0.1.2.2` | 2026-05-15 | 新增 | 五行轮盘 UI 组件 + 练习集成 |
-| `v0.1.2.1` | 2026-05-15 | 修复 | 颜色页文本溢出 + 五行配色统一 |
-| `v0.1.2` | 2026-05-15 | 新增 | 五行模块目录页、五行颜色与意象详情页、3 个知识占位页 |
-| `v0.1.0` | 2026-05-15 | 新增 | 初始版本：五行、地支、六冲、六合训练 + 错题回炉 |
+| 版本 | 日期 | 类型 | 说明 | 链接 |
+| --- | --- | --- | --- | --- |
+| `v0.1.4.2` | 2026-05-16 | 修复 | 金元素灰色文字，答题反馈色通用化 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.4.2) |
+| `v0.1.4.1` | 2026-05-16 | 新增 | 回炉错题重做系统，持久化存储 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.4.1) |
+| `v0.1.4` | 2026-05-16 | 新增 | 相生练习三阶段：轮盘→彩色单选→无色单选 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.4) |
+| `v0.1.3.13` | 2026-05-16 | 优化 | 箭头 3500ms 对齐 5s 特效，一轮 25 秒 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.13) |
+| `v0.1.3.12` | 2026-05-16 | 优化 | 箭头 1800ms、火生土纯 CSS 版修复 viewBox | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.12) |
+| `v0.1.3.11` | 2026-05-16 | 新增 | 全部五条相生 HTML 动画接入，轮盘还原慢速 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.11) |
+| `v0.1.3.10` | 2026-05-16 | 优化 | 轮盘加速至 5 秒一轮 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.10) |
+| `v0.1.3.9` | 2026-05-16 | 变更 | 木生火替换为钻木取火动画 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.9) |
+| `v0.1.3.8` | 2026-05-16 | 新增 | 火生土 HTML 动画，HtmlRelationEffect 泛化 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.8) |
+| `v0.1.3.7` | 2026-05-16 | 优化 | 放慢节奏、标题延迟、木火槽位内移 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.7) |
+| `v0.1.3.6` | 2026-05-16 | 重构 | 五固定槽位 + 中央关系标题，废弃中央单动画 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.6) |
+| `v0.1.3.5` | 2026-05-16 | 优化 | 中央火焰放大至 0.38、全程持续显示、SVG 裁切、淡入淡出 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.5) |
+| `v0.1.3.4` | 2026-05-16 | 新增 | WebView 木生火中央 HTML 特效接入 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.4) |
+| `v0.1.3.3` | 2026-05-16 | 修复 | 累计箭头正确暂停还原、圆弧箭头、addStatusListener | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.3) |
+| `v0.1.3.2` | 2026-05-15 | 重构 | 删除顺序卡、轮盘循环动画、金色银灰、弧线箭头 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.2) |
+| `v0.1.3.1` | 2026-05-15 | 修复 | 关闭火焰特效、轮盘裁切修复、箭头动画重置、Painter 安全兜底 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3.1) |
+| `v0.1.3` | 2026-05-15 | 新增 | 五行相生学习页、相生专项训练、箭头动画 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.3) |
+| `v0.1.2.2` | 2026-05-15 | 新增 | 五行轮盘 UI 组件 + 练习集成 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.2.2) |
+| `v0.1.2.1` | 2026-05-15 | 修复 | 颜色页文本溢出 + 五行配色统一 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.2.1) |
+| `v0.1.2` | 2026-05-15 | 新增 | 五行模块目录页、五行颜色与意象详情页、3 个知识占位页 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.2) |
+| `v0.1.0` | 2026-05-15 | 新增 | 初始版本：五行、地支、六冲、六合训练 + 错题回炉 | [查看](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.0) |
 
 ---
 
