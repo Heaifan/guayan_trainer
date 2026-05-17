@@ -133,12 +133,12 @@ class _ReviewTrainingPageState extends State<ReviewTrainingPage> {
                     if (_hasAnswered) {
                       if (isCorrect) {
                         bg = const Color(0xFF2F6F5E);
-                        fg = Colors.white;
+                        fg = WuxingColors.textOnColor(opt);
                         borderColor = const Color(0xFF2F6F5E);
                         borderWidth = 2.5;
                       } else if (isSelected) {
                         bg = const Color(0xFFC0392B);
-                        fg = Colors.white;
+                        fg = WuxingColors.textOnColor(opt);
                       }
                     }
 

@@ -33,7 +33,7 @@ class WuxingColors {
     '木': Color(0xFFFFFFFF),
     '火': Color(0xFFFFFFFF),
     '土': Color(0xFFFFFFFF),
-    '金': Color(0xFF8A6A32),
+    '金': Color(0xFF666666),
     '水': Color(0xFFFFFFFF),
   };
 

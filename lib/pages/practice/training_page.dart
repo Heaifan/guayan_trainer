@@ -160,8 +160,12 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Color? _optionFg(String option) {
     if (!_hasAnswered) return null;
-    if (option == _current.correctAnswer) return Colors.white;
-    if (option == _selectedAnswer) return Colors.white;
+    if (option == _current.correctAnswer) {
+      return WuxingColors.textOnColor(option);
+    }
+    if (option == _selectedAnswer) {
+      return WuxingColors.textOnColor(option);
+    }
     return null;
   }
 
