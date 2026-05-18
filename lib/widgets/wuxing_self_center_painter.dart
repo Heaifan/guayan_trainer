@@ -1,114 +1,118 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// Draws the four directional arrows and center ring for the self-center wheel.
+import '../data/wuxing_self_center_data.dart';
+
+/// Draws four directional arrows and center double ring for the self-center wheel.
 class WuxingSelfCenterPainter extends CustomPainter {
-  final String self;
+  final double centerRadius;
+  final double outerRadius;
 
-  const WuxingSelfCenterPainter({required this.self});
+  const WuxingSelfCenterPainter({
+    required this.centerRadius,
+    required this.outerRadius,
+  });
 
-  static const _positions = {
-    '生我': Offset(0.50, 0.16),
-    '我生': Offset(0.84, 0.50),
-    '我克': Offset(0.50, 0.84),
-    '克我': Offset(0.16, 0.50),
-  };
+  static const _generateIn = Color(0xFF2F8F5B);
+  static const _generateOut = Color(0xFFC65A2E);
+  static const _controlIn = Color(0xFF8A3A2A);
+  static const _controlOut = Color(0xFF8A6A32);
+  static const _ringColor = Color(0xFF2F6F5E);
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = Offset(size.width / 2, size.height / 2);
-    final nr = size.width * 0.09; // node radius for offset
-
-    // Helper: draw arrow from -> to
-    void drawArrow(Offset from, Offset to, Color color, {double width = 3}) {
-      final dx = to.dx - from.dx;
-      final dy = to.dy - from.dy;
-      final dist = math.sqrt(dx * dx + dy * dy);
-      if (dist < 1) return;
-      final ux = dx / dist;
-      final uy = dy / dist;
-
-      // Shorten by node radius
-      final sx = from.dx + ux * nr;
-      final sy = from.dy + uy * nr;
-      final ex = to.dx - ux * nr;
-      final ey = to.dy - uy * nr;
-
-      final paint = Paint()
-        ..color = color.withValues(alpha: 0.85)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width
-        ..strokeCap = StrokeCap.round;
-
-      // Draw dashed for 我克
-      if (color == const Color(0xFF8A6A32)) {
-        final dashPath = Path();
-        dashPath.moveTo(sx, sy);
-        final len = dist - nr * 2;
-        const dash = 6.0;
-        const gap = 4.0;
-        double d = 0;
-        while (d < len) {
-          final t0 = d / len;
-          final t1 = (d + dash) / len;
-          final px = sx + (ex - sx) * t0;
-          final py = sy + (ey - sy) * t0;
-          final qx = sx + (ex - sx) * t1.clamp(0.0, 1.0);
-          final qy = sy + (ey - sy) * t1.clamp(0.0, 1.0);
-          dashPath.lineTo(px, py);
-          dashPath.lineTo(qx, qy);
-          d += dash + gap;
-        }
-        canvas.drawPath(dashPath, paint);
-      } else {
-        canvas.drawLine(Offset(sx, sy), Offset(ex, ey), paint);
-      }
-
-      // Arrowhead
-      final angle = math.atan2(ey - sy, ex - sx);
-      final hs = 12.0;
-      final ha = angle;
-      final hx = ex;
-      final hy = ey;
-      final hpath = Path()
-        ..moveTo(hx, hy)
-        ..lineTo(hx - hs * math.cos(ha - 0.5), hy - hs * math.sin(ha - 0.5))
-        ..lineTo(hx - hs * math.cos(ha + 0.5), hy - hs * math.sin(ha + 0.5))
-        ..close();
-      canvas.drawPath(hpath, Paint()
-        ..color = color.withValues(alpha: 0.85)
-        ..style = PaintingStyle.fill);
-    }
-
     final s = size.width;
 
-    // 生我 (green, outer → center)
-    drawArrow(Offset(s * 0.50, s * 0.16), c, const Color(0xFF2F8F5B));
+    final pos = {
+      '生我': Offset(s * 0.50, s * 0.18),
+      '我生': Offset(s * 0.82, s * 0.50),
+      '我克': Offset(s * 0.50, s * 0.82),
+      '克我': Offset(s * 0.18, s * 0.50),
+    };
 
-    // 我生 (orange-red, center → outer)
-    drawArrow(c, Offset(s * 0.84, s * 0.50), const Color(0xFFC65A2E));
+    // Faint guide circle
+    canvas.drawCircle(c, s * 0.32,
+        Paint()
+          ..color = const Color(0xFFE0C28A).withValues(alpha: 0.2)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1);
 
-    // 克我 (deep red, outer → center)
-    drawArrow(Offset(s * 0.16, s * 0.50), c, const Color(0xFF8A3A2A));
+    // Arrows
+    _drawArrow(canvas, pos['生我']!, c, _generateIn, outerRadius + 4, centerRadius + 8);
+    _drawArrow(canvas, c, pos['我生']!, _generateOut, centerRadius + 8, outerRadius + 4);
+    _drawArrow(canvas, pos['克我']!, c, _controlIn, outerRadius + 4, centerRadius + 8, strokeWidth: 3.2);
+    _drawArrow(canvas, c, pos['我克']!, _controlOut, centerRadius + 8, outerRadius + 4, dashed: true);
 
-    // 我克 (brown, center → outer, dashed)
-    drawArrow(c, Offset(s * 0.50, s * 0.84), const Color(0xFF8A6A32));
+    // Center double ring
+    final rr = centerRadius;
+    canvas.drawCircle(c, rr + 4,
+        Paint()
+          ..color = _ringColor.withValues(alpha: 0.25)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5);
+    canvas.drawCircle(c, rr - 2,
+        Paint()
+          ..color = _ringColor.withValues(alpha: 0.45)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5);
+  }
 
-    // Center double ring (同我 / 旺)
-    final rr = s * 0.14;
-    final ringPaint = Paint()
-      ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.3)
+  void _drawArrow(Canvas canvas, Offset from, Offset to, Color color,
+      double startRadius, double endRadius,
+      {double strokeWidth = 2.8, bool dashed = false}) {
+    final dx = to.dx - from.dx;
+    final dy = to.dy - from.dy;
+    final dist = math.sqrt(dx * dx + dy * dy);
+    if (dist < 1) return;
+    final ux = dx / dist;
+    final uy = dy / dist;
+
+    final sx = from.dx + ux * startRadius;
+    final sy = from.dy + uy * startRadius;
+    final ex = to.dx - ux * endRadius;
+    final ey = to.dy - uy * endRadius;
+
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.85)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-    canvas.drawCircle(c, rr, ringPaint);
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
 
-    final innerRing = Paint()
-      ..color = const Color(0xFF2F6F5E).withValues(alpha: 0.5)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    canvas.drawCircle(c, rr - 5, innerRing);
+    if (dashed) {
+      final dashPath = Path();
+      dashPath.moveTo(sx, sy);
+      const dash = 6.0;
+      const gap = 5.0;
+      final len = math.sqrt((ex - sx) * (ex - sx) + (ey - sy) * (ey - sy));
+      var d = 0.0;
+      while (d < len) {
+        final t0 = d / len;
+        final t1 = (d + dash) / len;
+        dashPath.lineTo(
+            sx + (ex - sx) * t0, sy + (ey - sy) * t0);
+        dashPath.lineTo(
+            sx + (ex - sx) * t1.clamp(0, 1), sy + (ey - sy) * t1.clamp(0, 1));
+        d += dash + gap;
+      }
+      canvas.drawPath(dashPath, paint);
+    } else {
+      canvas.drawLine(Offset(sx, sy), Offset(ex, ey), paint);
+    }
+
+    // Arrowhead
+    final angle = math.atan2(ey - sy, ex - sx);
+    final hs = 11.0;
+    final hpath = Path()
+      ..moveTo(ex, ey)
+      ..lineTo(ex - hs * math.cos(angle - 0.5), ey - hs * math.sin(angle - 0.5))
+      ..lineTo(ex - hs * math.cos(angle + 0.5), ey - hs * math.sin(angle + 0.5))
+      ..close();
+    canvas.drawPath(hpath, Paint()
+      ..color = color.withValues(alpha: 0.85)
+      ..style = PaintingStyle.fill);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
