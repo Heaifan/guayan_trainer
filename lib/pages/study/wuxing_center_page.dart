@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../data/wuxing_self_center_data.dart';
+import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../widgets/wuxing_self_center_wheel.dart';
+import '../practice/training_page.dart';
 
 class WuxingCenterPage extends StatefulWidget {
   const WuxingCenterPage({super.key});
@@ -42,17 +44,12 @@ class _WuxingCenterPageState extends State<WuxingCenterPage> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('以我为中心练习'),
-                    content: const Text('以我为中心练习即将开放，敬请期待。'),
-                    actions: [
-                      FilledButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('知道了'),
-                      ),
-                    ],
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const TrainingPage(
+                      title: '以我为中心练习',
+                      mode: TrainingMode.wuxingSelfCenter,
+                    ),
                   ),
                 );
               },

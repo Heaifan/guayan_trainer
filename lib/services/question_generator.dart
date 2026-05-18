@@ -3,6 +3,7 @@ import 'dart:math';
 import '../data/dizhi_data.dart';
 import '../data/relation_data.dart';
 import '../data/wuxing_data.dart';
+import '../data/wuxing_self_center_data.dart';
 import '../models/training_question.dart';
 
 enum TrainingMode {
@@ -13,6 +14,7 @@ enum TrainingMode {
   mixed,
   wuxingGenerate,
   wuxingControl,
+  wuxingSelfCenter,
 }
 
 class QuestionGenerator {
@@ -22,6 +24,9 @@ class QuestionGenerator {
     required TrainingMode mode,
     int count = 10,
   }) {
+    if (mode == TrainingMode.wuxingSelfCenter) {
+      return _generateSelfCenterQuestions(count);
+    }
     return List.generate(count, (_) {
       switch (mode) {
         case TrainingMode.wuxing:
@@ -38,6 +43,8 @@ class QuestionGenerator {
           return _generateSixHeQuestion();
         case TrainingMode.mixed:
           return _generateMixedQuestion();
+        default:
+          return _generateWuxingQuestion();
       }
     });
   }
@@ -76,6 +83,68 @@ class QuestionGenerator {
       targetElement: answer,
       relationType: 'control',
     );
+  }
+
+  /// 以我为中心练习：12 题三阶段。
+  List<TrainingQuestion> _generateSelfCenterQuestions(int count) {
+    final questions = <TrainingQuestion>[];
+    final elements = WuxingData.elements;
+
+    for (int i = 0; i < count; i++) {
+      final self = _pick(elements);
+
+      if (i < 4) {
+        // Stage 1: pickElement — 谁生我？我生谁？谁克我？我克谁？谁同我？
+        final relations = ['生我', '我生', '克我', '我克', '同我'];
+        final rel = relations[i % relations.length];
+        final answer = wuxingSelfCenterRelations[self]![rel]!;
+        final other = answer;
+        questions.add(TrainingQuestion(
+          type: QuestionType.wuxingSelfCenter,
+          prompt: '以$self为中心，$rel？',
+          correctAnswer: other,
+          options: List.from(elements),
+          knowledgeKey: '$self$rel$other',
+          explanation: selfCenterExplanation(self: self, other: other),
+          sourceElement: other,
+          targetElement: self,
+          relationType: 'selfCenter',
+        ));
+      } else if (i < 8) {
+        // Stage 2: pickRelation — 某元素是生我/我生/克我/我克/同我？
+        final others = elements.where((e) => e != self).toList()..add(self);
+        final other = _pick(others);
+        final answer = relationOfOtherToSelf(self: self, other: other);
+        questions.add(TrainingQuestion(
+          type: QuestionType.wuxingSelfCenter,
+          prompt: '以$self为中心，$other是？',
+          correctAnswer: answer,
+          options: ['生我', '我生', '克我', '我克', '同我'],
+          knowledgeKey: '$self$answer$other',
+          explanation: selfCenterExplanation(self: self, other: other),
+          sourceElement: other,
+          targetElement: self,
+          relationType: 'selfCenter',
+        ));
+      } else {
+        // Stage 3: pickState — 某元素为旺/相/休/囚/死？
+        final others = elements.where((e) => e != self).toList()..add(self);
+        final other = _pick(others);
+        final answer = stateOfOtherToSelf(self: self, other: other);
+        questions.add(TrainingQuestion(
+          type: QuestionType.wuxingSelfCenter,
+          prompt: '以$self为中心，$other为？',
+          correctAnswer: answer,
+          options: ['旺', '相', '休', '囚', '死'],
+          knowledgeKey: '$self$other$answer',
+          explanation: selfCenterExplanation(self: self, other: other),
+          sourceElement: other,
+          targetElement: self,
+          relationType: 'selfCenter',
+        ));
+      }
+    }
+    return questions;
   }
 
   String _controlExplanation(String from, String to) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/wuxing_self_center_data.dart';
 import '../../models/mistake_item.dart';
 import '../../models/training_question.dart';
 import '../../models/training_result.dart';
@@ -7,19 +8,17 @@ import '../../services/mistake_store.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../widgets/wuxing_control_wheel.dart';
+import '../../widgets/wuxing_self_center_wheel.dart';
 import '../../widgets/wuxing_wheel.dart';
 import 'result_page.dart';
 
-/// 五行相生练习的三种题型阶段。
-enum GeneratePracticeStyle {
-  /// 轮盘题：在五行轮盘上点击答案
+/// 练习题型阶段。
+enum PracticeStyle {
   wheel,
-
-  /// 彩色单选：五张五行彩色选项卡
   colorChoice,
-
-  /// 无色单选：去掉颜色提示，纯文字卡
   textChoice,
+  relationChoice,
+  stateChoice,
 }
 
 class TrainingPage extends StatefulWidget {
@@ -50,22 +49,32 @@ class _TrainingPageState extends State<TrainingPage> {
 
   TrainingQuestion get _current => _questions[_index];
 
-  /// 当前题型阶段（仅相生/相克模式有效）。
-  GeneratePracticeStyle get _currentStyle {
-    if (_index < 4) return GeneratePracticeStyle.wheel;
-    if (_index < 8) return GeneratePracticeStyle.colorChoice;
-    return GeneratePracticeStyle.textChoice;
+  /// 当前题型阶段。
+  PracticeStyle get _currentStyle {
+    if (widget.mode == TrainingMode.wuxingSelfCenter) {
+      if (_index < 4) return PracticeStyle.wheel;
+      if (_index < 8) return PracticeStyle.relationChoice;
+      return PracticeStyle.stateChoice;
+    }
+    // 相生/相克
+    if (_index < 4) return PracticeStyle.wheel;
+    if (_index < 8) return PracticeStyle.colorChoice;
+    return PracticeStyle.textChoice;
   }
 
   /// 阶段标签文案。
   String get _stageLabel {
     switch (_currentStyle) {
-      case GeneratePracticeStyle.wheel:
-        return '阶段一 · 轮盘题';
-      case GeneratePracticeStyle.colorChoice:
+      case PracticeStyle.wheel:
+        return '阶段一 · 圆盘题';
+      case PracticeStyle.colorChoice:
         return '阶段二 · 彩色单选';
-      case GeneratePracticeStyle.textChoice:
+      case PracticeStyle.textChoice:
         return '阶段三 · 无色单选';
+      case PracticeStyle.relationChoice:
+        return '阶段二 · 关系判断';
+      case PracticeStyle.stateChoice:
+        return '阶段三 · 旺衰判断';
     }
   }
 
@@ -74,7 +83,7 @@ class _TrainingPageState extends State<TrainingPage> {
     super.initState();
     _questions = _generator.generateSession(
       mode: widget.mode,
-      count: (widget.mode == TrainingMode.wuxingGenerate || widget.mode == TrainingMode.wuxingControl) ? 12 : 10,
+      count: (widget.mode == TrainingMode.wuxingGenerate || widget.mode == TrainingMode.wuxingControl || widget.mode == TrainingMode.wuxingSelfCenter) ? 12 : 10,
     );
     _questionStartTime = DateTime.now();
   }
@@ -107,12 +116,18 @@ class _TrainingPageState extends State<TrainingPage> {
       } else if (widget.mode == TrainingMode.wuxingControl) {
         topic = 'control';
         relationPrefix = '克';
+      } else if (widget.mode == TrainingMode.wuxingSelfCenter) {
+        topic = 'selfCenter';
+        relationPrefix = '';
       }
 
       if (topic != null) {
         final now = DateTime.now();
         final id = 'wuxing_${topic}_${_current.sourceElement}_${_current.correctAnswer}';
         final existing = MistakeStore.instance.all.where((e) => e.id == id).firstOrNull;
+        final relText = topic == 'selfCenter'
+            ? '${_current.sourceElement}${_current.targetElement ?? ''}'
+            : '${_current.sourceElement}$relationPrefix${_current.correctAnswer}';
         await MistakeStore.instance.addOrUpdateMistake(
           MistakeItem(
             id: id,
@@ -122,7 +137,7 @@ class _TrainingPageState extends State<TrainingPage> {
             sourceElement: _current.sourceElement ?? '',
             correctAnswer: _current.correctAnswer,
             wrongAnswer: answer,
-            relationText: '${_current.sourceElement}$relationPrefix${_current.correctAnswer}',
+            relationText: relText,
             practiceStyle: _currentStyle.name,
             wrongCount: existing != null ? existing.wrongCount + 1 : 1,
             createdAt: existing?.createdAt ?? now,
@@ -190,7 +205,8 @@ class _TrainingPageState extends State<TrainingPage> {
     final progress = '${_index + 1}/${_questions.length}';
     final isGenerate = widget.mode == TrainingMode.wuxingGenerate;
     final isControl = widget.mode == TrainingMode.wuxingControl;
-    final showArrow = (isGenerate || isControl) && _currentStyle == GeneratePracticeStyle.wheel;
+    final isSelfCenter = widget.mode == TrainingMode.wuxingSelfCenter;
+    final showArrow = (isGenerate || isControl) && _currentStyle == PracticeStyle.wheel;
 
     return Scaffold(
       appBar: AppBar(
@@ -210,7 +226,7 @@ class _TrainingPageState extends State<TrainingPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (isGenerate || isControl)
+                if (isGenerate || isControl || isSelfCenter)
                   Text(_stageLabel,
                       style: const TextStyle(
                           color: Color(0xFF8A6A3A), fontSize: 13)),
@@ -261,14 +277,19 @@ class _TrainingPageState extends State<TrainingPage> {
   /// 根据当前题型阶段返回对应的答题区域。
   Widget _answerArea() {
     if (widget.mode == TrainingMode.wuxingGenerate ||
-        widget.mode == TrainingMode.wuxingControl) {
+        widget.mode == TrainingMode.wuxingControl ||
+        widget.mode == TrainingMode.wuxingSelfCenter) {
       switch (_currentStyle) {
-        case GeneratePracticeStyle.wheel:
+        case PracticeStyle.wheel:
           return _wheelArea();
-        case GeneratePracticeStyle.colorChoice:
+        case PracticeStyle.colorChoice:
           return _colorChoiceArea();
-        case GeneratePracticeStyle.textChoice:
+        case PracticeStyle.textChoice:
           return _textChoiceArea();
+        case PracticeStyle.relationChoice:
+          return _relationChoiceArea();
+        case PracticeStyle.stateChoice:
+          return _stateChoiceArea();
       }
     }
     // 非相生模式：使用原有的垂直列表
@@ -280,8 +301,9 @@ class _TrainingPageState extends State<TrainingPage> {
   }
 
   Widget _wheelArea() {
-    final isControl = widget.mode == TrainingMode.wuxingControl;
-    return isControl ? _controlWheelArea() : _generateWheelArea();
+    if (widget.mode == TrainingMode.wuxingControl) return _controlWheelArea();
+    if (widget.mode == TrainingMode.wuxingSelfCenter) return _selfCenterWheelArea();
+    return _generateWheelArea();
   }
 
   Widget _controlWheelArea() {
@@ -309,6 +331,102 @@ class _TrainingPageState extends State<TrainingPage> {
                 style: TextStyle(color: Color(0xFF8A6A3A), fontSize: 14)),
           ),
       ],
+    );
+  }
+
+  Widget _selfCenterWheelArea() {
+    final correctRel = _hasAnswered && _current.sourceElement != null
+        ? relationOfOtherToSelf(self: _current.targetElement ?? '', other: _current.sourceElement!)
+        : null;
+    return Column(
+      children: [
+        SizedBox(
+          height: 300,
+          child: WuxingSelfCenterWheel(
+            selfElement: _current.targetElement ?? '木',
+            showLabels: _hasAnswered,
+            showArrows: _hasAnswered,
+            activeRelation: correctRel,
+            onElementTap: _hasAnswered ? null : _answer,
+          ),
+        ),
+        if (!_hasAnswered)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text('凭记忆点击答案',
+                style: TextStyle(color: Color(0xFF8A6A3A), fontSize: 14)),
+          ),
+      ],
+    );
+  }
+
+  Widget _relationChoiceArea() {
+    final options = ['生我', '我生', '克我', '我克', '同我'];
+    return Center(
+      child: Wrap(
+        spacing: 12, runSpacing: 12,
+        alignment: WrapAlignment.center,
+        children: options.map((opt) {
+          final isCorrect = opt == _current.correctAnswer;
+          final isSelected = opt == _selectedAnswer;
+          Color? bg;
+          Color? fg;
+          if (_hasAnswered) {
+            if (isCorrect) {
+              bg = const Color(0xFF2F6F5E);
+              fg = Colors.white;
+            } else if (isSelected) {
+              bg = const Color(0xFFC0392B);
+              fg = Colors.white;
+            }
+          }
+          return FilledButton.tonal(
+            style: FilledButton.styleFrom(
+              backgroundColor: bg,
+              foregroundColor: fg,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => _answer(opt),
+            child: Text(opt, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _stateChoiceArea() {
+    final options = ['旺', '相', '休', '囚', '死'];
+    return Center(
+      child: Wrap(
+        spacing: 12, runSpacing: 12,
+        alignment: WrapAlignment.center,
+        children: options.map((opt) {
+          final isCorrect = opt == _current.correctAnswer;
+          final isSelected = opt == _selectedAnswer;
+          Color? bg;
+          Color? fg;
+          if (_hasAnswered) {
+            if (isCorrect) {
+              bg = const Color(0xFF2F6F5E);
+              fg = Colors.white;
+            } else if (isSelected) {
+              bg = const Color(0xFFC0392B);
+              fg = Colors.white;
+            }
+          }
+          return FilledButton.tonal(
+            style: FilledButton.styleFrom(
+              backgroundColor: bg,
+              foregroundColor: fg,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => _answer(opt),
+            child: Text(opt, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          );
+        }).toList(),
+      ),
     );
   }
 

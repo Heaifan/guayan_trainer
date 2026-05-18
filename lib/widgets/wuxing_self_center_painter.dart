@@ -1,16 +1,18 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-import '../data/wuxing_self_center_data.dart';
-
-/// Draws four directional arrows and center double ring for the self-center wheel.
+/// Draws arrows and center ring for the self-center wheel.
 class WuxingSelfCenterPainter extends CustomPainter {
   final double centerRadius;
   final double outerRadius;
+  final bool showArrows;
+  final String? activeRelation;
 
   const WuxingSelfCenterPainter({
     required this.centerRadius,
     required this.outerRadius,
+    this.showArrows = true,
+    this.activeRelation,
   });
 
   static const _generateIn = Color(0xFF2F8F5B);
@@ -25,8 +27,8 @@ class WuxingSelfCenterPainter extends CustomPainter {
     final s = size.width;
 
     final pos = {
-      '生我': Offset(s * 0.50, s * 0.18),
-      '我生': Offset(s * 0.82, s * 0.50),
+      '生我': Offset(s * 0.50, s * 0.20),
+      '我生': Offset(s * 0.78, s * 0.50),
       '我克': Offset(s * 0.50, s * 0.80),
       '克我': Offset(s * 0.22, s * 0.50),
     };
@@ -38,28 +40,36 @@ class WuxingSelfCenterPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1);
 
-    // Arrows
-    _drawArrow(canvas, pos['生我']!, c, _generateIn, outerRadius + 4, centerRadius + 8);
-    _drawArrow(canvas, c, pos['我生']!, _generateOut, centerRadius + 8, outerRadius + 4);
-    _drawArrow(canvas, pos['克我']!, c, _controlIn, outerRadius + 4, centerRadius + 8, strokeWidth: 3.2);
-    _drawArrow(canvas, c, pos['我克']!, _controlOut, centerRadius + 8, outerRadius + 4, dashed: true);
+    if (!showArrows) return;
 
-    // Center double ring
+    // Draw only the active arrow if specified, otherwise all four
+    final arrowSpecs = [
+      ('生我', pos['生我']!, c, _generateIn, false),
+      ('我生', pos['我生']!, c, _generateOut, true),
+      ('克我', pos['克我']!, c, _controlIn, false),
+      ('我克', pos['我克']!, c, _controlOut, true),
+    ];
+
+    for (final (rel, from, to, color, fromCenter) in arrowSpecs) {
+      if (activeRelation != null && rel != activeRelation) continue;
+      if (fromCenter) {
+        _drawArrow(canvas, to, from, color, centerRadius + 8, outerRadius + 4,
+            dashed: rel == '我克');
+      } else {
+        _drawArrow(canvas, from, to, color, outerRadius + 4, centerRadius + 8);
+      }
+    }
+
+    // Center double ring (always show when arrows visible)
     final rr = centerRadius;
     canvas.drawCircle(c, rr + 4,
-        Paint()
-          ..color = _ringColor.withValues(alpha: 0.25)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.5);
+        Paint()..color = _ringColor.withValues(alpha: 0.25)..style = PaintingStyle.stroke..strokeWidth = 2.5);
     canvas.drawCircle(c, rr - 2,
-        Paint()
-          ..color = _ringColor.withValues(alpha: 0.45)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5);
+        Paint()..color = _ringColor.withValues(alpha: 0.45)..style = PaintingStyle.stroke..strokeWidth = 1.5);
   }
 
   void _drawArrow(Canvas canvas, Offset from, Offset to, Color color,
-      double startRadius, double endRadius,
+      double startR, double endR,
       {double strokeWidth = 2.8, bool dashed = false}) {
     final dx = to.dx - from.dx;
     final dy = to.dy - from.dy;
@@ -68,10 +78,10 @@ class WuxingSelfCenterPainter extends CustomPainter {
     final ux = dx / dist;
     final uy = dy / dist;
 
-    final sx = from.dx + ux * startRadius;
-    final sy = from.dy + uy * startRadius;
-    final ex = to.dx - ux * endRadius;
-    final ey = to.dy - uy * endRadius;
+    final sx = from.dx + ux * startR;
+    final sy = from.dy + uy * startR;
+    final ex = to.dx - ux * endR;
+    final ey = to.dy - uy * endR;
 
     final paint = Paint()
       ..color = color.withValues(alpha: 0.85)
@@ -89,10 +99,8 @@ class WuxingSelfCenterPainter extends CustomPainter {
       while (d < len) {
         final t0 = d / len;
         final t1 = (d + dash) / len;
-        dashPath.lineTo(
-            sx + (ex - sx) * t0, sy + (ey - sy) * t0);
-        dashPath.lineTo(
-            sx + (ex - sx) * t1.clamp(0, 1), sy + (ey - sy) * t1.clamp(0, 1));
+        dashPath.lineTo(sx + (ex - sx) * t0, sy + (ey - sy) * t0);
+        dashPath.lineTo(sx + (ex - sx) * t1.clamp(0, 1), sy + (ey - sy) * t1.clamp(0, 1));
         d += dash + gap;
       }
       canvas.drawPath(dashPath, paint);
@@ -100,7 +108,6 @@ class WuxingSelfCenterPainter extends CustomPainter {
       canvas.drawLine(Offset(sx, sy), Offset(ex, ey), paint);
     }
 
-    // Arrowhead
     final angle = math.atan2(ey - sy, ex - sx);
     final hs = 11.0;
     final hpath = Path()
@@ -108,9 +115,7 @@ class WuxingSelfCenterPainter extends CustomPainter {
       ..lineTo(ex - hs * math.cos(angle - 0.5), ey - hs * math.sin(angle - 0.5))
       ..lineTo(ex - hs * math.cos(angle + 0.5), ey - hs * math.sin(angle + 0.5))
       ..close();
-    canvas.drawPath(hpath, Paint()
-      ..color = color.withValues(alpha: 0.85)
-      ..style = PaintingStyle.fill);
+    canvas.drawPath(hpath, Paint()..color = color.withValues(alpha: 0.85)..style = PaintingStyle.fill);
   }
 
   @override

@@ -96,6 +96,39 @@ const selfCenterRows = [
 /// 关系显示顺序。
 const relationOrder = ['生我', '我生', '克我', '我克', '同我'];
 
+/// 反查：以 self 为中心，other 是什么关系。
+String relationOfOtherToSelf({required String self, required String other}) {
+  final relations = wuxingSelfCenterRelations[self]!;
+  return relations.entries.firstWhere((e) => e.value == other).key;
+}
+
+/// 反查：以 self 为中心，other 的状态（旺相休囚死）。
+String stateOfOtherToSelf({required String self, required String other}) {
+  final relation = relationOfOtherToSelf(self: self, other: other);
+  return relationStateMap[relation]!;
+}
+
+/// 练习反馈解释。
+String selfCenterExplanation({required String self, required String other}) {
+  final relation = relationOfOtherToSelf(self: self, other: other);
+  final state = relationStateMap[relation]!;
+  switch (relation) {
+    case '生我': return '$other 生 $self，所以 $other 为生我；生我对应：$state。';
+    case '我生': return '$self 生 $other，所以 $other 为我生；我生对应：$state。';
+    case '克我': return '$other 克 $self，所以 $other 为克我；克我对应：$state。';
+    case '我克': return '$self 克 $other，所以 $other 为我克；我克对应：$state。';
+    case '同我': return '$other 与 $self 同类，所以 $other 为同我；同我对应：$state。';
+    default: return '';
+  }
+}
+
+/// 练习关系摘要（例：金克木｜克我｜囚）。
+String selfCenterRelationText({required String self, required String other}) {
+  final relation = relationOfOtherToSelf(self: self, other: other);
+  final state = relationStateMap[relation]!;
+  return '$other$self｜$relation｜$state';
+}
+
 /// 以我为中心圆盘外圈坐标 (相对值 0~1)。
 const selfCenterPositions = {
   '生我': (0.50, 0.20),

@@ -7,6 +7,7 @@ enum QuestionType {
   sixChong,
   sixHe,
   relationJudge,
+  wuxingSelfCenter,
 }
 
 class TrainingQuestion {

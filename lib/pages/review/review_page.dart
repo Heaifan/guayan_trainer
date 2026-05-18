@@ -96,20 +96,19 @@ class _ReviewPageState extends State<ReviewPage> {
     switch (topic) {
       case 'generate': return '五行相生';
       case 'control': return '五行相克';
+      case 'selfCenter': return '以我为中心';
       default: return '五行';
     }
   }
 
   String _stageLabel(String style) {
     switch (style) {
-      case 'wheel':
-        return '轮盘题';
-      case 'colorChoice':
-        return '彩色单选';
-      case 'textChoice':
-        return '无色单选';
-      default:
-        return '练习';
+      case 'wheel': return '圆盘题';
+      case 'colorChoice': return '彩色单选';
+      case 'textChoice': return '无色单选';
+      case 'relationChoice': return '关系判断';
+      case 'stateChoice': return '旺衰判断';
+      default: return '练习';
     }
   }
 
