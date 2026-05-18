@@ -1,39 +1,39 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.6.2
+> **当前版本：** v0.1.7
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-18 14:58
+> **最后编辑：** 2026-05-18 15:05
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.6.2
+## 当前版本更新日志 — v0.1.7
+
+> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.7)
+
+### 新增
+- **以我为中心学习页**：正式替代「即将开放」占位页，包含五行选择器、关系图、旺相休囚死对照表、五行速查表
+- **`wuxing_self_center_data.dart`**：以我为中心关系映射、旺相休囚死映射、解释文案、速查表数据
+
+### 页面结构
+- 顶部说明卡 — 「定一个我，看五种关系」
+- 五行选择器 — 点击切换，关系图和状态实时刷新
+- 关系图卡片 — 显示生我/我生/克我/我克/同我 + 对应状态
+- 旺相休囚死对照表 — 五种状态解释
+- 五行速查表 — 五行全部五种状态的完整速查
+
+---
+
+## 前版更新日志 — v0.1.6.2
 
 > 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.6.2)
 
 ### 优化
-- **轮盘尺寸稳定**：相克轮盘题答题前后固定高度 300px（轮盘）+ 150px（特效/占位），页面不再跳动
-- **结果页三阶段统计**：`QuestionAnswerResult` 新增 `practiceStyle` 字段，结果页显示轮盘题/彩色单选/无色单选各阶段正确率
-- **回炉卡片来源标签**：错题卡片顶部显示「五行相生 ｜ 轮盘题」或「五行相克 ｜ 彩色单选」，区分来源
-
-### 修改文件
-- `lib/models/training_result.dart` — 加 `practiceStyle`、`stageStats`
-- `lib/pages/practice/training_page.dart` — 相克轮盘固定高度布局
-- `lib/pages/practice/result_page.dart` — 分阶段表现卡片
-- `lib/pages/review/review_page.dart` — 来源 + 阶段标签
-
----
-
-## 前版更新日志 — v0.1.6.1
-
-> 发布日期：2026-05-16 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.6.1)
-
-### 修复
-- **相克练习页答题前隐藏提示**：`WuxingControlWheel` 新增 `showBaseLines`/`showActiveArrow`/`showActiveHighlight` 参数，答题前不显示五角线、箭头、节点高亮
-- **答题后显示 HTML 特效**：相克轮盘题答对答错均显示正确关系的 `ControlRelationEffect` 特效，强化记忆
-- **按钮文案调整**：「根据五行关系，点击答案」→「凭记忆点击答案」
+- **轮盘尺寸稳定**：相克轮盘题答题前后固定高度，页面不再跳动
+- **结果页三阶段统计**：`QuestionAnswerResult` 新增 `practiceStyle` 字段
+- **回炉卡片来源标签**：显示「五行相生 ｜ 轮盘题」等来源
 
 ---
 
@@ -137,6 +137,7 @@ lib/
 | 文件 | 职责 |
 | --- | --- |
 | `wuxing_data.dart` | 五行列表 + 相生相克映射表 + 反向查询 |
+| `wuxing_self_center_data.dart` | 以我为中心关系映射 + 旺相休囚死 |
 | `dizhi_data.dart` | 十二地支结构化数据：五行、阴阳、方位、月份 |
 | `relation_data.dart` | 六冲六合映射 + 双端查询 + 关系判定 |
 
@@ -170,7 +171,7 @@ lib/
 | `wuxing_color_page.dart` | 五行颜色与意象详情页：颜色卡片、对照表、记忆提示 |
 | `wuxing_generate_page.dart` | 五行相生（占位：即将开放） |
 | `wuxing_control_page.dart` | 五行相克学习页：五角星图、关系解释、断卦提示 |
-| `wuxing_center_page.dart` | 以我为中心（占位：即将开放） |
+| `wuxing_center_page.dart` | 以我为中心学习页：五行选择 + 关系图 + 旺相休囚死 |
 | `dizhi_study_page.dart` | 地支学习详情：地支彩色网格、五行归类、地支分类 |
 | `relation_study_page.dart` | 六冲六合学习详情：冲合对展示、跳转练习 |
 
@@ -278,6 +279,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.7` | 2026-05-18 | 新增 | 以我为中心学习页，旺相休囚死 |
 | `v0.1.6.2` | 2026-05-18 | 优化 | 轮盘尺寸稳定，结果页三阶段统计，回炉来源标签 |
 | `v0.1.6.1` | 2026-05-16 | 修复 | 答题前隐藏提示，答题后显示特效 |
 | `v0.1.5` | 2026-05-16 | 新增 | 五行相克学习页，wrongCount 修复，回炉弹窗，阶段标签 |
