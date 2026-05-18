@@ -7,7 +7,7 @@ import 'metal_wood_control_html.dart';
 import 'water_fire_control_html.dart';
 import 'wood_earth_control_html.dart';
 
-/// WebView wrapper for 相克 (control) HTML effects.
+/// 相克 HTML 特效 — 矩形透明 WebView，不圆形裁剪。
 class ControlRelationEffect extends StatefulWidget {
   final String? sourceElement;
   final String? targetElement;
@@ -19,7 +19,7 @@ class ControlRelationEffect extends StatefulWidget {
     required this.sourceElement,
     required this.targetElement,
     required this.visible,
-    this.size = 92,
+    this.size = 120,
   });
 
   @override
@@ -76,10 +76,7 @@ class _ControlRelationEffectState extends State<ControlRelationEffect> {
       child: SizedBox(
         width: widget.size,
         height: widget.size,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(widget.size / 2),
-          child: WebViewWidget(controller: _controller!),
-        ),
+        child: WebViewWidget(controller: _controller!),
       ),
     );
   }

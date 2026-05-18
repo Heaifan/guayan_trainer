@@ -1,10 +1,59 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../theme/wuxing_colors.dart';
+import '../../widgets/effects/control/control_relation_effects_layer.dart';
+import '../../widgets/wuxing_arrow_painter.dart';
 import '../../widgets/wuxing_control_wheel.dart';
 
-class WuxingControlPage extends StatelessWidget {
+class WuxingControlPage extends StatefulWidget {
   const WuxingControlPage({super.key});
+
+  @override
+  State<WuxingControlPage> createState() => _WuxingControlPageState();
+}
+
+class _WuxingControlPageState extends State<WuxingControlPage> {
+  int _activeIndex = 0;
+  Timer? _cycleTimer;
+
+  static const _relations = [
+    ('木', '土', '木根破土，根能制土。'),
+    ('土', '水', '土能筑堤，阻水归槽。'),
+    ('水', '火', '水幕压火，火势熄弱。'),
+    ('火', '金', '烈火熔金，金属失形。'),
+    ('金', '木', '金刃伐木，木被削断。'),
+  ];
+
+  String get _currentTitle {
+    final (from, to, _) = _relations[_activeIndex];
+    return '$from克$to';
+  }
+
+  String get _currentDescription {
+    final (_, _, desc) = _relations[_activeIndex];
+    return desc;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _startCycle();
+  }
+
+  @override
+  void dispose() {
+    _cycleTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startCycle() {
+    _cycleTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      setState(() {
+        _activeIndex = (_activeIndex + 1) % _relations.length;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +65,10 @@ class WuxingControlPage extends StatelessWidget {
           _introCard(),
           const SizedBox(height: 16),
           _wheelSection(),
-          const SizedBox(height: 8),
-          const Center(
-            child: Text('克线五交，制约有序',
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF9C3B2E))),
-          ),
+          const SizedBox(height: 12),
+          _titleSection(),
+          const SizedBox(height: 12),
+          _effectSection(),
           const SizedBox(height: 20),
           _explanationsCard(),
           const SizedBox(height: 16),
@@ -85,20 +130,67 @@ class WuxingControlPage extends StatelessWidget {
 
   Widget _wheelSection() {
     return SizedBox(
-      height: 360,
-      child: WuxingControlWheel(autoPlayAccumulate: true),
+      height: 280,
+      child: WuxingControlWheel(
+        autoPlay: true,
+        activeIndex: _activeIndex,
+      ),
+    );
+  }
+
+  Widget _titleSection() {
+    return Column(
+      children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: Text(
+            _currentTitle,
+            key: ValueKey(_currentTitle),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF9C3B2E),
+              letterSpacing: 3,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: Text(
+            _currentDescription,
+            key: ValueKey(_currentDescription),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Color(0xFF6B4E2E),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _effectSection() {
+    final edge = _relations[_activeIndex];
+    return Container(
+      width: double.infinity,
+      height: 130,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE0C28A).withValues(alpha: 0.3)),
+      ),
+      child: Center(
+        child: ControlRelationEffectsLayer(
+          activeEdge: WuxingEdge(edge.$1, edge.$2),
+          effectSize: 120,
+        ),
+      ),
     );
   }
 
   Widget _explanationsCard() {
-    const controls = [
-      ('木', '克', '土', '木根破土，根能制土。'),
-      ('土', '克', '水', '土能筑堤，阻水归槽。'),
-      ('水', '克', '火', '水幕压火，火势熄弱。'),
-      ('火', '克', '金', '烈火熔金，金属失形。'),
-      ('金', '克', '木', '金刃伐木，木被削断。'),
-    ];
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -112,26 +204,37 @@ class WuxingControlPage extends StatelessWidget {
           const Text('相克关系',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
           const SizedBox(height: 12),
-          ...controls.map((c) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
+          ..._relations.map((c) {
+            final (from, to, desc) = c;
+            final isCurrent = c == _relations[_activeIndex];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Opacity(
+                opacity: isCurrent ? 1.0 : 0.65,
                 child: Row(
                   children: [
-                    _chip(c.$1, WuxingColors.getColor(c.$1)),
+                    _chip(from, WuxingColors.getColor(from)),
                     const SizedBox(width: 4),
-                    Text(c.$2,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w800)),
+                    Text('克',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: isCurrent
+                                ? const Color(0xFF9C3B2E)
+                                : const Color(0xFF6B4E2E))),
                     const SizedBox(width: 4),
-                    _chip(c.$3, WuxingColors.getColor(c.$3)),
+                    _chip(to, WuxingColors.getColor(to)),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(c.$4,
+                      child: Text(desc,
                           style: const TextStyle(
                               fontSize: 14, color: Color(0xFF6B4E2E))),
                     ),
                   ],
                 ),
-              )),
+              ),
+            );
+          }),
         ],
       ),
     );
