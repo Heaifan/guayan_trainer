@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/wuxing_colors.dart';
+import 'effects/control/control_relation_effect.dart';
 import 'wuxing_arrow_painter.dart';
 import 'wuxing_control_arrow_painter.dart';
 
@@ -126,6 +127,23 @@ class _WuxingControlWheelState extends State<WuxingControlWheel>
                     ),
                   ),
                 ),
+
+                // Center effect (practice mode: show after answering)
+                if (!widget.autoPlay && widget.hasAnswered && activeEdge != null)
+                  Positioned(
+                    left: size * 0.28,
+                    top: size * 0.28,
+                    width: size * 0.44,
+                    height: size * 0.44,
+                    child: IgnorePointer(
+                      child: ControlRelationEffect(
+                        sourceElement: activeEdge.from,
+                        targetElement: activeEdge.to,
+                        visible: true,
+                        size: size * 0.44,
+                      ),
+                    ),
+                  ),
 
                 // Node layer
                 ..._elements.map((e) {

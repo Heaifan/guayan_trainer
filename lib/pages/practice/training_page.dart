@@ -6,7 +6,6 @@ import '../../models/training_result.dart';
 import '../../services/mistake_store.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
-import '../../widgets/effects/control/control_relation_effect.dart';
 import '../../widgets/wuxing_control_wheel.dart';
 import '../../widgets/wuxing_wheel.dart';
 import 'result_page.dart';
@@ -302,16 +301,13 @@ class _TrainingPageState extends State<TrainingPage> {
             showActiveHighlight: _hasAnswered,
           ),
         ),
-        // Fixed-height effect area or placeholder
-        SizedBox(
-          height: 150,
-          child: _hasAnswered
-              ? _controlEffectArea()
-              : Center(
-                  child: Text('凭记忆点击答案',
-                      style: const TextStyle(color: Color(0xFF8A6A3A), fontSize: 14)),
-                ),
-        ),
+        // Hint text below wheel
+        if (!_hasAnswered)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text('凭记忆点击答案',
+                style: TextStyle(color: Color(0xFF8A6A3A), fontSize: 14)),
+          ),
       ],
     );
   }
@@ -338,20 +334,6 @@ class _TrainingPageState extends State<TrainingPage> {
             ),
           ),
       ],
-    );
-  }
-
-  Widget _controlEffectArea() {
-    final from = _current.sourceElement;
-    final to = _current.correctAnswer;
-    if (from == null) return const SizedBox.shrink();
-    return Center(
-      child: ControlRelationEffect(
-        sourceElement: from,
-        targetElement: to,
-        visible: true,
-        size: 130,
-      ),
     );
   }
 
