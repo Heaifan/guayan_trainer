@@ -1,15 +1,10 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
-import '../../data/wuxing_data.dart';
 import '../../theme/wuxing_colors.dart';
-import '../../widgets/wuxing_control_painter.dart';
+import '../../widgets/wuxing_control_wheel.dart';
 
 class WuxingControlPage extends StatelessWidget {
   const WuxingControlPage({super.key});
-
-  static const _elements = ['木', '火', '土', '金', '水'];
 
   @override
   Widget build(BuildContext context) {
@@ -88,78 +83,20 @@ class WuxingControlPage extends StatelessWidget {
     );
   }
 
-  /// 相克五角星图
   Widget _wheelSection() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final s = math.min(constraints.maxWidth, 360).toDouble();
-        final nodeSize = s * 0.17;
-
-        return Center(
-          child: SizedBox(
-            width: s,
-            height: s,
-            child: Stack(
-              children: [
-                CustomPaint(
-                  size: Size(s, s),
-                  painter: WuxingControlPainter(
-                    containerSize: s,
-                    nodeSize: nodeSize,
-                  ),
-                ),
-                ..._elements.map((e) {
-                  final pos = WuxingControlPainter.positions[e]!;
-                  final left = pos.dx * s - nodeSize / 2;
-                  final top = pos.dy * s - nodeSize / 2;
-                  return Positioned(
-                    left: left,
-                    top: top,
-                    width: nodeSize,
-                    height: nodeSize,
-                    child: _node(e, nodeSize),
-                  );
-                }),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _node(String element, double size) {
-    final bg = WuxingColors.getColor(element);
-    final tc = WuxingColors.textOnColor(element);
-    return Container(
-      decoration: BoxDecoration(
-        color: bg,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: element == '金' ? WuxingColors.getBorderColor(element) : Colors.white,
-          width: element == '金' ? 2.5 : 3.0,
-        ),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-        ],
-      ),
-      child: Center(
-        child: Text(element,
-            style: TextStyle(
-                color: tc,
-                fontSize: size * 0.48,
-                fontWeight: FontWeight.w900)),
-      ),
+    return SizedBox(
+      height: 360,
+      child: WuxingControlWheel(autoPlayAccumulate: true),
     );
   }
 
   Widget _explanationsCard() {
     const controls = [
-      ('木', '克', '土', '木能破土而出'),
-      ('土', '克', '水', '土能阻水、蓄水'),
-      ('水', '克', '火', '水能灭火'),
-      ('火', '克', '金', '火能熔金'),
-      ('金', '克', '木', '金能伐木'),
+      ('木', '克', '土', '木根破土，根能制土。'),
+      ('土', '克', '水', '土能筑堤，阻水归槽。'),
+      ('水', '克', '火', '水幕压火，火势熄弱。'),
+      ('火', '克', '金', '烈火熔金，金属失形。'),
+      ('金', '克', '木', '金刃伐木，木被削断。'),
     ];
 
     return Container(
@@ -179,13 +116,13 @@ class WuxingControlPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: Row(
                   children: [
-                    _controlChip(c.$1, WuxingColors.getColor(c.$1)),
+                    _chip(c.$1, WuxingColors.getColor(c.$1)),
                     const SizedBox(width: 4),
                     Text(c.$2,
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w800)),
                     const SizedBox(width: 4),
-                    _controlChip(c.$3, WuxingColors.getColor(c.$3)),
+                    _chip(c.$3, WuxingColors.getColor(c.$3)),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(c.$4,
@@ -200,7 +137,7 @@ class WuxingControlPage extends StatelessWidget {
     );
   }
 
-  Widget _controlChip(String text, Color bg) {
+  Widget _chip(String text, Color bg) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -229,7 +166,9 @@ class WuxingControlPage extends StatelessWidget {
         children: [
           Text('断卦提示',
               style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF8A5A3A))),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF8A5A3A))),
           SizedBox(height: 8),
           Text(
             '相克关系用于判断谁受制、谁克谁。\n'

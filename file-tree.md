@@ -2,7 +2,7 @@
 
 > **当前版本：** v0.1.5
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-16 11:10
+> **最后编辑：** 2026-05-16 11:30
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
@@ -14,8 +14,10 @@
 > 发布日期：2026-05-16 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.5)
 
 ### 新增
-- **五行相克学习页**：正式替代「即将开放」占位页，包含说明卡、五角星相克图、五条相克解释、断卦提示
-- **相克五角星图**：`WuxingControlPainter` — 朱砂红克制线（#9C3B2E），五角跨位箭头，区别于相生的墨绿圆弧
+- **五行相克学习页**：正式替代「即将开放」占位页，包含说明卡、五角星相克轮盘、五个 HTML 特效、中央标题、五条相克解释、断卦提示
+- **五条相克 HTML 特效接入**：木克土（木根破土）、土克水（土堤束水）、水克火（水幕压火）、火克金（烈火熔金）、金克木（金刃断木）
+- **WuxingControlWheel**：累计箭头动画 + 五槽位特效 + 中央标题，节奏同相生（箭头 3500ms + 暂停 1400ms）
+- **WuxingControlArrowPainter**：朱砂红（#9C3B2E）五角星直线箭头，区别于相生的绿墨圆弧
 
 ### 修复
 - **wrongCount 累加**：同一道错题重复答错不再重置为 1，改为 `old.wrongCount + 1`，`createdAt` 保留首次时间
@@ -381,7 +383,16 @@ lib/
 | --- | --- |
 | `wuxing_wheel.dart` | 五行轮盘组件：累计箭头动画、自动循环、节点高亮、中央特效 |
 | `wuxing_arrow_painter.dart` | 圆弧箭头 CustomPainter：沿轮盘圆周绘制相生弧线 |
-| `wuxing_control_painter.dart` | 五角星克制线 CustomPainter：跨节点相克箭头 |
+| `wuxing_control_wheel.dart` | 五行相克轮盘：五角星累计箭头 + 五槽位特效自播 |
+| `wuxing_control_arrow_painter.dart` | 五角星直线箭头 CustomPainter：跨节点红色克制线 |
+| `wuxing_control_painter.dart` | 静态相克五角星 CustomPainter |
+| `effects/control/earth_water_control_html.dart` | 土克水 HTML/SVG 动画，土堤束水 |
+| `effects/control/fire_metal_control_html.dart` | 火克金 HTML/SVG 动画，烈火熔金 |
+| `effects/control/metal_wood_control_html.dart` | 金克木 HTML/SVG 动画，金刃断木 |
+| `effects/control/water_fire_control_html.dart` | 水克火 HTML/SVG 动画，水幕压火 |
+| `effects/control/wood_earth_control_html.dart` | 木克土 HTML/SVG 动画，木根破土 |
+| `effects/control/control_relation_effect.dart` | 相克 HTML WebView 封装 |
+| `effects/control/control_relation_effects_layer.dart` | 五相克槽位关系动画层 |
 | `effects/earth_metal_html.dart` | 土生金 HTML/SVG 动画，金石破土而出 |
 | `effects/fire_earth_html.dart` | 火生土 HTML/SVG 动画，灰烬掩埋火苗循环 |
 | `effects/generate_relation_effects_layer.dart` | 五槽位关系动画层：固定坐标渲染多条关系动画 |
