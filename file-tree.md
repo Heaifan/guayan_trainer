@@ -1,41 +1,52 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.7.2
+> **当前版本：** v0.1.8.2
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-18 15:30
+> **最后编辑：** 2026-05-18 16:20
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.7.1
+## 当前版本更新日志 — v0.1.8.2
 
-> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.7.1)
+> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.2)
 
-### 重构
-- **以我为中心升级为圆盘结构**：新增 `WuxingSelfCenterWheel` + `WuxingSelfCenterPainter`，中心放「我」，外圈四向显示生我/我生/克我/我克，箭头颜色区分四种关系
-- **四种箭头颜色**：生我（青绿→中心）、我生（橙红→外）、克我（深朱砂→中心）、我克（褐虚线→外），同我/旺用中心双环表达
-- **当前关系说明卡**：圆盘下方保留简洁版解释，与圆盘联动
+### 修复
+- **类型补全**：全部模型和参数强类型化
+- **`isHesitant` 分离**：迟疑判断独立于超时
+- **会话时间拆分**：`_sessionStartedAt` / `_questionStartedAt` 分开
+- **题库补满**：`_takeWithRepeat()` 不足时自动重复抽题
+- **同我题加入**：以我为中心关系判断包含全部五类，共 25 题
+- **错题字段补全**：MistakeItem 新增 `explanation` / `reactionMs` / `isHesitant`
 
 ### 新增文件
-- `lib/widgets/wuxing_self_center_painter.dart` — 四向箭头 + 双环 painter
-- `lib/widgets/wuxing_self_center_wheel.dart` — 以我为中心圆盘组件
+- `lib/utils/practice_labels.dart` — 中文标签、题库容量、时间格式化
 
 ---
 
-## 前版更新日志 — v0.1.7
+## 前版更新日志 — v0.1.8.1
 
-> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.6.2)
+> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.1)
 
-### 优化
-- **轮盘尺寸稳定**：相克轮盘题答题前后固定高度，页面不再跳动
-- **结果页三阶段统计**：`QuestionAnswerResult` 新增 `practiceStyle` 字段
-- **回炉卡片来源标签**：显示「五行相生 ｜ 轮盘题」等来源
+### 修复
+- 通用练习框架加固：isHesitant 字段、会话时间分离、题库 _takeWithRepeat 补满、同我题加入、错字字段补全
 
 ---
 
-## 1. 项目概览
+## 前版更新日志 — v0.1.8
+
+> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8)
+
+### 新增
+- **通用练习框架**：统一 `PracticeQuestion` / `PracticeAnswerRecord` / `PracticeSessionResult` 模型
+- **综合练习入口**：学习→五行生克→★综合练习，支持多板块混合出题
+- **四类题库**：五行相生（5题）、五行相克（5题）、以我为中心（25题）、旺相休囚死（25题）
+- **计时系统**：每题记录反应耗时，超过 4 秒标记迟疑
+- **结果页统计**：正确率 + 分项表现 + 平均反应 + 迟疑题 + 整场用时
+
+---
 
 **卦眼训练器** 是断卦基本功训练 App，用于训练五行生克、地支、六冲六合等基础知识。
 
@@ -138,6 +149,7 @@ lib/
 | `wuxing_self_center_data.dart` | 以我为中心关系映射 + 旺相休囚死 |
 | `dizhi_data.dart` | 十二地支结构化数据：五行、阴阳、方位、月份 |
 | `relation_data.dart` | 六冲六合映射 + 双端查询 + 关系判定 |
+| `practice/wuxing_practice_question_generator.dart` | 通用题库生成器：四类五行题库混合出题 |
 
 ### 5.7 lib/models/
 
@@ -146,6 +158,9 @@ lib/
 | `mistake_item.dart` | 错题记录模型，持久化 JSON 序列化 |
 | `training_question.dart` | 题目类型枚举（8 种）+ 题目数据类 |
 | `training_result.dart` | 单题作答记录 + 训练会话统计（正确率/回炉/迟疑） |
+| `practice/practice_enums.dart` | 通用练习枚举，Domain / Topic / AnswerKind / Stage |
+| `practice/practice_question.dart` | 通用题目模型 |
+| `practice/practice_answer_record.dart` | 答题记录 + 会话统计 + 分项统计 |
 
 ### 5.8 lib/services/
 
@@ -154,18 +169,24 @@ lib/
 | `question_generator.dart` | 出题引擎：5 种训练模式 × 8 种题型随机生成 |
 | `mistake_store.dart` | 错题回炉存储器：收录答错/迟疑，标记已会后移除 |
 
-### 5.9 lib/pages/home/
+### 5.9 lib/utils/
+
+| 文件 | 职责 |
+| --- | --- |
+| `practice_labels.dart` | 通用练习中文标签、题库容量、时间格式化函数 |
+
+### 5.10 lib/pages/home/
 
 | 文件 | 职责 |
 | --- | --- |
 | `home_page.dart` | 学习仪表盘：标题说明 + 学习状态卡 + 回炉提醒 + 快捷入口 |
 
-### 5.10 lib/pages/study/
+### 5.11 lib/pages/study/
 
 | 文件 | 职责 |
 | --- | --- |
 | `study_page.dart` | 学习页入口：五行生克/十二地支/六冲六合三张学习卡片 |
-| `wuxing_study_menu_page.dart` | 五行模块目录页：4 个知识点导航卡片 + 学习建议 |
+| `wuxing_study_menu_page.dart` | 五行模块目录页：4 个知识点导航卡片 + 综合练习 + 学习建议 |
 | `wuxing_color_page.dart` | 五行颜色与意象详情页：颜色卡片、对照表、记忆提示 |
 | `wuxing_generate_page.dart` | 五行相生（占位：即将开放） |
 | `wuxing_control_page.dart` | 五行相克学习页：五角星图、关系解释、断卦提示 |
@@ -173,22 +194,25 @@ lib/
 | `dizhi_study_page.dart` | 地支学习详情：地支彩色网格、五行归类、地支分类 |
 | `relation_study_page.dart` | 六冲六合学习详情：冲合对展示、跳转练习 |
 
-### 5.11 lib/pages/practice/
+### 5.12 lib/pages/practice/
 
 | 文件 | 职责 |
 | --- | --- |
 | `practice_page.dart` | 练习页入口：按基础/关系/综合分组展示训练卡片 |
 | `training_page.dart` | 训练页：题目展示 + 彩色选项 + 即时反馈 + 进度条 |
 | `result_page.dart` | 结果页：正确率 + 回炉/迟疑汇总 + 错题列表 + 继续操作 |
+| `practice_setup_page.dart` | 综合练习设置页：选择板块 + 题数 |
+| `practice_session_page.dart` | 通用练习页：计时 + 反馈 + 回炉写入 |
+| `practice_result_page.dart` | 通用结果页：分项表现 + 平均反应 + 迟疑统计 |
 
-### 5.12 lib/pages/review/
+### 5.13 lib/pages/review/
 
 | 文件 | 职责 |
 | --- | --- |
 | `review_page.dart` | 回炉页：错题列表 + 单题重做 + 重做全部错题 |
 | `review_training_page.dart` | 回炉练习页：无色单选重做，答对移除答错保留 |
 
-### 5.13 lib/widgets/
+### 5.14 lib/widgets/
 
 | 文件 | 职责 |
 | --- | --- |
@@ -214,7 +238,7 @@ lib/
 | `effects/water_wood_html.dart` | 水生木 HTML/SVG 动画，春雨润木发芽繁茂 |
 | `effects/wood_fire_html.dart` | 木生火钻木取火 HTML/SVG 动画 |
 
-### 5.14 test/
+### 5.15 test/
 
 | 文件 | 职责 |
 | --- | --- |
