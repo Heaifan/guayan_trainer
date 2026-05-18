@@ -95,3 +95,29 @@ const selfCenterRows = [
 
 /// 关系显示顺序。
 const relationOrder = ['生我', '我生', '克我', '我克', '同我'];
+
+/// 以我为中心圆盘外圈坐标 (相对值 0~1)。
+const selfCenterPositions = {
+  '生我': (0.50, 0.16),
+  '我生': (0.84, 0.50),
+  '我克': (0.50, 0.84),
+  '克我': (0.16, 0.50),
+};
+
+/// 圆盘关系解释文案（简洁版）。
+String selfCenterRelationSentence(String self, String relation, String other) {
+  switch (relation) {
+    case '生我':
+      return '$other 生 $self，得到生扶，力量增强。';
+    case '我生':
+      return '$self 生 $other，我去生人，力量外泄。';
+    case '克我':
+      return '$other 克 $self，被人克制，受困受制。';
+    case '我克':
+      return '$self 克 $other，我去克人，力量耗损。';
+    case '同我':
+      return '$other 与 $self 同类，同类帮身，力量最足。';
+    default:
+      return '';
+  }
+}

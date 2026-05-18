@@ -1,32 +1,30 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.7
+> **当前版本：** v0.1.7.1
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-18 15:05
+> **最后编辑：** 2026-05-18 15:15
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.7
+## 当前版本更新日志 — v0.1.7.1
 
-> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.7)
+> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.7.1)
 
-### 新增
-- **以我为中心学习页**：正式替代「即将开放」占位页，包含五行选择器、关系图、旺相休囚死对照表、五行速查表
-- **`wuxing_self_center_data.dart`**：以我为中心关系映射、旺相休囚死映射、解释文案、速查表数据
+### 重构
+- **以我为中心升级为圆盘结构**：新增 `WuxingSelfCenterWheel` + `WuxingSelfCenterPainter`，中心放「我」，外圈四向显示生我/我生/克我/我克，箭头颜色区分四种关系
+- **四种箭头颜色**：生我（青绿→中心）、我生（橙红→外）、克我（深朱砂→中心）、我克（褐虚线→外），同我/旺用中心双环表达
+- **当前关系说明卡**：圆盘下方保留简洁版解释，与圆盘联动
 
-### 页面结构
-- 顶部说明卡 — 「定一个我，看五种关系」
-- 五行选择器 — 点击切换，关系图和状态实时刷新
-- 关系图卡片 — 显示生我/我生/克我/我克/同我 + 对应状态
-- 旺相休囚死对照表 — 五种状态解释
-- 五行速查表 — 五行全部五种状态的完整速查
+### 新增文件
+- `lib/widgets/wuxing_self_center_painter.dart` — 四向箭头 + 双环 painter
+- `lib/widgets/wuxing_self_center_wheel.dart` — 以我为中心圆盘组件
 
 ---
 
-## 前版更新日志 — v0.1.6.2
+## 前版更新日志 — v0.1.7
 
 > 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.6.2)
 
@@ -199,6 +197,8 @@ lib/
 | `wuxing_control_wheel.dart` | 五行相克轮盘：五角星累计箭头 + 五槽位特效自播 |
 | `wuxing_control_arrow_painter.dart` | 五角星直线箭头 CustomPainter：跨节点红色克制线 |
 | `wuxing_control_painter.dart` | 静态相克五角星 CustomPainter |
+| `wuxing_self_center_wheel.dart` | 以我为中心圆盘：中心+四向外圈节点 |
+| `wuxing_self_center_painter.dart` | 四向箭头 + 中心双环 CustomPainter |
 | `effects/control/earth_water_control_html.dart` | 土克水 HTML/SVG 动画，土堤束水 |
 | `effects/control/fire_metal_control_html.dart` | 火克金 HTML/SVG 动画，烈火熔金 |
 | `effects/control/metal_wood_control_html.dart` | 金克木 HTML/SVG 动画，金刃断木 |
@@ -279,6 +279,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.7.1` | 2026-05-18 | 重构 | 以我为中心升级圆盘结构，四色箭头 |
 | `v0.1.7` | 2026-05-18 | 新增 | 以我为中心学习页，旺相休囚死 |
 | `v0.1.6.2` | 2026-05-18 | 优化 | 轮盘尺寸稳定，结果页三阶段统计，回炉来源标签 |
 | `v0.1.6.1` | 2026-05-16 | 修复 | 答题前隐藏提示，答题后显示特效 |
