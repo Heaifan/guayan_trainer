@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/practice/wuxing_practice_question_generator.dart';
 import '../../models/practice/practice_enums.dart';
 import '../../theme/wuxing_colors.dart';
+import '../../utils/practice_labels.dart';
 import 'practice_session_page.dart';
 
 class PracticeSetupPage extends StatefulWidget {
@@ -81,7 +82,7 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
           const SizedBox(height: 12),
           ..._allTopics.map((t) => CheckboxListTile(
-                title: Text(practiceTopicLabel(t)),
+                title: Text('${practiceTopicLabel(t)}（${practicePoolSize(t)}题）'),
                 value: _selected.contains(t),
                 onChanged: (_) => _toggle(t),
                 activeColor: const Color(0xFF2F6F5E),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/practice/practice_answer_record.dart';
 import '../../models/practice/practice_enums.dart';
+import '../../utils/practice_labels.dart';
 import '../review/review_page.dart';
 
 class PracticeResultPage extends StatelessWidget {
@@ -31,10 +32,12 @@ class PracticeResultPage extends StatelessWidget {
           const SizedBox(height: 16),
           if (r.topicStats.isNotEmpty) _topicStatsCard(r),
           const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          _detailRow('平均反应', formatMs(r.averageReactionMs.toInt())),
+          _detailRow('迟疑题', '${r.hesitantCount} 题'),
+          _detailRow('整场用时', formatMs(r.totalDurationMs)),
+          if (r.wrongCount > 0) const SizedBox(height: 12),
           if (r.wrongCount > 0) _summaryCard('错题入回炉', r.wrongCount, '答错的题已加入回炉。', const Color(0xFFC0392B)),
-          _summaryCard('平均反应', '${r.averageReactionMs.toStringAsFixed(0)} ms', null, const Color(0xFF3E7DBF)),
-          if (r.hesitantCount > 0)
-            _summaryCard('迟疑题', r.hesitantCount, '超过 4 秒的题。', const Color(0xFFB9770E)),
           if (records.where((r) => !r.isCorrect).isNotEmpty) ...[
             const SizedBox(height: 16),
             const Text('错题列表', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
@@ -78,6 +81,19 @@ class PracticeResultPage extends StatelessWidget {
               style: const TextStyle(fontSize: 42, fontWeight: FontWeight.w900, color: Color(0xFF2F6F5E))),
           const SizedBox(height: 6),
           Text('正确 ${r.correctCount} / 共 ${r.total} 题', style: const TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('$label：', style: const TextStyle(fontSize: 14, color: Color(0xFF6B4E2E))),
+          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
         ],
       ),
     );

@@ -6,6 +6,7 @@ class PracticeAnswerRecord {
   final String? selectedAnswer;
   final bool isCorrect;
   final bool isTimeout;
+  final bool isHesitant;
   final int reactionMs;
   final DateTime answeredAt;
 
@@ -14,6 +15,7 @@ class PracticeAnswerRecord {
     required this.selectedAnswer,
     required this.isCorrect,
     required this.isTimeout,
+    required this.isHesitant,
     required this.reactionMs,
     required this.answeredAt,
   });
@@ -34,8 +36,11 @@ class PracticeSessionResult {
   int get correctCount => records.where((r) => r.isCorrect).length;
   int get wrongCount => total - correctCount;
   double get accuracy => total == 0 ? 0 : correctCount / total;
-  int get hesitantCount => records.where((r) => r.reactionMs >= 4000).length;
-  double get averageReactionMs => records.isEmpty ? 0 : records.map((r) => r.reactionMs).reduce((a, b) => a + b) / records.length;
+  int get hesitantCount => records.where((r) => r.isHesitant).length;
+  int get timeoutCount => records.where((r) => r.isTimeout).length;
+  double get averageReactionMs =>
+      records.isEmpty ? 0 : records.map((r) => r.reactionMs).reduce((a, b) => a + b) / records.length;
+  int get totalDurationMs => finishedAt.difference(startedAt).inMilliseconds;
 
   Map<PracticeTopic, (int, int)> get topicStats {
     final map = <PracticeTopic, (int, int)>{};

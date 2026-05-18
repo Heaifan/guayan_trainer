@@ -7,6 +7,7 @@ import '../../models/practice/practice_enums.dart';
 import '../../models/practice/practice_question.dart';
 import '../../services/mistake_store.dart';
 import '../../theme/wuxing_colors.dart';
+import '../../utils/practice_labels.dart';
 import 'practice_result_page.dart';
 
 class PracticeSessionPage extends StatefulWidget {
@@ -27,22 +28,32 @@ class _PracticeSessionPageState extends State<PracticeSessionPage> {
   int _index = 0;
   String? _selectedAnswer;
   bool _hasAnswered = false;
-  DateTime _startedAt = DateTime.now();
+  late final DateTime _sessionStartedAt;
+  late DateTime _questionStartedAt;
   final List<PracticeAnswerRecord> _records = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _sessionStartedAt = DateTime.now();
+    _questionStartedAt = DateTime.now();
+  }
 
   PracticeQuestion get _current => widget.questions[_index];
 
   Future<void> _answer(String answer) async {
     if (_hasAnswered) return;
     final now = DateTime.now();
-    final ms = now.difference(_startedAt).inMilliseconds;
+    final ms = now.difference(_questionStartedAt).inMilliseconds;
     final correct = answer == _current.correctAnswer;
+    final hesitant = ms >= 4000;
 
     _records.add(PracticeAnswerRecord(
       question: _current,
       selectedAnswer: answer,
       isCorrect: correct,
-      isTimeout: ms >= 4000,
+      isTimeout: false,
+      isHesitant: hesitant,
       reactionMs: ms,
       answeredAt: now,
     ));
@@ -65,6 +76,9 @@ class _PracticeSessionPageState extends State<PracticeSessionPage> {
           relationText: _current.relationText,
           practiceStyle: _current.stage.name,
           wrongCount: 1,
+          explanation: _current.explanation,
+          reactionMs: ms,
+          isHesitant: hesitant,
           createdAt: now,
           updatedAt: now,
         ),
@@ -78,7 +92,7 @@ class _PracticeSessionPageState extends State<PracticeSessionPage> {
         MaterialPageRoute(
           builder: (_) => PracticeResultPage(
             records: _records,
-            startedAt: _startedAt,
+            startedAt: _sessionStartedAt,
             finishedAt: DateTime.now(),
           ),
         ),
@@ -89,7 +103,7 @@ class _PracticeSessionPageState extends State<PracticeSessionPage> {
       _index++;
       _selectedAnswer = null;
       _hasAnswered = false;
-      _startedAt = DateTime.now();
+      _questionStartedAt = DateTime.now();
     });
   }
 
@@ -211,8 +225,8 @@ class _PracticeSessionPageState extends State<PracticeSessionPage> {
           Text(_current.relationText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           Text(_current.explanation, style: const TextStyle(fontSize: 14, height: 1.4)),
           const SizedBox(height: 4),
-          Text('耗时：${(ms / 1000).toStringAsFixed(1)} 秒${ms >= 4000 ? ' ｜ 迟疑' : ''}',
-              style: TextStyle(fontSize: 13, color: ms >= 4000 ? const Color(0xFFC0392B) : const Color(0xFF8A6A3A))),
+          Text('耗时：${(ms / 1000).toStringAsFixed(1)} 秒${_records.last.isHesitant ? ' ｜ 迟疑' : ''}',
+              style: TextStyle(fontSize: 13, color: _records.last.isHesitant ? const Color(0xFFC0392B) : const Color(0xFF8A6A3A))),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,

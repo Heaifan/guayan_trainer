@@ -28,7 +28,18 @@ class WuxingPracticeQuestionGenerator {
     }
 
     pool.shuffle(_random);
-    return pool.take(count).toList();
+    return _takeWithRepeat(pool, count);
+  }
+
+  /// Repeat pool if not enough questions to fill [count].
+  List<PracticeQuestion> _takeWithRepeat(List<PracticeQuestion> pool, int count) {
+    if (pool.isEmpty) return [];
+    final result = <PracticeQuestion>[];
+    while (result.length < count) {
+      final shuffled = [...pool]..shuffle(_random);
+      result.addAll(shuffled.take(count - result.length));
+    }
+    return result;
   }
 
   List<PracticeQuestion> _generateGenerateQuestions() {
@@ -79,7 +90,6 @@ class WuxingPracticeQuestionGenerator {
     for (final self in elements) {
       final relations = wuxingSelfCenterRelations[self]!;
       for (final entry in relations.entries) {
-        if (entry.key == '同我') continue;
         final other = entry.value;
         final rel = entry.key;
         questions.add(PracticeQuestion(

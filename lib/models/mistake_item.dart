@@ -10,10 +10,13 @@ class MistakeItem {
   final String correctAnswer;
   final String wrongAnswer;
   final String relationText;
-  final String practiceStyle; // wheel / colorChoice / textChoice
+  final String practiceStyle;
   final int wrongCount;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? explanation;
+  final int? reactionMs;
+  final bool? isHesitant;
 
   const MistakeItem({
     required this.id,
@@ -28,6 +31,9 @@ class MistakeItem {
     required this.wrongCount,
     required this.createdAt,
     required this.updatedAt,
+    this.explanation,
+    this.reactionMs,
+    this.isHesitant,
   });
 
   MistakeItem copyWith({
@@ -73,6 +79,9 @@ class MistakeItem {
         'wrongCount': wrongCount,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
+        if (explanation != null) 'explanation': explanation,
+        if (reactionMs != null) 'reactionMs': reactionMs,
+        if (isHesitant != null) 'isHesitant': isHesitant,
       };
 
   factory MistakeItem.fromJson(Map<String, dynamic> json) => MistakeItem(
@@ -88,5 +97,8 @@ class MistakeItem {
         wrongCount: json['wrongCount'] as int,
         createdAt: DateTime.parse(json['createdAt'] as String),
         updatedAt: DateTime.parse(json['updatedAt'] as String),
+        explanation: json['explanation'] as String?,
+        reactionMs: json['reactionMs'] as int?,
+        isHesitant: json['isHesitant'] as bool?,
       );
 }
