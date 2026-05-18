@@ -91,6 +91,9 @@ class _TrainingPageState extends State<TrainingPage> {
       selectedAnswer: answer,
       isCorrect: isCorrect,
       milliseconds: used,
+      practiceStyle: (widget.mode == TrainingMode.wuxingGenerate || widget.mode == TrainingMode.wuxingControl)
+          ? _currentStyle.name
+          : null,
     );
 
     _results.add(result);
@@ -279,38 +282,61 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Widget _wheelArea() {
     final isControl = widget.mode == TrainingMode.wuxingControl;
+    return isControl ? _controlWheelArea() : _generateWheelArea();
+  }
+
+  Widget _controlWheelArea() {
+    return Column(
+      children: [
+        // Fixed-height wheel
+        SizedBox(
+          height: 300,
+          child: WuxingControlWheel(
+            selected: _selectedAnswer,
+            correctAnswer: _current.correctAnswer,
+            hasAnswered: _hasAnswered,
+            sourceElement: _current.sourceElement,
+            onTap: _answer,
+            showBaseLines: _hasAnswered,
+            showActiveArrow: _hasAnswered,
+            showActiveHighlight: _hasAnswered,
+          ),
+        ),
+        // Fixed-height effect area or placeholder
+        SizedBox(
+          height: 150,
+          child: _hasAnswered
+              ? _controlEffectArea()
+              : Center(
+                  child: Text('凭记忆点击答案',
+                      style: const TextStyle(color: Color(0xFF8A6A3A), fontSize: 14)),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _generateWheelArea() {
     return Column(
       children: [
         Expanded(
-          child: isControl
-              ? WuxingControlWheel(
-                  selected: _selectedAnswer,
-                  correctAnswer: _current.correctAnswer,
-                  hasAnswered: _hasAnswered,
-                  sourceElement: _current.sourceElement,
-                  onTap: _answer,
-                  showBaseLines: _hasAnswered,
-                  showActiveArrow: _hasAnswered,
-                  showActiveHighlight: _hasAnswered,
-                )
-              : WuxingWheel(
-                  selected: _selectedAnswer,
-                  correctAnswer: _current.correctAnswer,
-                  hasAnswered: _hasAnswered,
-                  sourceElement: _current.sourceElement,
-                  showArrow: true,
-                  onTap: _answer,
-                ),
+          child: WuxingWheel(
+            selected: _selectedAnswer,
+            correctAnswer: _current.correctAnswer,
+            hasAnswered: _hasAnswered,
+            sourceElement: _current.sourceElement,
+            showArrow: true,
+            onTap: _answer,
+          ),
         ),
         if (!_hasAnswered)
           const Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
-              '凭记忆点击答案',
+              '根据五行关系，点击答案',
               style: TextStyle(color: Color(0xFF8A6A3A), fontSize: 14),
             ),
           ),
-        if (_hasAnswered && isControl) _controlEffectArea(),
       ],
     );
   }
@@ -319,8 +345,7 @@ class _TrainingPageState extends State<TrainingPage> {
     final from = _current.sourceElement;
     final to = _current.correctAnswer;
     if (from == null) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
+    return Center(
       child: ControlRelationEffect(
         sourceElement: from,
         targetElement: to,

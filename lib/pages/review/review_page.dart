@@ -92,6 +92,14 @@ class _ReviewPageState extends State<ReviewPage> {
     );
   }
 
+  String _topicLabel(String topic) {
+    switch (topic) {
+      case 'generate': return '五行相生';
+      case 'control': return '五行相克';
+      default: return '五行';
+    }
+  }
+
   String _stageLabel(String style) {
     switch (style) {
       case 'wheel':
@@ -101,7 +109,7 @@ class _ReviewPageState extends State<ReviewPage> {
       case 'textChoice':
         return '无色单选';
       default:
-        return '相生练习';
+        return '练习';
     }
   }
 
@@ -139,6 +147,23 @@ class _ReviewPageState extends State<ReviewPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Text(_topicLabel(m.topic),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF8A6A3A))),
+                const Text(' ｜ ',
+                    style: TextStyle(fontSize: 12, color: Color(0xFFE0C28A))),
+                Text(_stageLabel(m.practiceStyle),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF8A6A3A))),
+              ],
+            ),
+            const SizedBox(height: 6),
             Text(
               m.questionText,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),

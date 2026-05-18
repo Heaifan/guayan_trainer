@@ -5,12 +5,14 @@ class QuestionAnswerResult {
   final String selectedAnswer;
   final bool isCorrect;
   final int milliseconds;
+  final String? practiceStyle;
 
   const QuestionAnswerResult({
     required this.question,
     required this.selectedAnswer,
     required this.isCorrect,
     required this.milliseconds,
+    this.practiceStyle,
   });
 }
 
@@ -36,5 +38,16 @@ class TrainingSessionResult {
 
   List<QuestionAnswerResult> get slowResults {
     return results.where((e) => e.isCorrect && e.milliseconds >= 4000).toList();
+  }
+
+  /// 按阶段统计：{ 'wheel': (correct, total), 'colorChoice': ..., 'textChoice': ... }
+  Map<String, (int, int)> get stageStats {
+    final map = <String, (int, int)>{};
+    for (final r in results) {
+      final style = r.practiceStyle ?? 'unknown';
+      final (c, t) = map[style] ?? (0, 0);
+      map[style] = (c + (r.isCorrect ? 1 : 0), t + 1);
+    }
+    return map;
   }
 }

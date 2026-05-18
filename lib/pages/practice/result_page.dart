@@ -56,6 +56,8 @@ class ResultPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          if (result.stageStats.isNotEmpty) _stageStatsCard(),
+          const SizedBox(height: 16),
           _summaryCard(
             title: '进入回炉',
             count: result.wrongResults.length,
@@ -108,6 +110,52 @@ class ResultPage extends StatelessWidget {
             },
             child: const Text('返回首页'),
           ),
+        ],
+      ),
+    );
+  }
+
+  String _stageLabel(String style) {
+    switch (style) {
+      case 'wheel': return '轮盘题';
+      case 'colorChoice': return '彩色单选';
+      case 'textChoice': return '无色单选';
+      default: return style;
+    }
+  }
+
+  Widget _stageStatsCard() {
+    final stats = result.stageStats;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE0C28A)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('分阶段表现',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 10),
+          ...stats.entries.map((e) {
+            final (c, t) = e.value;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 80,
+                    child: Text(_stageLabel(e.key),
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                  Text('$c / $t',
+                      style: const TextStyle(fontWeight: FontWeight.w800)),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );

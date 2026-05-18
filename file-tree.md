@@ -1,6 +1,6 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.6.1
+> **当前版本：** v0.1.6.2
 > **创建时间：** 2026-05-15
 > **最后编辑：** 2026-05-18 14:58
 
@@ -9,7 +9,24 @@
 
 ---
 
-## 当前版本更新日志 — v0.1.6.1
+## 当前版本更新日志 — v0.1.6.2
+
+> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.6.2)
+
+### 优化
+- **轮盘尺寸稳定**：相克轮盘题答题前后固定高度 300px（轮盘）+ 150px（特效/占位），页面不再跳动
+- **结果页三阶段统计**：`QuestionAnswerResult` 新增 `practiceStyle` 字段，结果页显示轮盘题/彩色单选/无色单选各阶段正确率
+- **回炉卡片来源标签**：错题卡片顶部显示「五行相生 ｜ 轮盘题」或「五行相克 ｜ 彩色单选」，区分来源
+
+### 修改文件
+- `lib/models/training_result.dart` — 加 `practiceStyle`、`stageStats`
+- `lib/pages/practice/training_page.dart` — 相克轮盘固定高度布局
+- `lib/pages/practice/result_page.dart` — 分阶段表现卡片
+- `lib/pages/review/review_page.dart` — 来源 + 阶段标签
+
+---
+
+## 前版更新日志 — v0.1.6.1
 
 > 发布日期：2026-05-16 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.6.1)
 
@@ -17,23 +34,6 @@
 - **相克练习页答题前隐藏提示**：`WuxingControlWheel` 新增 `showBaseLines`/`showActiveArrow`/`showActiveHighlight` 参数，答题前不显示五角线、箭头、节点高亮
 - **答题后显示 HTML 特效**：相克轮盘题答对答错均显示正确关系的 `ControlRelationEffect` 特效，强化记忆
 - **按钮文案调整**：「根据五行关系，点击答案」→「凭记忆点击答案」
-
-### 修改文件
-- `lib/widgets/wuxing_control_arrow_painter.dart` — 加 `showBaseLines`/`showActiveArrow` 控制
-- `lib/widgets/wuxing_control_wheel.dart` — 加三个显隐参数
-- `lib/pages/practice/training_page.dart` — 答题前隐藏提示，答题后加特效区
-
----
-
-## 前版更新日志 — v0.1.6
-
-> 发布日期：2026-05-16 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.6)
-
-### 新增
-- **五行相克练习页**：12 题三阶段自动进阶（轮盘题→彩色单选→无色单选）
-- **相克错题接入回炉**：topic: control，错题进入回炉，重做统一无色单选
-- **WuxingControlWheel 练习模式**：支持点击答题，答题后显示单条箭头
-- `TrainingMode.wuxingControl` — `question_generator.dart` 新增相克出题
 
 ---
 
@@ -278,6 +278,8 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.6.2` | 2026-05-18 | 优化 | 轮盘尺寸稳定，结果页三阶段统计，回炉来源标签 |
+| `v0.1.6.1` | 2026-05-16 | 修复 | 答题前隐藏提示，答题后显示特效 |
 | `v0.1.5` | 2026-05-16 | 新增 | 五行相克学习页，wrongCount 修复，回炉弹窗，阶段标签 |
 | `v0.1.4.2` | 2026-05-16 | 修复 | 金元素灰色文字，答题反馈色通用化 |
 | `v0.1.4.1` | 2026-05-16 | 新增 | 回炉错题重做系统，持久化存储 |
