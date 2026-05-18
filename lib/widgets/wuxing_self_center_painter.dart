@@ -27,8 +27,8 @@ class WuxingSelfCenterPainter extends CustomPainter {
     final pos = {
       '生我': Offset(s * 0.50, s * 0.18),
       '我生': Offset(s * 0.82, s * 0.50),
-      '我克': Offset(s * 0.50, s * 0.82),
-      '克我': Offset(s * 0.18, s * 0.50),
+      '我克': Offset(s * 0.50, s * 0.80),
+      '克我': Offset(s * 0.22, s * 0.50),
     };
 
     // Faint guide circle
