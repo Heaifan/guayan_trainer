@@ -6,6 +6,7 @@ import '../../models/training_result.dart';
 import '../../services/mistake_store.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
+import '../../widgets/wuxing_control_wheel.dart';
 import '../../widgets/wuxing_wheel.dart';
 import 'result_page.dart';
 
@@ -49,7 +50,7 @@ class _TrainingPageState extends State<TrainingPage> {
 
   TrainingQuestion get _current => _questions[_index];
 
-  /// 当前题型阶段（仅 wuxingGenerate 模式有效）。
+  /// 当前题型阶段（仅相生/相克模式有效）。
   GeneratePracticeStyle get _currentStyle {
     if (_index < 4) return GeneratePracticeStyle.wheel;
     if (_index < 8) return GeneratePracticeStyle.colorChoice;
@@ -73,7 +74,7 @@ class _TrainingPageState extends State<TrainingPage> {
     super.initState();
     _questions = _generator.generateSession(
       mode: widget.mode,
-      count: widget.mode == TrainingMode.wuxingGenerate ? 12 : 10,
+      count: (widget.mode == TrainingMode.wuxingGenerate || widget.mode == TrainingMode.wuxingControl) ? 12 : 10,
     );
     _questionStartTime = DateTime.now();
   }
@@ -94,22 +95,31 @@ class _TrainingPageState extends State<TrainingPage> {
     _results.add(result);
 
     if (!isCorrect) {
-      // 写入持久化错题库（仅相生模式）
+      // 写入持久化错题库
+      String? topic;
+      String? relationPrefix;
       if (widget.mode == TrainingMode.wuxingGenerate) {
+        topic = 'generate';
+        relationPrefix = '生';
+      } else if (widget.mode == TrainingMode.wuxingControl) {
+        topic = 'control';
+        relationPrefix = '克';
+      }
+
+      if (topic != null) {
         final now = DateTime.now();
-        final id = 'wuxing_generate_${_current.sourceElement}_${_current.correctAnswer}';
-        // 查找已有错题，累加 wrongCount
+        final id = 'wuxing_${topic}_${_current.sourceElement}_${_current.correctAnswer}';
         final existing = MistakeStore.instance.all.where((e) => e.id == id).firstOrNull;
         await MistakeStore.instance.addOrUpdateMistake(
           MistakeItem(
             id: id,
             module: 'wuxing',
-            topic: 'generate',
+            topic: topic!,
             questionText: _current.prompt,
             sourceElement: _current.sourceElement ?? '',
             correctAnswer: _current.correctAnswer,
             wrongAnswer: answer,
-            relationText: '${_current.sourceElement}生${_current.correctAnswer}',
+            relationText: '${_current.sourceElement}$relationPrefix${_current.correctAnswer}',
             practiceStyle: _currentStyle.name,
             wrongCount: existing != null ? existing.wrongCount + 1 : 1,
             createdAt: existing?.createdAt ?? now,
@@ -176,7 +186,8 @@ class _TrainingPageState extends State<TrainingPage> {
   Widget build(BuildContext context) {
     final progress = '${_index + 1}/${_questions.length}';
     final isGenerate = widget.mode == TrainingMode.wuxingGenerate;
-    final showArrow = isGenerate && _currentStyle == GeneratePracticeStyle.wheel;
+    final isControl = widget.mode == TrainingMode.wuxingControl;
+    final showArrow = (isGenerate || isControl) && _currentStyle == GeneratePracticeStyle.wheel;
 
     return Scaffold(
       appBar: AppBar(
@@ -196,7 +207,7 @@ class _TrainingPageState extends State<TrainingPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (isGenerate)
+                if (isGenerate || isControl)
                   Text(_stageLabel,
                       style: const TextStyle(
                           color: Color(0xFF8A6A3A), fontSize: 13)),
@@ -246,7 +257,8 @@ class _TrainingPageState extends State<TrainingPage> {
 
   /// 根据当前题型阶段返回对应的答题区域。
   Widget _answerArea() {
-    if (widget.mode == TrainingMode.wuxingGenerate) {
+    if (widget.mode == TrainingMode.wuxingGenerate ||
+        widget.mode == TrainingMode.wuxingControl) {
       switch (_currentStyle) {
         case GeneratePracticeStyle.wheel:
           return _wheelArea();
@@ -265,17 +277,26 @@ class _TrainingPageState extends State<TrainingPage> {
   }
 
   Widget _wheelArea() {
+    final isControl = widget.mode == TrainingMode.wuxingControl;
     return Column(
       children: [
         Expanded(
-          child: WuxingWheel(
-            selected: _selectedAnswer,
-            correctAnswer: _current.correctAnswer,
-            hasAnswered: _hasAnswered,
-            sourceElement: _current.sourceElement,
-            showArrow: true,
-            onTap: _answer,
-          ),
+          child: isControl
+              ? WuxingControlWheel(
+                  selected: _selectedAnswer,
+                  correctAnswer: _current.correctAnswer,
+                  hasAnswered: _hasAnswered,
+                  sourceElement: _current.sourceElement,
+                  onTap: _answer,
+                )
+              : WuxingWheel(
+                  selected: _selectedAnswer,
+                  correctAnswer: _current.correctAnswer,
+                  hasAnswered: _hasAnswered,
+                  sourceElement: _current.sourceElement,
+                  showArrow: true,
+                  onTap: _answer,
+                ),
         ),
         if (!_hasAnswered)
           const Padding(

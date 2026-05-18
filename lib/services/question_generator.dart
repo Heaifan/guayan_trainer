@@ -12,6 +12,7 @@ enum TrainingMode {
   sixHe,
   mixed,
   wuxingGenerate,
+  wuxingControl,
 }
 
 class QuestionGenerator {
@@ -27,6 +28,8 @@ class QuestionGenerator {
           return _generateWuxingQuestion();
         case TrainingMode.wuxingGenerate:
           return _generatePureGenerateQuestion();
+        case TrainingMode.wuxingControl:
+          return _generatePureControlQuestion();
         case TrainingMode.dizhi:
           return _generateDizhiWuxingQuestion();
         case TrainingMode.sixChong:
@@ -55,6 +58,35 @@ class QuestionGenerator {
       targetElement: answer,
       relationType: 'generate',
     );
+  }
+
+  /// Pure "X克谁？" questions for wuxingControl mode.
+  TrainingQuestion _generatePureControlQuestion() {
+    final element = _pick(WuxingData.elements);
+    final answer = WuxingData.controls[element]!;
+
+    return TrainingQuestion(
+      type: QuestionType.wuxingControl,
+      prompt: '$element 克谁？',
+      correctAnswer: answer,
+      options: WuxingData.elements,
+      knowledgeKey: '$element克$answer',
+      explanation: _controlExplanation(element, answer),
+      sourceElement: element,
+      targetElement: answer,
+      relationType: 'control',
+    );
+  }
+
+  String _controlExplanation(String from, String to) {
+    const explanations = {
+      '木土': '木根破土，根能制土。',
+      '土水': '土能筑堤，阻水归槽。',
+      '水火': '水幕压火，火势熄弱。',
+      '火金': '烈火熔金，金属失形。',
+      '金木': '金刃伐木，木被削断。',
+    };
+    return explanations['$from$to'] ?? '$from 克 $to。';
   }
 
   String _generateExplanation(String from, String to) {

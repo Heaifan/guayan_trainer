@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../widgets/effects/control/control_relation_effects_layer.dart';
 import '../../widgets/wuxing_arrow_painter.dart';
 import '../../widgets/wuxing_control_wheel.dart';
+import '../practice/training_page.dart';
 
 class WuxingControlPage extends StatefulWidget {
   const WuxingControlPage({super.key});
@@ -81,17 +83,12 @@ class _WuxingControlPageState extends State<WuxingControlPage> {
                 backgroundColor: const Color(0xFF9C3B2E),
               ),
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('相克练习'),
-                    content: const Text('五行相克练习即将开放，敬请期待。'),
-                    actions: [
-                      FilledButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('知道了'),
-                      ),
-                    ],
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const TrainingPage(
+                      title: '五行相克练习',
+                      mode: TrainingMode.wuxingControl,
+                    ),
                   ),
                 );
               },

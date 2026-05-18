@@ -6,20 +6,28 @@ import '../theme/wuxing_colors.dart';
 import 'wuxing_arrow_painter.dart';
 import 'wuxing_control_arrow_painter.dart';
 
-/// 五行相克五角星轮盘 — 单条轮播，不累计。
+/// 五行相克五角星轮盘。
 ///
-/// 每次只显示当前一条相克关系：高亮箭头 + 高亮节点。
-/// 背景有五角星淡线作为参考地图。
+/// 学习页（autoPlay=true）：按 activeIndex 轮播，5 秒一条。
+/// 练习页（autoPlay=false）：交互式点击答题，答题后显示箭头+特效。
 class WuxingControlWheel extends StatefulWidget {
   final bool autoPlay;
-
-  /// 当前正在播放的关系索引（由父组件控制）。
   final int activeIndex;
+  final String? selected;
+  final String? correctAnswer;
+  final bool hasAnswered;
+  final String? sourceElement;
+  final ValueChanged<String>? onTap;
 
   const WuxingControlWheel({
     super.key,
     this.autoPlay = false,
     this.activeIndex = 0,
+    this.selected,
+    this.correctAnswer,
+    this.hasAnswered = false,
+    this.sourceElement,
+    this.onTap,
   });
 
   @override
@@ -52,8 +60,10 @@ class _WuxingControlWheelState extends State<WuxingControlWheel>
   @override
   void didUpdateWidget(WuxingControlWheel old) {
     super.didUpdateWidget(old);
-    // Reset animation when activeIndex changes
-    if (old.activeIndex != widget.activeIndex && widget.autoPlay) {
+    if (widget.autoPlay && old.activeIndex != widget.activeIndex) {
+      _ctrl.forward(from: 0);
+    }
+    if (!widget.autoPlay && !old.hasAnswered && widget.hasAnswered) {
       _ctrl.forward(from: 0);
     }
   }
@@ -64,17 +74,28 @@ class _WuxingControlWheelState extends State<WuxingControlWheel>
     super.dispose();
   }
 
+  /// 当前高亮的边（练习答题后或学习页自播时）。
+  WuxingEdge? get _activeEdge {
+    if (widget.autoPlay && _ctrl.isAnimating && widget.activeIndex < 5) {
+      return _controlEdges[widget.activeIndex];
+    }
+    if (!widget.autoPlay && widget.hasAnswered && widget.sourceElement != null && widget.correctAnswer != null) {
+      return WuxingEdge(widget.sourceElement!, widget.correctAnswer!);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = math.min(constraints.maxWidth, constraints.maxHeight);
         final nodeSize = size * 0.17;
+        final activeEdge = _activeEdge;
 
-        final isAnimating = _ctrl.isAnimating;
-        final activeEdge = isAnimating && widget.activeIndex < 5
-            ? _controlEdges[widget.activeIndex]
-            : null;
+        final bool showArrow = widget.autoPlay
+            ? (_ctrl.isAnimating && activeEdge != null)
+            : (widget.hasAnswered && activeEdge != null);
 
         return Center(
           child: SizedBox(
@@ -82,19 +103,29 @@ class _WuxingControlWheelState extends State<WuxingControlWheel>
             height: size,
             child: Stack(
               children: [
-                // Control arrow layer (faint pentagram + active arrow)
-                AnimatedBuilder(
-                  animation: _anim,
-                  builder: (_, _) => CustomPaint(
+                // Control arrow layer
+                if (showArrow)
+                  AnimatedBuilder(
+                    animation: _anim,
+                    builder: (_, _) => CustomPaint(
+                      size: Size(size, size),
+                      painter: WuxingControlArrowPainter(
+                        activeEdge: activeEdge,
+                        activeProgress: _anim.value,
+                        containerSize: size,
+                        nodeSize: nodeSize,
+                      ),
+                    ),
+                  )
+                else
+                  // Static faint pentagram background
+                  CustomPaint(
                     size: Size(size, size),
                     painter: WuxingControlArrowPainter(
-                      activeEdge: activeEdge,
-                      activeProgress: _anim.value,
                       containerSize: size,
                       nodeSize: nodeSize,
                     ),
                   ),
-                ),
 
                 // Node layer
                 ..._elements.map((e) {
@@ -111,8 +142,9 @@ class _WuxingControlWheelState extends State<WuxingControlWheel>
                     child: _ControlNode(
                       element: e,
                       size: nodeSize,
-                      isDimmed: isDimmed,
+                      isDimmed: widget.autoPlay ? isDimmed : false,
                       isGlowing: isActive,
+                      onTap: widget.autoPlay ? null : () => widget.onTap?.call(e),
                     ),
                   );
                 }),
@@ -138,12 +170,14 @@ class _ControlNode extends StatelessWidget {
   final double size;
   final bool isDimmed;
   final bool isGlowing;
+  final VoidCallback? onTap;
 
   const _ControlNode({
     required this.element,
     required this.size,
     required this.isDimmed,
     required this.isGlowing,
+    this.onTap,
   });
 
   @override
@@ -152,46 +186,49 @@ class _ControlNode extends StatelessWidget {
     final bc = WuxingColors.getBorderColor(element);
     final tc = WuxingColors.textOnColor(element);
 
-    return AnimatedOpacity(
-      opacity: isDimmed ? 0.25 : 1.0,
-      duration: const Duration(milliseconds: 400),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          color: bg,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isGlowing
-                ? const Color(0xFF9C3B2E)
-                : element == '金' ? bc : Colors.white,
-            width: isGlowing ? 4.0 : element == '金' ? 2.5 : 3.0,
-          ),
-          boxShadow: [
-            if (isGlowing)
-              BoxShadow(
-                color: const Color(0xFF9C3B2E).withValues(alpha: 0.7),
-                blurRadius: 6,
-                spreadRadius: 4,
-              )
-            else
-              BoxShadow(
-                color: bc.withValues(alpha: 0.5),
-                blurRadius: 0,
-                spreadRadius: 2.5,
-              ),
-            const BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 3),
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedOpacity(
+        opacity: isDimmed ? 0.25 : 1.0,
+        duration: const Duration(milliseconds: 400),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: bg,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isGlowing
+                  ? const Color(0xFF9C3B2E)
+                  : element == '金' ? bc : Colors.white,
+              width: isGlowing ? 4.0 : element == '金' ? 2.5 : 3.0,
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(element,
-              style: TextStyle(
-                  color: tc,
-                  fontSize: size * 0.48,
-                  fontWeight: FontWeight.w900)),
+            boxShadow: [
+              if (isGlowing)
+                BoxShadow(
+                  color: const Color(0xFF9C3B2E).withValues(alpha: 0.7),
+                  blurRadius: 6,
+                  spreadRadius: 4,
+                )
+              else
+                BoxShadow(
+                  color: bc.withValues(alpha: 0.5),
+                  blurRadius: 0,
+                  spreadRadius: 2.5,
+                ),
+              const BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(element,
+                style: TextStyle(
+                    color: tc,
+                    fontSize: size * 0.48,
+                    fontWeight: FontWeight.w900)),
+          ),
         ),
       ),
     );
