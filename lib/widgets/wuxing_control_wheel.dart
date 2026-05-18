@@ -19,6 +19,11 @@ class WuxingControlWheel extends StatefulWidget {
   final String? sourceElement;
   final ValueChanged<String>? onTap;
 
+  /// 练习页答题前隐藏底线和箭头，答题后才显示。
+  final bool showBaseLines;
+  final bool showActiveArrow;
+  final bool showActiveHighlight;
+
   const WuxingControlWheel({
     super.key,
     this.autoPlay = false,
@@ -28,6 +33,9 @@ class WuxingControlWheel extends StatefulWidget {
     this.hasAnswered = false,
     this.sourceElement,
     this.onTap,
+    this.showBaseLines = true,
+    this.showActiveArrow = true,
+    this.showActiveHighlight = true,
   });
 
   @override
@@ -104,35 +112,27 @@ class _WuxingControlWheelState extends State<WuxingControlWheel>
             child: Stack(
               children: [
                 // Control arrow layer
-                if (showArrow)
-                  AnimatedBuilder(
-                    animation: _anim,
-                    builder: (_, _) => CustomPaint(
-                      size: Size(size, size),
-                      painter: WuxingControlArrowPainter(
-                        activeEdge: activeEdge,
-                        activeProgress: _anim.value,
-                        containerSize: size,
-                        nodeSize: nodeSize,
-                      ),
-                    ),
-                  )
-                else
-                  // Static faint pentagram background
-                  CustomPaint(
+                AnimatedBuilder(
+                  animation: _anim,
+                  builder: (_, _) => CustomPaint(
                     size: Size(size, size),
                     painter: WuxingControlArrowPainter(
+                      activeEdge: activeEdge,
+                      activeProgress: _anim.value,
                       containerSize: size,
                       nodeSize: nodeSize,
+                      showBaseLines: widget.showBaseLines,
+                      showActiveArrow: widget.showActiveArrow,
                     ),
                   ),
+                ),
 
                 // Node layer
                 ..._elements.map((e) {
                   final pos = positions[e]!;
                   final left = pos.dx * size - nodeSize / 2;
                   final top = pos.dy * size - nodeSize / 2;
-                  final isActive = activeEdge != null &&
+                  final isActive = widget.showActiveHighlight && activeEdge != null &&
                       (activeEdge.from == e || activeEdge.to == e);
                   final isDimmed = widget.autoPlay && !isActive;
 

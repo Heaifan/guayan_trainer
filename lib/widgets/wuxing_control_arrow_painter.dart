@@ -12,12 +12,16 @@ class WuxingControlArrowPainter extends CustomPainter {
   final double activeProgress;
   final double containerSize;
   final double nodeSize;
+  final bool showBaseLines;
+  final bool showActiveArrow;
 
   const WuxingControlArrowPainter({
     this.activeEdge,
     this.activeProgress = 0,
     required this.containerSize,
     required this.nodeSize,
+    this.showBaseLines = true,
+    this.showActiveArrow = true,
   });
 
   static const _positions = {
@@ -45,6 +49,7 @@ class WuxingControlArrowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // 1. Faint background pentagram (all 5 lines)
+    if (showBaseLines) {
     for (final (from, to) in _allPairs) {
       final p1 = _center(from);
       final p2 = _center(to);
@@ -74,8 +79,10 @@ class WuxingControlArrowPainter extends CustomPainter {
       }
     }
 
+    } // end showBaseLines
+
     // 2. Active arrow (animated)
-    if (activeEdge == null || activeProgress <= 0.001) return;
+    if (!showActiveArrow || activeEdge == null || activeProgress <= 0.001) return;
     _drawOne(canvas, activeEdge!.from, activeEdge!.to, activeProgress,
         fullHead: activeProgress >= 0.92);
   }

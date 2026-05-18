@@ -6,6 +6,7 @@ import '../../models/training_result.dart';
 import '../../services/mistake_store.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
+import '../../widgets/effects/control/control_relation_effect.dart';
 import '../../widgets/wuxing_control_wheel.dart';
 import '../../widgets/wuxing_wheel.dart';
 import 'result_page.dart';
@@ -288,6 +289,9 @@ class _TrainingPageState extends State<TrainingPage> {
                   hasAnswered: _hasAnswered,
                   sourceElement: _current.sourceElement,
                   onTap: _answer,
+                  showBaseLines: _hasAnswered,
+                  showActiveArrow: _hasAnswered,
+                  showActiveHighlight: _hasAnswered,
                 )
               : WuxingWheel(
                   selected: _selectedAnswer,
@@ -302,11 +306,27 @@ class _TrainingPageState extends State<TrainingPage> {
           const Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
-              '根据五行关系，点击答案',
+              '凭记忆点击答案',
               style: TextStyle(color: Color(0xFF8A6A3A), fontSize: 14),
             ),
           ),
+        if (_hasAnswered && isControl) _controlEffectArea(),
       ],
+    );
+  }
+
+  Widget _controlEffectArea() {
+    final from = _current.sourceElement;
+    final to = _current.correctAnswer;
+    if (from == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: ControlRelationEffect(
+        sourceElement: from,
+        targetElement: to,
+        visible: true,
+        size: 130,
+      ),
     );
   }
 
