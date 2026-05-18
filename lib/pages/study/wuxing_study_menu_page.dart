@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../models/practice/practice_enums.dart';
 import '../../theme/wuxing_colors.dart';
+import '../practice/practice_setup_page.dart';
 import 'wuxing_color_page.dart';
 import 'wuxing_generate_page.dart';
 import 'wuxing_control_page.dart';
@@ -56,6 +58,16 @@ class WuxingStudyMenuPage extends StatelessWidget {
             color: WuxingColors.getColor('水'),
             bgColor: WuxingColors.getSoftColor('水'),
             page: const WuxingCenterPage(),
+          ),
+          const SizedBox(height: 12),
+          _menuCard(
+            context,
+            index: '★',
+            title: '综合练习',
+            subtitle: '自由选择相生、相克、以我为中心、旺相休囚死混合训练',
+            color: const Color(0xFF2F6F5E),
+            bgColor: const Color(0xFFE9F5EF),
+            page: const PracticeSetupPage(),
           ),
           const SizedBox(height: 20),
           Container(
