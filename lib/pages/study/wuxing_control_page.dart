@@ -176,7 +176,7 @@ class _WuxingControlPageState extends State<WuxingControlPage> {
     final edge = _relations[_activeIndex];
     return Container(
       width: double.infinity,
-      height: 130,
+      height: 170,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE0C28A).withValues(alpha: 0.3)),
@@ -184,7 +184,7 @@ class _WuxingControlPageState extends State<WuxingControlPage> {
       child: Center(
         child: ControlRelationEffectsLayer(
           activeEdge: WuxingEdge(edge.$1, edge.$2),
-          effectSize: 120,
+          effectSize: 150,
         ),
       ),
     );

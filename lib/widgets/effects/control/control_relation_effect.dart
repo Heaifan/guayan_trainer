@@ -30,7 +30,7 @@ class _ControlRelationEffectState extends State<ControlRelationEffect> {
   WebViewController? _controller;
 
   String get _htmlContent => _htmlFor(widget.sourceElement, widget.targetElement);
-  bool get _shouldShow => widget.visible && _htmlContent.isNotEmpty;
+  bool get _shouldShow => widget.visible && _htmlContent.trim().isNotEmpty;
 
   static String _htmlFor(String? from, String? to) {
     if (from == '木' && to == '土') return woodEarthControlHtml;
@@ -48,7 +48,7 @@ class _ControlRelationEffectState extends State<ControlRelationEffect> {
   }
 
   void _initController() {
-    final html = _htmlContent;
+    final html = _htmlContent.trim();
     if (html.isEmpty) return;
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
