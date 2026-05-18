@@ -67,7 +67,10 @@ class WuxingStudyMenuPage extends StatelessWidget {
             subtitle: '自由选择相生、相克、以我为中心、旺相休囚死混合训练',
             color: const Color(0xFF2F6F5E),
             bgColor: const Color(0xFFE9F5EF),
-            page: const PracticeSetupPage(),
+            page: const PracticeSetupPage(
+              title: '综合练习',
+              subtitle: '自由选择五行相生、相克、以我为中心、旺相休囚死混合训练。',
+            ),
           ),
           const SizedBox(height: 20),
           Container(

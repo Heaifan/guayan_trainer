@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../data/wuxing_self_center_data.dart';
+import '../../models/practice/practice_enums.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../widgets/wuxing_self_center_wheel.dart';
+import '../practice/practice_setup_page.dart';
 import '../practice/training_page.dart';
 
 class WuxingCenterPage extends StatefulWidget {
@@ -46,6 +48,28 @@ class _WuxingCenterPageState extends State<WuxingCenterPage> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
+                    builder: (_) => const PracticeSetupPage(
+                      title: '以我为中心练习',
+                      subtitle: '训练生我、我生、克我、我克、同我，以及旺相休囚死。',
+                      initialTopics: {
+                        PracticeTopic.wuxingSelfCenter,
+                        PracticeTopic.wuxingState,
+                      },
+                      sessionTitle: '以我为中心',
+                    ),
+                  ),
+                );
+              },
+              child: const Text('开始通用练习'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
                     builder: (_) => const TrainingPage(
                       title: '以我为中心练习',
                       mode: TrainingMode.wuxingSelfCenter,
@@ -53,7 +77,7 @@ class _WuxingCenterPageState extends State<WuxingCenterPage> {
                   ),
                 );
               },
-              child: const Text('开始以我为中心练习'),
+              child: const Text('经典练习'),
             ),
           ),
         ],

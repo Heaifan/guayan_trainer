@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../models/practice/practice_enums.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../widgets/wuxing_wheel.dart';
+import '../practice/practice_setup_page.dart';
 import '../practice/training_page.dart';
 
 class WuxingGeneratePage extends StatelessWidget {
@@ -34,6 +36,27 @@ class WuxingGeneratePage extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
+                    builder: (_) => const PracticeSetupPage(
+                      title: '五行相生练习',
+                      subtitle: '训练木生火、火生土、土生金、金生水、水生木。',
+                      initialTopics: {
+                        PracticeTopic.wuxingGenerate,
+                      },
+                      sessionTitle: '五行相生',
+                    ),
+                  ),
+                );
+              },
+              child: const Text('开始通用练习'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
                     builder: (_) => const TrainingPage(
                       title: '五行相生练习',
                       mode: TrainingMode.wuxingGenerate,
@@ -41,7 +64,7 @@ class WuxingGeneratePage extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('开始相生练习'),
+              child: const Text('经典轮盘练习'),
             ),
           ),
           const SizedBox(height: 16),

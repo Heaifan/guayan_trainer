@@ -1,15 +1,38 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.8.2
+> **当前版本：** v0.1.8.3
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-18 16:20
+> **最后编辑：** 2026-05-18 17:30
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.8.2
+## 当前版本更新日志 — v0.1.8.3
+
+> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.3)
+
+### 重构
+- **入口迁移**：五行相生 / 相克 / 以我为中心练习按钮统一接入通用练习框架
+- **`PracticeSetupPage` 新增参数**：`title`、`subtitle`、`initialQuestionCount`、`recommendationText`、`sessionTitle`
+- **`PracticeSessionPage`**：新增 `sessionTitle` 参数，传到结果页
+- **`PracticeResultPage`**：新增 `sessionTitle` 参数，AppBar 显示动态标题
+- **经典入口保留**：每个学习页底部保留「经典轮盘练习」按钮，旧 `TrainingPage` 不删
+- **综合练习入口**：更新参数，标题/副标题更清晰
+
+### 修改文件
+- `lib/pages/practice/practice_setup_page.dart` — 参数扩展
+- `lib/pages/practice/practice_session_page.dart` — sessionTitle 传递
+- `lib/pages/practice/practice_result_page.dart` — sessionTitle 显示
+- `lib/pages/study/wuxing_generate_page.dart` — 新框架入口 + 经典备份
+- `lib/pages/study/wuxing_control_page.dart` — 新框架入口 + 经典备份
+- `lib/pages/study/wuxing_center_page.dart` — 新框架入口 + 经典备份
+- `lib/pages/study/wuxing_study_menu_page.dart` — 综合练习参数更新
+
+---
+
+## 前版更新日志 — v0.1.8.2
 
 > 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.2)
 
@@ -23,28 +46,6 @@
 
 ### 新增文件
 - `lib/utils/practice_labels.dart` — 中文标签、题库容量、时间格式化
-
----
-
-## 前版更新日志 — v0.1.8.1
-
-> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.1)
-
-### 修复
-- 通用练习框架加固：isHesitant 字段、会话时间分离、题库 _takeWithRepeat 补满、同我题加入、错字字段补全
-
----
-
-## 前版更新日志 — v0.1.8
-
-> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8)
-
-### 新增
-- **通用练习框架**：统一 `PracticeQuestion` / `PracticeAnswerRecord` / `PracticeSessionResult` 模型
-- **综合练习入口**：学习→五行生克→★综合练习，支持多板块混合出题
-- **四类题库**：五行相生（5题）、五行相克（5题）、以我为中心（25题）、旺相休囚死（25题）
-- **计时系统**：每题记录反应耗时，超过 4 秒标记迟疑
-- **结果页统计**：正确率 + 分项表现 + 平均反应 + 迟疑题 + 整场用时
 
 ---
 
@@ -303,6 +304,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.8.3` | 2026-05-18 | 重构 | 旧入口迁移到通用练习框架，经典按钮备份 |
 | `v0.1.7.2` | 2026-05-18 | 优化 | 圆盘排版精修，箭头避让，胶囊节点 |
 | `v0.1.7.1` | 2026-05-18 | 重构 | 以我为中心升级圆盘结构，四色箭头 |
 | `v0.1.7` | 2026-05-18 | 新增 | 以我为中心学习页，旺相休囚死 |

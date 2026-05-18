@@ -6,12 +6,14 @@ import '../../utils/practice_labels.dart';
 import '../review/review_page.dart';
 
 class PracticeResultPage extends StatelessWidget {
+  final String sessionTitle;
   final List<PracticeAnswerRecord> records;
   final DateTime startedAt;
   final DateTime finishedAt;
 
   const PracticeResultPage({
     super.key,
+    this.sessionTitle = '综合练习',
     required this.records,
     required this.startedAt,
     required this.finishedAt,
@@ -24,7 +26,7 @@ class PracticeResultPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = _result;
     return Scaffold(
-      appBar: AppBar(title: const Text('练习结果'), centerTitle: true, automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text('$sessionTitle - 结果'), centerTitle: true, automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../../models/practice/practice_enums.dart';
 import '../../services/question_generator.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../widgets/effects/control/control_relation_effects_layer.dart';
 import '../../widgets/wuxing_arrow_painter.dart';
 import '../../widgets/wuxing_control_wheel.dart';
+import '../practice/practice_setup_page.dart';
 import '../practice/training_page.dart';
 
 class WuxingControlPage extends StatefulWidget {
@@ -85,6 +87,27 @@ class _WuxingControlPageState extends State<WuxingControlPage> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
+                    builder: (_) => const PracticeSetupPage(
+                      title: '五行相克练习',
+                      subtitle: '训练木克土、土克水、水克火、火克金、金克木。',
+                      initialTopics: {
+                        PracticeTopic.wuxingControl,
+                      },
+                      sessionTitle: '五行相克',
+                    ),
+                  ),
+                );
+              },
+              child: const Text('开始通用练习'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
                     builder: (_) => const TrainingPage(
                       title: '五行相克练习',
                       mode: TrainingMode.wuxingControl,
@@ -92,7 +115,7 @@ class _WuxingControlPageState extends State<WuxingControlPage> {
                   ),
                 );
               },
-              child: const Text('开始相克练习'),
+              child: const Text('经典轮盘练习'),
             ),
           ),
           const SizedBox(height: 16),

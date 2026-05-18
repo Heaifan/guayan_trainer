@@ -7,14 +7,24 @@ import '../../utils/practice_labels.dart';
 import 'practice_session_page.dart';
 
 class PracticeSetupPage extends StatefulWidget {
+  final String title;
+  final String subtitle;
   final Set<PracticeTopic> initialTopics;
+  final int initialQuestionCount;
+  final String? recommendationText;
+  final String? sessionTitle;
 
   const PracticeSetupPage({
     super.key,
+    this.title = '综合练习',
+    this.subtitle = '选择要训练的知识点，可单选或混合练习。',
     this.initialTopics = const {
       PracticeTopic.wuxingGenerate,
       PracticeTopic.wuxingControl,
     },
+    this.initialQuestionCount = 12,
+    this.recommendationText,
+    this.sessionTitle,
   });
 
   @override
@@ -23,7 +33,7 @@ class PracticeSetupPage extends StatefulWidget {
 
 class _PracticeSetupPageState extends State<PracticeSetupPage> {
   late Set<PracticeTopic> _selected;
-  int _questionCount = 12;
+  late int _questionCount;
 
   static const _allTopics = PracticeTopic.values;
   static const _countOptions = [10, 12, 20];
@@ -32,6 +42,7 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
   void initState() {
     super.initState();
     _selected = Set.from(widget.initialTopics);
+    _questionCount = widget.initialQuestionCount;
   }
 
   void _toggle(PracticeTopic topic) {
@@ -53,6 +64,7 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => PracticeSessionPage(
+          sessionTitle: widget.sessionTitle ?? widget.title,
           topics: _selected,
           questions: questions,
         ),
@@ -63,7 +75,7 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('综合练习')),
+      appBar: AppBar(title: Text(widget.title)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -74,9 +86,30 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: const Color(0xFFE0C28A)),
             ),
-            child: const Text('选择要练习的板块，系统会自动混合出题。',
-                style: TextStyle(fontSize: 14, color: Color(0xFF6B4E2E))),
+            child: Text(widget.subtitle,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF6B4E2E))),
           ),
+          if (widget.recommendationText != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE9F5EF),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF2F6F5E).withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.lightbulb_outline, size: 18, color: Color(0xFF2F6F5E)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(widget.recommendationText!,
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF2F6F5E))),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           const Text('选择练习内容',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),

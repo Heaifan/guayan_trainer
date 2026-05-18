@@ -11,11 +11,13 @@ import '../../utils/practice_labels.dart';
 import 'practice_result_page.dart';
 
 class PracticeSessionPage extends StatefulWidget {
+  final String sessionTitle;
   final Set<PracticeTopic> topics;
   final List<PracticeQuestion> questions;
 
   const PracticeSessionPage({
     super.key,
+    this.sessionTitle = '综合练习',
     required this.topics,
     required this.questions,
   });
@@ -91,6 +93,7 @@ class _PracticeSessionPageState extends State<PracticeSessionPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => PracticeResultPage(
+            sessionTitle: widget.sessionTitle,
             records: _records,
             startedAt: _sessionStartedAt,
             finishedAt: DateTime.now(),
@@ -112,7 +115,7 @@ class _PracticeSessionPageState extends State<PracticeSessionPage> {
     final progress = '${_index + 1}/${widget.questions.length}';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('综合练习'), centerTitle: true),
+      appBar: AppBar(title: Text(widget.sessionTitle), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
