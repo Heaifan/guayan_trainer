@@ -11,4 +11,4 @@ enum AnswerKind { wuxingElement, selfRelation, wuxingState, text }
 
 enum PracticeStage { wheel, colorChoice, textChoice, relationChoice, stateChoice }
 
-enum PracticeMode { normal }
+enum PracticeMode { normal, fallingBlock }

@@ -4,6 +4,7 @@ import '../../data/practice/wuxing_practice_question_generator.dart';
 import '../../models/practice/practice_enums.dart';
 import '../../theme/wuxing_colors.dart';
 import '../../utils/practice_labels.dart';
+import 'games/falling_block_game_page.dart';
 import 'practice_session_page.dart';
 
 class PracticeSetupPage extends StatefulWidget {
@@ -34,6 +35,7 @@ class PracticeSetupPage extends StatefulWidget {
 class _PracticeSetupPageState extends State<PracticeSetupPage> {
   late Set<PracticeTopic> _selected;
   late int _questionCount;
+  PracticeMode _mode = PracticeMode.normal;
 
   static const _allTopics = PracticeTopic.values;
   static const _countOptions = [10, 12, 20];
@@ -61,15 +63,27 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
       topics: _selected,
       count: _questionCount,
     );
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => PracticeSessionPage(
-          sessionTitle: widget.sessionTitle ?? widget.title,
-          topics: _selected,
-          questions: questions,
+    if (_mode == PracticeMode.normal) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => PracticeSessionPage(
+            sessionTitle: widget.sessionTitle ?? widget.title,
+            topics: _selected,
+            questions: questions,
+          ),
         ),
-      ),
-    ).then((_) => setState(() {}));
+      ).then((_) => setState(() {}));
+    } else if (_mode == PracticeMode.fallingBlock) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => FallingBlockGamePage(
+            topics: _selected,
+            questions: questions,
+            sessionTitle: widget.sessionTitle ?? widget.title,
+          ),
+        ),
+      ).then((_) => setState(() {}));
+    }
   }
 
   @override
@@ -110,6 +124,17 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
               ),
             ),
           ],
+          const SizedBox(height: 20),
+          const Text('练习方式',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _modeChip(PracticeMode.normal, '普通练习'),
+              const SizedBox(width: 12),
+              _modeChip(PracticeMode.fallingBlock, '方块速答'),
+            ],
+          ),
           const SizedBox(height: 20),
           const Text('选择练习内容',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
@@ -154,10 +179,26 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
             width: double.infinity,
             child: FilledButton(
               onPressed: _selected.isEmpty ? null : _start,
-              child: const Text('开始练习'),
+              child: Text(_mode == PracticeMode.fallingBlock ? '开始方块速答' : '开始练习'),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _modeChip(PracticeMode mode, String label) {
+    final sel = mode == _mode;
+    return Expanded(
+      child: ChoiceChip(
+        label: Text(label,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: sel ? Colors.white : null,
+            )),
+        selected: sel,
+        onSelected: (_) => setState(() => _mode = mode),
+        selectedColor: const Color(0xFF2F6F5E),
       ),
     );
   }

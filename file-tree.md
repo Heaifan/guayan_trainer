@@ -1,15 +1,44 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.8.3
+> **当前版本：** v0.1.9
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-18 17:30
+> **最后编辑：** 2026-05-22 19:00
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.8.3
+## 当前版本更新日志 — v0.1.9
+
+> 发布日期：2026-05-22 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.9)
+
+### 新增
+- **方块速答游戏**：通用单方块下落模板 `FallingBlockGamePage`
+- **`PracticeMode.fallingBlock`**：正式启用方块速答模式
+- **`PracticeSetupPage` 模式选择**：普通练习 / 方块速答 二选一切换
+- **`PracticeResultPage` 游戏统计**：新增 `score` / `maxCombo` / `remainingLives` 可选显示
+- **错题写入**：答错/漏掉统一走 `MistakeStore.addOrUpdateMistake`，漏掉显示"未作答"
+
+### 游戏规则
+- 题目方块从上往下掉，点击底部正确答案
+- 答对：得分 +10+连击，连击递增
+- 答错：生命 -1，连击清零，写入回炉
+- 漏掉：生命 -1，标记超时，写入回炉
+- 基础下落 4500ms，每 5 连击加速 250ms，最低 2200ms
+- 题目用完或生命归零 → 结果页
+
+### 新增文件
+- `lib/pages/practice/games/falling_block_game_page.dart` — 打方块游戏主页面
+
+### 修改文件
+- `lib/models/practice/practice_enums.dart` — PracticeMode 增加 fallingBlock
+- `lib/pages/practice/practice_setup_page.dart` — 增加模式选择与跳转
+- `lib/pages/practice/practice_result_page.dart` — 增加游戏统计字段
+
+---
+
+## 前版更新日志 — v0.1.8.3
 
 > 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.3)
 
@@ -29,23 +58,6 @@
 - `lib/pages/study/wuxing_control_page.dart` — 新框架入口 + 经典备份
 - `lib/pages/study/wuxing_center_page.dart` — 新框架入口 + 经典备份
 - `lib/pages/study/wuxing_study_menu_page.dart` — 综合练习参数更新
-
----
-
-## 前版更新日志 — v0.1.8.2
-
-> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.2)
-
-### 修复
-- **类型补全**：全部模型和参数强类型化
-- **`isHesitant` 分离**：迟疑判断独立于超时
-- **会话时间拆分**：`_sessionStartedAt` / `_questionStartedAt` 分开
-- **题库补满**：`_takeWithRepeat()` 不足时自动重复抽题
-- **同我题加入**：以我为中心关系判断包含全部五类，共 25 题
-- **错题字段补全**：MistakeItem 新增 `explanation` / `reactionMs` / `isHesitant`
-
-### 新增文件
-- `lib/utils/practice_labels.dart` — 中文标签、题库容量、时间格式化
 
 ---
 
@@ -202,9 +214,10 @@ lib/
 | `practice_page.dart` | 练习页入口：按基础/关系/综合分组展示训练卡片 |
 | `training_page.dart` | 训练页：题目展示 + 彩色选项 + 即时反馈 + 进度条 |
 | `result_page.dart` | 结果页：正确率 + 回炉/迟疑汇总 + 错题列表 + 继续操作 |
-| `practice_setup_page.dart` | 综合练习设置页：选择板块 + 题数 |
+| `practice_setup_page.dart` | 综合练习设置页：选择板块 + 题数 + 练习方式 |
 | `practice_session_page.dart` | 通用练习页：计时 + 反馈 + 回炉写入 |
 | `practice_result_page.dart` | 通用结果页：分项表现 + 平均反应 + 迟疑统计 |
+| `games/falling_block_game_page.dart` | 方块速答游戏：单题下落 + 生命/分数/连击 + 回炉 |
 
 ### 5.13 lib/pages/review/
 
@@ -304,6 +317,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.9` | 2026-05-22 | 新增 | 方块速答游戏模板，单题下落 + 计时 + 回炉 |
 | `v0.1.8.3` | 2026-05-18 | 重构 | 旧入口迁移到通用练习框架，经典按钮备份 |
 | `v0.1.7.2` | 2026-05-18 | 优化 | 圆盘排版精修，箭头避让，胶囊节点 |
 | `v0.1.7.1` | 2026-05-18 | 重构 | 以我为中心升级圆盘结构，四色箭头 |

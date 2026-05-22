@@ -10,6 +10,10 @@ class PracticeResultPage extends StatelessWidget {
   final List<PracticeAnswerRecord> records;
   final DateTime startedAt;
   final DateTime finishedAt;
+  final int? score;
+  final int? maxCombo;
+  final int? remainingLives;
+  final PracticeMode mode;
 
   const PracticeResultPage({
     super.key,
@@ -17,7 +21,13 @@ class PracticeResultPage extends StatelessWidget {
     required this.records,
     required this.startedAt,
     required this.finishedAt,
+    this.score,
+    this.maxCombo,
+    this.remainingLives,
+    this.mode = PracticeMode.normal,
   });
+
+  bool get _isGame => mode == PracticeMode.fallingBlock;
 
   PracticeSessionResult get _result => PracticeSessionResult(
         records: records, startedAt: startedAt, finishedAt: finishedAt);
@@ -32,11 +42,16 @@ class PracticeResultPage extends StatelessWidget {
         children: [
           _scoreCard(r),
           const SizedBox(height: 16),
+          if (_isGame) _gameStatsCard(),
+          if (_isGame) const SizedBox(height: 16),
           if (r.topicStats.isNotEmpty) _topicStatsCard(r),
           const SizedBox(height: 16),
           const SizedBox(height: 8),
+          _detailRow('正确率', '${(r.accuracy * 100).round()}%'),
+          _detailRow('正确', '${r.correctCount} / 共 ${r.total} 题'),
           _detailRow('平均反应', formatMs(r.averageReactionMs.toInt())),
           _detailRow('迟疑题', '${r.hesitantCount} 题'),
+          if (r.timeoutCount > 0) _detailRow('超时题', '${r.timeoutCount} 题'),
           _detailRow('整场用时', formatMs(r.totalDurationMs)),
           if (r.wrongCount > 0) const SizedBox(height: 12),
           if (r.wrongCount > 0) _summaryCard('错题入回炉', r.wrongCount, '答错的题已加入回炉。', const Color(0xFFC0392B)),
@@ -47,7 +62,8 @@ class PracticeResultPage extends StatelessWidget {
                   child: ListTile(
                     leading: const CircleAvatar(child: Text('✗', style: TextStyle(fontWeight: FontWeight.w900))),
                     title: Text(rec.question.prompt, style: const TextStyle(fontSize: 14)),
-                    subtitle: Text('正确: ${rec.question.correctAnswer}  你选: ${rec.selectedAnswer}',
+                    subtitle: Text('正确: ${rec.question.correctAnswer}  '
+                        '你选: ${rec.selectedAnswer ?? "未作答"}',
                         style: const TextStyle(fontSize: 13)),
                   ),
                 )),
@@ -77,12 +93,50 @@ class PracticeResultPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text('练习完成', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          Text(_isGame ? '方块速答结束' : '练习完成',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
           const SizedBox(height: 16),
           Text('${(r.accuracy * 100).round()}%',
               style: const TextStyle(fontSize: 42, fontWeight: FontWeight.w900, color: Color(0xFF2F6F5E))),
           const SizedBox(height: 6),
           Text('正确 ${r.correctCount} / 共 ${r.total} 题', style: const TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  Widget _gameStatsCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE9F5EF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF2F6F5E).withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        children: [
+          const Text('方块速答成绩',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF2F6F5E))),
+          const SizedBox(height: 10),
+          _statRow('得分', '${score ?? 0}'),
+          _statRow('最高连击', '${maxCombo ?? 0}'),
+          _statRow('剩余生命', '${remainingLives ?? 0}'),
+        ],
+      ),
+    );
+  }
+
+  Widget _statRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('$label：',
+              style: const TextStyle(fontSize: 15, color: Color(0xFF2F6F5E), fontWeight: FontWeight.w600)),
+          Text(value,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Color(0xFF3B2A1A))),
         ],
       ),
     );
