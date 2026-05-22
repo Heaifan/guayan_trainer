@@ -13,6 +13,9 @@ class PracticeResultPage extends StatelessWidget {
   final int? score;
   final int? maxCombo;
   final int? remainingLives;
+  final int? emptyHits;
+  final int? matchedCount;
+  final int? totalPairs;
   final PracticeMode mode;
 
   const PracticeResultPage({
@@ -24,10 +27,13 @@ class PracticeResultPage extends StatelessWidget {
     this.score,
     this.maxCombo,
     this.remainingLives,
+    this.emptyHits,
+    this.matchedCount,
+    this.totalPairs,
     this.mode = PracticeMode.normal,
   });
 
-  bool get _isGame => mode == PracticeMode.fallingBlock;
+  bool get _isGame => mode == PracticeMode.fallingBlock || mode == PracticeMode.linkMatch;
 
   PracticeSessionResult get _result => PracticeSessionResult(
         records: records, startedAt: startedAt, finishedAt: finishedAt);
@@ -93,7 +99,9 @@ class PracticeResultPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(_isGame ? '方块速答结束' : '练习完成',
+          Text(_isGame && mode == PracticeMode.fallingBlock ? '方块速答结束'
+              : _isGame && mode == PracticeMode.linkMatch ? '连连看完成'
+              : '练习完成',
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
           const SizedBox(height: 16),
           Text('${(r.accuracy * 100).round()}%',
@@ -106,6 +114,32 @@ class PracticeResultPage extends StatelessWidget {
   }
 
   Widget _gameStatsCard() {
+    if (mode == PracticeMode.linkMatch) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE9F5EF),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF2F6F5E).withValues(alpha: 0.4)),
+        ),
+        child: Column(
+          children: [
+            const Text('连连看成绩',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF2F6F5E))),
+            const SizedBox(height: 10),
+            _statRow('得分', '${score ?? 0}'),
+            _statRow('最高连击', '${maxCombo ?? 0}'),
+            _statRow('剩余生命', '${remainingLives ?? 0}'),
+            _statRow('完成配对', '${matchedCount ?? 0} / ${totalPairs ?? 0}'),
+          ],
+        ),
+      );
+    }
+
+    final correct = records.where((r) => r.isCorrect).length;
+    final missed = records.where((r) => r.isTimeout).length;
+    final speedLevel = correct ~/ 5;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -122,6 +156,9 @@ class PracticeResultPage extends StatelessWidget {
           _statRow('得分', '${score ?? 0}'),
           _statRow('最高连击', '${maxCombo ?? 0}'),
           _statRow('剩余生命', '${remainingLives ?? 0}'),
+          _statRow('漏掉', '$missed 次'),
+          if (emptyHits != null && emptyHits! > 0) _statRow('误击', '${emptyHits} 次'),
+          if (speedLevel > 0) _statRow('速度等级', 'Lv$speedLevel'),
         ],
       ),
     );

@@ -1,15 +1,44 @@
 # 项目文件树 — 卦眼训练器
 
-> **当前版本：** v0.1.9
+> **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-22 19:00
+> **最后编辑：** 2026-05-22 20:30
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
 
 ---
 
-## 当前版本更新日志 — v0.1.9
+## 当前版本更新日志 — v0.1.10
+
+> 发布日期：2026-05-22 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.10)
+
+### 新增
+- **关系连连看游戏**：`LinkMatchGamePage` — 25 组配对 / 50 张卡牌消除模板
+- **`PracticeMode.linkMatch`**：第三种练习模式
+- **`HitEffectKind` / `FallingRuleKind`** 枚举：为后续地支合/冲预留
+
+### 游戏规则
+- 上方源牌 25 张 + 下方目标牌 25 张，各自打乱
+- 点击源牌 → 高亮 → 点击目标牌完成配对
+- 正确：❤️/⚡ 反馈 + 两张牌消除消失 + 加分连击
+- 错误：扣命 + 显示正确答案 + 写入回炉
+- 默认 5 条命，全部配完或命用完 → 结果页
+
+### 新增文件
+- `lib/pages/practice/games/link_match_game_page.dart` — 连连看游戏主页面
+
+### 修改文件
+- `lib/models/practice/practice_enums.dart` — PracticeMode.linkMatch + HitEffectKind + FallingRuleKind
+- `lib/pages/practice/practice_setup_page.dart` — 新增连连看模式选择与跳转
+- `lib/pages/practice/practice_result_page.dart` — 新增 matchedCount/totalPairs 参数
+- `lib/pages/practice/practice_page.dart` — 趣味游戏区增加连连看入口
+- `lib/utils/practice_labels.dart` — PracticeStage 增加 linkMatch
+- `lib/theme/wuxing_colors.dart` — 金颜色优化
+
+---
+
+## 前版更新日志 — v0.1.9
 
 > 发布日期：2026-05-22 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.9)
 
@@ -35,29 +64,6 @@
 - `lib/models/practice/practice_enums.dart` — PracticeMode 增加 fallingBlock
 - `lib/pages/practice/practice_setup_page.dart` — 增加模式选择与跳转
 - `lib/pages/practice/practice_result_page.dart` — 增加游戏统计字段
-
----
-
-## 前版更新日志 — v0.1.8.3
-
-> 发布日期：2026-05-18 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.8.3)
-
-### 重构
-- **入口迁移**：五行相生 / 相克 / 以我为中心练习按钮统一接入通用练习框架
-- **`PracticeSetupPage` 新增参数**：`title`、`subtitle`、`initialQuestionCount`、`recommendationText`、`sessionTitle`
-- **`PracticeSessionPage`**：新增 `sessionTitle` 参数，传到结果页
-- **`PracticeResultPage`**：新增 `sessionTitle` 参数，AppBar 显示动态标题
-- **经典入口保留**：每个学习页底部保留「经典轮盘练习」按钮，旧 `TrainingPage` 不删
-- **综合练习入口**：更新参数，标题/副标题更清晰
-
-### 修改文件
-- `lib/pages/practice/practice_setup_page.dart` — 参数扩展
-- `lib/pages/practice/practice_session_page.dart` — sessionTitle 传递
-- `lib/pages/practice/practice_result_page.dart` — sessionTitle 显示
-- `lib/pages/study/wuxing_generate_page.dart` — 新框架入口 + 经典备份
-- `lib/pages/study/wuxing_control_page.dart` — 新框架入口 + 经典备份
-- `lib/pages/study/wuxing_center_page.dart` — 新框架入口 + 经典备份
-- `lib/pages/study/wuxing_study_menu_page.dart` — 综合练习参数更新
 
 ---
 
@@ -218,6 +224,7 @@ lib/
 | `practice_session_page.dart` | 通用练习页：计时 + 反馈 + 回炉写入 |
 | `practice_result_page.dart` | 通用结果页：分项表现 + 平均反应 + 迟疑统计 |
 | `games/falling_block_game_page.dart` | 方块速答游戏：单题下落 + 生命/分数/连击 + 回炉 |
+| `games/link_match_game_page.dart` | 关系连连看：25组配对 + 50张卡牌消除 + 回炉 |
 
 ### 5.13 lib/pages/review/
 
@@ -317,6 +324,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.10` | 2026-05-22 | 新增 | 关系连连看：25组配对+50张卡消除+回炉 |
 | `v0.1.9` | 2026-05-22 | 新增 | 方块速答游戏模板，单题下落 + 计时 + 回炉 |
 | `v0.1.8.3` | 2026-05-18 | 重构 | 旧入口迁移到通用练习框架，经典按钮备份 |
 | `v0.1.7.2` | 2026-05-18 | 优化 | 圆盘排版精修，箭头避让，胶囊节点 |

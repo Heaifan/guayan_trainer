@@ -6,7 +6,7 @@ class WuxingColors {
     '木': Color(0xFF528747),
     '火': Color(0xFFCE3E30),
     '土': Color(0xFFE1AC24),
-    '金': Color(0xFFE2E2E2),
+    '金': Color(0xFF888888),
     '水': Color(0xFF3E7DBF),
   };
 
@@ -24,7 +24,7 @@ class WuxingColors {
     '木': Color(0xFF528747),
     '火': Color(0xFFCE3E30),
     '土': Color(0xFFE1AC24),
-    '金': Color(0xFFB8A98A),
+    '金': Color(0xFF777777),
     '水': Color(0xFF3E7DBF),
   };
 
@@ -33,7 +33,7 @@ class WuxingColors {
     '木': Color(0xFFFFFFFF),
     '火': Color(0xFFFFFFFF),
     '土': Color(0xFFFFFFFF),
-    '金': Color(0xFF666666),
+    '金': Color(0xFFFFFFFF),
     '水': Color(0xFFFFFFFF),
   };
 

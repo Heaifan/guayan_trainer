@@ -9,6 +9,17 @@ enum PracticeTopic {
 
 enum AnswerKind { wuxingElement, selfRelation, wuxingState, text }
 
-enum PracticeStage { wheel, colorChoice, textChoice, relationChoice, stateChoice }
+enum PracticeStage { wheel, colorChoice, textChoice, relationChoice, stateChoice, linkMatch }
 
-enum PracticeMode { normal, fallingBlock }
+enum PracticeMode { normal, fallingBlock, linkMatch }
+
+enum RelationEffectKind { heart, break_ }
+
+enum HitEffectKind { heart, break_ }
+
+enum FallingRuleKind {
+  wuxingGenerate,
+  wuxingControl,
+  dizhiCombine,
+  dizhiConflict,
+}

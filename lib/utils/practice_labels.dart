@@ -25,6 +25,8 @@ String practiceStageLabel(PracticeStage stage) {
       return '关系判断';
     case PracticeStage.stateChoice:
       return '旺衰判断';
+    case PracticeStage.linkMatch:
+      return '连连看';
   }
 }
 
