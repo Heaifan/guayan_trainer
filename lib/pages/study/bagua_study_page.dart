@@ -723,7 +723,7 @@ class _BaguaDiagramSectionState extends State<_BaguaDiagramSection> {
         border: Border.all(color: const Color(0xFFE8D8B9)),
       ),
       child: AspectRatio(
-        aspectRatio: 1.06,
+        aspectRatio: 1.0,
         child: SvgPicture.string(svg, fit: BoxFit.contain),
       ),
     );
@@ -777,7 +777,7 @@ const _baguaSvgDefs = '''
   }
   .bagua-line {
     stroke: #111111;
-    stroke-width: 6;
+    stroke-width: 10;
     stroke-linecap: square;
   }
 </style>
@@ -785,7 +785,7 @@ const _baguaSvgDefs = '''
 
 const _houtianBaguaSvg =
     '''
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="160 105 680 620">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="215 145 570 500">
   <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
   $_baguaSvgDefs
   <g transform="translate(500, 390)">
@@ -830,14 +830,13 @@ const _houtianBaguaSvg =
       <text x="0" y="28" class="label-inner">巽木</text>
       <text x="0" y="-34" class="label-outer">东南</text>
     </g>
-    <text x="0" y="300" class="title">后天八卦</text>
   </g>
 </svg>
 ''';
 
 const _xiantianBaguaSvg =
     '''
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="160 105 680 620">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="215 145 570 500">
   <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
   $_baguaSvgDefs
   <g transform="translate(500, 390)">
@@ -890,7 +889,6 @@ const _xiantianBaguaSvg =
       <text x="0" y="-34" class="label-outer">风西南</text>
       <text x="0" y="-60" class="label-outer">木</text>
     </g>
-    <text x="0" y="300" class="title">先天八卦</text>
   </g>
 </svg>
 ''';
