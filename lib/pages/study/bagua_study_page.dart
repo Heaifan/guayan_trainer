@@ -733,11 +733,11 @@ class _BaguaDiagramSectionState extends State<_BaguaDiagramSection> {
 const _baguaSvgDefs = '''
 <defs>
   <g id="yang">
-    <line x1="-35" y1="0" x2="35" y2="0" stroke="#111111" stroke-width="40" stroke-linecap="square" />
+    <line x1="-35" y1="0" x2="35" y2="0" stroke="#111111" stroke-width="8" stroke-linecap="square" />
   </g>
   <g id="yin">
-    <line x1="-35" y1="0" x2="-8" y2="0" stroke="#111111" stroke-width="40" stroke-linecap="square" />
-    <line x1="8" y1="0" x2="35" y2="0" stroke="#111111" stroke-width="40" stroke-linecap="square" />
+    <line x1="-35" y1="0" x2="-8" y2="0" stroke="#111111" stroke-width="8" stroke-linecap="square" />
+    <line x1="8" y1="0" x2="35" y2="0" stroke="#111111" stroke-width="8" stroke-linecap="square" />
   </g>
   <g id="taiji">
     <circle cx="0" cy="0" r="100" fill="#ffffff" stroke="#111111" stroke-width="1.5" />
