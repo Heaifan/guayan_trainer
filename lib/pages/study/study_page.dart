@@ -19,21 +19,26 @@ class StudyPage extends StatelessWidget {
         children: [
           _card(
             context,
-            icon: const _SvgStudyIcon(_wuxingIconSvg),
+            icon: _SvgStudyIcon(
+              _wuxingIconSvg,
+              color: WuxingColors.getColor('木'),
+            ),
             label: '五行模块',
             subtitle: '认识颜色、意象、生克与关系',
             color: WuxingColors.getColor('木'),
             bgColor: WuxingColors.getSoftColor('木'),
+            iconBgColor: const Color(0xFFCDEACF),
             page: const WuxingStudyMenuPage(),
           ),
           const SizedBox(height: 12),
           _card(
             context,
-            icon: const _SvgStudyIcon(_baguaIconSvg),
+            icon: const _SvgStudyIcon(_baguaIconSvg, color: Color(0xFF0E8C82)),
             label: '八卦模块',
             subtitle: '总览卦象、五行、方位、人体与病象',
-            color: const Color(0xFF2B4A3F),
-            bgColor: const Color(0xFFE9F0E6),
+            color: const Color(0xFF0F625B),
+            bgColor: const Color(0xFFE1F3EF),
+            iconBgColor: const Color(0xFFC4EFE7),
             page: const BaguaStudyPage(),
           ),
           const SizedBox(height: 12),
@@ -44,6 +49,7 @@ class StudyPage extends StatelessWidget {
             subtitle: '用方位记地支，用颜色记五行',
             color: WuxingColors.getColor('土'),
             bgColor: WuxingColors.getSoftColor('土'),
+            iconBgColor: const Color(0xFFFFE19A),
             page: const DizhiStudyPage(),
           ),
           const SizedBox(height: 12),
@@ -54,6 +60,7 @@ class StudyPage extends StatelessWidget {
             subtitle: '用对手和朋友记冲合关系',
             color: WuxingColors.getColor('火'),
             bgColor: WuxingColors.getSoftColor('火'),
+            iconBgColor: const Color(0xFFFFC8C3),
             page: const RelationStudyPage(),
           ),
         ],
@@ -68,6 +75,7 @@ class StudyPage extends StatelessWidget {
     required String subtitle,
     required Color color,
     required Color bgColor,
+    required Color iconBgColor,
     required Widget page,
   }) {
     return Card(
@@ -75,8 +83,12 @@ class StudyPage extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         leading: CircleAvatar(
-          backgroundColor: color.withValues(alpha: 0.2),
-          child: icon,
+          radius: 22,
+          backgroundColor: iconBgColor,
+          child: IconTheme(
+            data: IconThemeData(color: color, size: 24),
+            child: icon,
+          ),
         ),
         title: Text(
           label,
@@ -93,12 +105,18 @@ class StudyPage extends StatelessWidget {
 
 class _SvgStudyIcon extends StatelessWidget {
   final String svg;
+  final Color color;
 
-  const _SvgStudyIcon(this.svg);
+  const _SvgStudyIcon(this.svg, {required this.color});
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.string(svg, width: 25, height: 25);
+    return SvgPicture.string(
+      svg,
+      width: 27,
+      height: 27,
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+    );
   }
 }
 
