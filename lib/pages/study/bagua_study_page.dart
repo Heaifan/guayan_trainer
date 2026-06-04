@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class BaguaStudyPage extends StatelessWidget {
   const BaguaStudyPage({super.key});
@@ -165,6 +166,8 @@ class BaguaStudyPage extends StatelessWidget {
           _originCard(),
           const SizedBox(height: 12),
           _formulaCard(),
+          const SizedBox(height: 14),
+          const _BaguaDiagramSection(),
           const SizedBox(height: 14),
           _knowledgeTable(),
           const SizedBox(height: 16),
@@ -594,6 +597,303 @@ class BaguaStudyPage extends StatelessWidget {
     }
   }
 }
+
+class _BaguaDiagramSection extends StatefulWidget {
+  const _BaguaDiagramSection();
+
+  @override
+  State<_BaguaDiagramSection> createState() => _BaguaDiagramSectionState();
+}
+
+class _BaguaDiagramSectionState extends State<_BaguaDiagramSection> {
+  var _selectedIndex = 0;
+
+  static const _ink = BaguaStudyPage._ink;
+  static const _muted = BaguaStudyPage._muted;
+  static const _paper = BaguaStudyPage._paper;
+  static const _line = BaguaStudyPage._line;
+  static const _deep = BaguaStudyPage._deep;
+
+  @override
+  Widget build(BuildContext context) {
+    final isHoutian = _selectedIndex == 0;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _paper,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.explore_outlined, color: _deep),
+              SizedBox(width: 8),
+              Text(
+                '先天 / 后天八卦图',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: _ink,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _switcher(),
+          const SizedBox(height: 12),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            child: _diagramFrame(
+              key: ValueKey(_selectedIndex),
+              svg: isHoutian ? _houtianBaguaSvg : _xiantianBaguaSvg,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isHoutian
+                ? '后天八卦重在方位与实用取象：文王卦里看方位、环境、落点时更常用。'
+                : '先天八卦重在本源结构与对待关系：适合先记卦序、阴阳相对和天地定位。',
+            style: const TextStyle(color: _muted, height: 1.55, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _switcher() {
+    return Container(
+      height: 42,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFE3A8),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [_switchButton('后天八卦', 0), _switchButton('先天八卦', 1)],
+      ),
+    );
+  }
+
+  Widget _switchButton(String label, int index) {
+    final selected = _selectedIndex == index;
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(11),
+        onTap: () => setState(() => _selectedIndex = index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? _deep : Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: _deep.withValues(alpha: 0.22),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? Colors.white : const Color(0xFF6B4E2E),
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _diagramFrame({required Key key, required String svg}) {
+    return Container(
+      key: key,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8D8B9)),
+      ),
+      child: AspectRatio(
+        aspectRatio: 1.06,
+        child: SvgPicture.string(svg, fit: BoxFit.contain),
+      ),
+    );
+  }
+}
+
+const _baguaSvgDefs = '''
+<defs>
+  <g id="yang">
+    <line x1="-35" y1="0" x2="35" y2="0" class="bagua-line" />
+  </g>
+  <g id="yin">
+    <line x1="-35" y1="0" x2="-8" y2="0" class="bagua-line" />
+    <line x1="8" y1="0" x2="35" y2="0" class="bagua-line" />
+  </g>
+  <g id="taiji">
+    <circle cx="0" cy="0" r="100" fill="#ffffff" stroke="#111111" stroke-width="1.5" />
+    <path d="M 0,-100 A 100,100 0 0,1 0,100 A 50,50 0 0,1 0,0 A 50,50 0 0,0 0,-100 Z" fill="#111111" />
+    <circle cx="0" cy="-50" r="15" fill="#111111" />
+    <circle cx="0" cy="50" r="15" fill="#ffffff" />
+  </g>
+  <g id="gua-qian"><use href="#yang" y="0"/><use href="#yang" y="-9"/><use href="#yang" y="-18"/></g>
+  <g id="gua-dui"><use href="#yang" y="0"/><use href="#yang" y="-9"/><use href="#yin" y="-18"/></g>
+  <g id="gua-li"><use href="#yang" y="0"/><use href="#yin" y="-9"/><use href="#yang" y="-18"/></g>
+  <g id="gua-zhen"><use href="#yang" y="0"/><use href="#yin" y="-9"/><use href="#yin" y="-18"/></g>
+  <g id="gua-xun"><use href="#yin" y="0"/><use href="#yang" y="-9"/><use href="#yang" y="-18"/></g>
+  <g id="gua-kan"><use href="#yin" y="0"/><use href="#yang" y="-9"/><use href="#yin" y="-18"/></g>
+  <g id="gua-gen"><use href="#yin" y="0"/><use href="#yin" y="-9"/><use href="#yang" y="-18"/></g>
+  <g id="gua-kun"><use href="#yin" y="0"/><use href="#yin" y="-9"/><use href="#yin" y="-18"/></g>
+</defs>
+<style>
+  .title {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    fill: #A93226;
+    text-anchor: middle;
+  }
+  .label-outer {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 18px;
+    fill: #4F3E30;
+    text-anchor: middle;
+  }
+  .label-inner {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    fill: #1F1712;
+    text-anchor: middle;
+  }
+  .bagua-line {
+    stroke: #111111;
+    stroke-width: 6;
+    stroke-linecap: square;
+  }
+</style>
+''';
+
+const _houtianBaguaSvg =
+    '''
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="160 105 680 620">
+  <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
+  $_baguaSvgDefs
+  <g transform="translate(500, 390)">
+    <use href="#taiji" transform="rotate(0)" />
+    <g transform="rotate(0) translate(0, -165)">
+      <use href="#gua-li" />
+      <text x="0" y="28" class="label-inner">离火</text>
+      <text x="0" y="-34" class="label-outer">南</text>
+    </g>
+    <g transform="rotate(45) translate(0, -165)">
+      <use href="#gua-kun" />
+      <text x="0" y="28" class="label-inner">坤土</text>
+      <text x="0" y="-34" class="label-outer">西南</text>
+    </g>
+    <g transform="rotate(90) translate(0, -165)">
+      <use href="#gua-dui" />
+      <text x="0" y="28" class="label-inner">兑金</text>
+      <text x="0" y="-34" class="label-outer">西</text>
+    </g>
+    <g transform="rotate(135) translate(0, -165)">
+      <use href="#gua-qian" />
+      <text x="0" y="28" class="label-inner">乾金</text>
+      <text x="0" y="-34" class="label-outer">西北</text>
+    </g>
+    <g transform="rotate(180) translate(0, -165)">
+      <use href="#gua-kan" />
+      <text x="0" y="28" class="label-inner" transform="rotate(180 0 18)">坎水</text>
+      <text x="0" y="-36" class="label-outer" transform="rotate(180 0 -36)" dominant-baseline="hanging">北</text>
+    </g>
+    <g transform="rotate(-135) translate(0, -165)">
+      <use href="#gua-gen" />
+      <text x="0" y="28" class="label-inner">艮土</text>
+      <text x="0" y="-34" class="label-outer">东北</text>
+    </g>
+    <g transform="rotate(-90) translate(0, -165)">
+      <use href="#gua-zhen" />
+      <text x="0" y="28" class="label-inner">震木</text>
+      <text x="0" y="-34" class="label-outer">东</text>
+    </g>
+    <g transform="rotate(-45) translate(0, -165)">
+      <use href="#gua-xun" />
+      <text x="0" y="28" class="label-inner">巽木</text>
+      <text x="0" y="-34" class="label-outer">东南</text>
+    </g>
+    <text x="0" y="300" class="title">后天八卦</text>
+  </g>
+</svg>
+''';
+
+const _xiantianBaguaSvg =
+    '''
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="160 105 680 620">
+  <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
+  $_baguaSvgDefs
+  <g transform="translate(500, 390)">
+    <use href="#taiji" transform="rotate(-90)" />
+    <g transform="rotate(0) translate(0, -165)">
+      <use href="#gua-qian" />
+      <text x="0" y="28" class="label-inner">乾一</text>
+      <text x="0" y="-34" class="label-outer">天南</text>
+      <text x="0" y="-60" class="label-outer">金</text>
+    </g>
+    <g transform="rotate(-45) translate(0, -165)">
+      <use href="#gua-dui" />
+      <text x="0" y="28" class="label-inner">兑二</text>
+      <text x="0" y="-34" class="label-outer">泽东南</text>
+      <text x="0" y="-60" class="label-outer">金</text>
+    </g>
+    <g transform="rotate(-90) translate(0, -165)">
+      <use href="#gua-li" />
+      <text x="0" y="28" class="label-inner">离三</text>
+      <text x="0" y="-34" class="label-outer">火东</text>
+      <text x="0" y="-60" class="label-outer">火</text>
+    </g>
+    <g transform="rotate(-135) translate(0, -165)">
+      <use href="#gua-zhen" />
+      <text x="0" y="28" class="label-inner">震四</text>
+      <text x="0" y="-34" class="label-outer">雷东北</text>
+      <text x="0" y="-60" class="label-outer">木</text>
+    </g>
+    <g transform="rotate(180) translate(0, -165)">
+      <use href="#gua-kun" />
+      <text x="0" y="28" class="label-inner" transform="rotate(180 0 18)">坤八</text>
+      <text x="0" y="-36" class="label-outer" transform="rotate(180 0 -36)" dominant-baseline="hanging">地北</text>
+      <text x="0" y="-64" class="label-outer" transform="rotate(180 0 -64)" dominant-baseline="hanging">土</text>
+    </g>
+    <g transform="rotate(135) translate(0, -165)">
+      <use href="#gua-gen" />
+      <text x="0" y="28" class="label-inner">艮七</text>
+      <text x="0" y="-34" class="label-outer">山西北</text>
+      <text x="0" y="-60" class="label-outer">土</text>
+    </g>
+    <g transform="rotate(90) translate(0, -165)">
+      <use href="#gua-kan" />
+      <text x="0" y="28" class="label-inner">坎六</text>
+      <text x="0" y="-34" class="label-outer">水西</text>
+      <text x="0" y="-60" class="label-outer">水</text>
+    </g>
+    <g transform="rotate(45) translate(0, -165)">
+      <use href="#gua-xun" />
+      <text x="0" y="28" class="label-inner">巽五</text>
+      <text x="0" y="-34" class="label-outer">风西南</text>
+      <text x="0" y="-60" class="label-outer">木</text>
+    </g>
+    <text x="0" y="300" class="title">先天八卦</text>
+  </g>
+</svg>
+''';
 
 class _BaguaProfile {
   final String name;
