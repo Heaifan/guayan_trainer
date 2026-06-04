@@ -723,7 +723,7 @@ class _BaguaDiagramSectionState extends State<_BaguaDiagramSection> {
         border: Border.all(color: const Color(0xFFE8D8B9)),
       ),
       child: AspectRatio(
-        aspectRatio: 1.08,
+        aspectRatio: 0.94,
         child: SvgPicture.string(svg, fit: BoxFit.contain),
       ),
     );
@@ -745,14 +745,14 @@ const _baguaSvgDefs = '''
     <circle cx="0" cy="-50" r="15" fill="#111111" />
     <circle cx="0" cy="50" r="15" fill="#ffffff" />
   </g>
-  <g id="gua-qian"><use href="#yang" y="0"/><use href="#yang" y="-9"/><use href="#yang" y="-18"/></g>
-  <g id="gua-dui"><use href="#yang" y="0"/><use href="#yang" y="-9"/><use href="#yin" y="-18"/></g>
-  <g id="gua-li"><use href="#yang" y="0"/><use href="#yin" y="-9"/><use href="#yang" y="-18"/></g>
-  <g id="gua-zhen"><use href="#yang" y="0"/><use href="#yin" y="-9"/><use href="#yin" y="-18"/></g>
-  <g id="gua-xun"><use href="#yin" y="0"/><use href="#yang" y="-9"/><use href="#yang" y="-18"/></g>
-  <g id="gua-kan"><use href="#yin" y="0"/><use href="#yang" y="-9"/><use href="#yin" y="-18"/></g>
-  <g id="gua-gen"><use href="#yin" y="0"/><use href="#yin" y="-9"/><use href="#yang" y="-18"/></g>
-  <g id="gua-kun"><use href="#yin" y="0"/><use href="#yin" y="-9"/><use href="#yin" y="-18"/></g>
+  <g id="gua-qian"><use href="#yang" y="0"/><use href="#yang" y="-18"/><use href="#yang" y="-36"/></g>
+  <g id="gua-dui"><use href="#yang" y="0"/><use href="#yang" y="-18"/><use href="#yin" y="-36"/></g>
+  <g id="gua-li"><use href="#yang" y="0"/><use href="#yin" y="-18"/><use href="#yang" y="-36"/></g>
+  <g id="gua-zhen"><use href="#yang" y="0"/><use href="#yin" y="-18"/><use href="#yin" y="-36"/></g>
+  <g id="gua-xun"><use href="#yin" y="0"/><use href="#yang" y="-18"/><use href="#yang" y="-36"/></g>
+  <g id="gua-kan"><use href="#yin" y="0"/><use href="#yang" y="-18"/><use href="#yin" y="-36"/></g>
+  <g id="gua-gen"><use href="#yin" y="0"/><use href="#yin" y="-18"/><use href="#yang" y="-36"/></g>
+  <g id="gua-kun"><use href="#yin" y="0"/><use href="#yin" y="-18"/><use href="#yin" y="-36"/></g>
 </defs>
 <style>
   .title {
@@ -768,6 +768,7 @@ const _baguaSvgDefs = '''
     font-weight: 900;
     fill: #4F3E30;
     text-anchor: middle;
+    dominant-baseline: middle;
   }
   .label-inner {
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -775,56 +776,57 @@ const _baguaSvgDefs = '''
     font-weight: 900;
     fill: #1F1712;
     text-anchor: middle;
+    dominant-baseline: middle;
   }
 </style>
 ''';
 
 const _houtianBaguaSvg =
     '''
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="265 155 470 450">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="245 115 510 540">
   <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
   $_baguaSvgDefs
   <g transform="translate(500, 390)">
     <use href="#taiji" transform="rotate(0)" />
     <g transform="rotate(0) translate(0, -165)">
       <use href="#gua-li" />
-      <text x="0" y="28" class="label-inner">离火</text>
-      <text x="0" y="-34" class="label-outer">南</text>
+      <text x="0" y="58" class="label-inner">离火</text>
+      <text x="0" y="-62" class="label-outer">南</text>
     </g>
     <g transform="rotate(45) translate(0, -165)">
       <use href="#gua-kun" />
-      <text x="0" y="28" class="label-inner">坤土</text>
-      <text x="0" y="-34" class="label-outer">西南</text>
+      <text x="0" y="58" class="label-inner">坤土</text>
+      <text x="0" y="-62" class="label-outer">西南</text>
     </g>
     <g transform="rotate(90) translate(0, -165)">
       <use href="#gua-dui" />
-      <text x="0" y="28" class="label-inner">兑金</text>
-      <text x="0" y="-34" class="label-outer">西</text>
+      <text x="0" y="58" class="label-inner">兑金</text>
+      <text x="0" y="-62" class="label-outer">西</text>
     </g>
     <g transform="rotate(135) translate(0, -165)">
       <use href="#gua-qian" />
-      <text x="0" y="28" class="label-inner">乾金</text>
-      <text x="0" y="-34" class="label-outer">西北</text>
+      <text x="0" y="58" class="label-inner">乾金</text>
+      <text x="0" y="-62" class="label-outer">西北</text>
     </g>
     <g transform="rotate(180) translate(0, -165)">
       <use href="#gua-kan" />
-      <text x="0" y="28" class="label-inner" transform="rotate(180 0 18)">坎水</text>
-      <text x="0" y="-36" class="label-outer" transform="rotate(180 0 -36)" dominant-baseline="hanging">北</text>
+      <text x="0" y="58" class="label-inner" transform="rotate(180 0 58)">坎水</text>
+      <text x="0" y="-62" class="label-outer" transform="rotate(180 0 -62)">北</text>
     </g>
     <g transform="rotate(-135) translate(0, -165)">
       <use href="#gua-gen" />
-      <text x="0" y="28" class="label-inner">艮土</text>
-      <text x="0" y="-34" class="label-outer">东北</text>
+      <text x="0" y="58" class="label-inner">艮土</text>
+      <text x="0" y="-62" class="label-outer">东北</text>
     </g>
     <g transform="rotate(-90) translate(0, -165)">
       <use href="#gua-zhen" />
-      <text x="0" y="28" class="label-inner">震木</text>
-      <text x="0" y="-34" class="label-outer">东</text>
+      <text x="0" y="58" class="label-inner">震木</text>
+      <text x="0" y="-62" class="label-outer">东</text>
     </g>
     <g transform="rotate(-45) translate(0, -165)">
       <use href="#gua-xun" />
-      <text x="0" y="28" class="label-inner">巽木</text>
-      <text x="0" y="-34" class="label-outer">东南</text>
+      <text x="0" y="58" class="label-inner">巽木</text>
+      <text x="0" y="-62" class="label-outer">东南</text>
     </g>
   </g>
 </svg>
@@ -832,58 +834,58 @@ const _houtianBaguaSvg =
 
 const _xiantianBaguaSvg =
     '''
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="265 155 470 450">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="245 115 510 540">
   <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
   $_baguaSvgDefs
   <g transform="translate(500, 390)">
     <use href="#taiji" transform="rotate(-90)" />
     <g transform="rotate(0) translate(0, -165)">
       <use href="#gua-qian" />
-      <text x="0" y="28" class="label-inner">乾一</text>
-      <text x="0" y="-34" class="label-outer">天南</text>
-      <text x="0" y="-60" class="label-outer">金</text>
+      <text x="0" y="58" class="label-inner">乾一</text>
+      <text x="0" y="-62" class="label-outer">天南</text>
+      <text x="0" y="-94" class="label-outer">金</text>
     </g>
     <g transform="rotate(-45) translate(0, -165)">
       <use href="#gua-dui" />
-      <text x="0" y="28" class="label-inner">兑二</text>
-      <text x="0" y="-34" class="label-outer">泽东南</text>
-      <text x="0" y="-60" class="label-outer">金</text>
+      <text x="0" y="58" class="label-inner">兑二</text>
+      <text x="0" y="-62" class="label-outer">泽东南</text>
+      <text x="0" y="-94" class="label-outer">金</text>
     </g>
     <g transform="rotate(-90) translate(0, -165)">
       <use href="#gua-li" />
-      <text x="0" y="28" class="label-inner">离三</text>
-      <text x="0" y="-34" class="label-outer">火东</text>
-      <text x="0" y="-60" class="label-outer">火</text>
+      <text x="0" y="58" class="label-inner">离三</text>
+      <text x="0" y="-62" class="label-outer">火东</text>
+      <text x="0" y="-94" class="label-outer">火</text>
     </g>
     <g transform="rotate(-135) translate(0, -165)">
       <use href="#gua-zhen" />
-      <text x="0" y="28" class="label-inner">震四</text>
-      <text x="0" y="-34" class="label-outer">雷东北</text>
-      <text x="0" y="-60" class="label-outer">木</text>
+      <text x="0" y="58" class="label-inner">震四</text>
+      <text x="0" y="-62" class="label-outer">雷东北</text>
+      <text x="0" y="-94" class="label-outer">木</text>
     </g>
     <g transform="rotate(180) translate(0, -165)">
       <use href="#gua-kun" />
-      <text x="0" y="28" class="label-inner" transform="rotate(180 0 18)">坤八</text>
-      <text x="0" y="-36" class="label-outer" transform="rotate(180 0 -36)" dominant-baseline="hanging">地北</text>
-      <text x="0" y="-64" class="label-outer" transform="rotate(180 0 -64)" dominant-baseline="hanging">土</text>
+      <text x="0" y="58" class="label-inner" transform="rotate(180 0 58)">坤八</text>
+      <text x="0" y="-62" class="label-outer" transform="rotate(180 0 -62)">地北</text>
+      <text x="0" y="-94" class="label-outer" transform="rotate(180 0 -94)">土</text>
     </g>
     <g transform="rotate(135) translate(0, -165)">
       <use href="#gua-gen" />
-      <text x="0" y="28" class="label-inner">艮七</text>
-      <text x="0" y="-34" class="label-outer">山西北</text>
-      <text x="0" y="-60" class="label-outer">土</text>
+      <text x="0" y="58" class="label-inner">艮七</text>
+      <text x="0" y="-62" class="label-outer">山西北</text>
+      <text x="0" y="-94" class="label-outer">土</text>
     </g>
     <g transform="rotate(90) translate(0, -165)">
       <use href="#gua-kan" />
-      <text x="0" y="28" class="label-inner">坎六</text>
-      <text x="0" y="-34" class="label-outer">水西</text>
-      <text x="0" y="-60" class="label-outer">水</text>
+      <text x="0" y="58" class="label-inner">坎六</text>
+      <text x="0" y="-62" class="label-outer">水西</text>
+      <text x="0" y="-94" class="label-outer">水</text>
     </g>
     <g transform="rotate(45) translate(0, -165)">
       <use href="#gua-xun" />
-      <text x="0" y="28" class="label-inner">巽五</text>
-      <text x="0" y="-34" class="label-outer">风西南</text>
-      <text x="0" y="-60" class="label-outer">木</text>
+      <text x="0" y="58" class="label-inner">巽五</text>
+      <text x="0" y="-62" class="label-outer">风西南</text>
+      <text x="0" y="-94" class="label-outer">木</text>
     </g>
   </g>
 </svg>
