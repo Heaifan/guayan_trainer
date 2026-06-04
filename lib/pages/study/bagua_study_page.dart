@@ -778,7 +778,7 @@ const _baguaSvgDefs = '''
   }
   .bagua-line {
     stroke: #111111;
-    stroke-width: 20;
+    stroke-width: 26;
     stroke-linecap: square;
   }
 </style>
