@@ -716,14 +716,14 @@ class _BaguaDiagramSectionState extends State<_BaguaDiagramSection> {
     return Container(
       key: key,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+      padding: EdgeInsets.zero,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE8D8B9)),
       ),
       child: AspectRatio(
-        aspectRatio: 1.0,
+        aspectRatio: 1.08,
         child: SvgPicture.string(svg, fit: BoxFit.contain),
       ),
     );
@@ -764,20 +764,21 @@ const _baguaSvgDefs = '''
   }
   .label-outer {
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-    font-size: 18px;
+    font-size: 28px;
+    font-weight: 900;
     fill: #4F3E30;
     text-anchor: middle;
   }
   .label-inner {
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-    font-size: 22px;
-    font-weight: 800;
+    font-size: 34px;
+    font-weight: 900;
     fill: #1F1712;
     text-anchor: middle;
   }
   .bagua-line {
     stroke: #111111;
-    stroke-width: 10;
+    stroke-width: 20;
     stroke-linecap: square;
   }
 </style>
@@ -785,7 +786,7 @@ const _baguaSvgDefs = '''
 
 const _houtianBaguaSvg =
     '''
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="215 145 570 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="265 155 470 450">
   <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
   $_baguaSvgDefs
   <g transform="translate(500, 390)">
@@ -836,7 +837,7 @@ const _houtianBaguaSvg =
 
 const _xiantianBaguaSvg =
     '''
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="215 145 570 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="265 155 470 450">
   <rect width="1000" height="850" rx="40" fill="#FFFDF6"/>
   $_baguaSvgDefs
   <g transform="translate(500, 390)">
