@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/wuxing_colors.dart';
+import 'bagua_study_page.dart';
 import 'wuxing_study_menu_page.dart';
 import 'dizhi_study_page.dart';
 import 'relation_study_page.dart';
@@ -23,6 +24,16 @@ class StudyPage extends StatelessWidget {
             color: WuxingColors.getColor('木'),
             bgColor: WuxingColors.getSoftColor('木'),
             page: const WuxingStudyMenuPage(),
+          ),
+          const SizedBox(height: 12),
+          _card(
+            context,
+            icon: Icons.token_outlined,
+            label: '八卦模块',
+            subtitle: '总览卦象、五行、方位、人体与病象',
+            color: const Color(0xFF2B4A3F),
+            bgColor: const Color(0xFFE9F0E6),
+            page: const BaguaStudyPage(),
           ),
           const SizedBox(height: 12),
           _card(
