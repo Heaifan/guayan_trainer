@@ -169,6 +169,8 @@ class BaguaStudyPage extends StatelessWidget {
           const SizedBox(height: 14),
           const _BaguaDiagramSection(),
           const SizedBox(height: 14),
+          _memorySummary(),
+          const SizedBox(height: 14),
           _knowledgeTable(),
           const SizedBox(height: 16),
           const Text(
@@ -311,6 +313,97 @@ class BaguaStudyPage extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _memorySummary() {
+    final rows = [
+      ('四正定位', '离南、坎北、震东、兑西', Icons.explore_outlined),
+      ('四隅补齐', '巽东南、坤西南、乾西北、艮东北', Icons.open_in_full),
+      ('五行归类', '乾兑金，离火，震巽木，坎水，艮坤土', Icons.grass_outlined),
+      ('形象歌诀', '乾连、坤断、震仰、艮覆、离虚、坎满、兑缺、巽断', Icons.format_quote),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B4A3F),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.psychology_alt_outlined, color: Color(0xFFFFDF9F)),
+              SizedBox(width: 8),
+              Text(
+                '八卦速记小结',
+                style: TextStyle(
+                  color: Color(0xFFFFDF9F),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...rows.map(
+            (row) => Padding(
+              padding: const EdgeInsets.only(bottom: 9),
+              child: _memoryRow(row.$1, row.$2, row.$3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _memoryRow(String title, String body, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: const Color(0xFFFFD37A), size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$title：',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  TextSpan(
+                    text: body,
+                    style: const TextStyle(
+                      color: Color(0xFFF5E8D7),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              style: const TextStyle(height: 1.45, fontSize: 14),
             ),
           ),
         ],
@@ -474,43 +567,170 @@ class BaguaStudyPage extends StatelessWidget {
         ),
         children: [
           const Divider(height: 18, color: Color(0xFFEAD8B7)),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _chip('阴阳', item.yinYang, color),
-              _chip('先天数', item.xiantianNumber, color),
-              _chip('纳干', item.nagan, color),
-              _chip('颜色', item.colorName, color),
-              _chip('五味', item.taste, color),
-              _chip('人体', item.body, color),
-              _chip('脏腑', item.organ, color),
+              Expanded(
+                child: _detailPanel(
+                  title: '取象骨架',
+                  color: color,
+                  rows: [
+                    ('自然', item.nature),
+                    ('五行', item.wuxing),
+                    ('阴阳', item.yinYang),
+                    ('方位', item.direction),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _detailPanel(
+                  title: '记忆钩子',
+                  color: color,
+                  rows: [
+                    ('歌诀', item.formula),
+                    ('先天数', item.xiantianNumber),
+                    ('纳干', item.nagan),
+                    ('颜色', item.colorName),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          _illnessBox(item.illness),
+          _meaningBox(item, color),
         ],
       ),
     );
   }
 
-  Widget _chip(String label, String value, Color color) {
+  Widget _detailPanel({
+    required String title,
+    required Color color,
+    required List<(String, String)> rows,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.26)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: color,
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...rows.map(
+            (row) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${row.$1}：',
+                      style: const TextStyle(
+                        color: _muted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    TextSpan(
+                      text: row.$2,
+                      style: const TextStyle(
+                        color: _ink,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+                style: const TextStyle(height: 1.3, fontSize: 13),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _meaningBox(_BaguaProfile item, Color color) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF0E1).withValues(alpha: 0.86),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFECCCA6)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '${item.name}卦核心：',
+                  style: TextStyle(fontWeight: FontWeight.w900, color: color),
+                ),
+                TextSpan(
+                  text: item.core,
+                  style: const TextStyle(color: _muted, height: 1.45),
+                ),
+              ],
+            ),
+            style: const TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _miniTag('人体', item.body, color),
+              _miniTag('脏腑', item.organ, color),
+              _miniTag('五味', item.taste, color),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(
+                  text: '病象：',
+                  style: TextStyle(fontWeight: FontWeight.w900, color: _ink),
+                ),
+                TextSpan(
+                  text: item.illness,
+                  style: const TextStyle(color: _muted, height: 1.45),
+                ),
+              ],
+            ),
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _miniTag(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
       ),
       child: Text.rich(
         TextSpan(
           children: [
             TextSpan(
-              text: '$label：',
-              style: const TextStyle(
-                color: _muted,
-                fontWeight: FontWeight.w700,
-              ),
+              text: '$label ',
+              style: const TextStyle(color: _muted),
             ),
             TextSpan(
               text: value,
@@ -518,32 +738,7 @@ class BaguaStudyPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _illnessBox(String illness) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF0E1),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFECCCA6)),
-      ),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            const TextSpan(
-              text: '病象：',
-              style: TextStyle(fontWeight: FontWeight.w900, color: _ink),
-            ),
-            TextSpan(
-              text: illness,
-              style: const TextStyle(color: _muted, height: 1.45),
-            ),
-          ],
-        ),
+        style: const TextStyle(fontSize: 12),
       ),
     );
   }
