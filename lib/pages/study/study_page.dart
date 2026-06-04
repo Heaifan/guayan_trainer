@@ -11,18 +11,15 @@ class StudyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('学习'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('学习'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _card(
             context,
-            icon: Icons.change_circle_outlined,
-            label: '五行生克',
-            subtitle: '用颜色记五行，用转轮记生克',
+            icon: Icons.auto_awesome_mosaic_outlined,
+            label: '五行模块',
+            subtitle: '认识颜色、意象、生克与关系',
             color: WuxingColors.getColor('木'),
             bgColor: WuxingColors.getSoftColor('木'),
             page: const WuxingStudyMenuPage(),
@@ -69,10 +66,14 @@ class StudyPage extends StatelessWidget {
           backgroundColor: color.withValues(alpha: 0.2),
           child: Icon(icon, color: color),
         ),
-        title: Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: color)),
+        title: Text(
+          label,
+          style: TextStyle(fontWeight: FontWeight.w800, color: color),
+        ),
         subtitle: Text(subtitle, style: const TextStyle(height: 1.4)),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => page)),
+        onTap: () =>
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => page)),
       ),
     );
   }
