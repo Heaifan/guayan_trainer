@@ -18,6 +18,9 @@ class MistakeStore {
   /// 当前所有错题。
   List<MistakeItem> get all => List.unmodifiable(_items);
 
+  /// 初始化本地错题缓存。
+  Future<void> init() => _ensureLoaded();
+
   Future<void> _ensureLoaded() async {
     if (!_loaded) await _load();
   }

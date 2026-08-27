@@ -111,9 +111,8 @@ class _PracticeSetupPageState extends State<PracticeSetupPage> {
         ),
       ).then((_) => setState(() {}));
     } else if (_mode == PracticeMode.linkMatch) {
-      final matchQuestions = WuxingPracticeQuestionGenerator().generate(
-        topics: _selected,
-        count: 25,
+      final matchQuestions = WuxingPracticeQuestionGenerator().generateUniqueForLinkMatch(
+        topic: _selected.first,
       );
       Navigator.of(context).push(
         MaterialPageRoute(

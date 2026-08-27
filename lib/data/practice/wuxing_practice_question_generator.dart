@@ -31,6 +31,20 @@ class WuxingPracticeQuestionGenerator {
     return _takeWithRepeat(pool, count);
   }
 
+  /// 连连看专用：生成 5 道不重复的唯一配对题。
+  List<PracticeQuestion> generateUniqueForLinkMatch({
+    required PracticeTopic topic,
+  }) {
+    switch (topic) {
+      case PracticeTopic.wuxingGenerate:
+        return _generateGenerateQuestions();
+      case PracticeTopic.wuxingControl:
+        return _generateControlQuestions();
+      default:
+        throw ArgumentError('连连看暂不支持该题库：$topic');
+    }
+  }
+
   /// Repeat pool if not enough questions to fill [count].
   List<PracticeQuestion> _takeWithRepeat(List<PracticeQuestion> pool, int count) {
     if (pool.isEmpty) return [];

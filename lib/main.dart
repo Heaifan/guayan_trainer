@@ -5,6 +5,6 @@ import 'services/mistake_store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await MistakeStore.instance.all; // trigger lazy load
+  await MistakeStore.instance.init();
   runApp(const GuayanTrainerApp());
 }

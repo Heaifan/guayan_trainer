@@ -2,10 +2,24 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-05-22 20:30
+> **最后编辑：** 2026-05-28 21:58
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 未发布变更 — 2026-05-26
+
+### 修复
+- **错题回炉初始化**：`MistakeStore` 新增显式 `init()`，应用启动时真正等待 SharedPreferences 数据加载，避免首页/练习/回炉首次读取错题数量为空。
+- **连连看构建错误**：修复 `LinkMatchGamePage` HUD 中动态错误数使用 `const TextStyle` 导致的编译失败。
+
+### 修改文件
+- `lib/main.dart` — 启动时调用 `MistakeStore.instance.init()`。
+- `lib/services/mistake_store.dart` — 暴露初始化入口，保留同步 `all` 读取缓存。
+- `lib/pages/practice/games/link_match_game_page.dart` — 修复动态 HUD 样式的 const 使用。
+- `file-tree.md` — 更新最后编辑时间、未发布变更和相关职责说明。
 
 ---
 
@@ -145,7 +159,7 @@ lib/
 
 | 文件 | 职责 |
 | --- | --- |
-| `main.dart` | 应用入口，调用 `runApp` 启动 `GuayanTrainerApp` |
+| `main.dart` | 应用入口，初始化错题缓存后调用 `runApp` 启动 `GuayanTrainerApp` |
 | `app.dart` | MaterialApp 组装，配置古风主题色系，home 指向 `MainShell` |
 
 ### 5.4 lib/shell/
@@ -186,7 +200,7 @@ lib/
 | 文件 | 职责 |
 | --- | --- |
 | `question_generator.dart` | 出题引擎：5 种训练模式 × 8 种题型随机生成 |
-| `mistake_store.dart` | 错题回炉存储器：收录答错/迟疑，标记已会后移除 |
+| `mistake_store.dart` | 错题回炉存储器：启动初始化、收录答错/迟疑，标记已会后移除 |
 
 ### 5.9 lib/utils/
 
@@ -307,10 +321,7 @@ theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
 
 当前版本暂不开发：
 
-- 本地持久化（SharedPreferences / 文件存储）；
 - 地支圆盘可视化组件；
-- 五行转轮可视化组件；
-- 回炉专项训练模式；
 - 三合三会数据与训练；
 - 天干数据与训练；
 - 纳音五行；

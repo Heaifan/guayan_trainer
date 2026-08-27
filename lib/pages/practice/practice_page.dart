@@ -78,6 +78,7 @@ class PracticePage extends StatelessWidget {
           ),
           _sectionTitle('趣味游戏'),
           _gameCard(context),
+          _linkMatchCard(context),
           if (mistakeCount > 0) ...[
             const SizedBox(height: 12),
             _reviewEntry(context, mistakeCount),
@@ -159,6 +160,42 @@ class PracticePage extends StatelessWidget {
                     PracticeTopic.wuxingControl,
                   },
                   initialMode: PracticeMode.fallingBlock,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _linkMatchCard(BuildContext context) {
+    const color = Color(0xFF2F6F5E);
+    const bgColor = Color(0xFFE9F5EF);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Card(
+        color: bgColor,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: color.withValues(alpha: 0.2),
+            child: const Icon(Icons.link, color: color),
+          ),
+          title: const Text('关系连连看',
+              style: TextStyle(fontWeight: FontWeight.w800, color: color)),
+          subtitle: const Text('25组配对，点击源牌再点目标牌消除。'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const PracticeSetupPage(
+                  title: '关系连连看',
+                  subtitle: '上方为源元素，下方为目标答案，点击两张牌完成配对。',
+                  initialTopics: {
+                    PracticeTopic.wuxingGenerate,
+                  },
+                  initialMode: PracticeMode.linkMatch,
                 ),
               ),
             );
