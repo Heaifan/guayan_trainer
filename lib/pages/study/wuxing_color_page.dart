@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/wuxing_colors.dart';
-import 'wuxing_generate_page.dart';
+import 'wuxing_imagery_page.dart';
 
 class WuxingColorPage extends StatelessWidget {
   const WuxingColorPage({super.key});
@@ -13,30 +13,28 @@ class WuxingColorPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _section('五行颜色',
-              '先用颜色和意象记住木、火、土、金、水。\n看到颜色，就能立刻想到对应五行。'),
+          _section('五行颜色', '先用颜色和意象记住木、火、土、金、水。\n看到颜色，就能立刻想到对应五行。'),
           const SizedBox(height: 16),
           _colorCards(),
           const SizedBox(height: 16),
-          _section('颜色对照表',
-              '方便快速扫读和记忆。'),
+          _section('颜色对照表', '方便快速扫读和记忆。'),
           const SizedBox(height: 8),
           _colorTable(),
           const SizedBox(height: 16),
-          _section('记忆提示',
-              '木：像树木，故为绿色\n火：像火焰，故为红色\n土：像大地，故为黄色\n金：像金石之气，故为白色\n水：像江河寒水，故为蓝色'),
+          _section(
+            '记忆提示',
+            '木：像树木，故为绿色\n火：像火焰，故为红色\n土：像大地，故为黄色\n金：像金石之气，故为白色\n水：像江河寒水，故为蓝色',
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const WuxingGeneratePage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const WuxingImageryPage()),
                 );
               },
-              child: const Text('进入五行相生'),
+              child: const Text('进入五行意象'),
             ),
           ),
           const SizedBox(height: 16),
@@ -57,7 +55,10 @@ class WuxingColorPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 10),
           Text(body, style: const TextStyle(fontSize: 15, height: 1.6)),
         ],
@@ -75,64 +76,93 @@ class WuxingColorPage extends StatelessWidget {
     ];
 
     return Column(
-      children: items.map((item) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: BoxDecoration(
-            color: item.color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: WuxingColors.getBorderColor(item.element).withValues(alpha: 0.4)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 48, height: 48,
+      children: items
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
-                  color: item.color,
-                  borderRadius: BorderRadius.circular(12),
+                  color: item.color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: item.element == '金'
-                        ? WuxingColors.getBorderColor('金')
-                        : Colors.transparent,
-                    width: 1.5,
+                    color: WuxingColors.getBorderColor(
+                      item.element,
+                    ).withValues(alpha: 0.4),
                   ),
                 ),
-                child: Center(
-                  child: Text(item.element,
-                      style: TextStyle(
-                        color: WuxingColors.textOnColor(item.element),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                      )),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        Text(item.element,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                        Text('｜${item.colorName}',
-                            style: TextStyle(fontSize: 15, color: item.color)),
-                      ],
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: item.color,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: item.element == '金'
+                              ? WuxingColors.getBorderColor('金')
+                              : Colors.transparent,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          item.element,
+                          style: TextStyle(
+                            color: WuxingColors.textOnColor(item.element),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(item.image,
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF6B4E2E))),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              Text(
+                                item.element,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              Text(
+                                '｜${item.colorName}',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: item.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.image,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF6B4E2E),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      )).toList(),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -144,7 +174,11 @@ class WuxingColorPage extends StatelessWidget {
         border: Border.all(color: const Color(0xFFE0C28A)),
       ),
       child: Table(
-        columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(1), 2: FlexColumnWidth(3)},
+        columnWidths: const {
+          0: FlexColumnWidth(1),
+          1: FlexColumnWidth(1),
+          2: FlexColumnWidth(3),
+        },
         children: [
           _row('五行', '颜色', '意象', isHeader: true),
           _row('木', '绿色', '生发、树木'),
