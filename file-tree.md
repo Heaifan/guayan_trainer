@@ -2,10 +2,47 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-06-04 17:15
+> **最后编辑：** 2026-08-27 22:30
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 卦眼 2.0 Foundation — feat/guayan-2.0
+
+> 分支：`feat/guayan-2.0`（继承 GitHub 历史，2.0 App 架构重新开发，旧功能未来收编进「训练」入口）
+
+### 新增 2.0 骨架
+- **入口极简化**：`lib/main.dart` 只做 `runApp(const GuayanApp())`，不再跳旧 HomePage、不再初始化旧 MistakeStore。
+- **`lib/app/`**：2.0 应用壳
+  - `app.dart` — `GuayanApp`：MaterialApp 组装 + 全局主题（浅色、紧凑）
+  - `app_shell.dart` — `AppShell`：IndexedStack 状态保持 + NavigationBar 五主导航，`selectedIndex` 单一权威来源，默认 Index 0（排卦）
+  - `navigation/main_tabs.dart` — 正式产品 IA：排卦/审卦/关系/卦例/训练（顺序固定）
+  - `more_menu.dart` — AppBar 右上角「更多」：规则库 / 设置 / 关于
+- **`lib/core/constants/app_info.dart`**：应用名「卦眼」、内部版本、主题种子色常量
+- **`lib/domain/`（预留）**：GUAYAN-2.0-DOMAIN 阶段在此建立 HexagramCase / LineState / RelationInstance / RelationNote 等
+- **`lib/application/`（预留）**：后续用例层；Foundation 阶段仅 AppShell 用 StatefulWidget，不引入状态管理框架
+- **`lib/presentation/`**：五个主页面 Skeleton + 规则库/设置/关于
+  - `casting/casting_page.dart` — 排卦工作台（含 §35 状态保持探针，后续可删）
+  - `review/review_page.dart` — 审卦工作台
+  - `relations/relations_page.dart` — 关系工作台
+  - `cases/cases_page.dart` — 卦例工作台
+  - `training/training_page.dart` — 训练（旧功能未来统一收编，本阶段仅 Skeleton）
+  - `rules/rule_library_page.dart` — 规则库 Skeleton（自定义规则/规则包/系统规则，无 CRUD）
+  - `settings/settings_page.dart`、`about/about_page.dart` — 占位页
+  - `shared/module_placeholder.dart` — 模块占位共用组件
+- **`test/foundation_test.dart`**：Foundation 验收 Widget 测试（五导航/默认排卦/切换/状态保持/更多/规则库/关于）
+
+### 修改
+- `android/app/src/main/AndroidManifest.xml` — Activity 增加 `android:screenOrientation="portrait"` 锁定竖屏；label 确认「卦眼」
+- `lib/main.dart` — 替换为 2.0 极简入口
+- `file-tree.md` — 记录 2.0 骨架
+
+### 说明
+- 旧训练资产（`lib/pages/`、`lib/data/`、`lib/services/`、`lib/models/`、`lib/widgets/effects/`、`五行相克特效/`、`五行相生特效/` 等）一律保留未迁移，后续进入「训练」阶段统一处理。
+- 旧 `lib/app.dart`（`GuayanTrainerApp`）保留供旧测试引用，与 `lib/app/` 目录共存。
+- 分支创建前已将未发布 hotfix 提交至 master（`610e81f`）并合并远端学习模块提交（`5c4bdb6`）。
 
 ---
 

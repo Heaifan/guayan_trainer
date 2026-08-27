@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'app.dart';
-import 'services/mistake_store.dart';
+import 'app/app.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await MistakeStore.instance.init();
-  runApp(const GuayanTrainerApp());
+void main() {
+  runApp(const GuayanApp());
 }
