@@ -2,7 +2,7 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-27 22:30
+> **最后编辑：** 2026-08-27 23:33
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
@@ -43,6 +43,25 @@
 - 旧训练资产（`lib/pages/`、`lib/data/`、`lib/services/`、`lib/models/`、`lib/widgets/effects/`、`五行相克特效/`、`五行相生特效/` 等）一律保留未迁移，后续进入「训练」阶段统一处理。
 - 旧 `lib/app.dart`（`GuayanTrainerApp`）保留供旧测试引用，与 `lib/app/` 目录共存。
 - 分支创建前已将未发布 hotfix 提交至 master（`610e81f`）并合并远端学习模块提交（`5c4bdb6`）。
+
+---
+
+## 成果归档提交 — 2026-08-27（未发布）
+
+> 背景：开发机内存耗尽崩溃重启（Gradle 提交内存 errno 1455），判定本机暂不具备继续开发条件，全部工作成果一次性归档提交并推送 GitHub（`feat/guayan-2.0`），防止成果丢失。详见 `CHANGELOG.md`。
+
+### 新增
+- `AGENTS.md` — 项目代码规则（文件组织 / 架构分层 / 命名规范 / 文档纪律 / 版本与构建），AI 自动遵守
+- `lib/data/training_question.dart` — 2.0 训练数据模型：`TrainingModule` / `RelationType` / `TrainingQuestion`
+- `lib/data/wuxing_questions.dart` — 五行生克题库：相生 5 题 + 相克 5 题（10 题）
+- `uploads/` — 参考资料：`XYUI1ComponentDocumentView.axaml`、`卦眼 2.0 总开发计划.md`
+- `五行相克特效/` — 5 个相克 HTML 动画原型（金克木/木克土/土克水/水克火/火克金）
+- `五行相生特效/` — 5 个相生 HTML 动画原型（金生水/水生木/木生火/火生土/土生金）
+- `CHANGELOG.md` — 文件审计与变更日志
+
+### 修改
+- `android/gradle.properties` — 低内存开发机约束：JVM 堆 1G、Kotlin daemon 256m、`org.gradle.workers.max=1`，避免构建提交内存耗尽
+- `file-tree.md` — 记录归档提交、新增文件与最后编辑时间
 
 ---
 
@@ -153,7 +172,13 @@ guayan_trainer/
 ├── .claude/                # AI 协作规则
 ├── android/                # Android 原生壳
 ├── lib/                    # 主程序源码
+├── memory/                 # 记忆与反馈记录
 ├── test/                   # 测试
+├── uploads/                # 参考资料（开发计划、组件文档）
+├── 五行相克特效/            # 相克 HTML 动画原型（5 个）
+├── 五行相生特效/            # 相生 HTML 动画原型（5 个）
+├── AGENTS.md               # 项目代码规则（AI 自动遵守）
+├── CHANGELOG.md            # 文件审计与变更日志
 ├── file-tree.md            # 项目结构说明文档
 └── pubspec.yaml            # Flutter 依赖配置
 ```
@@ -233,6 +258,8 @@ lib/
 | `wuxing_self_center_data.dart` | 以我为中心关系映射 + 旺相休囚死 |
 | `dizhi_data.dart` | 十二地支结构化数据：五行、阴阳、方位、月份 |
 | `relation_data.dart` | 六冲六合映射 + 双端查询 + 关系判定 |
+| `training_question.dart` | 2.0 训练数据模型：TrainingModule / RelationType / TrainingQuestion |
+| `wuxing_questions.dart` | 五行生克题库：相生 5 题 + 相克 5 题 |
 | `practice/wuxing_practice_question_generator.dart` | 通用题库生成器：四类五行题库混合出题 |
 
 ### 5.7 lib/models/
