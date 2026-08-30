@@ -14,7 +14,7 @@ class ReviewFourPillarsStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
+      height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: CastingTokens.surfaceSoft,

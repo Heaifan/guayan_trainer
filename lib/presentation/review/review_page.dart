@@ -94,16 +94,16 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
             const ReviewAppBar(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+                padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ReviewBasicInfoCard(state: widget.state),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     ReviewFourPillarsStrip(state: widget.state),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     ReviewShenShaCard(state: widget.state),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     // 完整卦盘已内嵌【主卦】/【变卦】标题。
                     ReviewHexagramResultTable(
                       state: widget.state,

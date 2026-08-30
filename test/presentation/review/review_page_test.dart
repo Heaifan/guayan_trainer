@@ -230,8 +230,8 @@ void main() {
         profile: ReviewDemoData.profile(),
       );
 
-      expect(state.lineAt(6).hiddenSpirit1, '财丙寅');
-      expect(state.lineAt(6).hiddenSpirit2, '父丁未');
+      expect(state.lineAt(6).hiddenSpirit1, '财寅木');
+      expect(state.lineAt(6).hiddenSpirit2, '父未土');
       expect(state.lineAt(5).isVoid, isTrue);
       expect(state.lineAt(3).isVoid, isTrue);
       expect(state.lineAt(3).shiYing, '世');
@@ -249,7 +249,7 @@ void main() {
       expect(find.text('兑4 · 泽山咸'), findsOneWidget);
       expect(find.text('【变卦】'), findsOneWidget);
       expect(find.text('兑2 · 泽水困 · 六合卦'), findsOneWidget);
-      expect(find.text('完整排盘 · 点击任一爻查看关系与规则依据'), findsOneWidget);
+      expect(find.text('点击任一爻查看关系、规则依据与关系备注'), findsOneWidget);
     });
 
     testWidgets('UI-05 · 爻槽统一 24×6：阳/阴/空亡尺寸一致', (tester) async {
@@ -407,6 +407,36 @@ void main() {
 
       await pumpDemo(tester);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('硬门禁 · 六爻六行 + 表尾在首屏完整显示（430×932）', (tester) async {
+      // 模拟常见真机逻辑尺寸（430×932，含底部导航 56 DIP）。
+      tester.view.physicalSize = const Size(430 * 3, 932 * 3);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await pumpDemo(tester);
+      expect(tester.takeException(), isNull);
+
+      // 六行（上爻 6 → 初爻 1）底缘必须在导航区之上完整可见。
+      final navTop = 932 - 56;
+      for (var p = 1; p <= 6; p++) {
+        final bottom =
+            tester.getBottomLeft(find.byKey(Key('review_line_$p'))).dy;
+        expect(bottom <= navTop, isTrue,
+            reason: 'review_line_$p 底缘 $bottom 超过导航区 $navTop');
+      }
+      // 初爻（朱雀）与表尾提示文字同屏可见。
+      expect(
+        tester.getBottomLeft(find.text('朱雀')).dy <= navTop,
+        isTrue,
+      );
+      expect(
+        tester.getBottomLeft(find.text('点击任一爻查看关系、规则依据与关系备注')).dy <=
+            navTop,
+        isTrue,
+      );
     });
 
     test('阳历格式化', () {

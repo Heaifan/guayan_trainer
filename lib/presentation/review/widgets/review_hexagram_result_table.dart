@@ -51,7 +51,7 @@ class ReviewHexagramResultTable extends StatelessWidget {
   }
 }
 
-/// 表头区：浅底 +【主卦】/【变卦】标题 + 卦名（金色）。
+/// 表头区：浅底 +【主卦】/【变卦】标题 + 卦名（金色），高度 54（紧凑）。
 class _HeaderZone extends StatelessWidget {
   const _HeaderZone({required this.state});
 
@@ -60,7 +60,7 @@ class _HeaderZone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 66,
+      height: 54,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: const BoxDecoration(
         color: CastingTokens.surfaceSoft,
@@ -100,19 +100,19 @@ class _HexTitle extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: CastingTokens.textPrimary,
             height: 1.2,
           ),
         ),
-        const SizedBox(height: 3),
+        const SizedBox(height: 1),
         Text(
           name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: FontWeight.w700,
             color: CastingTokens.guaNameGold,
             height: 1.2,
@@ -123,19 +123,19 @@ class _HexTitle extends StatelessWidget {
   }
 }
 
-/// 表尾提示：点爻查看关系与规则依据。
+/// 表尾提示：点爻查看关系、规则依据与关系备注。
 class _FooterNote extends StatelessWidget {
   const _FooterNote();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+      padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: CastingTokens.divider)),
       ),
       child: const Text(
-        '完整排盘 · 点击任一爻查看关系与规则依据',
+        '点击任一爻查看关系、规则依据与关系备注',
         style: TextStyle(
           fontSize: 8,
           color: CastingTokens.textMuted,

@@ -6,13 +6,12 @@ import '../../../presentation/shared/yao_glyph.dart';
 import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
-/// 六爻排盘单行（审卦一屏版总 SVG 列结构）。
+/// 六爻排盘单行（审卦首屏 R3 舒适紧凑版：48 DIP 行高）。
 ///
 /// 冻结 11 列：六神 | 伏神1 | 伏神2 | 主卦文字 | 主卦爻槽 |
 /// 主卦世/应 | 动爻 | 箭头 | 变卦文字 | 变卦爻槽 | 变卦世/应。
-/// 六亲地支与纳音拆成上下两行，**彻底取消省略号**（无 ellipsis），
-/// 爻槽（24×6）、世应槽、动爻槽固定，文字不侵占槽位。
-/// 整行可点击：高亮该爻并打开关系焦点弹层。
+/// 六亲地支与纳音拆成上下两行，**无省略号**；爻槽（24×6）、世应槽、
+/// 动爻槽固定，文字不侵占槽位。整行可点击：高亮该爻并打开关系焦点弹层。
 class ReviewHexagramLineRow extends StatelessWidget {
   const ReviewHexagramLineRow({
     super.key,
@@ -25,10 +24,10 @@ class ReviewHexagramLineRow extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  // 固定槽位宽度（冻结）。
+  // 固定槽位宽度（冻结；按 R3 SVG 等比，360 DIP 不横向溢出）。
   static const double _spiritW = 24;
-  static const double _hiddenW = 26;
-  static const double _shiYingW = 14;
+  static const double _hiddenW = 28;
+  static const double _shiYingW = 12;
   static const double _markerW = 12;
   static const double _arrowW = 6;
   static const double _gap = 2;
@@ -43,7 +42,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final row = Container(
       key: Key('review_line_${line.position}'),
-      height: 56,
+      height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: selected ? CastingTokens.surfaceActive : Colors.transparent,
@@ -59,7 +58,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
               line.sixSpirit ?? '—',
               maxLines: 1,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 9.8,
                 fontWeight: FontWeight.w700,
                 color: CastingTokens.spiritGold,
                 height: 1.2,
@@ -67,9 +66,9 @@ class ReviewHexagramLineRow extends StatelessWidget {
             ),
           ),
           _gapW,
-          _slot(_hiddenW, _minorStrong(line.hiddenSpirit1)),
+          _slot(_hiddenW, _hiddenStrong(line.hiddenSpirit1)),
           _gapW,
-          _slot(_hiddenW, _minorStrong(line.hiddenSpirit2)),
+          _slot(_hiddenW, _hiddenStrong(line.hiddenSpirit2)),
           const SizedBox(width: 4),
           Expanded(
             child: _LineTextBlock(
@@ -96,7 +95,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                     line.shiYing!,
                     key: Key('shi_ying_${line.position}'),
                     style: const TextStyle(
-                      fontSize: 9,
+                      fontSize: 8.8,
                       fontWeight: FontWeight.w700,
                       color: CastingTokens.shiYingRed,
                       height: 1.2,
@@ -159,7 +158,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                     line.changedShiYing!,
                     key: Key('changed_shi_ying_${line.position}'),
                     style: const TextStyle(
-                      fontSize: 9,
+                      fontSize: 8.8,
                       fontWeight: FontWeight.w700,
                       color: CastingTokens.shiYingRed,
                       height: 1.2,
@@ -182,12 +181,12 @@ class ReviewHexagramLineRow extends StatelessWidget {
   Widget _slot(double width, Widget? child) =>
       SizedBox(width: width, child: child);
 
-  Widget _minorStrong(String? text) {
+  Widget _hiddenStrong(String? text) {
     return Text(
       text ?? '',
       maxLines: 1,
       style: const TextStyle(
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: FontWeight.w700,
         color: CastingTokens.textPrimary,
         height: 1.2,
@@ -196,7 +195,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
   }
 }
 
-/// 两行文字块：六亲地支（body）+ 纳音（small）。无省略号，超长裁切。
+/// 两行文字块：六亲地支（body 10）+ 纳音（small 8.8）。无省略号，超长裁切。
 class _LineTextBlock extends StatelessWidget {
   const _LineTextBlock({required this.line1, required this.line2});
 
@@ -213,18 +212,18 @@ class _LineTextBlock extends StatelessWidget {
           line1,
           maxLines: 1,
           style: const TextStyle(
-            fontSize: 10.5,
+            fontSize: 10,
             color: CastingTokens.textBody,
-            height: 1.25,
+            height: 1.2,
           ),
         ),
         Text(
           line2,
           maxLines: 1,
           style: const TextStyle(
-            fontSize: 9,
+            fontSize: 8.8,
             color: CastingTokens.textSecondary,
-            height: 1.25,
+            height: 1.2,
           ),
         ),
       ],

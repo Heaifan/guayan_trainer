@@ -26,7 +26,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
     final lunar = state.lunarDateTime ?? '—';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
       decoration: BoxDecoration(
         color: CastingTokens.surface,
         borderRadius: BorderRadius.circular(11),
@@ -44,7 +44,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 10,
                     color: CastingTokens.textBody,
                     height: 1.3,
                   ),
@@ -65,7 +65,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
                   state.castingMethod ?? '—',
                   maxLines: 1,
                   style: const TextStyle(
-                    fontSize: 9,
+                    fontSize: 8.8,
                     color: CastingTokens.textSecondary,
                     height: 1.1,
                   ),
@@ -73,7 +73,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
@@ -87,7 +87,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 10.5,
+                          fontSize: 10,
                           color: CastingTokens.textBody,
                           height: 1.3,
                         ),
@@ -108,7 +108,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 10.5,
+                          fontSize: 10,
                           color: CastingTokens.textBody,
                           height: 1.3,
                         ),
@@ -119,7 +119,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             children: [
               _MetaText(_rulePackLabel),
@@ -145,7 +145,7 @@ class _Label extends StatelessWidget {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: FontWeight.w700,
         color: CastingTokens.textPrimary,
         height: 1.2,
