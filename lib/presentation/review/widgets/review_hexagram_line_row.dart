@@ -6,12 +6,17 @@ import '../../../presentation/shared/yao_glyph.dart';
 import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
-/// 六爻排盘单行（审卦首屏 R3 舒适紧凑版：48 DIP 行高）。
+/// 六爻排盘单行（审卦首屏 R4 · Baseline Alignment 定稿版）。
 ///
-/// 冻结 11 列：六神 | 伏神1 | 伏神2 | 主卦文字 | 主卦爻槽 |
-/// 主卦世/应 | 动爻 | 箭头 | 变卦文字 | 变卦爻槽 | 变卦世/应。
-/// 六亲地支与纳音拆成上下两行，**无省略号**；爻槽（24×6）、世应槽、
-/// 动爻槽固定，文字不侵占槽位。整行可点击：高亮该爻并打开关系焦点弹层。
+/// 数学上强制两条水平线（不允许"看起来差不多"）：
+/// - PRIMARY BASELINE = RowTop + 19：六神 / 伏神1 / 伏神2 / 主卦正文 /
+///   主卦世应 / 变卦正文 / 变卦世应，全部共用同一基线；
+/// - NAYIN BASELINE = RowTop + 35：主卦纳音 / 变卦纳音。
+///
+/// 行高固定 48；设计坐标空间宽 400（对应 402 卡片内宽），列中心冻结：
+/// 六神22 伏神1·62 伏神2·100 主卦正文174 主卦爻222 世应250 动爻268 箭头280
+/// 变卦正文318 变卦爻358 变卦世应388。整行 FittedBox(scaleDown) 自适应窄屏，
+/// 任何宽度不溢出、文本不侵占爻槽/世应槽。
 class ReviewHexagramLineRow extends StatelessWidget {
   const ReviewHexagramLineRow({
     super.key,
@@ -24,13 +29,11 @@ class ReviewHexagramLineRow extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  // 固定槽位宽度（冻结；按 R3 SVG 等比，360 DIP 不横向溢出）。
-  static const double _spiritW = 24;
-  static const double _hiddenW = 28;
-  static const double _shiYingW = 12;
-  static const double _markerW = 12;
-  static const double _arrowW = 6;
-  static const double _gap = 2;
+  /// 设计坐标空间（宽 400 = 402 卡片内宽）。
+  static const double _designW = 400;
+  static const double _rowH = 48;
+  static const double _primaryBaseline = 19;
+  static const double _naYinBaseline = 35;
 
   /// 主卦爻槽种类：空亡优先于阴阳（isVoid 由排盘引擎提供，Widget 不计算）。
   YaoKind get _mainYaoKind {
@@ -40,132 +43,126 @@ class ReviewHexagramLineRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final content = SizedBox(
+      width: _designW,
+      height: _rowH,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 六神 / 伏神（辅助信息：不加大、不加粗）
+          _primaryText(22, 28, line.sixSpirit ?? '—', _spiritStyle),
+          _primaryText(62, 32, line.hiddenSpirit1 ?? '', _hiddenStyle),
+          _primaryText(100, 32, line.hiddenSpirit2 ?? '', _hiddenStyle),
+          // 主卦正文 + 纳音（重点：加粗加大）
+          _primaryText(
+            174,
+            56,
+            line.sixRelative ?? line.branch ?? '—',
+            _linePrimaryStyle,
+          ),
+          if (line.displayExtra != null && line.displayExtra!.isNotEmpty)
+            _naYinText(174, 56, line.displayExtra!),
+          // 主卦爻槽（24×6，槽顶 = PrimaryBaseline - 6 = 13）
+          Positioned(
+            left: 222 - YaoGlyph.slotWidth / 2,
+            top: _primaryBaseline - YaoGlyph.slotHeight,
+            width: YaoGlyph.slotWidth,
+            height: YaoGlyph.slotHeight,
+            child: YaoGlyph(
+              key: Key('yao_glyph_${line.position}'),
+              kind: _mainYaoKind,
+            ),
+          ),
+          // 主卦世应
+          if (line.shiYing != null)
+            _primaryText(
+              250,
+              16,
+              line.shiYing!,
+              _shiYingStyle,
+              textKey: Key('shi_ying_${line.position}'),
+            ),
+          // 动爻标记（12×12，中心 = PrimaryBaseline - 3）
+          if (line.movementType.isMoving)
+            Positioned(
+              left: 268 - MovingMarker.markerSize / 2,
+              top: _primaryBaseline - 3 - MovingMarker.markerSize / 2,
+              width: MovingMarker.markerSize,
+              height: MovingMarker.markerSize,
+              child: MovingMarker(
+                key: Key('moving_marker_${line.position}'),
+                isYin: line.movementType == MovementType.laoYin,
+              ),
+            ),
+          // 箭头
+          if (line.movementType.isMoving)
+            Positioned(
+              left: 280 - 3,
+              top: _primaryBaseline - 3 - 6,
+              width: 6,
+              height: 12,
+              child: const _MovingArrow(),
+            ),
+          // 变卦正文 + 纳音
+          _primaryText(
+            318,
+            56,
+            line.changed == null
+                ? '—'
+                : (line.changed!.sixRelative ??
+                    line.changed!.earthlyBranch ??
+                    '—'),
+            _linePrimaryStyle,
+          ),
+          if (line.changed?.displayExtra != null &&
+              line.changed!.displayExtra!.isNotEmpty)
+            _naYinText(318, 56, line.changed!.displayExtra!),
+          // 变卦爻槽
+          Positioned(
+            left: 358 - YaoGlyph.slotWidth / 2,
+            top: _primaryBaseline - YaoGlyph.slotHeight,
+            width: YaoGlyph.slotWidth,
+            height: YaoGlyph.slotHeight,
+            child: line.changed?.movementType == null
+                ? const SizedBox(
+                    width: YaoGlyph.slotWidth,
+                    height: YaoGlyph.slotHeight,
+                  )
+                : YaoGlyph(
+                    key: Key('changed_yao_glyph_${line.position}'),
+                    kind: line.changed!.isVoid
+                        ? YaoKind.voidYao
+                        : (line.changed!.isYang
+                            ? YaoKind.yang
+                            : YaoKind.yin),
+                  ),
+          ),
+          // 变卦世应
+          if (line.changedShiYing != null)
+            _primaryText(
+              388,
+              16,
+              line.changedShiYing!,
+              _shiYingStyle,
+              textKey: Key('changed_shi_ying_${line.position}'),
+            ),
+        ],
+      ),
+    );
+
     final row = Container(
       key: Key('review_line_${line.position}'),
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      height: _rowH,
+      width: double.infinity,
+      // 注意：行内不带底边框（边框由表格层独立分割线绘制），
+      // 保证 FittedBox 父高恰为 48，行内容不做任何纵向缩放。
       decoration: BoxDecoration(
         color: selected ? CastingTokens.surfaceActive : Colors.transparent,
-        border: const Border(
-          bottom: BorderSide(color: CastingTokens.divider),
-        ),
       ),
-      child: Row(
-        children: [
-          _slot(
-            _spiritW,
-            Text(
-              line.sixSpirit ?? '—',
-              maxLines: 1,
-              style: const TextStyle(
-                fontSize: 9.8,
-                fontWeight: FontWeight.w700,
-                color: CastingTokens.spiritGold,
-                height: 1.2,
-              ),
-            ),
-          ),
-          _gapW,
-          _slot(_hiddenW, _hiddenStrong(line.hiddenSpirit1)),
-          _gapW,
-          _slot(_hiddenW, _hiddenStrong(line.hiddenSpirit2)),
-          const SizedBox(width: 4),
-          Expanded(
-            child: _LineTextBlock(
-              line1: line.sixRelative ?? line.branch ?? '—',
-              line2: line.displayExtra ?? '',
-            ),
-          ),
-          _gapW,
-          _slot(
-            YaoGlyph.slotWidth,
-            Center(
-              child: YaoGlyph(
-                key: Key('yao_glyph_${line.position}'),
-                kind: _mainYaoKind,
-              ),
-            ),
-          ),
-          _gapW,
-          _slot(
-            _shiYingW,
-            line.shiYing == null
-                ? null
-                : Text(
-                    line.shiYing!,
-                    key: Key('shi_ying_${line.position}'),
-                    style: const TextStyle(
-                      fontSize: 8.8,
-                      fontWeight: FontWeight.w700,
-                      color: CastingTokens.shiYingRed,
-                      height: 1.2,
-                    ),
-                  ),
-          ),
-          _gapW,
-          _slot(
-            _markerW,
-            line.movementType.isMoving
-                ? Center(
-                    child: MovingMarker(
-                      key: Key('moving_marker_${line.position}'),
-                      isYin: line.movementType == MovementType.laoYin,
-                    ),
-                  )
-                : null,
-          ),
-          _gapW,
-          _slot(
-            _arrowW,
-            line.movementType.isMoving ? const _MovingArrow() : null,
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: _LineTextBlock(
-              line1: line.changed == null
-                  ? '—'
-                  : (line.changed!.sixRelative ??
-                      line.changed!.earthlyBranch ??
-                      '—'),
-              line2: line.changed?.displayExtra ?? '',
-            ),
-          ),
-          _gapW,
-          _slot(
-            YaoGlyph.slotWidth,
-            Center(
-              child: line.changed?.movementType == null
-                  ? const SizedBox(
-                      width: YaoGlyph.slotWidth,
-                      height: YaoGlyph.slotHeight,
-                    )
-                  : YaoGlyph(
-                      key: Key('changed_yao_glyph_${line.position}'),
-                      kind: line.changed!.isVoid
-                          ? YaoKind.voidYao
-                          : (line.changed!.isYang
-                              ? YaoKind.yang
-                              : YaoKind.yin),
-                    ),
-            ),
-          ),
-          _gapW,
-          _slot(
-            _shiYingW,
-            line.changedShiYing == null
-                ? null
-                : Text(
-                    line.changedShiYing!,
-                    key: Key('changed_shi_ying_${line.position}'),
-                    style: const TextStyle(
-                      fontSize: 8.8,
-                      fontWeight: FontWeight.w700,
-                      color: CastingTokens.shiYingRed,
-                      height: 1.2,
-                    ),
-                  ),
-          ),
-        ],
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.center,
+        child: content,
       ),
     );
 
@@ -176,59 +173,82 @@ class ReviewHexagramLineRow extends StatelessWidget {
     );
   }
 
-  static const SizedBox _gapW = SizedBox(width: _gap);
-
-  Widget _slot(double width, Widget? child) =>
-      SizedBox(width: width, child: child);
-
-  Widget _hiddenStrong(String? text) {
-    return Text(
-      text ?? '',
-      maxLines: 1,
-      style: const TextStyle(
-        fontSize: 9,
-        fontWeight: FontWeight.w700,
-        color: CastingTokens.textPrimary,
-        height: 1.2,
+  /// 主基线文本：Baseline 数学锁定在 RowTop + 19，列内水平居中。
+  Widget _primaryText(
+    double center,
+    double width,
+    String text,
+    TextStyle style, {
+    Key? textKey,
+  }) {
+    return Positioned(
+      left: center - width / 2,
+      top: 0,
+      width: width,
+      height: _rowH,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Baseline(
+          baseline: _primaryBaseline,
+          baselineType: TextBaseline.alphabetic,
+          child: Text(text, key: textKey, maxLines: 1, style: style),
+        ),
       ),
     );
   }
-}
 
-/// 两行文字块：六亲地支（body 10）+ 纳音（small 8.8）。无省略号，超长裁切。
-class _LineTextBlock extends StatelessWidget {
-  const _LineTextBlock({required this.line1, required this.line2});
-
-  final String line1;
-  final String line2;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          line1,
-          maxLines: 1,
-          style: const TextStyle(
-            fontSize: 10,
-            color: CastingTokens.textBody,
-            height: 1.2,
-          ),
+  /// 纳音文本：Baseline 数学锁定在 RowTop + 35。
+  Widget _naYinText(double center, double width, String text) {
+    return Positioned(
+      left: center - width / 2,
+      top: 0,
+      width: width,
+      height: _rowH,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Baseline(
+          baseline: _naYinBaseline,
+          baselineType: TextBaseline.alphabetic,
+          child: Text(text, maxLines: 1, style: _naYinStyle),
         ),
-        Text(
-          line2,
-          maxLines: 1,
-          style: const TextStyle(
-            fontSize: 8.8,
-            color: CastingTokens.textSecondary,
-            height: 1.2,
-          ),
-        ),
-      ],
+      ),
     );
   }
+
+  static const TextStyle _spiritStyle = TextStyle(
+    fontSize: 9.4,
+    fontWeight: FontWeight.w400,
+    color: CastingTokens.spiritGold,
+    height: 1.2,
+  );
+
+  static const TextStyle _hiddenStyle = TextStyle(
+    fontSize: 9,
+    fontWeight: FontWeight.w400,
+    color: CastingTokens.textBody,
+    height: 1.2,
+  );
+
+  static const TextStyle _linePrimaryStyle = TextStyle(
+    fontSize: 10.5,
+    fontWeight: FontWeight.w700,
+    color: CastingTokens.linePrimary,
+    height: 1.2,
+  );
+
+  static const TextStyle _naYinStyle = TextStyle(
+    fontSize: 9,
+    fontWeight: FontWeight.w400,
+    color: CastingTokens.textSecondary,
+    height: 1.2,
+  );
+
+  static const TextStyle _shiYingStyle = TextStyle(
+    fontSize: 8.8,
+    fontWeight: FontWeight.w400,
+    color: CastingTokens.shiYingRed,
+    height: 1.2,
+  );
 }
 
 /// 动爻箭头（→，矢量，arrowTeal #4F8685 w1.4 圆头）。

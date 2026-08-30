@@ -57,6 +57,10 @@ abstract final class CastingTokens {
   static const traditionalGold = Color(0xFFB0905F);
   static const pillarTeal = Color(0xFF4F8685); // 四柱 teal（审卦一屏版总 SVG .teal）
 
+  // 审卦首屏 R4（Baseline Alignment 定稿）补充色
+  static const linePrimary = Color(0xFF314D59); // 主卦/变卦正文（.linePrimary，加粗重点）
+  static const shenShaItem = Color(0xFF5C7078); // 神煞项文字（.item）
+
   // 审卦一屏版（GUAYAN-2.0 审卦首屏总基准）补充色
   static const pillarWarm = Color(0xFFA8605C); // 月/日柱 warm（.warm）
 

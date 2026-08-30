@@ -392,6 +392,78 @@ void main() {
     });
   });
 
+  group('R4 · 基线对齐与神煞固定网格', () {
+    testWidgets('R4 · 六爻行 Primary/纳音基线数学锁定（19 / 35）', (tester) async {
+      await pumpDemo(tester);
+
+      final baselines = tester
+          .widgetList<Baseline>(find.descendant(
+            of: find.byKey(const Key('review_line_6')),
+            matching: find.byType(Baseline),
+          ))
+          .map((b) => b.baseline)
+          .toList();
+      // 六神/伏神×2/主卦正文/世应/变卦正文 = 6 条主基线；纳音 2 条。
+      expect(baselines.where((b) => b == 19).length, 6,
+          reason: '主基线必须全部 = RowTop+19');
+      expect(baselines.where((b) => b == 35).length, 2,
+          reason: '纳音必须全部 = RowTop+35');
+      expect(baselines.every((b) => b == 19 || b == 35), isTrue);
+    });
+
+    testWidgets('R4 · 神煞固定 4×4：16 格无溢出、第 4 行在卡内', (tester) async {
+      await pumpDemo(tester);
+
+      final chips = tester.widgetList<Container>(find.descendant(
+        of: find.byType(GridView),
+        matching: find.byType(Container),
+      ));
+      expect(chips.length, 16);
+      // 第 1 列（卦身 / 金舆）同列；第 4 行（羊刃）与第 1 行同列间距为 3 列。
+      expect(
+        tester.getTopLeft(find.byKey(const Key('shensha_卦身'))).dx,
+        tester.getTopLeft(find.byKey(const Key('shensha_金舆'))).dx,
+      );
+      expect(
+        tester.getTopLeft(find.byKey(const Key('shensha_卦身'))).dx,
+        lessThan(tester.getTopLeft(find.byKey(const Key('shensha_羊刃'))).dx),
+      );
+      expect(
+        tester.getBottomLeft(find.byKey(const Key('shensha_羊刃'))).dy,
+        lessThan(932),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('R4 · 神煞不足 16 项：留空占位、仍保持 4×4', (tester) async {
+      const profile = ReviewTraditionalProfile(
+        shenShaItems: [
+          ReviewShenShaItem(name: '卦身', value: '申'),
+          ReviewShenShaItem(name: '香闺', value: '寅卯'),
+          ReviewShenShaItem(name: '驿马', value: '寅'),
+          ReviewShenShaItem(name: '桃花', value: '酉'),
+        ],
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ReviewPage(
+            initialCase: ReviewDemoData.hexagramCase(),
+            initialProfile: profile,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 12 个留空占位 + 4 个 chip = 16 格（保持 4×4 几何）。
+      final placeholders = tester.widgetList(find.descendant(
+        of: find.byType(GridView),
+        matching: find.byType(SizedBox),
+      ));
+      expect(placeholders.length, 12);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('页面结构', () {
     testWidgets('主体为纵向滚动，无内部横向出界', (tester) async {
       await pumpDemo(tester);

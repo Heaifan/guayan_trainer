@@ -38,12 +38,23 @@ class ReviewHexagramResultTable extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _HeaderZone(state: state),
-          for (final line in state.displayLines)
+          for (var i = 0; i < state.displayLines.length; i++) ...[
             ReviewHexagramLineRow(
-              line: line,
-              selected: selectedPosition == line.position,
-              onTap: onLineTap == null ? null : () => onLineTap!(line.position),
+              line: state.displayLines[i],
+              selected: selectedPosition == state.displayLines[i].position,
+              onTap: onLineTap == null
+                  ? null
+                  : () => onLineTap!(state.displayLines[i].position),
             ),
+            // 行间独立 1px 分割线（行内容高恒为 48，不做纵向缩放）。
+            if (i < state.displayLines.length - 1)
+              const SizedBox(
+                height: 1,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: CastingTokens.divider),
+                ),
+              ),
+          ],
           const _FooterNote(),
         ],
       ),
@@ -100,7 +111,7 @@ class _HexTitle extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: CastingTokens.textPrimary,
             height: 1.2,
@@ -112,7 +123,7 @@ class _HexTitle extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 10,
+            fontSize: 10.8,
             fontWeight: FontWeight.w700,
             color: CastingTokens.guaNameGold,
             height: 1.2,
