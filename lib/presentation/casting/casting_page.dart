@@ -29,13 +29,21 @@ import 'widgets/time_editor_sheet.dart';
 /// [DraftRepository]（任务书 §15）；默认初始草稿为视觉定稿演示态
 /// （[CastingDraft.demo]），正式版本可改传空草稿。
 class CastingPage extends StatefulWidget {
-  const CastingPage({super.key, this.initialDraft, this.repository});
+  const CastingPage({
+    super.key,
+    this.initialDraft,
+    this.repository,
+    this.onGenerated,
+  });
 
   /// 初始草稿；null 时使用视觉定稿演示草稿（4/6 爻）。
   final CastingDraft? initialDraft;
 
   /// 草稿仓库；null 时使用内存实现（接口边界已留，任务书 §15）。
   final DraftRepository? repository;
+
+  /// 生成成功回调：App Shell 借此把最新排盘结果带给审卦页。
+  final ValueChanged<HexagramCase>? onGenerated;
 
   @override
   State<CastingPage> createState() => _CastingPageState();
@@ -141,17 +149,19 @@ class _CastingPageState extends State<CastingPage> {
   void _generate() {
     if (!_lines.every((l) => l != null)) return;
     final caseLines = List<LineState>.generate(6, (i) => _lines[i]!);
+    final generated = HexagramCase(
+      id: 'draft-${DateTime.now().millisecondsSinceEpoch}',
+      question: _questionTitle.isEmpty ? _questionBody : _questionTitle,
+      lines: caseLines,
+      createdAt: _castingTime ?? DateTime.now(),
+      ruleContext: RuleExecutionContext([_ruleRef]),
+    );
     _update(() {
       _generated = true;
       _regenerateNeeded = false;
-      _generatedCase = HexagramCase(
-        id: 'draft-${DateTime.now().millisecondsSinceEpoch}',
-        question: _questionTitle.isEmpty ? _questionBody : _questionTitle,
-        lines: caseLines,
-        createdAt: _castingTime ?? DateTime.now(),
-        ruleContext: RuleExecutionContext([_ruleRef]),
-      );
+      _generatedCase = generated;
     });
+    widget.onGenerated?.call(generated);
   }
 
   Future<void> _openLineEditor(int position) async {

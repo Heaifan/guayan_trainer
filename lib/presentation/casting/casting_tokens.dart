@@ -45,5 +45,15 @@ abstract final class CastingTokens {
 
   // 爻线与动爻标记（老阴空心圆 / 老阳 X）
   static const yao = Color(0xFF243744);
-  static const movingCircle = Color(0xFFB0905F);
+  static const movingCircle = traditionalGold;
+
+  // 关系 / 传统语义色（任务书 §4 补充 Token：Relation / Traditional / Pillar）
+  static const relationRed = Color(0xFFB66F6F);
+  static const relationRedSurface = Color(0xFFFAEFEF);
+  static const relationRedBorder = Color(0xFFD9ABAB);
+  static const relationBlue = Color(0xFF718AA5);
+  static const relationBlueSurface = Color(0xFFEEF3F7);
+  static const relationBlueBorder = Color(0xFFAFC0CF);
+  static const traditionalGold = Color(0xFFB0905F);
+  static const pillarTeal = Color(0xFF4F8A8B);
 }

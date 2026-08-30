@@ -8,6 +8,48 @@
 
 ---
 
+## 2026-08-30 · GUAYAN-2.0-REVIEW-UI-R1（审卦页 XYUI 工作台定稿实施，未发布）
+
+> **审卦页最终视觉**：按人工定稿总 SVG 把「审卦」占位页实现为 XYUI 长页排盘工作台
+> （BasicInfo → ShenSha → FourPillars → HexagramHeader → HexagramTable → RelationFocus）。
+> 传统排盘字段由演示档案提供（排盘引擎 R3 前不造假算法）；真实卦例经 App Shell
+> `onGenerated` 桥接接入，六爻/地支/关系焦点全部来自现有 Domain。
+
+### 新增（lib/presentation/review/）
+| 路径 | 说明 |
+| --- | --- |
+| `review_page.dart`（重写） | 审卦工作台组装（§3 布局） |
+| `review_page_state.dart` | 纯 Dart 状态模型（§7 全部字段，未接入字段显式 nullable） |
+| `review_case_adapter.dart` | HexagramCase + 传统档案 → ReviewPageState；焦点关系来自 calculateRelations |
+| `review_demo_data.dart` | 视觉定稿演示数据（泽山咸→泽水困 / 16 神煞 / 丙午年…丁酉时 / 六神伏神六亲纳音世应） |
+| `widgets/review_app_bar.dart` | 顶栏（返回 chevron + 审卦 + 排盘结果，§1） |
+| `widgets/review_basic_info_card.dart` | 基本信息卡（§2） |
+| `widgets/review_shensha_card.dart` | 神煞独立卡片 + 自适应 Wrap 网格（§3/§8） |
+| `widgets/review_four_pillars_strip.dart` | 四柱条：年/月/日/时/旬空（§4/§9） |
+| `widgets/review_hexagram_result_header.dart` | 排盘结果头 + 主/变卦标题（§5） |
+| `widgets/review_hexagram_result_table.dart` | 六爻排盘主体表（§6，上爻在上初爻在下） |
+| `widgets/review_hexagram_line_row.dart` | 六爻单行（六神/主卦含伏神/变卦 + 矢量爻象 + 世应/动爻） |
+| `widgets/review_relation_focus_card.dart` | 关系焦点卡（§7/§13，规则依据跳转规则库） |
+| `test/presentation/review/review_page_test.dart` | §22 Test A–H + 适配器/焦点关系/双数据路径 |
+
+### 修改
+| 路径 | 说明 |
+| --- | --- |
+| `lib/presentation/casting/casting_tokens.dart` | 补充 §4 Token：relationRed / relationBlue / traditionalGold / pillarTeal |
+| `lib/presentation/casting/casting_page.dart` | 新增可选 `onGenerated` 回调（生成后通知 Shell） |
+| `lib/app/app_shell.dart` | 审卦页隐藏全局 AppBar（自带 XYUI TopBar）；`_latestCase` 桥接排卦结果 |
+| `test/foundation_test.dart` | 审卦分支断言适配（无全局 AppBar + 完整排盘/关系焦点） |
+
+### GAP（本轮如实标注）
+- 六神/伏神/六亲/神煞/四柱/卦名/纳音：排盘引擎（R3）落地前仅演示档案提供，
+  真实卦例下显式置空，不做假六爻算法；
+- 世应/生克/回头生回头克：关系规则属 R3/R4，本轮仅入口（RelationFocusCard chips）；
+- 排卦页「查看审卦 ›」入口导航仍为视觉态（后续轮次接通）。
+- 验证：flutter test 84/84 通过；analyze 本轮文件 0 issue（21 条旧代码告警未动）；
+  debug APK 构建通过。
+
+---
+
 ## 2026-08-30 · GUAYAN-2.0-CASTING-UI-R1（排卦页 XYUI 工作台定稿实施，未发布）
 
 > **排卦页最终视觉**：废弃「方案 2 纵向流程轨」，按人工拍板的总 SVG 改为

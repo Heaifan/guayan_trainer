@@ -2,10 +2,60 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-30 15:40
+> **最后编辑：** 2026-08-30 22:18
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 审卦页 XYUI 工作台 — GUAYAN-2.0-REVIEW-UI-R1（2026-08-30，未发布）
+
+> 目标：把「审卦」占位页实现为人工定稿的 XYUI 长页排盘工作台。
+> 视觉以任务书总 SVG 为最高优先级；传统排盘字段（六神/伏神/六亲/神煞/四柱/卦名）
+> 由演示档案提供，真实计算属后续排盘引擎（R3）—— 本轮不做假六爻算法。
+
+### 新增（lib/presentation/review/）
+- `review_page.dart`（重写占位页）— 审卦工作台：SafeArea → ReviewAppBar → Expanded
+  SingleChildScrollView（BasicInfo → ShenSha → FourPillars → HexagramHeader →
+  HexagramTable → RelationFocus）；MainTabBar 固定在 App Shell
+- `review_page_state.dart` — 纯 Dart 状态模型：ReviewPageState（§7 全部字段）/
+  ReviewLineView / ReviewChangedLine / ReviewShenShaItem + formatSolar
+- `review_case_adapter.dart` — HexagramCase + ReviewTraditionalProfile → ReviewPageState；
+  焦点关系一律来自 calculateRelations（Stable Relation Identity），禁止 UI 重算
+- `review_demo_data.dart` — 视觉定稿演示数据（SVG 逐项转录：泽山咸→泽水困、16 神煞、
+  丙午年丙申月丙子日丁酉时、六神/伏神/六亲/纳音/世应、两动爻）
+- `widgets/review_app_bar.dart` — 顶栏（返回 chevron + 审卦 + 排盘结果，§1）
+- `widgets/review_basic_info_card.dart` — 方式/事项/阳历/阴历 + 已生成 chip（§2）
+- `widgets/review_shensha_card.dart` — 神煞独立卡片 + 自适应 Wrap 标签网格（§3/§8）
+- `widgets/review_four_pillars_strip.dart` — 年/月/日/时/旬空 横向紧凑 Strip（§4）
+- `widgets/review_hexagram_result_header.dart` — 排盘结果 + 主/变卦标题（§5）
+- `widgets/review_hexagram_result_table.dart` — 六爻排盘主体表（§6，上爻在上初爻在下）
+- `widgets/review_hexagram_line_row.dart` — 单行：六神 | 主卦（含伏神）| 变卦；
+  爻象复用 YaoGlyph 矢量绘制，世应/动爻箭头矢量
+- `widgets/review_relation_focus_card.dart` — 关系焦点卡（§7：世应/生克/回头生回头克
+  入口 + 查看规则依据 › 跳转规则库）
+
+### 修改
+- `lib/presentation/casting/casting_tokens.dart` — 补充 §4 Token：relationRed 系 /
+  relationBlue 系 / traditionalGold / pillarTeal（movingCircle 别名到 traditionalGold）
+- `lib/presentation/casting/casting_page.dart` — 新增可选 `onGenerated` 回调（生成后通知 Shell）
+- `lib/app/app_shell.dart` — 审卦页同样隐藏全局 AppBar（自带 XYUI TopBar）；
+  `_latestCase` 桥接排卦生成结果 → 审卦页（T12 数据接入）
+- `test/foundation_test.dart` — 审卦分支断言改为无全局 AppBar + 完整排盘/关系焦点
+- `test/presentation/review/review_page_test.dart`（新增）— §22 Test A–H + 适配器单测
+
+### 数据接入（T12/T13）
+- 排卦页生成后经 `onGenerated` 把 HexagramCase 交给 App Shell，审卦页渲染真实卦例：
+  六爻/地支/时间/规则版本来自 Domain，关系焦点由 calculateRelations 计算；
+  六神/伏神/六亲/神煞/四柱/卦名等传统字段真实卦例下显式置空（GAP：排盘引擎 R3）。
+- 未生成过卦例时审卦页渲染视觉定稿演示排盘（含完整传统档案），供人工视觉验收。
+
+### 说明
+- 演示爻序与 Domain 契约一致（1 初爻 .. 6 上爻升序）；动爻标记遵循 §22 D/E 语义
+  （老阳=阳爻实线 + X），与 SVG 个别爻线画法存在一处有意修正（Row5），已记录。
+- 验证：flutter test 84/84 通过；analyze 本轮文件 0 issue（21 条旧代码告警未动）；
+  debug APK 构建通过。
 
 ---
 
@@ -369,6 +419,23 @@ lib/
 | `relation_note_store.dart` | 笔记绑定存储：纯内存 + JSON 导入导出 |
 | `README.md` | 领域设计与 Stable Relation Identity 说明 |
 
+### 5.3.2 lib/presentation/review/（2.0 审卦工作台）
+
+| 文件 | 职责 |
+| --- | --- |
+| `review_page.dart` | 审卦工作台组装（§3 布局：BasicInfo → ShenSha → FourPillars → Header → Table → Focus） |
+| `review_page_state.dart` | 纯 Dart 状态模型（§7 全部字段，未接入字段显式 nullable） |
+| `review_case_adapter.dart` | HexagramCase + 传统档案 → ReviewPageState；焦点关系来自 Domain 计算 |
+| `review_demo_data.dart` | 视觉定稿演示数据（SVG 逐项转录） |
+| `widgets/review_app_bar.dart` | 顶栏（返回 chevron + 审卦 + 排盘结果） |
+| `widgets/review_basic_info_card.dart` | 基本信息卡（方式/事项/阳历/阴历 + 已生成） |
+| `widgets/review_shensha_card.dart` | 神煞卡（Wrap 标签网格，数据驱动） |
+| `widgets/review_four_pillars_strip.dart` | 四柱条（年/月/日/时/旬空，顺序固定） |
+| `widgets/review_hexagram_result_header.dart` | 排盘结果头（主/变卦标题） |
+| `widgets/review_hexagram_result_table.dart` | 六爻排盘主体表（上爻在上、初爻在下） |
+| `widgets/review_hexagram_line_row.dart` | 六爻单行（六神/主卦含伏神/变卦 + 矢量爻象） |
+| `widgets/review_relation_focus_card.dart` | 关系焦点卡（世应/生克/回头 + 规则依据入口） |
+
 ### 5.4 lib/shell/
 
 | 文件 | 职责 |
@@ -489,6 +556,9 @@ lib/
 | 文件 | 职责 |
 | --- | --- |
 | `widget_test.dart` | Widget 冒烟测试：首页正确渲染 |
+| `foundation_test.dart` | App Shell 五导航 / 艮卦图标 / 状态保持 / 更多菜单验收 |
+| `presentation/casting/casting_page_test.dart` | 排卦工作台测试（Test A–D / 行顺序 / 草稿仓库 / 纯逻辑） |
+| `presentation/review/review_page_test.dart` | 审卦工作台测试（§22 A–H / 适配器 / 焦点关系 / 双数据路径） |
 
 ---
 
