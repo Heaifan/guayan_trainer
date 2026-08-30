@@ -2,7 +2,7 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-30 11:02
+> **最后编辑：** 2026-08-30 15:40
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
@@ -25,10 +25,10 @@
 - **`lib/domain/`（预留）**：GUAYAN-2.0-DOMAIN 阶段在此建立 HexagramCase / LineState / RelationInstance / RelationNote 等
 - **`lib/application/`（预留）**：后续用例层；Foundation 阶段仅 AppShell 用 StatefulWidget，不引入状态管理框架
 - **`lib/presentation/`**：五个主页面 + 规则库/设置/关于
-  - `casting/casting_page.dart` — 排卦页：纵向排卦流程轨（方案 2），状态机驱动
-  - `casting/casting_tokens.dart` — 排卦流程轨 XYUI 视觉 Token（任务书 §18）
-  - `casting/casting_page_state.dart` — CastingStepState / CastingStepData / CastingFlowState
-  - `casting/widgets/` — casting_top_bar / flow_header / workflow / flow_rail / step_node / step_card / step_status / generate_step / context_strip
+  - `casting/casting_page.dart` — 排卦页：XYUI 排卦工作台（R1 定稿布局：起卦时间 → 问事信息 → 六爻录入 → 规则包 → 生成排盘）
+  - `casting/casting_tokens.dart` — XYUI 视觉 Token（任务书 §3 定稿值，排卦页 + 底部导航共用）
+  - `casting/casting_page_state.dart` — GenerationState / DraftState / CastingPageState（§7 全部字段）
+  - `casting/widgets/` — casting_app_bar / draft_context / time_row / question_row / six_yao_input_panel / six_yao_input_row / yao_glyph / rule_pack_row / generate_row / chip / 四个编辑弹层（line/time/question/rule_pack sheet）
   - `review/review_page.dart` — 审卦工作台
   - `relations/relations_page.dart` — 关系工作台
   - `cases/cases_page.dart` — 卦例工作台
@@ -36,8 +36,11 @@
   - `rules/rule_library_page.dart` — 规则库 Skeleton（自定义规则/规则包/系统规则，无 CRUD）
   - `settings/settings_page.dart`、`about/about_page.dart` — 占位页
   - `shared/module_placeholder.dart` — 模块占位共用组件
-- **`test/foundation_test.dart`**：Foundation + 排卦页 XYUI 验收 Widget 测试
-- **`test/presentation/casting/casting_page_test.dart`**：排卦流程轨工作流状态测试（推进/生成/需重新生成/探针/组件状态）
+- **`lib/services/draft/`**：草稿自动保存边界（§15）
+  - `casting_draft.dart` — 草稿模型（含视觉定稿演示草稿 CastingDraft.demo）
+  - `draft_repository.dart` — DraftRepository 接口 + 内存实现（后续可换本地存储）
+- **`test/foundation_test.dart`**：App Shell 五导航 / 艮卦图标 / 状态保持 / 更多菜单验收
+- **`test/presentation/casting/casting_page_test.dart`**：排卦工作台测试（Test A–D / 行顺序 / 草稿仓库 / 纯逻辑）
 
 ### 修改
 - `android/app/src/main/AndroidManifest.xml` — Activity 增加 `android:screenOrientation="portrait"` 锁定竖屏；label 确认「卦眼」

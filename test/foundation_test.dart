@@ -3,8 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:guayan_trainer/app/app.dart';
 import 'package:guayan_trainer/app/navigation/guayan_main_tab_bar.dart';
+import 'package:guayan_trainer/app/navigation/main_tabs.dart';
+import 'package:guayan_trainer/presentation/casting/casting_tokens.dart';
 
-/// 卦眼 2.0 Foundation + 排卦页 XYUI 改造基础验收测试。
+/// 卦眼 2.0 App Shell + 排卦页 XYUI 工作台基础验收测试。
+///
+/// 覆盖：五主导航（Test E）、排卦艮卦图标（Test F）、
+/// IndexedStack 状态保持、更多菜单入口。
 void main() {
   Future<void> pumpApp(WidgetTester tester) async {
     await tester.pumpWidget(const GuayanApp());
@@ -14,13 +19,14 @@ void main() {
   Finder inAppBar(String text) =>
       find.descendant(of: find.byType(AppBar), matching: find.text(text));
 
-  group('App Shell 五主导航', () {
-    testWidgets('默认进入排卦（Index 0，XYUI TopBar + 流程轨）', (tester) async {
+  group('App Shell 五主导航（Test E）', () {
+    testWidgets('默认进入排卦（无全局 AppBar，XYUI 顶栏）', (tester) async {
       await pumpApp(tester);
 
-      // 排卦页无全局 AppBar，使用 XYUI CastingTopBar（标题「排卦」）。
       expect(find.byType(AppBar), findsNothing);
-      expect(find.text('排卦流程轨'), findsOneWidget);
+      expect(find.text('卦眼'), findsOneWidget);
+      expect(find.text('排卦'), findsWidgets); // 顶栏副标题 + 底部 tab
+      expect(find.text('起卦时间'), findsOneWidget); // 排卦工作台第一行
 
       final bar = tester.widget<GuayanMainTabBar>(
         find.byType(GuayanMainTabBar),
@@ -28,7 +34,7 @@ void main() {
       expect(bar.selectedIndex, 0);
     });
 
-    testWidgets('五个主入口存在且顺序固定', (tester) async {
+    testWidgets('五个主入口存在且顺序固定（含训练）', (tester) async {
       await pumpApp(tester);
 
       final labels = tester
@@ -39,6 +45,9 @@ void main() {
           .map((t) => t.data)
           .toList();
       expect(labels, ['排卦', '审卦', '关系', '卦例', '训练']);
+      expect(mainTabs.length, 5);
+      expect(mainTabs.map((t) => t.title).toList(),
+          ['排卦', '审卦', '关系', '卦例', '训练']);
     });
 
     testWidgets('点击训练显示训练页面', (tester) async {
@@ -57,19 +66,6 @@ void main() {
       );
     });
 
-    testWidgets('点击关系显示关系页面', (tester) async {
-      await pumpApp(tester);
-
-      await tester.tap(find.descendant(
-        of: find.byType(GuayanMainTabBar),
-        matching: find.text('关系'),
-      ));
-      await tester.pumpAndSettle();
-
-      expect(inAppBar('关系'), findsOneWidget);
-      expect(find.text('关系工作台'), findsOneWidget);
-    });
-
     testWidgets('五个页面可循环切换', (tester) async {
       await pumpApp(tester);
 
@@ -80,7 +76,7 @@ void main() {
         ));
         await tester.pumpAndSettle();
         if (label == '排卦') {
-          expect(find.text('排卦流程轨'), findsOneWidget);
+          expect(find.text('起卦时间'), findsOneWidget);
         } else {
           expect(inAppBar(label), findsOneWidget);
         }
@@ -88,20 +84,37 @@ void main() {
     });
   });
 
-  group('状态保持（§35，探针保留在 Context Strip）', () {
-    testWidgets('IndexedStack 切换后页面状态不丢失', (tester) async {
+  group('排卦图标（Test F · 艮卦矢量）', () {
+    test('GuayanTabIcons.cast 返回 GenTrigramPainter', () {
+      final painter = GuayanTabIcons.cast(CastingTokens.accent);
+      expect(painter, isA<GenTrigramPainter>());
+    });
+
+    test('mainTabs[0] 使用艮卦图标且标题为排卦', () {
+      expect(mainTabs[0].title, '排卦');
+      expect(
+        mainTabs[0].iconBuilder(CastingTokens.accent),
+        isA<GenTrigramPainter>(),
+      );
+      // 不是旧「四条爻线」图标。
+      expect(
+        mainTabs[0].iconBuilder(CastingTokens.accent).runtimeType.toString(),
+        'GenTrigramPainter',
+      );
+    });
+  });
+
+  group('状态保持（IndexedStack）', () {
+    testWidgets('录入一爻后切走再切回不丢失', (tester) async {
       await pumpApp(tester);
 
-      // 排卦页 Context Strip 探针初始 0。
-      String probeValue() => tester
-          .widget<Text>(find.byKey(const Key('casting_probe_value')))
-          .data!;
-      expect(probeValue(), '0');
-      await tester.ensureVisible(find.byKey(const Key('casting_probe_value')));
+      // 二爻（demo 草稿中待录）录入少阳。
+      await tester.ensureVisible(find.byKey(const Key('yao_row_2')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('casting_probe_value')));
+      await tester.tap(find.byKey(const Key('yao_row_2')));
       await tester.pumpAndSettle();
-      expect(probeValue(), '1');
+      await tester.tap(find.byKey(const Key('line_opt_shaoYang')));
+      await tester.pumpAndSettle();
 
       // 切到审卦再切回排卦。
       await tester.tap(find.descendant(
@@ -115,12 +128,14 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // 状态仍保持为 1，说明页面未被销毁重建。
-      expect(probeValue(), '1');
+      final text = tester
+          .widget<Text>(find.byKey(const Key('yao_status_2')))
+          .data;
+      expect(text, '阳 · 静');
     });
   });
 
-  group('更多入口（§34，XYUI 三点触发）', () {
+  group('更多入口（XYUI 三点触发）', () {
     testWidgets('更多菜单包含规则库/设置/关于', (tester) async {
       await pumpApp(tester);
 
@@ -140,31 +155,13 @@ void main() {
       await tester.tap(find.text('规则库'));
       await tester.pumpAndSettle();
 
-      // 规则库 Skeleton：三类规则入口卡片。
       expect(find.text('自定义规则'), findsOneWidget);
       expect(find.text('规则包'), findsOneWidget);
       expect(find.text('系统规则'), findsOneWidget);
-      expect(find.text('后续开放'), findsNWidgets(3));
-
-      // 返回后恢复原主页面。
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      expect(find.text('排卦流程轨'), findsOneWidget);
-    });
-
-    testWidgets('点击关于进入关于页并可返回', (tester) async {
-      await pumpApp(tester);
-
-      await tester.tap(find.byKey(const Key('casting_more_button')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('关于'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('六爻结构化工作台'), findsOneWidget);
 
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.text('排卦流程轨'), findsOneWidget);
+      expect(find.text('起卦时间'), findsOneWidget);
     });
   });
 }

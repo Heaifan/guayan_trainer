@@ -1,90 +1,111 @@
-/// 排卦流程轨的状态模型（真实 ViewModel 数据，不是从颜色反推状态）。
+/// 排卦页状态模型（纯 Dart，无 Flutter 依赖）。
+///
+/// 提供任务书 §7 要求的全部字段：questionTitle / questionDescription /
+/// castingTime / rulePack / lines / movingLineCount / completedLineCount /
+/// generationState / draftState。
 library;
 
-/// 工作流步骤状态（任务书 §16）。
-enum CastingStepState {
-  /// 当前正在进行的步骤（视觉上展开、可操作）。
-  current,
+import '../../domain/hexagram_case.dart';
+import '../../domain/line_state.dart';
 
-  /// 等待后续进行的步骤（低存在感）。
-  pending,
-
-  /// 已完成（可重新进入修改，显示结果摘要）。
-  completed,
-
-  /// 需要检查（例如关键数据被修改后）。
-  warning,
-
-  /// 锁定（前序未完成，尚不可用）。
+/// 生成排盘状态（任务书 §14）。
+enum GenerationState {
+  /// 六爻未完整：尚未就绪。
   locked,
+
+  /// 六爻完整：可以生成。
+  ready,
+
+  /// 已生成：排盘已生成，修改后不自动清空（标记需重新生成）。
+  generated,
 }
 
-/// 五个工作流步骤的稳定身份。
-enum CastingStepId { time, question, lines, rules, generate }
+/// 草稿状态（本轮固定为草稿中：自动保存）。
+enum DraftState { drafting }
 
-/// 单个步骤的展示数据。
-class CastingStepData {
-  const CastingStepData({
-    required this.id,
-    required this.index,
-    required this.title,
-    required this.description,
-    required this.state,
-    this.summary,
-    this.badgeText,
-  });
-
-  final CastingStepId id;
-
-  /// 1..5（SVG 节点序号）。
-  final int index;
-
-  final String title;
-  final String description;
-  final CastingStepState state;
-
-  /// 完成后的结果摘要（任务书 §9：完成态必须显示摘要，而不是简单写已完成）。
-  final String? summary;
-
-  /// 右侧状态徽标文字（立即填写 / 待录入 / 已完成 / 需检查 / 尚未就绪…）。
-  final String? badgeText;
-
-  bool get isCurrent => state == CastingStepState.current;
-
-  bool get isCompleted => state == CastingStepState.completed;
-
-  bool get isLocked => state == CastingStepState.locked;
-}
-
-/// 排卦流程的完整状态快照（纯数据，供页面与测试使用）。
-class CastingFlowState {
-  const CastingFlowState({
-    required this.steps,
-    required this.probeCount,
-    required this.completedCount,
-    required this.currentIndex,
-    required this.generated,
+/// 排卦页完整状态快照（纯数据，供页面与测试使用）。
+class CastingPageState {
+  const CastingPageState({
+    required this.questionTitle,
+    required this.questionBody,
+    required this.questionObject,
+    required this.questionNote,
+    required this.castingTime,
+    required this.rulePackName,
+    required this.ruleVersion,
+    required this.lines,
+    required this.editingPosition,
+    required this.generationState,
+    required this.draftState,
     required this.regenerateNeeded,
+    this.generatedCase,
   });
 
-  /// 五个步骤（顺序固定：时间 / 问事 / 六爻 / 规则包 / 生成）。
-  final List<CastingStepData> steps;
+  final String questionTitle;
+  final String questionBody;
+  final String questionObject;
+  final String questionNote;
 
-  /// 状态保持探针（Foundation §35 语义保留在 Context Strip 中）。
-  final int probeCount;
+  /// 起卦时间；null = 未设置。
+  final DateTime? castingTime;
 
-  /// 已完成步骤数（含生成步骤）。
-  final int completedCount;
+  /// 规则包名（如「默认规则包」）。
+  final String rulePackName;
 
-  /// 当前步骤序号（1..5）。
-  final int currentIndex;
+  /// 规则包版本（>= 1，历史卦例可追溯，任务书 §13）。
+  final int ruleVersion;
 
-  /// 排盘是否已生成。
-  final bool generated;
+  /// 六爻：index = position - 1（1 初爻 .. 6 上爻），null = 待录。
+  final List<LineState?> lines;
 
-  /// 生成后关键数据被修改 → 需重新生成。
+  /// 当前编辑爻位（1..6），null = 无。
+  final int? editingPosition;
+
+  final GenerationState generationState;
+  final DraftState draftState;
+
+  /// 生成后关键数据被修改 → 需重新生成（不清空已生成排盘）。
   final bool regenerateNeeded;
 
-  CastingStepData step(CastingStepId id) =>
-      steps.firstWhere((s) => s.id == id);
+  /// 生成成功后的卦例（连接 Domain：HexagramCase 六爻不变量 + 规则版本上下文）。
+  final HexagramCase? generatedCase;
+
+  String get rulePackVersionLabel => 'v$ruleVersion';
+
+  String get rulePackLabel => '$rulePackName · $rulePackVersionLabel';
+
+  int get completedLineCount => lines.where((l) => l != null).length;
+
+  int get movingLineCount =>
+      lines.where((l) => l != null && l.movementType.isMoving).length;
+
+  bool get isLinesComplete => completedLineCount == 6;
+
+  bool get isTimeSet => castingTime != null;
+
+  bool get isQuestionComplete => questionTitle.trim().isNotEmpty;
+
+  LineState? lineAt(int position) => lines[position - 1];
 }
+
+/// 爻位展示名（1 初爻 .. 6 上爻）。
+String linePositionName(int position) {
+  const names = {1: '初爻', 2: '二爻', 3: '三爻', 4: '四爻', 5: '五爻', 6: '上爻'};
+  return names[position] ?? '爻';
+}
+
+/// 时辰名（两小时一辰）。仅小时 → 时辰的基础映射；
+/// 完整干支历法（年月日干支 / 旬空 / 纳甲）属后续排盘引擎，不在本轮范围。
+String shichenForHour(int hour) {
+  const names = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  return names[((hour + 1) % 24) ~/ 2];
+}
+
+/// 爻象的「阴阳 · 动静」展示文案（如「阴 · 静」「阳 · 动」）。
+String movementDisplay(MovementType type) {
+  final yin = type == MovementType.shaoYin || type == MovementType.laoYin;
+  return '${yin ? '阴' : '阳'} · ${type.isMoving ? '动' : '静'}';
+}
+
+/// 已录一爻的「阴阳 · 动静」展示文案。
+String lineStatusText(LineState line) => movementDisplay(line.movementType);

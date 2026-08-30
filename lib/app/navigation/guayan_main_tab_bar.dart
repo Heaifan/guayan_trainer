@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../../presentation/casting/casting_tokens.dart';
 import 'main_tabs.dart';
 
-/// XYUI 化底部主模块导航（任务书 §15 GuayanMainTabBar SVG）。
+/// XYUI 化底部主模块导航（任务书 §5.8 MainTabBar SVG）。
 ///
 /// 属于 App Shell 公共导航，禁止为单个页面复制独立 BottomBar。
-/// 活动 tab：圆角底色 + 加粗标签；非活动：浅色标签。
+/// 活动 tab：浅豆青胶囊（52×30 rx15）+ 加粗标签；非活动：浅色标签。
 /// tab 数据（标题/图标/页面构建器）单一来源为 [mainTabs]。
 class GuayanMainTabBar extends StatelessWidget {
   const GuayanMainTabBar({
@@ -24,13 +24,13 @@ class GuayanMainTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: CastingTokens.header,
-        border: Border(top: BorderSide(color: CastingTokens.border)),
+        color: CastingTokens.surface,
+        border: Border(top: BorderSide(color: CastingTokens.divider)),
       ),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: Row(
             children: [
               for (var i = 0; i < tabs.length; i++)
@@ -62,29 +62,31 @@ class _TabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected
+    final iconColor = selected
+        ? CastingTokens.accent
+        : CastingTokens.textSecondary;
+    final labelColor = selected
         ? CastingTokens.textPrimary
         : CastingTokens.textSecondary;
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(15),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            width: 58,
-            height: 42,
+            width: 52,
+            height: 30,
             decoration: BoxDecoration(
-              color:
-                  selected ? CastingTokens.activeStrong : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
+              color: selected ? CastingTokens.accentSurface : Colors.transparent,
+              borderRadius: BorderRadius.circular(15),
             ),
             child: Center(
               child: CustomPaint(
-                size: const Size(24, 24),
-                painter: tab.iconBuilder(color),
+                size: const Size(24, 22),
+                painter: tab.iconBuilder(iconColor),
               ),
             ),
           ),
@@ -92,9 +94,9 @@ class _TabItem extends StatelessWidget {
           Text(
             tab.title,
             style: TextStyle(
-              fontSize: 11,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              color: color,
+              fontSize: selected ? 12 : 10,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+              color: labelColor,
               height: 1.2,
             ),
           ),
@@ -104,12 +106,12 @@ class _TabItem extends StatelessWidget {
   }
 }
 
-/// 五个主模块图标（SVG path 复刻，任务书 §15）。
+/// 五个主模块图标（SVG path 复刻，任务书 §5.8）。
 class GuayanTabIcons {
   GuayanTabIcons._();
 
-  /// 排卦：四条爻线。
-  static CustomPainter cast(Color color) => _LinesPainter(color);
+  /// 排卦：艮卦（☶ 矢量语义 —— 上阳爻实线，中/下阴爻断线）。
+  static CustomPainter cast(Color color) => GenTrigramPainter(color);
 
   /// 审卦：椭圆 + 圆心。
   static CustomPainter review(Color color) => _ReviewPainter(color);
@@ -120,12 +122,13 @@ class GuayanTabIcons {
   /// 卦例：文档卡片 + 两行。
   static CustomPainter cases(Color color) => _CasesPainter(color);
 
-  /// 训练：菱形。
+  /// 训练：菱形 + 提手。
   static CustomPainter training(Color color) => _TrainingPainter(color);
 }
 
-class _LinesPainter extends CustomPainter {
-  _LinesPainter(this.color);
+/// 艮卦矢量（任务书 §16：禁止 Unicode ☶，必须矢量绘制）。
+class GenTrigramPainter extends CustomPainter {
+  GenTrigramPainter(this.color);
 
   final Color color;
 
@@ -138,14 +141,19 @@ class _LinesPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     final w = size.width;
     final h = size.height;
+    // 上爻：阳（实线）
     canvas.drawLine(Offset(0, h * 0.25), Offset(w, h * 0.25), paint);
-    canvas.drawLine(Offset(0, h * 0.5), Offset(w * 0.45, h * 0.5), paint);
-    canvas.drawLine(Offset(w * 0.65, h * 0.5), Offset(w, h * 0.5), paint);
-    canvas.drawLine(Offset(0, h * 0.75), Offset(w, h * 0.75), paint);
+    // 中爻：阴（断线）
+    canvas.drawLine(Offset(0, h * 0.5), Offset(w * 0.42, h * 0.5), paint);
+    canvas.drawLine(Offset(w * 0.58, h * 0.5), Offset(w, h * 0.5), paint);
+    // 下爻：阴（断线）
+    canvas.drawLine(Offset(0, h * 0.75), Offset(w * 0.42, h * 0.75), paint);
+    canvas.drawLine(Offset(w * 0.58, h * 0.75), Offset(w, h * 0.75), paint);
   }
 
   @override
-  bool shouldRepaint(_LinesPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(GenTrigramPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class _ReviewPainter extends CustomPainter {
@@ -158,7 +166,7 @@ class _ReviewPainter extends CustomPainter {
     final stroke = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = 1.8;
     final fill = Paint()..color = color;
     final center = Offset(size.width / 2, size.height / 2);
     canvas.drawOval(
@@ -215,7 +223,7 @@ class _CasesPainter extends CustomPainter {
     final stroke = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = 1.8;
     final w = size.width;
     final h = size.height;
     final rect = RRect.fromRectAndRadius(
@@ -247,7 +255,7 @@ class _TrainingPainter extends CustomPainter {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
+      ..strokeWidth = 1.8
       ..strokeJoin = StrokeJoin.round;
     final w = size.width;
     final h = size.height;

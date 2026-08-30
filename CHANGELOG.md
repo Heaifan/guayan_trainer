@@ -8,6 +8,62 @@
 
 ---
 
+## 2026-08-30 · GUAYAN-2.0-CASTING-UI-R1（排卦页 XYUI 工作台定稿实施，未发布）
+
+> **排卦页最终视觉**：废弃「方案 2 纵向流程轨」，按人工拍板的总 SVG 改为
+> 排卦工作台 —— 1 起卦时间 → 2 问事信息 → 3 六爻录入 → 4 规则包 → 5 生成排盘。
+> 本轮为视觉骨架 + 状态组件 + 必要交互基础；不做审卦页重构、关系引擎、完整规则 CRUD。
+
+### 新增（lib/presentation/casting/widgets/）
+| 路径 | 说明 |
+| --- | --- |
+| `casting_app_bar.dart` | 顶栏（卦眼 / 排卦 / 三点更多，§5.1） |
+| `casting_draft_context.dart` | 草稿上下文卡（草稿中，§5.2） |
+| `casting_time_row.dart` | 起卦时间第一行（§5.3，日期+时间+时辰） |
+| `casting_question_row.dart` | 问事信息第二行（§5.4，主题/正文/对象/背景） |
+| `six_yao_input_panel.dart` | 六爻录入第三行面板（§5.5，当前步骤 chip） |
+| `six_yao_input_row.dart` | 六爻单行（已录/待录/编辑三态，§8/§9） |
+| `yao_glyph.dart` | 爻矢量图形（阴阳线 + 老阴空心圆/老阳 X，§10） |
+| `casting_rule_pack_row.dart` | 规则包第四行（§5.6，修改 ›） |
+| `casting_generate_row.dart` | 生成排盘第五行（locked/ready/generated，§5.7/§14） |
+| `casting_chip.dart` | XYUI 胶囊徽标 + 矢量 chevron |
+| `line_editor_sheet.dart` | 爻象选择弹层（少阴/少阳/老阴/老阳 + 清除） |
+| `time_editor_sheet.dart` | 起卦时间弹层（日期/时间/时辰自动换算，§11） |
+| `question_editor_sheet.dart` | 问事信息弹层（四项文本，§12） |
+| `rule_pack_sheet.dart` | 规则包占位弹层（§13，不造假 CRUD） |
+| `test/presentation/casting/casting_page_test.dart`（重写） | Test A–D + 行顺序 + 草稿仓库 + 纯逻辑 |
+
+### 新增（lib/services/draft/）
+| 路径 | 说明 |
+| --- | --- |
+| `casting_draft.dart` | 草稿模型（含视觉定稿演示草稿 CastingDraft.demo） |
+| `draft_repository.dart` | DraftRepository 接口边界 + 内存实现（§15，不把 DB 写进 Widget） |
+
+### 修改
+| 路径 | 说明 |
+| --- | --- |
+| `lib/presentation/casting/casting_page.dart` | 流程轨 → XYUI 排卦工作台（状态全部进入 CastingPageState） |
+| `lib/presentation/casting/casting_page_state.dart` | 重写：GenerationState / DraftState / CastingPageState（§7 全部字段） |
+| `lib/presentation/casting/casting_tokens.dart` | 对齐任务书 §3 定稿 Token 值 |
+| `lib/app/navigation/guayan_main_tab_bar.dart` | 白底 + 胶囊选中；排卦图标 → 艮卦矢量（§16，无 Unicode ☶） |
+| `test/foundation_test.dart`（重写） | Test E 五导航 / Test F 艮卦图标 / 状态保持 / 更多菜单 |
+
+### 删除（方案 2 流程轨组件）
+`casting_top_bar / casting_flow_header / casting_flow_rail / casting_workflow / casting_step_node / casting_step_card / casting_step_status / casting_generate_step / casting_context_strip`（widgets/ 下 9 个文件）
+
+### 验证
+- `flutter test`：全量通过（含 Test A–F）
+- `flutter analyze`：本轮新增/修改文件 0 issue（存量遗留 21 项 lint 不变，记入 BACKLOG）
+- Android debug 构建成功（`build/app/outputs/flutter-apk/app-debug.apk`）
+
+### 说明（GAP，后续阶段）
+- 完整干支历法引擎（年月日干支 / 旬空 / 纳甲）未做，本轮仅小时→时辰基础映射；
+- 自定义规则包 CRUD 未做（占位弹层，保留 RuleId + RuleVersion）；
+- 「查看审卦 ›」本轮为视觉占位，跨 tab 导航属后续；
+- 草稿持久化为内存实现，接口边界已定型（DraftRepository）。
+
+---
+
 ## 2026-08-30 · 排卦页 XYUI 改造（Vertical Casting Workflow，未发布）
 
 > **方案 2 · 纵向排卦流程轨**：起卦时间 → 问事信息 → 六爻输入 → 规则包 → 生成排盘。

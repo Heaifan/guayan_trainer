@@ -1,188 +1,294 @@
-/// 排卦页纵向流程轨 · 工作流状态测试。
+/// 排卦页 XYUI 工作台 · 状态与交互测试（任务书 §26 Test A–D + 行顺序）。
 ///
-/// 覆盖：初始状态、逐步骤推进、生成步骤 Locked/Ready/Completed、
-/// 生成后修改触发 Warning（需重新生成）、Context Strip（探针/已完成计数）、
-/// 组件级状态渲染（节点 Current/Pending/Complete/Warning/Locked）。
+/// 覆盖：0/6 locked、6/6 ready、动爻计数、当前编辑爻视觉切换、
+/// 爻象选择、问事信息编辑、规则包占位、草稿仓库接口边界、时辰映射。
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:guayan_trainer/domain/line_state.dart';
 import 'package:guayan_trainer/presentation/casting/casting_page.dart';
 import 'package:guayan_trainer/presentation/casting/casting_page_state.dart';
-import 'package:guayan_trainer/presentation/casting/widgets/casting_context_strip.dart';
-import 'package:guayan_trainer/presentation/casting/widgets/casting_step_node.dart';
+import 'package:guayan_trainer/services/draft/casting_draft.dart';
+import 'package:guayan_trainer/services/draft/draft_repository.dart';
 
 void main() {
-  Future<void> pumpCasting(WidgetTester tester) async {
+  Future<void> pumpPage(WidgetTester tester, {CastingDraft? draft}) async {
     await tester.pumpWidget(
-      const MaterialApp(home: CastingPage()),
+      MaterialApp(home: CastingPage(initialDraft: draft)),
     );
     await tester.pumpAndSettle();
   }
 
-  group('初始状态', () {
-    testWidgets('流程轨默认：步骤 1 Current，其余 Pending，生成 Locked', (tester) async {
-      await pumpCasting(tester);
+  Future<void> recordLine(WidgetTester tester, int position) async {
+    await tester.ensureVisible(find.byKey(Key('yao_row_$position')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('yao_row_$position')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('line_opt_shaoYang')));
+    await tester.pumpAndSettle();
+  }
 
-      expect(find.text('CASTING FLOW'), findsOneWidget);
-      expect(find.text('排卦流程轨'), findsOneWidget);
-      expect(find.text('1 / 5'), findsOneWidget);
+  group('Test A · 六爻 0/6 → Generate locked', () {
+    testWidgets('空草稿：0 / 6 已完成、六行待录、生成尚未就绪', (tester) async {
+      await pumpPage(tester, draft: const CastingDraft());
 
-      // 步骤 1 当前：CTA「立即填写」；其余待录入；生成「尚未就绪」。
-      expect(find.text('立即填写'), findsOneWidget);
-      expect(find.text('待录入'), findsNWidgets(3));
+      expect(find.text('0 / 6 已完成 · 动爻 0'), findsOneWidget);
+      expect(find.text('待录'), findsNWidgets(6));
+      expect(find.text('六爻完整后解锁'), findsOneWidget);
       expect(find.text('尚未就绪'), findsOneWidget);
-
-      // Context Strip：探针 0、已完成 0/5。
-      expect(find.byType(CastingContextStrip), findsOneWidget);
-      expect(find.text('0 / 5'), findsOneWidget);
+      // locked 态 chip 不可点（无 InkWell 包装）。
+      expect(
+        find.ancestor(of: find.text('尚未就绪'), matching: find.byType(InkWell)),
+        findsNothing,
+      );
     });
   });
 
-  group('步骤推进', () {
-    testWidgets('完成步骤 1 → 显示摘要，步骤 2 成为 Current，Header 变 2/5', (tester) async {
-      await pumpCasting(tester);
+  group('Test B · 六爻 6/6 → Generate ready', () {
+    testWidgets('逐爻录入完成 → 6 / 6、生成排盘可点', (tester) async {
+      await pumpPage(tester, draft: const CastingDraft());
 
-      await tester.tap(find.text('立即填写'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('已完成'), findsNWidgets(2)); // 步骤徽标 + Context Strip 标签
-      expect(find.text('2026-08-30 · 巳时'), findsOneWidget); // 摘要
-      expect(find.text('2 / 5'), findsOneWidget);
-      expect(find.text('待录入'), findsNWidgets(2));
-    });
-
-    testWidgets('完成前四步 → 生成步骤 Ready（起卦信息完整，可以生成排盘）', (tester) async {
-      await pumpCasting(tester);
-
-      for (var i = 0; i < 4; i++) {
-        await tester.tap(find.text('立即填写'));
-        await tester.pumpAndSettle();
+      for (var p = 1; p <= 6; p++) {
+        await recordLine(tester, p);
       }
 
-      expect(find.text('5 / 5'), findsOneWidget); // Header 当前步骤
-      expect(find.text('起卦信息完整，可以生成排盘'), findsOneWidget);
-      expect(find.byKey(const Key('casting_generate_button')), findsOneWidget);
+      expect(find.text('6 / 6 已完成 · 动爻 0'), findsOneWidget);
+      expect(find.text('六爻已完整，可以生成排盘'), findsOneWidget);
+      final button = find.byKey(const Key('generate_button'));
+      expect(button, findsOneWidget);
+      expect(
+        tester
+            .widget<InkWell>(
+              find.descendant(
+                of: button,
+                matching: find.byType(InkWell),
+              ),
+            )
+            .onTap,
+        isNotNull,
+      );
     });
 
-    testWidgets('点击生成排盘 → Completed：本卦/变卦摘要 + 已完成 5/5', (tester) async {
-      await pumpCasting(tester);
+    testWidgets('点击生成排盘 → 排盘已生成，数据保留', (tester) async {
+      await pumpPage(tester, draft: const CastingDraft());
 
-      for (var i = 0; i < 4; i++) {
-        await tester.tap(find.text('立即填写'));
-        await tester.pumpAndSettle();
+      for (var p = 1; p <= 6; p++) {
+        await recordLine(tester, p);
       }
-      await tester.tap(find.byKey(const Key('casting_generate_button')));
+      await tester.tap(find.byKey(const Key('generate_button')));
       await tester.pumpAndSettle();
 
       expect(find.text('排盘已生成'), findsOneWidget);
-      expect(find.text('本卦：乾为天'), findsOneWidget);
-      expect(find.text('变卦：天风姤'), findsOneWidget);
-      expect(find.text('查看排盘'), findsOneWidget);
-      expect(find.text('重新生成'), findsOneWidget);
-      // Context Strip 已完成 5/5（生成步骤计入完成）。
-      expect(find.text('5 / 5'), findsNWidgets(2));
+      expect(find.text('查看审卦 ›'), findsOneWidget);
+      // 六爻数据未被清空。
+      expect(find.text('6 / 6 已完成 · 动爻 0'), findsOneWidget);
     });
   });
 
-  group('生成后修改（Warning 语义）', () {
-    testWidgets('生成后重新进入已完成步骤 → 生成步骤标记需重新生成', (tester) async {
-      await pumpCasting(tester);
+  group('Test C · 动爻计数', () {
+    test('模型：两动爻 → movingLineCount == 2', () {
+      final state = CastingPageState(
+        questionTitle: '',
+        questionBody: '',
+        questionObject: '',
+        questionNote: '',
+        castingTime: null,
+        rulePackName: '默认规则包',
+        ruleVersion: 1,
+        lines: [
+          LineState(position: 1, movementType: MovementType.laoYang),
+          LineState(position: 2, movementType: MovementType.shaoYin),
+          LineState(position: 3, movementType: MovementType.laoYin),
+          LineState(position: 4, movementType: MovementType.shaoYang),
+          null,
+          null,
+        ],
+        editingPosition: null,
+        generationState: GenerationState.locked,
+        draftState: DraftState.drafting,
+        regenerateNeeded: false,
+      );
+      expect(state.movingLineCount, 2);
+      expect(state.completedLineCount, 4);
+      expect(state.isLinesComplete, isFalse);
+    });
 
-      for (var i = 0; i < 4; i++) {
-        await tester.tap(find.text('立即填写'));
-        await tester.pumpAndSettle();
+    testWidgets('演示草稿 UI：4 / 6 已完成 · 动爻 2', (tester) async {
+      await pumpPage(tester); // CastingDraft.demo()
+      expect(find.text('4 / 6 已完成 · 动爻 2'), findsOneWidget);
+    });
+  });
+
+  group('Test D · 当前编辑爻', () {
+    testWidgets('点击某爻 → 编辑态切换（高亮 + 编辑徽标）', (tester) async {
+      await pumpPage(tester); // demo：三爻为当前编辑爻
+
+      expect(find.byKey(const Key('yao_edit_badge_3')), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const Key('yao_row_4')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('yao_row_4')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('yao_edit_badge_4')), findsOneWidget);
+      expect(find.byKey(const Key('yao_edit_badge_3')), findsNothing);
+
+      // 选择少阳 → 四爻变为「阳 · 静」。
+      await tester.tap(find.byKey(const Key('line_opt_shaoYang')));
+      await tester.pumpAndSettle();
+      final text = tester
+          .widget<Text>(find.byKey(const Key('yao_status_4')))
+          .data;
+      expect(text, '阳 · 静');
+    });
+
+    testWidgets('点击待录爻可录入，老阴显示动爻标记语义', (tester) async {
+      await pumpPage(tester, draft: const CastingDraft());
+
+      await tester.ensureVisible(find.byKey(const Key('yao_row_1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('yao_row_1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('line_opt_laoYin')));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.widget<Text>(find.byKey(const Key('yao_status_1'))).data,
+        '阴 · 动',
+      );
+      expect(find.text('1 / 6 已完成 · 动爻 1'), findsOneWidget);
+    });
+  });
+
+  group('行顺序（视觉验收 A–E）', () {
+    testWidgets('起卦时间 → 问事信息 → 六爻录入 → 规则包 → 生成排盘', (tester) async {
+      await pumpPage(tester);
+
+      double y(String text) =>
+          tester.getTopLeft(find.text(text)).dy;
+      final order = [
+        y('起卦时间'),
+        y('问事信息'),
+        y('六爻录入'),
+        y('规则包'),
+        y('生成排盘'),
+      ];
+      for (var i = 0; i < order.length - 1; i++) {
+        expect(order[i] < order[i + 1], isTrue,
+            reason: '第 ${i + 1} 行必须在第 ${i + 2} 行之前');
       }
-      await tester.tap(find.byKey(const Key('casting_generate_button')));
-      await tester.pumpAndSettle();
-
-      // 点击「起卦时间」步骤卡片主体（重新进入修改）。
-      await tester.ensureVisible(find.text('起卦时间'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('起卦时间'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('关键信息已修改 · 需重新生成'), findsOneWidget);
-      expect(find.text('重新生成'), findsOneWidget);
-      // 该步骤回到 Current（可重新填写）。
-      expect(find.text('立即填写'), findsOneWidget);
-      // Context Strip 已完成 3/5（3 步完成 + 生成步骤处于需重新生成）。
-      expect(find.text('3 / 5'), findsOneWidget);
     });
   });
 
-  group('Context Strip 探针（§35 状态保持）', () {
-    testWidgets('点击探针值递增', (tester) async {
-      await pumpCasting(tester);
+  group('问事信息编辑', () {
+    testWidgets('保存主题后：DraftContext 标题与已完成 chip 更新', (tester) async {
+      await pumpPage(tester, draft: const CastingDraft());
 
-      String probeValue() => tester
-          .widget<Text>(find.byKey(const Key('casting_probe_value')))
-          .data!;
+      expect(find.text('尚未填写主题与问事正文'), findsOneWidget);
 
-      expect(probeValue(), '0');
-      await tester.ensureVisible(find.byKey(const Key('casting_probe_value')));
+      await tester.tap(find.byKey(const Key('question_row')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('casting_probe_value')));
+      await tester.enterText(find.byKey(const Key('q_title')), '测试问事');
+      await tester.enterText(
+        find.byKey(const Key('q_body')),
+        '项目推进是否顺利？',
+      );
+      await tester.tap(find.byKey(const Key('question_save')));
       await tester.pumpAndSettle();
-      expect(probeValue(), '1');
+
+      expect(find.text('测试问事'), findsWidgets); // DraftContext 标题
+      expect(find.text('项目推进是否顺利？'), findsOneWidget);
+      expect(find.text('已完成'), findsOneWidget); // 问事行 chip
     });
   });
 
-  group('组件级状态渲染（CastingStepNode）', () {
-    Widget nodeFor(CastingStepState state, {int index = 1}) {
-      return CastingStepNode(
-        data: CastingStepData(
-          id: CastingStepId.time,
-          index: index,
-          title: '起卦时间',
-          description: '记录起卦日期、时辰与来源',
-          state: state,
-        ),
-      );
-    }
+  group('规则包占位（任务书 §13）', () {
+    testWidgets('点击修改 → 占位弹层，保留规则版本语义', (tester) async {
+      await pumpPage(tester);
 
-    testWidgets('Current 显示序号（放大节点）', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: Center(child: SizedBox()))),
+      await tester.ensureVisible(find.byKey(const Key('rule_pack_row')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('rule_pack_row')));
+      await tester.pumpAndSettle();
+
+      // 弹层独有文案（规则包行卡片同样显示该标签，故不计数该行文本）。
+      expect(
+        find.textContaining('自定义规则包将在后续版本开放。'),
+        findsOneWidget,
       );
-      await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: Center(child: nodeFor(CastingStepState.current)))),
+      expect(find.textContaining('RuleId + RuleVersion'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('rule_pack_close')));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('自定义规则包将在后续版本开放。'),
+        findsNothing,
       );
-      expect(find.text('1'), findsOneWidget);
+    });
+  });
+
+  group('DraftRepository 接口边界（任务书 §15）', () {
+    test('InMemoryDraftRepository save/load/clear', () async {
+      final repo = InMemoryDraftRepository();
+      expect(await repo.load(), isNull);
+
+      const draft = CastingDraft(questionTitle: '草稿标题');
+      await repo.save(draft);
+      expect((await repo.load())!.questionTitle, '草稿标题');
+
+      await repo.clear();
+      expect(await repo.load(), isNull);
     });
 
-    testWidgets('Pending 显示序号', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: Center(child: nodeFor(CastingStepState.pending, index: 3)))),
-      );
-      expect(find.text('3'), findsOneWidget);
-    });
-
-    testWidgets('Warning 显示感叹号', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: Center(child: nodeFor(CastingStepState.warning)))),
-      );
-      expect(find.text('!'), findsOneWidget);
-    });
-
-    testWidgets('Completed 与 Locked 使用矢量图形（无 Unicode 占位）', (tester) async {
+    testWidgets('修改一爻后草稿自动保存（无需手动保存）', (tester) async {
+      final repo = InMemoryDraftRepository();
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: Row(
-              children: [
-                nodeFor(CastingStepState.completed),
-                nodeFor(CastingStepState.locked),
-              ],
-            ),
+          home: CastingPage(
+            initialDraft: const CastingDraft(),
+            repository: repo,
           ),
         ),
       );
-      // 对勾与锁为矢量图形（无文本序号 / 感叹号占位）。
-      expect(find.byKey(const Key('node-check')), findsOneWidget);
-      expect(find.byKey(const Key('node-lock')), findsOneWidget);
-      expect(find.text('!'), findsNothing);
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('yao_row_6')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('yao_row_6')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('line_opt_shaoYang')));
+      await tester.pumpAndSettle();
+
+      final saved = await repo.load();
+      expect(saved, isNotNull);
+      expect(saved!.lines[5], isNotNull); // 上爻已保存
+      expect(saved.lines[5]!.movementType, MovementType.shaoYang);
+    });
+  });
+
+  group('纯逻辑辅助', () {
+    test('时辰映射（小时 → 时辰）', () {
+      expect(shichenForHour(9), '巳');
+      expect(shichenForHour(23), '子');
+      expect(shichenForHour(13), '未');
+      expect(shichenForHour(1), '丑');
+    });
+
+    test('爻位展示名', () {
+      expect(linePositionName(1), '初爻');
+      expect(linePositionName(6), '上爻');
+    });
+
+    test('阴阳动静展示文案', () {
+      expect(
+        movementDisplay(MovementType.shaoYin),
+        '阴 · 静',
+      );
+      expect(
+        movementDisplay(MovementType.laoYang),
+        '阳 · 动',
+      );
     });
   });
 }
