@@ -28,13 +28,13 @@ class ReviewShenShaCard extends StatelessWidget {
           const Text(
             '神煞',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
               color: CastingTokens.textPrimary,
-              height: 1.3,
+              height: 1.2,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           if (state.shenShaItems.isEmpty)
             const Text(
               '暂无神煞数据（排盘引擎接入后展示）',
@@ -50,9 +50,9 @@ class ReviewShenShaCard extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 10,
-                mainAxisExtent: 24,
+                crossAxisSpacing: 6,
+                mainAxisSpacing: 4,
+                mainAxisExtent: 20,
               ),
               children: [
                 for (final item in state.shenShaItems)
@@ -62,7 +62,7 @@ class ReviewShenShaCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: CastingTokens.chipSurface,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: CastingTokens.chipBorder),
                     ),
                     child: Text(
@@ -70,7 +70,7 @@ class ReviewShenShaCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 10,
+                        fontSize: 9,
                         color: CastingTokens.textSecondary,
                         height: 1.2,
                       ),

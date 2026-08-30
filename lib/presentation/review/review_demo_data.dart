@@ -19,7 +19,7 @@ abstract final class ReviewDemoData {
   /// 爻序与 Domain 契约一致：按 position 升序（1 初爻 .. 6 上爻）。
   static HexagramCase hexagramCase() => HexagramCase(
         id: 'demo-review-r1',
-        question: '我的正缘什么时候出现？',
+        question: '事业发展 · 项目推进是否顺利？',
         lines: [
           LineState(position: 1, movementType: MovementType.shaoYin, branch: '辰'),
           LineState(position: 2, movementType: MovementType.laoYang, branch: '午'),
@@ -28,7 +28,7 @@ abstract final class ReviewDemoData {
           LineState(position: 5, movementType: MovementType.shaoYin, branch: '酉'),
           LineState(position: 6, movementType: MovementType.shaoYin, branch: '未'),
         ],
-        createdAt: DateTime(2026, 8, 30, 17, 59),
+        createdAt: DateTime(2026, 8, 30, 9, 30),
         ruleContext: RuleExecutionContext(const [
           RuleVersionRef('sys.default', 1),
         ]),
@@ -41,7 +41,7 @@ abstract final class ReviewDemoData {
   /// （有意修正，保持阴阳语义一致，见 UI-CORRECTION-R2 §8）。
   static ReviewTraditionalProfile profile() => const ReviewTraditionalProfile(
         castingMethod: '铜钱手动',
-        lunarDateTime: '二零二六年七月十八日 酉时',
+        lunarDateTime: '七月十八 · 巳时',
         shenShaItems: [
           ReviewShenShaItem(name: '卦身', value: '申'),
           ReviewShenShaItem(name: '香闺', value: '寅卯'),
@@ -64,7 +64,7 @@ abstract final class ReviewDemoData {
         monthPillar: '丙申月',
         dayPillar: '丙子日',
         hourPillar: '丁酉时',
-        xunKong: '(申酉空)',
+        xunKong: '申酉空',
         originalHexagramName: '泽山咸',
         changedHexagramName: '泽水困',
         originalPalaceInfo: '兑4',

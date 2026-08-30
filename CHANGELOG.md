@@ -8,6 +8,43 @@
 
 ---
 
+## 2026-08-31 · GUAYAN-2.0-REVIEW-ONSCREEN（审卦一屏版收口，未发布）
+
+> 整体收口：一屏先看完整基本信息 + 四柱 + 4×4 神煞 + 完整卦盘；
+> 「关系焦点」不再常驻大卡，改点某一爻 → 高亮 → Bottom Sheet（关系列表/规则依据/
+> 关系备注/进入关系页）。卦盘彻底取消省略号（六亲地支与纳音拆两行）。
+
+### 审卦页
+| 路径 | 说明 |
+| --- | --- |
+| `review_page.dart` | 一屏布局重排；删除常驻关系焦点卡；点爻高亮 + 弹层；onOpenRelations |
+| `review_basic_info_card.dart` | 紧凑单卡（问事/方式 chip/公历/农历/meta） |
+| `review_four_pillars_strip.dart` | soft 底 44 高 + teal/warm 双色 + 旬空右对齐 |
+| `review_shensha_card.dart` | chip 20 高紧凑 4×4 |
+| `review_hexagram_result_table.dart` | 表头 + 行点击透传 + 新表尾提示 |
+| `review_hexagram_line_row.dart` | 六亲地支/纳音拆两行、无省略号；11 列固定槽位；可点高亮 |
+| `review_line_detail_sheet.dart`（新增） | 点爻弹层：当前爻 + 关系列表 + 规则依据 + 备注(GAP) + 进关系页 |
+| 删除 `review_relation_focus_card.dart` | — |
+| `review_page_state.dart` / `review_case_adapter.dart` | allRelations / relationsInvolving / relationLabel |
+| `review_demo_data.dart` | 对齐一屏版 SVG（问事/09:30/七月十八 · 巳时/申酉空） |
+
+### 排卦页
+| 路径 | 说明 |
+| --- | --- |
+| `line_editor_sheet.dart` | 爻象选项卡 mainAxisExtent 58 固定（≥58 DIP 硬门禁），修复 BOTTOM OVERFLOWED 1.2px |
+
+### Token / 共享
+- `casting_tokens.dart`：gua #927848、pillarTeal #4F8685、新增 pillarWarm #A8605C
+- `shared/yao_glyph.dart` / `moving_marker.dart`：描边宽度按一屏版 SVG 微调
+
+### 测试
+- `review_page_test.dart`：一屏版适配 + 点爻弹层（关系列表 / 进入关系页回调）+ 窄屏 360 无溢出
+- `casting_page_test.dart`：新增「爻象弹层窄屏 360×640 无 RenderFlex 溢出」
+- `foundation_test.dart`：审卦分支断言改为 神煞
+- 验证：flutter test 102/102 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
+
+---
+
 ## 2026-08-30 · GUAYAN-2.0-UI-CORRECTION-R2（排卦 + 审卦增量修正，未发布）
 
 > 在 R1 已定稿基础上做增量修正：删排卦顶部草稿摘要卡、起卦时间显示公历+农历、

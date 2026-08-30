@@ -258,6 +258,25 @@ void main() {
     });
   });
 
+  group('爻象选择弹层（R2 修复标准：任何屏幕无 RenderFlex 溢出）', () {
+    testWidgets('窄屏 360×640 打开弹层：tile ≥58 DIP、无溢出', (tester) async {
+      tester.view.physicalSize = const Size(360 * 3, 640 * 3);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await pumpPage(tester, draft: const CastingDraft());
+      await tester.ensureVisible(find.byKey(const Key('yao_row_1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('yao_row_1')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('line_opt_shaoYang')), findsOneWidget);
+      expect(find.byKey(const Key('line_opt_laoYin')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('DraftRepository 接口边界（任务书 §15）', () {
     test('InMemoryDraftRepository save/load/clear', () async {
       final repo = InMemoryDraftRepository();

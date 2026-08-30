@@ -124,6 +124,7 @@ class ReviewPageState {
     required this.question,
     required this.lines,
     required this.focusedRelations,
+    required this.allRelations,
     this.castingMethod,
     this.solarDateTime,
     this.lunarDateTime,
@@ -183,6 +184,9 @@ class ReviewPageState {
   /// 与焦点相关的现有 RelationInstance（来自 Domain 计算，禁止字符串重算）。
   final List<RelationInstance> focusedRelations;
 
+  /// 本卦全部关系实例（点爻弹层按爻过滤用，同样来自 Domain 计算）。
+  final List<RelationInstance> allRelations;
+
   /// 焦点区摘要文案（演示档案可覆盖定稿文案，真实数据由实例生成）。
   final String? focusSummary;
 
@@ -194,6 +198,13 @@ class ReviewPageState {
   List<ReviewLineView> get displayLines => lines.reversed.toList();
 
   ReviewLineView lineAt(int position) => lines[position - 1];
+
+  /// 某爻相关的全部关系实例（点爻弹层使用；数据来自 Domain，非字符串重算）。
+  List<RelationInstance> relationsInvolving(int position) => [
+        for (final r in allRelations)
+          if (r.source.position == position || r.target.position == position)
+            r,
+      ];
 
   String? get originalHexagramLabel {
     if (originalHexagramName == null && originalPalaceInfo == null) return null;

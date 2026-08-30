@@ -55,12 +55,15 @@ abstract final class CastingTokens {
   static const relationBlueSurface = Color(0xFFEEF3F7);
   static const relationBlueBorder = Color(0xFFAFC0CF);
   static const traditionalGold = Color(0xFFB0905F);
-  static const pillarTeal = Color(0xFF4F8A8B);
+  static const pillarTeal = Color(0xFF4F8685); // 四柱 teal（审卦一屏版总 SVG .teal）
+
+  // 审卦一屏版（GUAYAN-2.0 审卦首屏总基准）补充色
+  static const pillarWarm = Color(0xFFA8605C); // 月/日柱 warm（.warm）
 
   // R2 卦盘 / 爻 / 动爻定稿色（GUAYAN-2.0-UI-CORRECTION-R2 总 SVG）
-  static const guaNameGold = Color(0xFF947A4A); // 卦名（.guaName）
+  static const guaNameGold = Color(0xFF927848); // 卦名（.gua）
   static const spiritGold = Color(0xFFA17F45); // 六神（.spirit）与动爻圆（.moveO）
-  static const shiYingRed = Color(0xFFA85F5F); // 世/应（.shiYing）
+  static const shiYingRed = Color(0xFFA85F5F); // 世/应（.shi）
   static const voidYaoStroke = Color(0xFF7E9098); // 空亡爻描边（.yaoVoid）
   static const arrowTeal = Color(0xFF4F8685); // 动爻箭头（.arrow）
 }

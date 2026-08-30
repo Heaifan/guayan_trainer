@@ -6,23 +6,31 @@ import '../../../presentation/shared/yao_glyph.dart';
 import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
-/// 六爻排盘单行（UI-CORRECTION-R2 §7/§8/§11，SVG #12 列结构）。
+/// 六爻排盘单行（审卦一屏版总 SVG 列结构）。
 ///
 /// 冻结 11 列：六神 | 伏神1 | 伏神2 | 主卦文字 | 主卦爻槽 |
 /// 主卦世/应 | 动爻 | 箭头 | 变卦文字 | 变卦爻槽 | 变卦世/应。
-/// 爻槽（24×6）、世应槽、动爻槽全部固定宽度，文本列 Ellipsis 裁剪，
-/// 文字永远不得侵占爻槽 / 世应槽（硬门禁）。
+/// 六亲地支与纳音拆成上下两行，**彻底取消省略号**（无 ellipsis），
+/// 爻槽（24×6）、世应槽、动爻槽固定，文字不侵占槽位。
+/// 整行可点击：高亮该爻并打开关系焦点弹层。
 class ReviewHexagramLineRow extends StatelessWidget {
-  const ReviewHexagramLineRow({super.key, required this.line});
+  const ReviewHexagramLineRow({
+    super.key,
+    required this.line,
+    this.selected = false,
+    this.onTap,
+  });
 
   final ReviewLineView line;
+  final bool selected;
+  final VoidCallback? onTap;
 
-  // 固定槽位宽度（冻结，禁止文字挤占）。
-  static const double _spiritW = 32;
+  // 固定槽位宽度（冻结）。
+  static const double _spiritW = 24;
   static const double _hiddenW = 26;
-  static const double _shiYingW = 16;
+  static const double _shiYingW = 14;
   static const double _markerW = 12;
-  static const double _arrowW = 8;
+  static const double _arrowW = 6;
   static const double _gap = 2;
 
   /// 主卦爻槽种类：空亡优先于阴阳（isVoid 由排盘引擎提供，Widget 不计算）。
@@ -33,12 +41,15 @@ class ReviewHexagramLineRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final row = Container(
       key: Key('review_line_${line.position}'),
-      height: 40,
+      height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: CastingTokens.divider)),
+      decoration: BoxDecoration(
+        color: selected ? CastingTokens.surfaceActive : Colors.transparent,
+        border: const Border(
+          bottom: BorderSide(color: CastingTokens.divider),
+        ),
       ),
       child: Row(
         children: [
@@ -47,9 +58,8 @@ class ReviewHexagramLineRow extends StatelessWidget {
             Text(
               line.sixSpirit ?? '—',
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontSize: 9.8,
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: CastingTokens.spiritGold,
                 height: 1.2,
@@ -57,28 +67,14 @@ class ReviewHexagramLineRow extends StatelessWidget {
             ),
           ),
           _gapW,
-          _slot(
-            _hiddenW,
-            _minorStrong(line.hiddenSpirit1),
-          ),
-          _slot(
-            _hiddenW,
-            _minorStrong(line.hiddenSpirit2),
-          ),
+          _slot(_hiddenW, _minorStrong(line.hiddenSpirit1)),
+          _gapW,
+          _slot(_hiddenW, _minorStrong(line.hiddenSpirit2)),
           const SizedBox(width: 4),
           Expanded(
-            child: _slot(
-              null,
-              Text(
-                line.mainPrimary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 8.2,
-                  color: CastingTokens.textBody,
-                  height: 1.2,
-                ),
-              ),
+            child: _LineTextBlock(
+              line1: line.sixRelative ?? line.branch ?? '—',
+              line2: line.displayExtra ?? '',
             ),
           ),
           _gapW,
@@ -100,7 +96,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                     line.shiYing!,
                     key: Key('shi_ying_${line.position}'),
                     style: const TextStyle(
-                      fontSize: 8.9,
+                      fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: CastingTokens.shiYingRed,
                       height: 1.2,
@@ -126,18 +122,13 @@ class ReviewHexagramLineRow extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Expanded(
-            child: _slot(
-              null,
-              Text(
-                line.changed?.primaryLabel ?? '—',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 8.2,
-                  color: CastingTokens.textBody,
-                  height: 1.2,
-                ),
-              ),
+            child: _LineTextBlock(
+              line1: line.changed == null
+                  ? '—'
+                  : (line.changed!.sixRelative ??
+                      line.changed!.earthlyBranch ??
+                      '—'),
+              line2: line.changed?.displayExtra ?? '',
             ),
           ),
           _gapW,
@@ -168,7 +159,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                     line.changedShiYing!,
                     key: Key('changed_shi_ying_${line.position}'),
                     style: const TextStyle(
-                      fontSize: 8.9,
+                      fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: CastingTokens.shiYingRed,
                       height: 1.2,
@@ -178,22 +169,25 @@ class ReviewHexagramLineRow extends StatelessWidget {
         ],
       ),
     );
+
+    if (onTap == null) return row;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(onTap: onTap, child: row),
+    );
   }
 
   static const SizedBox _gapW = SizedBox(width: _gap);
 
-  Widget _slot(double? width, Widget? child) {
-    if (width == null) return Align(alignment: Alignment.centerLeft, child: child);
-    return SizedBox(width: width, child: child);
-  }
+  Widget _slot(double width, Widget? child) =>
+      SizedBox(width: width, child: child);
 
   Widget _minorStrong(String? text) {
     return Text(
       text ?? '',
       maxLines: 1,
-      overflow: TextOverflow.ellipsis,
       style: const TextStyle(
-        fontSize: 8.9,
+        fontSize: 10,
         fontWeight: FontWeight.w700,
         color: CastingTokens.textPrimary,
         height: 1.2,
@@ -202,14 +196,50 @@ class ReviewHexagramLineRow extends StatelessWidget {
   }
 }
 
-/// 动爻箭头（→，矢量，arrowTeal #4F8685 w1.5 圆头）。
+/// 两行文字块：六亲地支（body）+ 纳音（small）。无省略号，超长裁切。
+class _LineTextBlock extends StatelessWidget {
+  const _LineTextBlock({required this.line1, required this.line2});
+
+  final String line1;
+  final String line2;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          line1,
+          maxLines: 1,
+          style: const TextStyle(
+            fontSize: 10.5,
+            color: CastingTokens.textBody,
+            height: 1.25,
+          ),
+        ),
+        Text(
+          line2,
+          maxLines: 1,
+          style: const TextStyle(
+            fontSize: 9,
+            color: CastingTokens.textSecondary,
+            height: 1.25,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 动爻箭头（→，矢量，arrowTeal #4F8685 w1.4 圆头）。
 class _MovingArrow extends StatelessWidget {
   const _MovingArrow();
 
   @override
   Widget build(BuildContext context) {
     return const CustomPaint(
-      size: Size(8, 12),
+      size: Size(6, 12),
       painter: _ArrowPainter(),
     );
   }
@@ -223,15 +253,15 @@ class _ArrowPainter extends CustomPainter {
     final paint = Paint()
       ..color = CastingTokens.arrowTeal
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.4
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     final cy = size.height / 2;
-    canvas.drawLine(Offset(0.5, cy), Offset(size.width - 3, cy), paint);
+    canvas.drawLine(Offset(0.5, cy), Offset(size.width - 2.5, cy), paint);
     final head = Path()
-      ..moveTo(size.width - 5.5, cy - 3)
+      ..moveTo(size.width - 4.5, cy - 3)
       ..lineTo(size.width - 0.5, cy)
-      ..lineTo(size.width - 5.5, cy + 3);
+      ..lineTo(size.width - 4.5, cy + 3);
     canvas.drawPath(head, paint);
   }
 

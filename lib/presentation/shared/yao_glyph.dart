@@ -69,7 +69,7 @@ class _YaoSlotPainter extends CustomPainter {
         final stroke = Paint()
           ..color = CastingTokens.voidYaoStroke
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5;
+          ..strokeWidth = 1.4;
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             Rect.fromLTWH(0.75, 0.75, size.width - 1.5, size.height - 1.5),

@@ -4,15 +4,26 @@ import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 import 'review_hexagram_line_row.dart';
 
-/// 最终卦盘组件（UI-CORRECTION-R2 §6/§12，SVG 402×404）。
+/// 完整卦盘组件（审卦一屏版总 SVG）。
 ///
-/// 内嵌【主卦】/【变卦】标题（不再单独渲染 HexagramResultHeader）；
-/// 六行排盘（上爻在上、初爻在下）；表尾说明。
-/// 爻槽 / 世应槽 / 动爻槽全部固定，文本不得侵占（见单行组件）。
+/// 内嵌【主卦】/【变卦】标题 + 六行排盘（上爻在上、初爻在下）+
+/// 表尾提示。六亲地支与纳音拆两行，无省略号。
+/// 点击某一行回调 [onLineTap]（高亮 + 打开关系焦点弹层）。
 class ReviewHexagramResultTable extends StatelessWidget {
-  const ReviewHexagramResultTable({super.key, required this.state});
+  const ReviewHexagramResultTable({
+    super.key,
+    required this.state,
+    this.selectedPosition,
+    this.onLineTap,
+  });
 
   final ReviewPageState state;
+
+  /// 当前高亮爻位（点爻后）。
+  final int? selectedPosition;
+
+  /// 点爻回调。
+  final ValueChanged<int>? onLineTap;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +39,11 @@ class ReviewHexagramResultTable extends StatelessWidget {
         children: [
           _HeaderZone(state: state),
           for (final line in state.displayLines)
-            ReviewHexagramLineRow(line: line),
+            ReviewHexagramLineRow(
+              line: line,
+              selected: selectedPosition == line.position,
+              onTap: onLineTap == null ? null : () => onLineTap!(line.position),
+            ),
           const _FooterNote(),
         ],
       ),
@@ -36,7 +51,7 @@ class ReviewHexagramResultTable extends StatelessWidget {
   }
 }
 
-/// 表头区：浅底（#F8FBF9）+【主卦】/【变卦】标题 + 卦名（金色）。
+/// 表头区：浅底 +【主卦】/【变卦】标题 + 卦名（金色）。
 class _HeaderZone extends StatelessWidget {
   const _HeaderZone({required this.state});
 
@@ -53,8 +68,18 @@ class _HeaderZone extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: _HexTitle(label: '【主卦】', name: state.originalHexagramLabel ?? '—')),
-          Expanded(child: _HexTitle(label: '【变卦】', name: state.changedHexagramLabel ?? '—')),
+          Expanded(
+            child: _HexTitle(
+              label: '【主卦】',
+              name: state.originalHexagramLabel ?? '—',
+            ),
+          ),
+          Expanded(
+            child: _HexTitle(
+              label: '【变卦】',
+              name: state.changedHexagramLabel ?? '—',
+            ),
+          ),
         ],
       ),
     );
@@ -75,7 +100,7 @@ class _HexTitle extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: CastingTokens.textPrimary,
             height: 1.2,
@@ -87,7 +112,7 @@ class _HexTitle extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 10.4,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
             color: CastingTokens.guaNameGold,
             height: 1.2,
@@ -98,34 +123,24 @@ class _HexTitle extends StatelessWidget {
   }
 }
 
-/// 表尾说明（SVG #12 底部两行）。
+/// 表尾提示：点爻查看关系与规则依据。
 class _FooterNote extends StatelessWidget {
   const _FooterNote();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            '阳爻 / 阴爻 / 空亡爻统一 24 × 6 DIP，只改变内部填充。',
-            style: TextStyle(
-              fontSize: 8,
-              color: CastingTokens.textSecondary,
-              height: 1.4,
-            ),
-          ),
-          Text(
-            '爻槽、世应槽、动爻槽全部固定，文本不得侵占。',
-            style: TextStyle(
-              fontSize: 8,
-              color: CastingTokens.textSecondary,
-              height: 1.4,
-            ),
-          ),
-        ],
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: CastingTokens.divider)),
+      ),
+      child: const Text(
+        '完整排盘 · 点击任一爻查看关系与规则依据',
+        style: TextStyle(
+          fontSize: 8,
+          color: CastingTokens.textMuted,
+          height: 1.4,
+        ),
       ),
     );
   }

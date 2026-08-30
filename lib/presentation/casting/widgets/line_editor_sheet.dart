@@ -58,13 +58,16 @@ class LineEditorSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              GridView.count(
+              GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 3.4,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  // 硬门禁：选项卡高度固定 ≥58 DIP，任何屏幕不得 RenderFlex 溢出。
+                  mainAxisExtent: 58,
+                ),
                 children: [
                   for (final type in MovementType.values)
                     _OptionTile(
@@ -125,6 +128,7 @@ class _OptionTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: selected
                 ? CastingTokens.accentSurface
@@ -135,11 +139,13 @@ class _OptionTile extends StatelessWidget {
             ),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
                 width: 70,
                 height: 18,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     YaoGlyph.fromMovement(type),
                     if (type.isMoving)

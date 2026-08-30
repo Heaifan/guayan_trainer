@@ -9,30 +9,25 @@ import 'widgets/review_app_bar.dart';
 import 'widgets/review_basic_info_card.dart';
 import 'widgets/review_four_pillars_strip.dart';
 import 'widgets/review_hexagram_result_table.dart';
-import 'widgets/review_relation_focus_card.dart';
+import 'widgets/review_line_detail_sheet.dart';
 import 'widgets/review_shensha_card.dart';
 
-/// 审卦页 —— XYUI 长页排盘工作台（GUAYAN-2.0-REVIEW-UI-R1 定稿布局）。
+/// 审卦页 —— 审卦一屏版（GUAYAN-2.0 审卦首屏总基准）。
 ///
-/// 产品心智：排卦结果上下文 → 完整传统六爻排盘 → 人工审卦 →
-/// 关系焦点 / 规则依据 → 必要时进入关系页继续深入。
+/// 一屏先看完整：基本信息（问事/公历/农历/meta）→ 四柱 → 4×4 神煞 →
+/// 完整卦盘（主/变卦标题 + 六行排盘，六亲地支与纳音拆两行、无省略号）。
+/// 「关系焦点」不再常驻大卡：点击某一爻 → 高亮该爻 → Bottom Sheet
+/// （当前爻关系列表 / 规则依据 / 关系备注 / 进入关系页）。
 ///
-/// 数据接入（T12/T13）：
-/// - [latestCase]：App Shell 传入的最近排盘结果（排卦生成后自动带入）；
-/// - [initialCase]：测试注入；
-/// - 两者皆无时渲染视觉定稿演示排盘（[ReviewDemoData]，含传统档案）；
-/// - 真实卦例仅携带 Domain 字段（六爻/地支/时间/关系），
-///   六神/伏神/六亲/神煞/四柱/卦名等传统字段显式置空（排盘引擎 R3 GAP）。
-///
-/// 布局（任务书 §3）：SafeArea → Column → ReviewAppBar → Expanded
-/// SingleChildScrollView（BasicInfo → ShenSha → FourPillars →
-/// HexagramHeader → HexagramTable → RelationFocus）→ MainTabBar 固定在 App Shell。
+/// 数据接入：App Shell 传入最近排盘结果 [latestCase]；测试可注入
+/// [initialCase] / [initialProfile]；皆无时渲染视觉定稿演示排盘。
 class ReviewPage extends StatelessWidget {
   const ReviewPage({
     super.key,
     this.latestCase,
     this.initialCase,
     this.initialProfile,
+    this.onOpenRelations,
   });
 
   /// App Shell 传入的最近排盘结果；null 时回退演示排盘。
@@ -44,6 +39,9 @@ class ReviewPage extends StatelessWidget {
   /// 测试注入的传统排盘档案（与 [initialCase] 搭配使用）。
   final ReviewTraditionalProfile? initialProfile;
 
+  /// 点爻弹层「进入关系页」回调（App Shell 切换到关系 Tab）。
+  final VoidCallback? onOpenRelations;
+
   @override
   Widget build(BuildContext context) {
     final provided = initialCase ?? latestCase;
@@ -53,14 +51,36 @@ class ReviewPage extends StatelessWidget {
             profile: initialProfile ?? ReviewDemoData.profile(),
           )
         : ReviewCaseAdapter.adapt(provided, profile: initialProfile);
-    return _ReviewWorkbench(state: state);
+    return _ReviewWorkbench(state: state, onOpenRelations: onOpenRelations);
   }
 }
 
-class _ReviewWorkbench extends StatelessWidget {
-  const _ReviewWorkbench({required this.state});
+class _ReviewWorkbench extends StatefulWidget {
+  const _ReviewWorkbench({required this.state, this.onOpenRelations});
 
   final ReviewPageState state;
+  final VoidCallback? onOpenRelations;
+
+  @override
+  State<_ReviewWorkbench> createState() => _ReviewWorkbenchState();
+}
+
+class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
+  int? _selectedPosition;
+
+  void _onLineTap(int position) {
+    setState(() => _selectedPosition = position);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => ReviewLineDetailSheet(
+        state: widget.state,
+        position: position,
+        onOpenRelations: widget.onOpenRelations,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,20 +94,22 @@ class _ReviewWorkbench extends StatelessWidget {
             const ReviewAppBar(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ReviewBasicInfoCard(state: state),
-                    const SizedBox(height: 12),
-                    ReviewShenShaCard(state: state),
-                    const SizedBox(height: 12),
-                    ReviewFourPillarsStrip(state: state),
-                    const SizedBox(height: 12),
-                    // 最终卦盘组件已内嵌【主卦】/【变卦】标题，不再单独渲染 Header。
-                    ReviewHexagramResultTable(state: state),
-                    const SizedBox(height: 12),
-                    ReviewRelationFocusCard(state: state),
+                    ReviewBasicInfoCard(state: widget.state),
+                    const SizedBox(height: 8),
+                    ReviewFourPillarsStrip(state: widget.state),
+                    const SizedBox(height: 8),
+                    ReviewShenShaCard(state: widget.state),
+                    const SizedBox(height: 8),
+                    // 完整卦盘已内嵌【主卦】/【变卦】标题。
+                    ReviewHexagramResultTable(
+                      state: widget.state,
+                      selectedPosition: _selectedPosition,
+                      onLineTap: _onLineTap,
+                    ),
                   ],
                 ),
               ),

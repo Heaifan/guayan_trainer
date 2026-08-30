@@ -132,6 +132,7 @@ class ReviewCaseAdapter {
       lines: lines,
       focusedLine: focusLine,
       focusedRelations: focused,
+      allRelations: relations,
       focusSummary:
           profile?.focusSummaryOverride ?? buildFocusSummary(focused),
       rulePackId: ref?.ruleId,
@@ -139,19 +140,19 @@ class ReviewCaseAdapter {
     );
   }
 
+  /// 单条关系的展示标签（如 动变：三爻 → 变三爻；展示层，非重算）。
+  static String relationLabel(RelationInstance r) {
+    final arrow = r.key.type.directionKind == RelationDirectionKind.directed
+        ? '→'
+        : '—';
+    return '${r.key.type.displayName}：${_endpointLabel(r.source)}'
+        '$arrow${_endpointLabel(r.target)}';
+  }
+
   /// 焦点摘要：无档案覆盖时由 [RelationInstance] 生成（展示层，非重算）。
   static String buildFocusSummary(List<RelationInstance> relations) {
     if (relations.isEmpty) return '暂无焦点关系；可在关系页继续深入。';
-    final parts = <String>[];
-    for (final r in relations) {
-      final arrow = r.key.type.directionKind == RelationDirectionKind.directed
-          ? '→'
-          : '—';
-      parts.add(
-        '${r.key.type.displayName}${_endpointLabel(r.source)}'
-        '$arrow${_endpointLabel(r.target)}',
-      );
-    }
+    final parts = [for (final r in relations) relationLabel(r)];
     return '焦点关系：${parts.join('；')}；可点下方入口继续查看。';
   }
 

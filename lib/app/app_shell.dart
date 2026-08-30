@@ -45,7 +45,10 @@ class AppShellState extends State<AppShell> {
               setState(() => _latestCase = case_);
             },
           ),
-          ReviewPage(latestCase: _latestCase),
+          ReviewPage(
+            latestCase: _latestCase,
+            onOpenRelations: () => setState(() => selectedIndex = 2),
+          ),
           for (final tab in mainTabs.skip(2)) tab.builder(context),
         ],
       ),

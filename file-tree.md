@@ -2,10 +2,53 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-30 23:57
+> **最后编辑：** 2026-08-31 00:15
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 审卦一屏版收口 — GUAYAN-2.0-REVIEW-ONSCREEN（2026-08-31，未发布）
+
+> 整体收口：一屏先看完整基本信息 + 神煞 + 四柱 + 完整卦盘；
+> 点某一爻后再弹关系焦点（Bottom Sheet）。彻底解决"为塞关系焦点把卦盘挤小"。
+
+### 审卦页
+- `review_page.dart` — 一屏布局：AppBar → BasicInfo → 四柱 → 神煞 4×4 → 完整卦盘；
+  「关系焦点」不再常驻（删除 RelationFocusCard）；点爻高亮 + 弹层；
+  新增 `onOpenRelations` 回调（App Shell 切到关系 Tab）
+- `widgets/review_basic_info_card.dart` — 紧凑单卡：问事 + 方式 chip + 公历/农历两栏 +
+  meta（规则包 v1 · 手动起卦 · 排盘已生成）
+- `widgets/review_four_pillars_strip.dart` — soft 底 44 高，teal/warm 双色，旬空右对齐
+- `widgets/review_shensha_card.dart` — chip 20 高、间距 4 的紧凑 4×4 网格
+- `widgets/review_hexagram_result_table.dart` — 表头 66 高（【主卦】/【变卦】）+ 行点击透传 +
+  表尾「完整排盘 · 点击任一爻查看关系与规则依据」
+- `widgets/review_hexagram_line_row.dart` — **彻底取消省略号**：六亲地支与纳音拆上下两行；
+  11 列固定槽位，文本不侵占爻槽/世应槽；行可点（高亮）
+- `widgets/review_line_detail_sheet.dart`（新增）— 点爻 Bottom Sheet：当前爻信息 +
+  关系列表（来自 RelationInstance）+ 查看规则依据 + 关系备注（GAP）+ 进入关系页
+- 删除 `review_relation_focus_card.dart`
+- `review_page_state.dart` / `review_case_adapter.dart` — 新增 `allRelations` +
+  `relationsInvolving(position)` + `relationLabel`（点爻弹层按爻过滤，仍来自 Domain）
+- `review_demo_data.dart` — 演示数据对齐一屏版 SVG（问事/公历 09:30/农历 七月十八 · 巳时/
+  旬空 申酉空）
+
+### 排卦页
+- `line_editor_sheet.dart` — 爻象选项卡固定 `mainAxisExtent: 58`（≥58 DIP 硬门禁），
+  内容垂直居中，任何屏幕 RenderFlex 溢出 = 0（修复 BOTTOM OVERFLOWED 1.2px）
+
+### 共享 / Token
+- `casting_tokens.dart` — gua #927848、pillarTeal #4F8685、新增 pillarWarm #A8605C
+- `shared/yao_glyph.dart` / `shared/moving_marker.dart` — 描边宽度按一屏版 SVG 微调
+  （空亡 1.4 / ○× 1.6）
+
+### 测试
+- `review_page_test.dart` — 一屏版适配 + 点爻弹层（关系列表/进入关系页回调）+
+  窄屏 360 无溢出；UI-04~08 保留
+- `casting_page_test.dart` — 新增「爻象弹层窄屏 360×640 无 RenderFlex 溢出」测试
+- `foundation_test.dart` — 审卦分支断言改为 神煞
+- 验证：flutter test 102/102 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
 
 ---
 
@@ -483,10 +526,10 @@ lib/
 | `widgets/review_app_bar.dart` | 顶栏（返回 chevron + 审卦 + 排盘结果） |
 | `widgets/review_basic_info_card.dart` | 基本信息卡（方式/事项/阳历/阴历 + 已生成） |
 | `widgets/review_shensha_card.dart` | 神煞卡（Wrap 标签网格，数据驱动） |
-| `widgets/review_four_pillars_strip.dart` | 四柱条（年/月/日/时/旬空，顺序固定） |
-| `widgets/review_hexagram_result_table.dart` | 最终卦盘组件（内嵌主/变卦标题 + 六行排盘 + 表尾） |
-| `widgets/review_hexagram_line_row.dart` | 六爻单行（11 列冻结：六神/伏神×2/主变卦文字/爻槽/世应/动爻/箭头） |
-| `widgets/review_relation_focus_card.dart` | 关系焦点卡（世应/生克/回头 + 规则依据入口） |
+| `widgets/review_four_pillars_strip.dart` | 四柱条（年/月/日/时/旬空，soft 底 44 高） |
+| `widgets/review_hexagram_result_table.dart` | 完整卦盘组件（内嵌主/变卦标题 + 六行排盘 + 表尾） |
+| `widgets/review_hexagram_line_row.dart` | 六爻单行（11 列冻结，六亲地支/纳音拆两行无省略号，可点高亮） |
+| `widgets/review_line_detail_sheet.dart` | 点爻 Bottom Sheet（关系列表/规则依据/备注/进入关系页） |
 
 ### 5.3.3 lib/presentation/shared/（2.0 共享爻组件，排卦/审卦强制复用）
 

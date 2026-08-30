@@ -51,7 +51,7 @@ class _MovingMarkerPainter extends CustomPainter {
     final h = size.height;
     final stroke = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.7
+      ..strokeWidth = 1.6
       ..strokeCap = StrokeCap.round;
     if (isYin) {
       stroke.color = CastingTokens.spiritGold;

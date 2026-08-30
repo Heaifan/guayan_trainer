@@ -81,7 +81,7 @@ void main() {
           // 审卦与排卦一样自带 XYUI TopBar，无全局 AppBar（任务书 §3/§15）。
           expect(find.byType(AppBar), findsNothing);
           expect(find.text('【主卦】'), findsOneWidget);
-          expect(find.text('关系焦点'), findsOneWidget);
+          expect(find.text('神煞'), findsOneWidget);
         } else {
           expect(inAppBar(label), findsOneWidget);
         }

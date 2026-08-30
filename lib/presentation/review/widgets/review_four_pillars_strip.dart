@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
-/// 四柱条（任务书 §4 FourPillarsStrip SVG）。
+/// 四柱条（审卦一屏版总 SVG：soft 底、44 高、teal/warm 双色）。
 ///
-/// 顺序固定：年 → 月 → 日 → 时 → 旬空（禁止旬空独立成卡）。
-/// 横向紧凑 Strip：小屏压缩字号而非拆成五张大卡。
+/// 顺序固定：年 → 月 → 日 → 时 → 旬空（右对齐）。
 class ReviewFourPillarsStrip extends StatelessWidget {
   const ReviewFourPillarsStrip({super.key, required this.state});
 
@@ -15,10 +14,10 @@ class ReviewFourPillarsStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 58,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: CastingTokens.surface,
+        color: CastingTokens.surfaceSoft,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: CastingTokens.border),
       ),
@@ -34,14 +33,14 @@ class ReviewFourPillarsStrip extends StatelessWidget {
           Expanded(
             child: _PillarText(
               text: state.monthPillar ?? '—',
-              color: CastingTokens.relationRed,
+              color: CastingTokens.pillarWarm,
               align: TextAlign.center,
             ),
           ),
           Expanded(
             child: _PillarText(
               text: state.dayPillar ?? '—',
-              color: CastingTokens.relationRed,
+              color: CastingTokens.pillarWarm,
               align: TextAlign.center,
             ),
           ),
@@ -84,7 +83,7 @@ class _PillarText extends StatelessWidget {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: FontWeight.w700,
         color: color,
         height: 1.3,
