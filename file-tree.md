@@ -2,7 +2,7 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-30 09:44
+> **最后编辑：** 2026-08-30 10:40
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
@@ -89,7 +89,8 @@
 - `relation_serialization_test.dart` — T8 序列化 → 反序列化 → 重算 → 重新绑定全链
 
 ### 新增（scripts/）
-- `flutter.ps1` — 本机 Flutter 包装脚本（APPDATA 重定向 + 代理 + 直调 snapshot，解决 flutter.bat 挂起）
+- `flutter.ps1` → 已删除：本机 Flutter 包装脚本移出版本控制（HARDENING T4）。
+  本机工作区保留 `scripts/flutter.local.ps1`（含机器路径与代理端口，已 .gitignore，不入库）
 
 ### 修改
 - `lib/domain/README.md` — 占位说明替换为 Stable Relation Identity 设计文档
@@ -99,8 +100,34 @@
 ### 说明
 - RelationKey = 语义坐标（类型机器名 + RuleId + RuleVersion + subtype + 端点），
   与运行时对象 / UI 顺序 / 数据库 row id 解耦；方向显式处理（有向保序、对称排序）。
-- 笔记按 `(caseId + RelationKey)` 绑定；Domain 保持 storage-agnostic，持久化实现后续决定。
-- 全量测试 31 个通过（21 领域 + 10 Foundation/Widget）；未启动 Android 模拟器。
+
+---
+
+## GUAYAN-2.0-DOMAIN-HARDENING — 身份收口（2026-08-30，未发布）
+
+> 人工核验后封死 4 个数据兼容问题；不重构、不进入 R3。
+> 验收句：RelationInstance 可重建；RelationNote 不失忆；
+> RuleVersion 变化不能让历史卦例失忆；任意合法 RuleId/Subtype 不能制造身份碰撞；
+> 坏 Case 数据不能制造重复身份。
+
+### 新增
+- `lib/domain/rule_execution_context.dart` — 规则版本 replay 上下文（RuleVersionRef / RuleExecutionContext）
+- `test/domain/relation_key_collision_test.dart` — T1 canonical 无歧义性（含 `|`/`->`/`<->`/`\` 碰撞回归）
+- `test/domain/rule_version_replay_test.dart` — T2 旧卦例 v1 → 升级 v2 → reload → replay v1 → 笔记恢复
+- `test/domain/domain_invariants_test.dart` — T3 爻位/六爻不变量 + 坏 JSON 拒绝
+
+### 修改
+- `lib/domain/relation_key.dart` — canonical 无歧义化：字符串字段稳定转义（`\`→`\\`，`|`→`\|`），单射编码
+- `lib/domain/hexagram_case.dart` — 新增 `ruleContext` 字段；runtime 校验恰好 6 爻、position 恰为 1..6、无重复
+- `lib/domain/line_endpoint.dart` / `line_state.dart` — 构造与 JSON 反序列化 runtime 校验爻位（1..6）
+- `lib/domain/relation_calculator.dart` — 规则版本优先取 `case.ruleContext.versionForOrDefault(ruleId)`，无记录回退 v1
+- `.gitignore` — `scripts/flutter.local.ps1` 不入库；`*.apk` 忽略
+- `lib/domain/README.md` — 补充 escaping / replay 契约 / runtime 不变量设计
+- `scripts/flutter.ps1` — 删除（移出版本控制）
+
+### 验证
+- `flutter test` 53/53 通过（原 Test A–E + T8 无回归；新增 23 项）
+- `flutter analyze` 本轮文件 0 issue；Android debug 构建成功；未启动模拟器
 
 ---
 

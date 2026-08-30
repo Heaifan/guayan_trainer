@@ -13,6 +13,9 @@
 .swiftpm/
 migrate_working_dir/
 
+# 本机开发辅助（不入库；含机器绝对路径与本机代理端口）
+scripts/flutter.local.ps1
+
 # IntelliJ related
 *.iml
 *.ipr

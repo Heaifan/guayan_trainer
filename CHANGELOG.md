@@ -8,6 +8,47 @@
 
 ---
 
+## 2026-08-30 · GUAYAN-2.0-DOMAIN-HARDENING（Stable Relation Identity 收口，未发布）
+
+> **背景：** 人工核验 DOMAIN 阶段后认可主体设计，要求封死 4 个数据兼容问题
+> （canonical 碰撞 / 规则版本 replay / Domain 不变量 / 本机脚本入库），
+> 不重构、不进入 R3。验收句升级：
+> RelationInstance 可重建；RelationNote 不失忆；RuleVersion 变化不能让历史卦例失忆；
+> 任意合法 RuleId/Subtype 不能制造身份碰撞；坏 Case 数据不能制造重复身份。
+
+### 新增
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/rule_execution_context.dart` | 规则版本 replay 上下文（RuleVersionRef / RuleExecutionContext） |
+| `test/domain/relation_key_collision_test.dart` | T1 canonical 无歧义性（含 `|`/`->`/`<->`/`\` 的碰撞回归） |
+| `test/domain/rule_version_replay_test.dart` | T2 旧卦例 v1 → 系统升级 v2 → reload → replay v1 → 笔记恢复 |
+| `test/domain/domain_invariants_test.dart` | T3 爻位/六爻不变量 + 坏 JSON 拒绝 |
+
+### 修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/relation_key.dart` | canonical 无歧义化：字符串字段稳定转义（`\`→`\\`，`|`→`\|`），单射编码 |
+| `lib/domain/hexagram_case.dart` | 新增 `ruleContext` 字段（跟随持久化）；runtime 校验恰好 6 爻、position 恰为 1..6、无重复 |
+| `lib/domain/line_endpoint.dart` | 构造改为 runtime 校验爻位（1..6），JSON 反序列化同校验 |
+| `lib/domain/line_state.dart` | 同上 |
+| `lib/domain/relation_calculator.dart` | 规则版本优先取 `case.ruleContext.versionForOrDefault(ruleId)`，无记录回退 v1 |
+| `.gitignore` | `scripts/flutter.local.ps1` 不入库；`*.apk` 忽略 |
+| `scripts/flutter.ps1` | 移出版本控制（删除；工作区改为 `scripts/flutter.local.ps1`） |
+| `lib/domain/README.md` | 补充 escaping / replay 契约 / runtime 不变量设计说明 |
+| `file-tree.md`、`CHANGELOG.md` | 本文件 |
+
+### 验证
+
+- `flutter test`：**53/53 通过**（原 Test A–E + T8 全部继续通过；新增 T1 碰撞 7 项、
+  T2 replay 4 项、T3 不变量 12 项）
+- `flutter analyze`：本轮新增/修改文件 0 issue（存量遗留 21 项 lint 记入 BACKLOG）
+- Android debug 构建成功（`build/app/outputs/flutter-apk/app-debug.apk`）
+- 未启动 Android 模拟器
+
+---
+
 ## 2026-08-30 · GUAYAN-2.0-DOMAIN（Stable Relation Identity，未发布）
 
 > **阶段目标：** RelationInstance 可以重建，RelationNote 不能失忆。

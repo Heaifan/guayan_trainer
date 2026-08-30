@@ -28,6 +28,11 @@ enum RelationDirection {
 /// 对称:   {type}|{ruleId}|v{ruleVersion}|{subtype|-}|{min}<->{max}
 /// ```
 /// 例：`hui_tou_sheng|sys.hui_tou_sheng|v1|-|changed-3->original-3`
+///
+/// 无歧义性：所有字符串字段（type / ruleId / subtype / 端点）在拼接前经
+/// [_escape] 稳定转义（`\` → `\\`，`|` → `\|`），因此任意合法字段组合
+/// 都不可能拼出相同 canonical（单射编码）。ruleId / subtype 来自自定义
+/// 规则 JSON 时含分隔符也不会产生身份碰撞。
 class RelationKey {
   const RelationKey._({
     required this.type,
@@ -81,17 +86,25 @@ class RelationKey {
       : RelationDirection.directed;
 
   /// 确定性 canonical 序列化；两端顺序按方向类别显式处理。
+  /// 所有字符串字段均经 [_escape] 转义，保证单射（无歧义）。
   String get canonical {
     final head =
-        '${type.machineName}|$ruleId|v$ruleVersion|${subtype ?? '-'}';
+        '${_escape(type.machineName)}|${_escape(ruleId)}|v$ruleVersion|'
+        '${subtype == null ? '-' : _escape(subtype!)}';
     final a = source.semanticId;
     final b = target.semanticId;
     if (type.directionKind == RelationDirectionKind.symmetric) {
       final sorted = [a, b]..sort();
-      return '$head|${sorted[0]}<->${sorted[1]}';
+      return '$head|${_escape(sorted[0])}<->${_escape(sorted[1])}';
     }
-    return '$head|$a->$b';
+    return '$head|${_escape(a)}->${_escape(b)}';
   }
+
+  /// 稳定转义：仅转义段分隔符 `|` 与转义符本身 `\`。
+  /// 保证不同字段组合绝不生成相同 canonical（单射）。
+  static String _escape(String s) => s
+      .replaceAll(r'\', r'\\')
+      .replaceAll('|', r'\|');
 
   Map<String, Object?> toJson() => {
         'type': type.machineName,

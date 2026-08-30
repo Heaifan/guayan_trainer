@@ -35,6 +35,9 @@ const _sixHe = {
 };
 
 /// 计算 [hexagramCase] 的全部关系实例，按 RelationKey 稳定排序。
+///
+/// 规则版本来源：优先使用 [HexagramCase.ruleContext] 中保存的版本
+/// （replay 契约——历史卦例复现历史 key），无记录时回退 v1。
 List<RelationInstance> calculateRelations(HexagramCase hexagramCase) {
   final result = <RelationInstance>[];
 
@@ -43,6 +46,8 @@ List<RelationInstance> calculateRelations(HexagramCase hexagramCase) {
     result.add(RelationInstance.from(
       type: RelationType.dongBian,
       ruleId: SystemRuleIds.dongBian,
+      ruleVersion: hexagramCase.ruleContext
+          .versionForOrDefault(SystemRuleIds.dongBian),
       source: LineEndpoint(LineScope.original, line.position),
       target: LineEndpoint(LineScope.changed, line.position),
     ));
@@ -62,6 +67,8 @@ List<RelationInstance> calculateRelations(HexagramCase hexagramCase) {
         result.add(RelationInstance.from(
           type: RelationType.liuChong,
           ruleId: SystemRuleIds.liuChong,
+          ruleVersion: hexagramCase.ruleContext
+              .versionForOrDefault(SystemRuleIds.liuChong),
           source: source,
           target: target,
         ));
@@ -70,6 +77,8 @@ List<RelationInstance> calculateRelations(HexagramCase hexagramCase) {
         result.add(RelationInstance.from(
           type: RelationType.liuHe,
           ruleId: SystemRuleIds.liuHe,
+          ruleVersion: hexagramCase.ruleContext
+              .versionForOrDefault(SystemRuleIds.liuHe),
           source: source,
           target: target,
         ));

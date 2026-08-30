@@ -12,10 +12,12 @@ import 'package:guayan_trainer/domain/relation_key.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
 
 void main() {
-  const changed3 = LineEndpoint(LineScope.changed, 3);
-  const original3 = LineEndpoint(LineScope.original, 3);
-  const original1 = LineEndpoint(LineScope.original, 1);
-  const original6 = LineEndpoint(LineScope.original, 6);
+  final changed3 = LineEndpoint(LineScope.changed, 3);
+  final original3 = LineEndpoint(LineScope.original, 3);
+  final original1 = LineEndpoint(LineScope.original, 1);
+  final original6 = LineEndpoint(LineScope.original, 6);
+
+  final original5 = LineEndpoint(LineScope.original, 5);
 
   RelationKey huiTouSheng({int ruleVersion = 1}) => RelationKey.from(
         type: RelationType.huiTouSheng,
@@ -69,7 +71,7 @@ void main() {
       final k2 = RelationKey.from(
         type: RelationType.huiTouSheng,
         ruleId: SystemRuleIds.huiTouSheng,
-        source: const LineEndpoint(LineScope.changed, 5),
+        source: LineEndpoint(LineScope.changed, 5),
         target: original3,
       );
       expect(k1.canonical, isNot(k2.canonical));
@@ -81,7 +83,7 @@ void main() {
         type: RelationType.huiTouSheng,
         ruleId: SystemRuleIds.huiTouSheng,
         source: changed3,
-        target: const LineEndpoint(LineScope.original, 5),
+        target: original5,
       );
       expect(k1.canonical, isNot(k2.canonical));
     });

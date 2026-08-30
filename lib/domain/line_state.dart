@@ -23,12 +23,28 @@ enum MovementType {
   final bool isMoving;
 }
 
+/// 一爻状态。构造时 runtime 校验爻位（不依赖 assert）。
 class LineState {
-  const LineState({
+  const LineState._({
     required this.position,
     required this.movementType,
     this.branch,
-  }) : assert(position >= 1 && position <= 6, '爻位必须在 1..6');
+  });
+
+  factory LineState({
+    required int position,
+    required MovementType movementType,
+    String? branch,
+  }) {
+    if (position < 1 || position > 6) {
+      throw ArgumentError.value(position, 'position', '爻位必须在 1..6');
+    }
+    return LineState._(
+      position: position,
+      movementType: movementType,
+      branch: branch,
+    );
+  }
 
   /// 爻位：1 = 初爻 … 6 = 上爻（稳定身份）。
   final int position;

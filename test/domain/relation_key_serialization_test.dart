@@ -13,8 +13,8 @@ void main() {
       final key = RelationKey.from(
         type: RelationType.huiTouSheng,
         ruleId: SystemRuleIds.huiTouSheng,
-        source: const LineEndpoint(LineScope.changed, 3),
-        target: const LineEndpoint(LineScope.original, 3),
+        source: LineEndpoint(LineScope.changed, 3),
+        target: LineEndpoint(LineScope.original, 3),
       );
       final restored = RelationKey.fromJson(key.toJson());
       expect(restored, key);
@@ -25,8 +25,8 @@ void main() {
       final key = RelationKey.from(
         type: RelationType.huiTouSheng,
         ruleId: SystemRuleIds.huiTouSheng,
-        source: const LineEndpoint(LineScope.changed, 3),
-        target: const LineEndpoint(LineScope.original, 3),
+        source: LineEndpoint(LineScope.changed, 3),
+        target: LineEndpoint(LineScope.original, 3),
       );
       expect(
         key.canonical,

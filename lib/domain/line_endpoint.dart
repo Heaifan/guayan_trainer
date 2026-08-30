@@ -16,9 +16,17 @@ enum LineScope {
 }
 
 /// 爻位端点：1 = 初爻 … 6 = 上爻。
+///
+/// 构造时 runtime 校验爻位（不依赖 assert，持久化反序列化同样经过校验）。
 class LineEndpoint {
-  const LineEndpoint(this.scope, this.position)
-      : assert(position >= 1 && position <= 6, '爻位必须在 1..6');
+  const LineEndpoint._(this.scope, this.position);
+
+  factory LineEndpoint(LineScope scope, int position) {
+    if (position < 1 || position > 6) {
+      throw ArgumentError.value(position, 'position', '爻位必须在 1..6');
+    }
+    return LineEndpoint._(scope, position);
+  }
 
   final LineScope scope;
   final int position;
@@ -31,7 +39,8 @@ class LineEndpoint {
         'position': position,
       };
 
-  factory LineEndpoint.fromJson(Map<String, Object?> json) => LineEndpoint(
+  factory LineEndpoint.fromJson(Map<String, Object?> json) =>
+      LineEndpoint(
         LineScope.values.byName(json['scope'] as String),
         json['position'] as int,
       );
