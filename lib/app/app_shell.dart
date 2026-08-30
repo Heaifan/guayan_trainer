@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'more_menu.dart';
+import 'navigation/guayan_main_tab_bar.dart';
 import 'navigation/main_tabs.dart';
 
 /// 卦眼 2.0 应用壳。
 ///
 /// 持有唯一权威的底部导航状态 [AppShellState.selectedIndex]，
 /// 通过 IndexedStack 保持五个主页面在切换时不被销毁。
+/// 排卦页自带 XYUI TopBar（无全局 AppBar）；其余页面沿用全局 AppBar。
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -20,24 +22,24 @@ class AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    final isCasting = selectedIndex == 0;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(mainTabs[selectedIndex].title),
-        actions: const [MoreMenuButton()],
-      ),
+      appBar: isCasting
+          ? null
+          : AppBar(
+              title: Text(mainTabs[selectedIndex].title),
+              actions: const [MoreMenuButton()],
+            ),
       body: IndexedStack(
         index: selectedIndex,
         children: [for (final tab in mainTabs) tab.builder(context)],
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: GuayanMainTabBar(
+        tabs: mainTabs,
         selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
+        onSelect: (index) {
           setState(() => selectedIndex = index);
         },
-        destinations: [
-          for (final tab in mainTabs)
-            NavigationDestination(icon: Icon(tab.icon), label: tab.title),
-        ],
       ),
     );
   }

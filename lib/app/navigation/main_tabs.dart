@@ -5,6 +5,7 @@ import '../../presentation/casting/casting_page.dart';
 import '../../presentation/relations/relations_page.dart';
 import '../../presentation/review/review_page.dart';
 import '../../presentation/training/training_page.dart';
+import 'guayan_main_tab_bar.dart';
 
 /// 卦眼 2.0 主导航的正式产品 IA。
 ///
@@ -17,12 +18,15 @@ import '../../presentation/training/training_page.dart';
 class MainTab {
   const MainTab({
     required this.title,
-    required this.icon,
+    required this.iconBuilder,
     required this.builder,
   });
 
   final String title;
-  final IconData icon;
+
+  /// XYUI 图标画师（底部导航 [GuayanMainTabBar] 使用，按活动态着色）。
+  final CustomPainter Function(Color color) iconBuilder;
+
   final WidgetBuilder builder;
 }
 
@@ -30,27 +34,27 @@ class MainTab {
 final List<MainTab> mainTabs = [
   MainTab(
     title: '排卦',
-    icon: Icons.grid_view_rounded,
+    iconBuilder: GuayanTabIcons.cast,
     builder: (context) => const CastingPage(),
   ),
   MainTab(
     title: '审卦',
-    icon: Icons.visibility_rounded,
+    iconBuilder: GuayanTabIcons.review,
     builder: (context) => const ReviewPage(),
   ),
   MainTab(
     title: '关系',
-    icon: Icons.hub_rounded,
+    iconBuilder: GuayanTabIcons.relation,
     builder: (context) => const RelationsPage(),
   ),
   MainTab(
     title: '卦例',
-    icon: Icons.library_books_rounded,
+    iconBuilder: GuayanTabIcons.cases,
     builder: (context) => const CasesPage(),
   ),
   MainTab(
     title: '训练',
-    icon: Icons.school_rounded,
+    iconBuilder: GuayanTabIcons.training,
     builder: (context) => const TrainingPage(),
   ),
 ];

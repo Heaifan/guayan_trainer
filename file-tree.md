@@ -2,7 +2,7 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-30 10:40
+> **最后编辑：** 2026-08-30 11:02
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
@@ -17,14 +17,18 @@
 - **入口极简化**：`lib/main.dart` 只做 `runApp(const GuayanApp())`，不再跳旧 HomePage、不再初始化旧 MistakeStore。
 - **`lib/app/`**：2.0 应用壳
   - `app.dart` — `GuayanApp`：MaterialApp 组装 + 全局主题（浅色、紧凑）
-  - `app_shell.dart` — `AppShell`：IndexedStack 状态保持 + NavigationBar 五主导航，`selectedIndex` 单一权威来源，默认 Index 0（排卦）
-  - `navigation/main_tabs.dart` — 正式产品 IA：排卦/审卦/关系/卦例/训练（顺序固定）
-  - `more_menu.dart` — AppBar 右上角「更多」：规则库 / 设置 / 关于
+  - `app_shell.dart` — `AppShell`：IndexedStack 状态保持 + GuayanMainTabBar 五主导航（XYUI），`selectedIndex` 单一权威来源，默认 Index 0（排卦）；排卦页自带 XYUI TopBar（无全局 AppBar）
+  - `navigation/main_tabs.dart` — 正式产品 IA：排卦/审卦/关系/卦例/训练（顺序固定）；MainTab 含 title / iconBuilder / builder
+  - `navigation/guayan_main_tab_bar.dart` — XYUI 化底部导航（任务书 §15）：活动底色 + 矢量图标（GuayanTabIcons）+ 标签
+  - `more_menu.dart` — 「更多」菜单：规则库 / 设置 / 关于（支持自定义 icon，排卦页用三点样式）
 - **`lib/core/constants/app_info.dart`**：应用名「卦眼」、内部版本、主题种子色常量
 - **`lib/domain/`（预留）**：GUAYAN-2.0-DOMAIN 阶段在此建立 HexagramCase / LineState / RelationInstance / RelationNote 等
 - **`lib/application/`（预留）**：后续用例层；Foundation 阶段仅 AppShell 用 StatefulWidget，不引入状态管理框架
-- **`lib/presentation/`**：五个主页面 Skeleton + 规则库/设置/关于
-  - `casting/casting_page.dart` — 排卦工作台（含 §35 状态保持探针，后续可删）
+- **`lib/presentation/`**：五个主页面 + 规则库/设置/关于
+  - `casting/casting_page.dart` — 排卦页：纵向排卦流程轨（方案 2），状态机驱动
+  - `casting/casting_tokens.dart` — 排卦流程轨 XYUI 视觉 Token（任务书 §18）
+  - `casting/casting_page_state.dart` — CastingStepState / CastingStepData / CastingFlowState
+  - `casting/widgets/` — casting_top_bar / flow_header / workflow / flow_rail / step_node / step_card / step_status / generate_step / context_strip
   - `review/review_page.dart` — 审卦工作台
   - `relations/relations_page.dart` — 关系工作台
   - `cases/cases_page.dart` — 卦例工作台
@@ -32,7 +36,8 @@
   - `rules/rule_library_page.dart` — 规则库 Skeleton（自定义规则/规则包/系统规则，无 CRUD）
   - `settings/settings_page.dart`、`about/about_page.dart` — 占位页
   - `shared/module_placeholder.dart` — 模块占位共用组件
-- **`test/foundation_test.dart`**：Foundation 验收 Widget 测试（五导航/默认排卦/切换/状态保持/更多/规则库/关于）
+- **`test/foundation_test.dart`**：Foundation + 排卦页 XYUI 验收 Widget 测试
+- **`test/presentation/casting/casting_page_test.dart`**：排卦流程轨工作流状态测试（推进/生成/需重新生成/探针/组件状态）
 
 ### 修改
 - `android/app/src/main/AndroidManifest.xml` — Activity 增加 `android:screenOrientation="portrait"` 锁定竖屏；label 确认「卦眼」
@@ -128,6 +133,42 @@
 ### 验证
 - `flutter test` 53/53 通过（原 Test A–E + T8 无回归；新增 23 项）
 - `flutter analyze` 本轮文件 0 issue；Android debug 构建成功；未启动模拟器
+
+---
+
+## 排卦页 XYUI 改造 — Vertical Casting Workflow（2026-08-30，未发布）
+
+> 方案 2 · 纵向排卦流程轨：起卦时间 → 问事信息 → 六爻输入 → 规则包 → 生成排盘。
+> 视觉以任务书 SVG 为唯一基准；本轮为视觉阶段，步骤摘要为演示占位值，
+> 完整表单与排盘算法属后续阶段。
+
+### 新增（lib/presentation/casting/）
+- `casting_tokens.dart` — XYUI 视觉 Token 集中（页面/面板/边框/文字/警示/徽标/生成步骤）
+- `casting_page_state.dart` — `CastingStepState`（current/pending/completed/warning/locked）+ `CastingStepData` + `CastingFlowState`
+- `widgets/casting_top_bar.dart` — XYUI 顶栏（标题/副标题/三点更多）
+- `widgets/casting_flow_header.dart` — CASTING FLOW 头部（当前步骤 x/5）
+- `widgets/casting_workflow.dart` — 流程轨组装（rail + 步骤行）
+- `widgets/casting_flow_rail.dart` — 纵向竖线
+- `widgets/casting_step_node.dart` — 节点状态全集（数字/对勾/!/锁，矢量绘制）
+- `widgets/casting_step_card.dart` — 步骤卡（current/pending/completed/warning）
+- `widgets/casting_step_status.dart` — 状态徽标 + chevron
+- `widgets/casting_generate_step.dart` — 生成步骤（locked/ready/completed/warning）
+- `widgets/casting_context_strip.dart` — 流程上下文条（规则包/探针/已完成 x/5）
+
+### 新增 / 修改
+- `lib/app/navigation/guayan_main_tab_bar.dart`（新增）— XYUI 底部导航 + 五图标 CustomPainter
+- `lib/app/navigation/main_tabs.dart` — MainTab 增加 iconBuilder（XYUI 图标）
+- `lib/app/app_shell.dart` — NavigationBar → GuayanMainTabBar；排卦页无全局 AppBar
+- `lib/app/more_menu.dart` — 支持自定义 icon
+- `lib/presentation/casting/casting_page.dart` — 重写为流程轨页面（状态机：推进/生成/需重新生成/探针）
+- `test/foundation_test.dart` — 适配新 UI（XYUI 导航/排卦流程轨/探针 Key/三点更多）
+- `test/presentation/casting/casting_page_test.dart`（新增）— 工作流状态测试
+
+### 说明
+- 状态进入真实 State（CastingStepState），不从颜色反推；已完成步骤可重新进入，
+  生成后修改关键数据 → 生成步骤标记「需重新生成」（不清空已填内容）。
+- 原「状态探针：0」孤立文本移除，探针语义保留在 Context Strip（可点击递增）。
+- 验证：flutter test 63/63 通过；analyze 本轮文件 0 issue；debug 构建通过。
 
 ---
 

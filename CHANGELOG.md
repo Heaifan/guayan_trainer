@@ -8,6 +8,52 @@
 
 ---
 
+## 2026-08-30 · 排卦页 XYUI 改造（Vertical Casting Workflow，未发布）
+
+> **方案 2 · 纵向排卦流程轨**：起卦时间 → 问事信息 → 六爻输入 → 规则包 → 生成排盘。
+> 视觉以任务书 SVG 为唯一基准；本轮为视觉阶段（不做完整表单与排盘算法），
+> 步骤摘要为演示占位值，待用户真机截图人工验收。
+
+### 新增（lib/presentation/casting/）
+| 路径 | 说明 |
+| --- | --- |
+| `casting_tokens.dart` | XYUI 视觉 Token 集中（§18） |
+| `casting_page_state.dart` | CastingStepState（current/pending/completed/warning/locked）+ 数据模型 |
+| `widgets/casting_top_bar.dart` | XYUI 顶栏（排卦/副标题/三点更多） |
+| `widgets/casting_flow_header.dart` | CASTING FLOW 头部（当前步骤 x/5） |
+| `widgets/casting_workflow.dart` | 流程轨组装（rail + 步骤行） |
+| `widgets/casting_flow_rail.dart` | 纵向竖线 |
+| `widgets/casting_step_node.dart` | 节点状态全集（数字/对勾/!/锁，矢量绘制） |
+| `widgets/casting_step_card.dart` | 步骤卡四种状态（含完成摘要） |
+| `widgets/casting_step_status.dart` | 状态徽标 + chevron |
+| `widgets/casting_generate_step.dart` | 生成步骤（locked/ready/completed/warning） |
+| `widgets/casting_context_strip.dart` | 流程上下文条（规则包/探针/已完成 x/5） |
+| `test/presentation/casting/casting_page_test.dart` | 工作流状态测试（推进/生成/需重新生成/探针/组件状态） |
+
+### 修改
+| 路径 | 说明 |
+| --- | --- |
+| `lib/presentation/casting/casting_page.dart` | 占位页 → 纵向流程轨（状态机驱动） |
+| `lib/app/navigation/guayan_main_tab_bar.dart`（新增） | XYUI 底部导航 + 五图标 CustomPainter（§15） |
+| `lib/app/navigation/main_tabs.dart` | MainTab 增加 iconBuilder |
+| `lib/app/app_shell.dart` | NavigationBar → GuayanMainTabBar；排卦页无全局 AppBar |
+| `lib/app/more_menu.dart` | 支持自定义 icon（排卦页三点） |
+| `test/foundation_test.dart` | 适配新 UI（XYUI 导航/流程轨/探针 Key/三点更多） |
+| `file-tree.md`、`CHANGELOG.md` | 本文件 |
+
+### 验证
+- `flutter test`：**63/63 通过**（领域 53 + foundation 更新 10 + 排卦页新增 10）
+- `flutter analyze`：本轮新增/修改文件 0 issue（存量遗留 21 项 lint 记入 BACKLOG）
+- Android debug 构建成功（`build/app/outputs/flutter-apk/app-debug.apk`）
+
+### 说明
+- 状态进入真实 State，不从颜色反推；已完成步骤可重新进入；
+  生成后修改关键数据 → 生成步骤标记「需重新生成」（不清空已填内容）。
+- 原「状态探针：0」孤立文本移除，探针语义保留在 Context Strip（可点击递增）。
+- 完整起卦时间选择器 / 问事编辑器 / 六爻编辑器 / 规则包管理 / 排盘算法 → 后续阶段（BACKLOG）。
+
+---
+
 ## 2026-08-30 · GUAYAN-2.0-DOMAIN-HARDENING（Stable Relation Identity 收口，未发布）
 
 > **背景：** 人工核验 DOMAIN 阶段后认可主体设计，要求封死 4 个数据兼容问题

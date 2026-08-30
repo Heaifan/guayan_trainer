@@ -8,7 +8,10 @@ import '../presentation/settings/settings_page.dart';
 ///
 /// 规则库位于此处，而不是底部主导航。
 class MoreMenuButton extends StatelessWidget {
-  const MoreMenuButton({super.key});
+  const MoreMenuButton({super.key, this.icon});
+
+  /// 自定义图标（排卦页使用 XYUI 三点样式时传入）。
+  final Widget? icon;
 
   void _open(BuildContext context, Widget page) {
     Navigator.of(context).push(
@@ -19,7 +22,7 @@ class MoreMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert),
+      icon: icon ?? const Icon(Icons.more_vert),
       tooltip: '更多',
       onSelected: (value) {
         switch (value) {
