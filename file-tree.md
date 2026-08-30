@@ -2,7 +2,7 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-27 23:33
+> **最后编辑：** 2026-08-30 09:44
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
@@ -62,6 +62,45 @@
 ### 修改
 - `android/gradle.properties` — 低内存开发机约束：JVM 堆 1G、Kotlin daemon 256m、`org.gradle.workers.max=1`，避免构建提交内存耗尽
 - `file-tree.md` — 记录归档提交、新增文件与最后编辑时间
+
+---
+
+## GUAYAN-2.0-DOMAIN — Stable Relation Identity（2026-08-30，未发布）
+
+> 阶段目标：**RelationInstance 可以重建，RelationNote 不能失忆。**
+> 只做四个核心 Domain + 稳定关系身份，不扩范围；完整设计见 `lib/domain/README.md`。
+
+### 新增（lib/domain/ — 纯 Dart 领域层，零 Flutter/外部依赖）
+- `hexagram_case.dart` — 卦例持久化根对象（最小骨架）
+- `line_state.dart` — 一爻状态：稳定爻位 + 动静 + 所值地支
+- `line_endpoint.dart` — 关系端点稳定身份（卦侧 + 爻位）
+- `relation_type.dart` — 关系类型枚举 + 系统规则 RuleId 常量
+- `relation_key.dart` — **Stable Relation Identity 核心**（单一构造入口）
+- `relation_instance.dart` — 一条具体关系（重算可重建）
+- `relation_calculator.dart` — 最小确定性关系计算（动变/六冲/六合）
+- `relation_note.dart` — 关系笔记（caseId + RelationKey 重新绑定）
+- `relation_note_store.dart` — 笔记绑定存储（纯内存 + JSON 导入导出）
+
+### 新增（test/domain/）
+- `domain_test_utils.dart` — 共享演示卦例（动变 + 六冲）
+- `relation_key_test.dart` — Test A 确定性 / Test B 差异性 / 方向处理
+- `relation_key_serialization_test.dart` — RelationKey JSON round-trip 与展示名解耦
+- `relation_rebinding_test.dart` — Test C 重算恢复笔记 / Test D 不串笔记 / Test E 顺序无关
+- `relation_serialization_test.dart` — T8 序列化 → 反序列化 → 重算 → 重新绑定全链
+
+### 新增（scripts/）
+- `flutter.ps1` — 本机 Flutter 包装脚本（APPDATA 重定向 + 代理 + 直调 snapshot，解决 flutter.bat 挂起）
+
+### 修改
+- `lib/domain/README.md` — 占位说明替换为 Stable Relation Identity 设计文档
+- `test/domain/`（新建目录）、`scripts/`（新建目录）
+- `file-tree.md` — 记录 DOMAIN 阶段新增与职责
+
+### 说明
+- RelationKey = 语义坐标（类型机器名 + RuleId + RuleVersion + subtype + 端点），
+  与运行时对象 / UI 顺序 / 数据库 row id 解耦；方向显式处理（有向保序、对称排序）。
+- 笔记按 `(caseId + RelationKey)` 绑定；Domain 保持 storage-agnostic，持久化实现后续决定。
+- 全量测试 31 个通过（21 领域 + 10 Foundation/Widget）；未启动 Android 模拟器。
 
 ---
 
@@ -173,6 +212,7 @@ guayan_trainer/
 ├── android/                # Android 原生壳
 ├── lib/                    # 主程序源码
 ├── memory/                 # 记忆与反馈记录
+├── scripts/                # 开发辅助脚本（本机 flutter 包装）
 ├── test/                   # 测试
 ├── uploads/                # 参考资料（开发计划、组件文档）
 ├── 五行相克特效/            # 相克 HTML 动画原型（5 个）
@@ -191,13 +231,18 @@ guayan_trainer/
 lib/
 ├── main.dart               # 应用入口
 ├── app.dart                # MaterialApp 主题配置
-├── shell/                  # 导航壳
+├── app/                    # 2.0 应用壳（GuayanApp / AppShell / 导航）
+├── core/                   # 2.0 常量
+├── domain/                 # 2.0 领域层（GUAYAN-2.0-DOMAIN）
+├── application/            # 2.0 用例层（预留）
+├── presentation/           # 2.0 五个主页面 + 规则库/设置/关于
+├── shell/                  # 旧导航壳（1.0 遗留）
 ├── theme/                  # 颜色系统
 ├── data/                   # 数据层：纯数据映射与常量
 ├── models/                 # 模型层：类型定义
 ├── services/               # 服务层：业务逻辑
-├── pages/                  # 页面层：按功能分子目录
-└── widgets/                # 组件层：可复用组件（预留）
+├── pages/                  # 页面层：按功能分子目录（1.0 遗留）
+└── widgets/                # 组件层：可复用组件（1.0 遗留）
 ```
 
 ---
@@ -237,6 +282,21 @@ lib/
 | --- | --- |
 | `main.dart` | 应用入口，初始化错题缓存后调用 `runApp` 启动 `GuayanTrainerApp` |
 | `app.dart` | MaterialApp 组装，配置古风主题色系，home 指向 `MainShell` |
+
+### 5.3.1 lib/domain/（2.0 领域层）
+
+| 文件 | 职责 |
+| --- | --- |
+| `hexagram_case.dart` | 卦例持久化根对象：id / question / createdAt / lines[6] |
+| `line_state.dart` | 一爻状态：爻位 / 动静（老阴老阳发动）/ 所值地支 |
+| `line_endpoint.dart` | 关系端点稳定身份：卦侧（original/changed）+ 爻位（1..6） |
+| `relation_type.dart` | 关系类型枚举 + 方向类别 + 展示名 + 系统 RuleId 常量 |
+| `relation_key.dart` | 关系稳定语义 key（Stable Relation Identity 核心） |
+| `relation_instance.dart` | 一条具体关系实例（身份以 key 为准，可重算重建） |
+| `relation_calculator.dart` | 最小确定性关系计算：动变 / 六冲 / 六合 |
+| `relation_note.dart` | 关系笔记实体（caseId + RelationKey 绑定） |
+| `relation_note_store.dart` | 笔记绑定存储：纯内存 + JSON 导入导出 |
+| `README.md` | 领域设计与 Stable Relation Identity 说明 |
 
 ### 5.4 lib/shell/
 

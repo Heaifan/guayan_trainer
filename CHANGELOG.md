@@ -8,6 +8,51 @@
 
 ---
 
+## 2026-08-30 · GUAYAN-2.0-DOMAIN（Stable Relation Identity，未发布）
+
+> **阶段目标：** RelationInstance 可以重建，RelationNote 不能失忆。
+> 只做四个核心 Domain（HexagramCase / LineState / RelationInstance / RelationNote）
+> 与稳定关系身份 RelationKey，不扩范围。设计文档见 `lib/domain/README.md`。
+
+### 新增文件
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/hexagram_case.dart` | 卦例持久化根对象（最小骨架） |
+| `lib/domain/line_state.dart` | 一爻状态：爻位 / 动静 / 所值地支 |
+| `lib/domain/line_endpoint.dart` | 关系端点稳定身份（卦侧 + 爻位） |
+| `lib/domain/relation_type.dart` | 关系类型枚举 + 系统 RuleId 常量 |
+| `lib/domain/relation_key.dart` | 关系稳定语义 key（Stable Relation Identity 核心） |
+| `lib/domain/relation_instance.dart` | 具体关系实例（重算可重建） |
+| `lib/domain/relation_calculator.dart` | 最小确定性关系计算（动变/六冲/六合） |
+| `lib/domain/relation_note.dart` | 关系笔记（caseId + RelationKey 绑定） |
+| `lib/domain/relation_note_store.dart` | 笔记绑定存储（纯内存 + JSON 导入导出） |
+| `test/domain/domain_test_utils.dart` | 共享演示卦例（动变 + 六冲） |
+| `test/domain/relation_key_test.dart` | Test A 确定性 / Test B 差异性 / 方向处理 |
+| `test/domain/relation_key_serialization_test.dart` | RelationKey JSON round-trip 与展示名解耦 |
+| `test/domain/relation_rebinding_test.dart` | Test C 重算恢复 / Test D 不串笔记 / Test E 顺序无关 |
+| `test/domain/relation_serialization_test.dart` | T8 序列化 → 反序列化 → 重算 → 重新绑定全链 |
+| `scripts/flutter.ps1` | 本机 Flutter 包装脚本（APPDATA/代理/直调 snapshot） |
+
+### 修改文件
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/README.md` | 占位说明 → Stable Relation Identity 设计文档 |
+| `file-tree.md` | 记录 DOMAIN 阶段新增文件、目录树与职责 |
+| `CHANGELOG.md` | 本文件 |
+
+### 验证
+
+- `flutter test`：**31/31 通过**（21 领域 + 10 Foundation/Widget）
+- `flutter analyze`：本轮新增文件 0 issue（存量遗留 21 项 lint 记入 BACKLOG）
+- 未启动 Android 模拟器；手机验收包构建见构建产物
+- RelationKey 组成：类型机器名 + RuleId + RuleVersion + subtype + 端点（卦侧, 爻位）；
+  有向关系保序（A→B ≠ B→A），对称关系排序（A-B == B-A）；caseId 不入 key，笔记按
+  `(caseId + RelationKey)` 绑定。
+
+---
+
 ## 2026-08-27 · 成果归档提交（未发布）
 
 > **背景：** 开发机内存耗尽崩溃重启（Gradle 提交内存 errno 1455），判定本机暂不具备继续开发条件。
