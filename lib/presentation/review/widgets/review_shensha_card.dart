@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
-/// 神煞卡（任务书 §3 ShenShaCard SVG）。
+/// 神煞卡（UI-CORRECTION-R2 §5 SVG：402×178）。
 ///
-/// 独立卡片 + 自适应标签网格（Wrap spacing 6 / runSpacing 8）；
-/// 标签内容由数据生成（名称：值），禁止硬编码固定 16 个位置。
-/// 小屏自然换行，禁止文字溢出。
+/// 固定 4 列 × N 行（数据驱动，>16 项继续增加新行、仍保持 4 列，
+/// 禁止硬编码 16 个 Widget、禁止截断数据）。
+/// 标题仅「神煞」（R2 无副标题）；chip 高 24、rx12、浅豆绿底。
 class ReviewShenShaCard extends StatelessWidget {
   const ReviewShenShaCard({super.key, required this.state});
 
@@ -25,31 +25,16 @@ class ReviewShenShaCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '神煞',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: CastingTokens.textPrimary,
-                  height: 1.3,
-                ),
-              ),
-              SizedBox(width: 8),
-              Text(
-                '按标签分组显示',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: CastingTokens.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-            ],
+          const Text(
+            '神煞',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: CastingTokens.textPrimary,
+              height: 1.3,
+            ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           if (state.shenShaItems.isEmpty)
             const Text(
               '暂无神煞数据（排盘引擎接入后展示）',
@@ -60,16 +45,21 @@ class ReviewShenShaCard extends StatelessWidget {
               ),
             )
           else
-            Wrap(
-              spacing: 6,
-              runSpacing: 8,
+            GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 10,
+                mainAxisExtent: 24,
+              ),
               children: [
                 for (final item in state.shenShaItems)
                   Container(
                     key: Key('shensha_${item.name}'),
-                    height: 24,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: CastingTokens.chipSurface,
                       borderRadius: BorderRadius.circular(12),
@@ -78,6 +68,7 @@ class ReviewShenShaCard extends StatelessWidget {
                     child: Text(
                       item.label,
                       maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10,
                         color: CastingTokens.textSecondary,

@@ -8,7 +8,6 @@ import '../../services/draft/draft_repository.dart';
 import 'casting_page_state.dart';
 import 'casting_tokens.dart';
 import 'widgets/casting_app_bar.dart';
-import 'widgets/casting_draft_context.dart';
 import 'widgets/casting_generate_row.dart';
 import 'widgets/casting_question_row.dart';
 import 'widgets/casting_rule_pack_row.dart';
@@ -259,12 +258,6 @@ class _CastingPageState extends State<CastingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    CastingDraftContext(
-                      title: state.questionTitle,
-                      rulePackName: state.rulePackName,
-                      rulePackVersionLabel: state.rulePackVersionLabel,
-                    ),
-                    const SizedBox(height: 12),
                     CastingTimeRow(
                       castingTime: state.castingTime,
                       onTap: _openTimeEditor,

@@ -8,6 +8,54 @@
 
 ---
 
+## 2026-08-30 · GUAYAN-2.0-UI-CORRECTION-R2（排卦 + 审卦增量修正，未发布）
+
+> 在 R1 已定稿基础上做增量修正：删排卦顶部草稿摘要卡、起卦时间显示公历+农历、
+> 六爻录入行统一 52 DIP、神煞固定 4 列、最终卦盘组件（内嵌主/变卦标题）、
+> 统一爻槽 24×6（阳/阴/空亡仅内部填充不同）、动爻标记 12×12、文本不得压爻。
+
+### 新增（lib/presentation/shared/ — 排卦/审卦强制复用）
+| 路径 | 说明 |
+| --- | --- |
+| `yao_glyph.dart` | 统一爻槽 24×6：yang 实心 / yin 左右断线 / voidYao 空心描边 rx1 #7E9098 w1.5 |
+| `moving_marker.dart` | 动爻标记 12×12：老阴 ○ #A17F45 / 老阳 × #567866，Bounding Box 一致 |
+| `test/presentation/shared/yao_glyph_test.dart` | 共享组件尺寸冻结测试（UI-05/06 组件级） |
+
+### 排卦页
+| 路径 | 说明 |
+| --- | --- |
+| `casting_page.dart` | 删除 CastingDraftContext（§1.1） |
+| `casting_time_row.dart` | 重写：88 高，公历 + 农历 + 右上状态 chip（§2 SVG） |
+| `casting_page_state.dart` | 新增 lunarPlaceholder（GAP：农历换算待接入，presentation mock） |
+| `six_yao_input_row.dart` | 普通行 = 编辑行 = 52 DIP（§3）；迁移共享 YaoGlyph |
+| `line_editor_sheet.dart` | 迁移共享 YaoGlyph + MovingMarker |
+| 删除 `casting_draft_context.dart`、旧 `casting/widgets/yao_glyph.dart` | — |
+
+### 审卦页
+| 路径 | 说明 |
+| --- | --- |
+| `review_page_state.dart` | 伏神拆两列（hiddenSpirit1/2）+ isVoid（主卦/变卦）；纳音改半角括号 |
+| `review_case_adapter.dart` / `review_demo_data.dart` | 伏神两列 + isVoid 透传；按 SVG #12：五爻丁酉、三爻丙申空亡 |
+| `review_shensha_card.dart` | 神煞固定 4 列数据驱动网格（§5，>16 项继续加行） |
+| `review_hexagram_result_table.dart` | 最终卦盘组件：内嵌【主卦】/【变卦】标题 + 六行排盘 + 表尾（§6/§12） |
+| `review_hexagram_line_row.dart` | 11 列冻结布局：六神/伏神×2/主变卦文字/爻槽(24×6)/世应/动爻(12×12)/箭头；文本 Ellipsis 不压爻（§11） |
+| `review_page.dart` | 移除 HexagramResultHeader（避免标题重复渲染） |
+| 删除 `review_hexagram_result_header.dart` | — |
+
+### 测试
+- `casting_page_test.dart`：UI-01（无 DraftContext）/ UI-02（公历+农历）/ UI-03（行高 52 一致）
+- `review_page_test.dart`：UI-04（神煞 4 列）/ UI-05（爻槽 24×6）/ UI-06（动爻 12×12）/
+  UI-07（超长文本不压爻）/ UI-08（变卦爻槽+变卦世应同显）+ R1 测试适配
+- `foundation_test.dart`：审卦分支断言改为【主卦】
+
+### GAP / 偏差
+- 农历为 presentation mock（lunarPlaceholder），真实换算待排盘引擎接入；
+- 空亡 isVoid 仅 UI 表现（演示档案提供），Widget 不计算旬空；
+- 演示 pos2（老阳）按语义渲染阳槽 + X，SVG #12 画作阴+X（有意修正，保持阴阳语义一致）。
+- 验证：flutter test 100/100 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
+
+---
+
 ## 2026-08-30 · GUAYAN-2.0-REVIEW-UI-R1（审卦页 XYUI 工作台定稿实施，未发布）
 
 > **审卦页最终视觉**：按人工定稿总 SVG 把「审卦」占位页实现为 XYUI 长页排盘工作台

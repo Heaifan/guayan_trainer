@@ -15,25 +15,31 @@ import '../../domain/relation_instance.dart';
 import '../../domain/relation_type.dart';
 import 'review_page_state.dart';
 
-/// 单爻传统排盘附加档案（六神/伏神/六亲/世应等）。
+/// 单爻传统排盘附加档案（六神/伏神/六亲/世应/空亡等）。
 class ReviewLineTraditional {
   const ReviewLineTraditional({
     this.sixSpirit,
-    this.hiddenSpirit,
+    this.hiddenSpirit1,
+    this.hiddenSpirit2,
     this.sixRelative,
     this.displayExtra,
     this.shiYing,
     this.changedShiYing,
     this.changed,
+    this.isVoid = false,
   });
 
   final String? sixSpirit;
-  final String? hiddenSpirit;
+  final String? hiddenSpirit1;
+  final String? hiddenSpirit2;
   final String? sixRelative;
   final String? displayExtra;
   final String? shiYing;
   final String? changedShiYing;
   final ReviewChangedLine? changed;
+
+  /// 主卦侧空亡（UI 表现专用，Widget 不计算旬空）。
+  final bool isVoid;
 }
 
 /// 传统排盘附加档案：Domain 排盘引擎落地前，
@@ -158,12 +164,14 @@ class ReviewCaseAdapter {
       movementType: line.movementType,
       branch: line.branch,
       sixSpirit: t?.sixSpirit,
-      hiddenSpirit: t?.hiddenSpirit,
+      hiddenSpirit1: t?.hiddenSpirit1,
+      hiddenSpirit2: t?.hiddenSpirit2,
       sixRelative: t?.sixRelative,
       displayExtra: t?.displayExtra,
       shiYing: t?.shiYing,
       changedShiYing: t?.changedShiYing,
       changed: t?.changed,
+      isVoid: t?.isVoid ?? false,
     );
   }
 

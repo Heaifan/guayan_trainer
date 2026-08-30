@@ -101,6 +101,17 @@ String shichenForHour(int hour) {
   return names[((hour + 1) % 24) ~/ 2];
 }
 
+/// 农历占位展示（GAP：真实农历换算属后续排盘引擎，本轮不做假算法）。
+///
+/// 仅提供 presentation mock：按公历日期 + 时辰生成占位文本，
+/// 明确标注「农历换算待接入」，不得伪装成真实换算结果。
+/// 未来接入排盘引擎后替换为本 helper 的实现即可，UI 签名不变。
+String lunarPlaceholder(DateTime time) {
+  final shichen = shichenForHour(time.hour);
+  return '农历：${time.year}年${time.month}月${time.day}日 '
+      '$shichen时 · 农历换算待接入';
+}
+
 /// 爻象的「阴阳 · 动静」展示文案（如「阴 · 静」「阳 · 动」）。
 String movementDisplay(MovementType type) {
   final yin = type == MovementType.shaoYin || type == MovementType.laoYin;

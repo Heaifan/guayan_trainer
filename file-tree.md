@@ -2,10 +2,63 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-30 22:18
+> **最后编辑：** 2026-08-30 23:57
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 排卦页 + 审卦页增量修正 — GUAYAN-2.0-UI-CORRECTION-R2（2026-08-30，未发布）
+
+> 在 R1 已定稿基础上做增量修正，禁止重新设计。本轮冻结：统一爻槽 24×6
+> （阳/阴/空亡仅内部填充不同）、动爻标记 12×12、文本不得压爻。
+
+### 新增（lib/presentation/shared/ — 排卦/审卦强制复用）
+- `yao_glyph.dart` — 统一爻槽组件：YaoGlyph（24×6，yang/yin/voidYao）+ YaoKind；
+  `YaoGlyph.fromMovement` 便捷工厂；空亡爻空心描边 rx1 #7E9098 w1.5
+- `moving_marker.dart` — 动爻标记组件：MovingMarker（12×12，老阴 ○ #A17F45 /
+  老阳 × #567866）+ `MovingMarker.of` 便捷工厂
+
+### 排卦页修正
+- `casting_page.dart` — 删除顶部 CastingDraftContext（§1.1）；正文顺序：
+  AppBar → 起卦时间 → 问事信息 → 六爻录入 → 规则包 → 生成排盘
+- `casting_time_row.dart` — 重写为 88 高卡片：标题 + 右上「已完成/待完善」chip +
+  公历 + 农历（§2 SVG；农历为 lunarPlaceholder presentation mock，GAP 标注）
+- `casting_page_state.dart` — 新增 `lunarPlaceholder(DateTime)`（GAP：真实农历换算待接入）
+- `six_yao_input_row.dart` — 普通行 = 编辑行 = 52 DIP（§3：编辑态只变背景/边框/字重/徽标）；
+  爻象迁移共享 YaoGlyph
+- `line_editor_sheet.dart` — 迁移共享 YaoGlyph + 动爻补 MovingMarker
+- 删除 `casting_draft_context.dart`、旧 `casting/widgets/yao_glyph.dart`
+
+### 审卦页修正
+- `review_page_state.dart` — ReviewLineView：hiddenSpirit 拆为 hiddenSpirit1/2（伏神两列）；
+  新增 isVoid（主卦/变卦，UI 表现专用，Widget 不计算旬空）；纳音括号改半角 `(纳音)`
+- `review_case_adapter.dart` / `review_demo_data.dart` — 伏神两列 + isVoid 透传；
+  演示数据按 R2 SVG #12：五爻丁酉、三爻丙申空亡（旬空申酉）
+- `review_shensha_card.dart` — 神煞固定 4 列 × N 行数据驱动网格（§5 SVG 402×178，
+  >16 项继续加行）
+- `review_hexagram_result_table.dart` — 最终卦盘组件（§6/§12 SVG 402×404）：
+  内嵌【主卦】/【变卦】标题（浅底 #F8FBF9）+ 六行排盘 + 表尾说明
+- `review_hexagram_line_row.dart` — 11 列冻结：六神 | 伏神1 | 伏神2 | 主卦文字 |
+  主卦爻槽(24×6) | 主卦世/应 | 动爻(12×12) | 箭头 | 变卦文字 | 变卦爻槽 | 变卦世/应；
+  文字列 Ellipsis 裁剪，爻槽/世应槽固定不被侵占（§11 硬门禁）
+- `review_page.dart` — 移除 HexagramResultHeader（表内已含标题，避免重复）
+- 删除 `review_hexagram_result_header.dart`
+
+### 测试
+- `test/presentation/casting/casting_page_test.dart` — UI-01（无 DraftContext）/
+  UI-02（公历+农历）/ UI-03（普通行高==编辑行高==52）
+- `test/presentation/review/review_page_test.dart` — UI-04（神煞首屏 4 列）/
+  UI-05（爻槽统一 24×6）/ UI-06（动爻 12×12）/ UI-07（超长文本不压爻）/
+  UI-08（变卦爻槽+变卦世应同显）+ R1 测试适配（YaoGlyph.kind、MovingMarker）
+- `test/presentation/shared/yao_glyph_test.dart`（新增）— 共享组件尺寸冻结测试
+- `test/foundation_test.dart` — 审卦分支断言改为【主卦】
+
+### 说明
+- 演示 pos2（老阳）主卦按语义渲染阳槽 + X；SVG #12 画作阴+X，属有意修正
+  （保持阴阳语义一致，已注释记录）。
+- 验证：flutter test 100/100 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
 
 ---
 
@@ -431,10 +484,16 @@ lib/
 | `widgets/review_basic_info_card.dart` | 基本信息卡（方式/事项/阳历/阴历 + 已生成） |
 | `widgets/review_shensha_card.dart` | 神煞卡（Wrap 标签网格，数据驱动） |
 | `widgets/review_four_pillars_strip.dart` | 四柱条（年/月/日/时/旬空，顺序固定） |
-| `widgets/review_hexagram_result_header.dart` | 排盘结果头（主/变卦标题） |
-| `widgets/review_hexagram_result_table.dart` | 六爻排盘主体表（上爻在上、初爻在下） |
-| `widgets/review_hexagram_line_row.dart` | 六爻单行（六神/主卦含伏神/变卦 + 矢量爻象） |
+| `widgets/review_hexagram_result_table.dart` | 最终卦盘组件（内嵌主/变卦标题 + 六行排盘 + 表尾） |
+| `widgets/review_hexagram_line_row.dart` | 六爻单行（11 列冻结：六神/伏神×2/主变卦文字/爻槽/世应/动爻/箭头） |
 | `widgets/review_relation_focus_card.dart` | 关系焦点卡（世应/生克/回头 + 规则依据入口） |
+
+### 5.3.3 lib/presentation/shared/（2.0 共享爻组件，排卦/审卦强制复用）
+
+| 文件 | 职责 |
+| --- | --- |
+| `yao_glyph.dart` | 统一爻槽 24×6（yang/yin/voidYao，仅内部填充不同） |
+| `moving_marker.dart` | 动爻标记 12×12（老阴 ○ / 老阳 ×，Bounding Box 一致） |
 
 ### 5.4 lib/shell/
 
@@ -557,8 +616,9 @@ lib/
 | --- | --- |
 | `widget_test.dart` | Widget 冒烟测试：首页正确渲染 |
 | `foundation_test.dart` | App Shell 五导航 / 艮卦图标 / 状态保持 / 更多菜单验收 |
-| `presentation/casting/casting_page_test.dart` | 排卦工作台测试（Test A–D / 行顺序 / 草稿仓库 / 纯逻辑） |
-| `presentation/review/review_page_test.dart` | 审卦工作台测试（§22 A–H / 适配器 / 焦点关系 / 双数据路径） |
+| `presentation/casting/casting_page_test.dart` | 排卦工作台测试（Test A–D / 行顺序 / 草稿仓库 / 纯逻辑 / UI-01~03） |
+| `presentation/review/review_page_test.dart` | 审卦工作台测试（§22 A–H / UI-04~08 / 适配器 / 双数据路径） |
+| `presentation/shared/yao_glyph_test.dart` | 共享爻组件尺寸冻结测试（24×6 / 12×12） |
 
 ---
 

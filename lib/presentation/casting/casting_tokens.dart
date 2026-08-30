@@ -56,4 +56,11 @@ abstract final class CastingTokens {
   static const relationBlueBorder = Color(0xFFAFC0CF);
   static const traditionalGold = Color(0xFFB0905F);
   static const pillarTeal = Color(0xFF4F8A8B);
+
+  // R2 卦盘 / 爻 / 动爻定稿色（GUAYAN-2.0-UI-CORRECTION-R2 总 SVG）
+  static const guaNameGold = Color(0xFF947A4A); // 卦名（.guaName）
+  static const spiritGold = Color(0xFFA17F45); // 六神（.spirit）与动爻圆（.moveO）
+  static const shiYingRed = Color(0xFFA85F5F); // 世/应（.shiYing）
+  static const voidYaoStroke = Color(0xFF7E9098); // 空亡爻描边（.yaoVoid）
+  static const arrowTeal = Color(0xFF4F8685); // 动爻箭头（.arrow）
 }

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/line_state.dart';
+import '../../../presentation/shared/yao_glyph.dart';
 import '../casting_page_state.dart';
 import '../casting_tokens.dart';
 import 'casting_chip.dart';
-import 'yao_glyph.dart';
 
-/// 六爻录入单行（任务书 §5.5 / §8 / §9）。
+/// 六爻录入单行（UI-CORRECTION-R2 §3：普通行 = 编辑行 = 52 DIP）。
 ///
-/// - 已录：爻矢量图形 + 「阴阳 · 动静」文案 + 已录标记；
-/// - 待录：占位 chip「点击录入X爻」+ 待录标记；
-/// - 当前编辑爻（[editing]）：浅豆青选中背景 + 明显边框 + 编辑徽标。
+/// 六个爻位必须同一行高、同一内容布局、同一爻槽尺寸。
+/// 编辑态只允许变化：背景、边框、文字 Weight、编辑 Badge；
+/// 不得变化行高 / 爻象尺寸 / 左右 padding / 文字基线。
+/// 爻象统一使用共享 [YaoGlyph]（24×6 冻结槽位）。
 class SixYaoInputRow extends StatelessWidget {
   const SixYaoInputRow({
     super.key,
@@ -25,52 +26,42 @@ class SixYaoInputRow extends StatelessWidget {
   final bool editing;
   final VoidCallback onTap;
 
+  static const double _rowHeight = 52;
   static const double _labelWidth = 44;
   static const double _statusWidth = 56;
-  static const double _trailingWidth = 36;
+  static const double _trailingWidth = 42;
 
   @override
   Widget build(BuildContext context) {
     final label = linePositionName(position);
-    if (editing) {
-      return _editingRow(
-        position: position,
-        label: label,
-        line: line,
-        onTap: onTap,
-      );
-    }
-    return _normalRow(
-      position: position,
-      label: label,
-      line: line,
-      onTap: onTap,
-    );
-  }
-
-  /// 普通行：高 44。
-  Widget _normalRow({
-    required int position,
-    required String label,
-    required LineState? line,
-    required VoidCallback onTap,
-  }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(
-          height: 44,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: _rowHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: editing ? CastingTokens.editSurface : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: editing
+                ? Border.all(color: CastingTokens.editBorder)
+                : null,
+          ),
           child: Row(
             children: [
-              const SizedBox(width: 22),
               SizedBox(
                 width: _labelWidth,
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    color: CastingTokens.textMuted,
+                  style: TextStyle(
+                    fontSize: editing ? 12 : 9,
+                    fontWeight:
+                        editing ? FontWeight.w700 : FontWeight.w400,
+                    color: editing
+                        ? CastingTokens.textPrimary
+                        : CastingTokens.textMuted,
                     height: 1.2,
                   ),
                 ),
@@ -80,108 +71,47 @@ class SixYaoInputRow extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: line == null
                       ? _PlaceholderChip(label: label)
-                      : YaoGlyph(movementType: line.movementType),
+                      : YaoGlyph.fromMovement(line!.movementType),
                 ),
               ),
               SizedBox(
                 width: _statusWidth,
                 child: Text(
-                  line == null ? '' : lineStatusText(line),
+                  line == null ? '' : lineStatusText(line!),
                   key: Key('yao_status_$position'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: CastingTokens.textBody,
+                    fontWeight:
+                        editing ? FontWeight.w700 : FontWeight.w400,
+                    color: editing
+                        ? CastingTokens.accent
+                        : CastingTokens.textBody,
                     height: 1.2,
                   ),
                 ),
               ),
               SizedBox(
                 width: _trailingWidth,
-                child: Text(
-                  line == null ? '待录' : '已录',
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    color: CastingTokens.textMuted,
-                    height: 1.2,
-                  ),
-                ),
+                child: editing
+                    ? CastingChip(
+                        key: Key('yao_edit_badge_$position'),
+                        label: '编辑',
+                        background: CastingTokens.accentSurface,
+                        border: CastingTokens.accentBorder,
+                        width: 42,
+                        fontSize: 9,
+                      )
+                    : Text(
+                        line == null ? '待录' : '已录',
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          color: CastingTokens.textMuted,
+                          height: 1.2,
+                        ),
+                      ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 当前编辑行：高 56，浅豆青背景 + 更明显边框 + 编辑徽标。
-  Widget _editingRow({
-    required int position,
-    required String label,
-    required LineState? line,
-    required VoidCallback onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: CastingTokens.editSurface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: CastingTokens.editBorder),
-            ),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: _labelWidth + 12,
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: CastingTokens.textPrimary,
-                      height: 1.2,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: line == null
-                        ? _PlaceholderChip(label: label)
-                        : YaoGlyph(movementType: line.movementType),
-                  ),
-                ),
-                SizedBox(
-                  width: _statusWidth,
-                  child: Text(
-                    line == null ? '' : lineStatusText(line),
-                    key: Key('yao_status_$position'),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: CastingTokens.accent,
-                      height: 1.2,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                CastingChip(
-                  key: Key('yao_edit_badge_$position'),
-                  label: '编辑',
-                  background: CastingTokens.accentSurface,
-                  border: CastingTokens.accentBorder,
-                  width: 42,
-                  fontSize: 9,
-                ),
-              ],
-            ),
           ),
         ),
       ),

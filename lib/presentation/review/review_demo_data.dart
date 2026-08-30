@@ -1,9 +1,10 @@
-/// 审卦页视觉定稿演示数据（任务书总 SVG 基准，GUAYAN-2.0-REVIEW-UI-R1）。
+/// 审卦页视觉定稿演示数据（GUAYAN-2.0-UI-CORRECTION-R2 总 SVG #12 基准）。
 ///
-/// 传统排盘字段（六神/伏神/六亲/神煞/四柱/卦名/世应）逐项转录自定稿 SVG；
+/// 传统排盘字段（六神/伏神/六亲/神煞/四柱/卦名/世应/空亡）逐项转录自定稿 SVG；
 /// 排盘引擎（R3）落地前仅作为演示档案，真实卦例不带这些字段。
 /// 演示六爻来自现有 Domain：LineState + 地支，动爻与六合可经
 /// calculateRelations 真实计算（辰酉合、午未合、二/三爻动变）。
+/// 空亡（isVoid）仅 UI 表现：旬空申酉 → 五爻丁酉、三爻丙申。
 library;
 
 import '../../domain/hexagram_case.dart';
@@ -33,7 +34,11 @@ abstract final class ReviewDemoData {
         ]),
       );
 
-  /// 传统排盘演示档案（SVG 定稿转录；真实卦例不携带）。
+  /// 传统排盘演示档案（SVG #12 转录；真实卦例不携带）。
+  ///
+  /// 说明：SVG #12 中二爻（官鬼丙午火，laoYang）主卦画作「阴+X」，
+  /// 但语义上老阳 = 阳爻，本档案按共享 YaoGlyph 语义渲染阳槽 + X
+  /// （有意修正，保持阴阳语义一致，见 UI-CORRECTION-R2 §8）。
   static ReviewTraditionalProfile profile() => const ReviewTraditionalProfile(
         castingMethod: '铜钱手动',
         lunarDateTime: '二零二六年七月十八日 酉时',
@@ -70,7 +75,8 @@ abstract final class ReviewDemoData {
         lineTraditional: {
           6: ReviewLineTraditional(
             sixSpirit: '青龙',
-            hiddenSpirit: '财丙寅　父丁未',
+            hiddenSpirit1: '财丙寅',
+            hiddenSpirit2: '父丁未',
             sixRelative: '父母丁未土',
             displayExtra: '天河水',
             shiYing: '应',
@@ -82,18 +88,22 @@ abstract final class ReviewDemoData {
           ),
           5: ReviewLineTraditional(
             sixSpirit: '玄武',
-            hiddenSpirit: '孙丙子　兄丁酉',
+            hiddenSpirit1: '孙丙子',
+            hiddenSpirit2: '兄丁酉',
             sixRelative: '兄弟丁酉金',
             displayExtra: '山下火',
+            isVoid: true, // 酉 在 申酉空
             changed: ReviewChangedLine(
               sixRelative: '兄弟丁酉金',
               displayExtra: '山下火',
               movementType: MovementType.shaoYin,
+              isVoid: true,
             ),
           ),
           4: ReviewLineTraditional(
             sixSpirit: '白虎',
-            hiddenSpirit: '父戊戌　孙丁亥',
+            hiddenSpirit1: '父戊戌',
+            hiddenSpirit2: '孙丁亥',
             sixRelative: '子孙丁亥水',
             displayExtra: '屋上土',
             changedShiYing: '应',
@@ -105,10 +115,12 @@ abstract final class ReviewDemoData {
           ),
           3: ReviewLineTraditional(
             sixSpirit: '腾蛇',
-            hiddenSpirit: '兄丙申　父丁丑',
+            hiddenSpirit1: '兄丙申',
+            hiddenSpirit2: '父丁丑',
             sixRelative: '兄弟丙申金',
             displayExtra: '山下火',
             shiYing: '世',
+            isVoid: true, // 申 在 申酉空
             changed: ReviewChangedLine(
               sixRelative: '官鬼戊午火',
               displayExtra: '天上火',
@@ -117,7 +129,8 @@ abstract final class ReviewDemoData {
           ),
           2: ReviewLineTraditional(
             sixSpirit: '勾陈',
-            hiddenSpirit: '官丙午　财丁卯',
+            hiddenSpirit1: '官丙午',
+            hiddenSpirit2: '财丁卯',
             sixRelative: '官鬼丙午火',
             displayExtra: '天河水',
             changed: ReviewChangedLine(
@@ -128,7 +141,8 @@ abstract final class ReviewDemoData {
           ),
           1: ReviewLineTraditional(
             sixSpirit: '朱雀',
-            hiddenSpirit: '父丙辰　官丁巳',
+            hiddenSpirit1: '父丙辰',
+            hiddenSpirit2: '官丁巳',
             sixRelative: '父母丙辰土',
             displayExtra: '沙中土',
             changedShiYing: '世',

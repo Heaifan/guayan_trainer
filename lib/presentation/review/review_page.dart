@@ -8,7 +8,6 @@ import 'review_page_state.dart';
 import 'widgets/review_app_bar.dart';
 import 'widgets/review_basic_info_card.dart';
 import 'widgets/review_four_pillars_strip.dart';
-import 'widgets/review_hexagram_result_header.dart';
 import 'widgets/review_hexagram_result_table.dart';
 import 'widgets/review_relation_focus_card.dart';
 import 'widgets/review_shensha_card.dart';
@@ -29,7 +28,12 @@ import 'widgets/review_shensha_card.dart';
 /// SingleChildScrollView（BasicInfo → ShenSha → FourPillars →
 /// HexagramHeader → HexagramTable → RelationFocus）→ MainTabBar 固定在 App Shell。
 class ReviewPage extends StatelessWidget {
-  const ReviewPage({super.key, this.latestCase, this.initialCase});
+  const ReviewPage({
+    super.key,
+    this.latestCase,
+    this.initialCase,
+    this.initialProfile,
+  });
 
   /// App Shell 传入的最近排盘结果；null 时回退演示排盘。
   final HexagramCase? latestCase;
@@ -37,15 +41,18 @@ class ReviewPage extends StatelessWidget {
   /// 测试注入（优先于 [latestCase]）。
   final HexagramCase? initialCase;
 
+  /// 测试注入的传统排盘档案（与 [initialCase] 搭配使用）。
+  final ReviewTraditionalProfile? initialProfile;
+
   @override
   Widget build(BuildContext context) {
     final provided = initialCase ?? latestCase;
     final state = provided == null
         ? ReviewCaseAdapter.adapt(
             ReviewDemoData.hexagramCase(),
-            profile: ReviewDemoData.profile(),
+            profile: initialProfile ?? ReviewDemoData.profile(),
           )
-        : ReviewCaseAdapter.adapt(provided);
+        : ReviewCaseAdapter.adapt(provided, profile: initialProfile);
     return _ReviewWorkbench(state: state);
   }
 }
@@ -77,8 +84,7 @@ class _ReviewWorkbench extends StatelessWidget {
                     const SizedBox(height: 12),
                     ReviewFourPillarsStrip(state: state),
                     const SizedBox(height: 12),
-                    ReviewHexagramResultHeader(state: state),
-                    const SizedBox(height: 12),
+                    // 最终卦盘组件已内嵌【主卦】/【变卦】标题，不再单独渲染 Header。
                     ReviewHexagramResultTable(state: state),
                     const SizedBox(height: 12),
                     ReviewRelationFocusCard(state: state),

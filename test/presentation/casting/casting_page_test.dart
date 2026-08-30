@@ -183,7 +183,7 @@ void main() {
   });
 
   group('问事信息编辑', () {
-    testWidgets('保存主题后：DraftContext 标题与已完成 chip 更新', (tester) async {
+    testWidgets('保存主题后：问事行标题与已完成 chip 更新', (tester) async {
       await pumpPage(tester, draft: const CastingDraft());
 
       expect(find.text('尚未填写主题与问事正文'), findsOneWidget);
@@ -198,7 +198,9 @@ void main() {
       await tester.tap(find.byKey(const Key('question_save')));
       await tester.pumpAndSettle();
 
-      expect(find.text('测试问事'), findsWidgets); // DraftContext 标题
+      // DraftContext 已删除（UI-CORRECTION-R2 §1.1）：问事行只展示正文摘要，
+      // 标题不再单独显示。
+      expect(find.text('测试问事'), findsNothing);
       expect(find.text('项目推进是否顺利？'), findsOneWidget);
       expect(find.text('已完成'), findsOneWidget); // 问事行 chip
     });
@@ -225,6 +227,34 @@ void main() {
         find.textContaining('自定义规则包将在后续版本开放。'),
         findsNothing,
       );
+    });
+  });
+
+  group('UI-CORRECTION-R2', () {
+    testWidgets('UI-01 · 顶部草稿摘要卡已删除', (tester) async {
+      await pumpPage(tester);
+      expect(find.byKey(const Key('draft_state_chip')), findsNothing);
+      expect(find.textContaining('草稿自动保存'), findsNothing);
+    });
+
+    testWidgets('UI-02 · 起卦时间同时显示公历与农历', (tester) async {
+      await pumpPage(tester); // demo 草稿：2026-08-30 09:30
+      expect(find.text('公历：2026-08-30 09:30'), findsOneWidget);
+      expect(
+        find.text('农历：2026年8月30日 巳时 · 农历换算待接入'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('UI-03 · 普通行高 == 编辑行高 == 52', (tester) async {
+      await pumpPage(tester); // demo：三爻为当前编辑爻
+      final editingHeight =
+          tester.getSize(find.byKey(const Key('yao_row_3'))).height;
+      final normalHeight =
+          tester.getSize(find.byKey(const Key('yao_row_6'))).height;
+      expect(editingHeight, 52);
+      expect(normalHeight, 52);
+      expect(editingHeight, normalHeight);
     });
   });
 

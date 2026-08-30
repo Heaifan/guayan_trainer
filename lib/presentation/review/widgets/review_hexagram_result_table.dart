@@ -4,10 +4,11 @@ import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 import 'review_hexagram_line_row.dart';
 
-/// 六爻排盘主体表（任务书 §6 HexagramResultTable SVG）。
+/// 最终卦盘组件（UI-CORRECTION-R2 §6/§12，SVG 402×404）。
 ///
-/// 列心智：六神 | 主卦（含伏神） | 变卦；六行完整传统语义，
-/// 上爻在最上、初爻在最下。表体不套内部纵向 Scroll（页面整体滚动）。
+/// 内嵌【主卦】/【变卦】标题（不再单独渲染 HexagramResultHeader）；
+/// 六行排盘（上爻在上、初爻在下）；表尾说明。
+/// 爻槽 / 世应槽 / 动爻槽全部固定，文本不得侵占（见单行组件）。
 class ReviewHexagramResultTable extends StatelessWidget {
   const ReviewHexagramResultTable({super.key, required this.state});
 
@@ -25,60 +26,106 @@ class ReviewHexagramResultTable extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 表头
-          Container(
-            height: 36,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: CastingTokens.divider)),
-            ),
-            child: const Row(
-              children: [
-                SizedBox(width: 46, child: _HeaderText('六神')),
-                SizedBox(width: 8),
-                Expanded(flex: 3, child: _HeaderText('主卦（含伏神）')),
-                SizedBox(width: 8),
-                Expanded(flex: 3, child: _HeaderText('变卦')),
-              ],
-            ),
-          ),
-          // 六行（上爻 → 初爻）
+          _HeaderZone(state: state),
           for (final line in state.displayLines)
             ReviewHexagramLineRow(line: line),
-          // 表尾说明
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-            child: Text(
-              '传统排盘完整展示；关系连线与规则依据在焦点区继续展开。',
-              style: const TextStyle(
-                fontSize: 10,
-                color: CastingTokens.textSecondary,
-                height: 1.4,
-              ),
-            ),
-          ),
+          const _FooterNote(),
         ],
       ),
     );
   }
 }
 
-class _HeaderText extends StatelessWidget {
-  const _HeaderText(this.text);
+/// 表头区：浅底（#F8FBF9）+【主卦】/【变卦】标题 + 卦名（金色）。
+class _HeaderZone extends StatelessWidget {
+  const _HeaderZone({required this.state});
 
-  final String text;
+  final ReviewPageState state;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 9,
-          color: CastingTokens.textMuted,
-          height: 1.2,
+    return Container(
+      height: 66,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: const BoxDecoration(
+        color: CastingTokens.surfaceSoft,
+        border: Border(bottom: BorderSide(color: CastingTokens.divider)),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: _HexTitle(label: '【主卦】', name: state.originalHexagramLabel ?? '—')),
+          Expanded(child: _HexTitle(label: '【变卦】', name: state.changedHexagramLabel ?? '—')),
+        ],
+      ),
+    );
+  }
+}
+
+class _HexTitle extends StatelessWidget {
+  const _HexTitle({required this.label, required this.name});
+
+  final String label;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: CastingTokens.textPrimary,
+            height: 1.2,
+          ),
         ),
+        const SizedBox(height: 3),
+        Text(
+          name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 10.4,
+            fontWeight: FontWeight.w700,
+            color: CastingTokens.guaNameGold,
+            height: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 表尾说明（SVG #12 底部两行）。
+class _FooterNote extends StatelessWidget {
+  const _FooterNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text(
+            '阳爻 / 阴爻 / 空亡爻统一 24 × 6 DIP，只改变内部填充。',
+            style: TextStyle(
+              fontSize: 8,
+              color: CastingTokens.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          Text(
+            '爻槽、世应槽、动爻槽全部固定，文本不得侵占。',
+            style: TextStyle(
+              fontSize: 8,
+              color: CastingTokens.textSecondary,
+              height: 1.4,
+            ),
+          ),
+        ],
       ),
     );
   }

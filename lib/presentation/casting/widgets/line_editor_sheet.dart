@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/line_state.dart';
+import '../../shared/moving_marker.dart';
+import '../../shared/yao_glyph.dart';
 import '../casting_page_state.dart';
 import '../casting_tokens.dart';
-import 'yao_glyph.dart';
 
 /// 六爻编辑弹层（任务书 §8 / §9）。
 ///
@@ -138,7 +139,16 @@ class _OptionTile extends StatelessWidget {
               SizedBox(
                 width: 70,
                 height: 18,
-                child: YaoGlyph(movementType: type),
+                child: Row(
+                  children: [
+                    YaoGlyph.fromMovement(type),
+                    if (type.isMoving)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: MovingMarker.of(type),
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(

@@ -26,6 +26,7 @@ class ReviewChangedLine {
     this.earthlyBranch,
     this.displayExtra,
     this.movementType,
+    this.isVoid = false,
   });
 
   final String? sixRelative;
@@ -37,13 +38,16 @@ class ReviewChangedLine {
   /// 变爻爻象（排盘引擎未落地时可为空）。
   final MovementType? movementType;
 
+  /// 变卦侧空亡（旬空，UI 表现专用；由排盘引擎提供 isVoid，Widget 不计算）。
+  final bool isVoid;
+
   bool get isYang => movementType == MovementType.shaoYang ||
       movementType == MovementType.laoYang;
 
   String get primaryLabel {
     final base = sixRelative ?? earthlyBranch;
     if (base == null) return '—';
-    return displayExtra == null ? base : '$base（$displayExtra）';
+    return displayExtra == null ? base : '$base($displayExtra)';
   }
 }
 
@@ -54,12 +58,14 @@ class ReviewLineView {
     required this.movementType,
     this.branch,
     this.sixSpirit,
-    this.hiddenSpirit,
+    this.hiddenSpirit1,
+    this.hiddenSpirit2,
     this.sixRelative,
     this.displayExtra,
     this.shiYing,
     this.changedShiYing,
     this.changed,
+    this.isVoid = false,
   });
 
   /// 爻位：1 = 初爻 … 6 = 上爻（稳定身份）。
@@ -73,8 +79,11 @@ class ReviewLineView {
   /// 六神（排盘引擎未落地前由演示档案提供，真实计算为空）。
   final String? sixSpirit;
 
-  /// 伏神文本（不含「伏：」前缀，如 财丙寅　父丁未）。
-  final String? hiddenSpirit;
+  /// 伏神 1（如 财丙寅；不含「伏：」前缀）。
+  final String? hiddenSpirit1;
+
+  /// 伏神 2（如 父丁未）。
+  final String? hiddenSpirit2;
 
   /// 六亲 + 地支（如 父母丁未土）。
   final String? sixRelative;
@@ -91,6 +100,9 @@ class ReviewLineView {
   /// 变卦信息。
   final ReviewChangedLine? changed;
 
+  /// 主卦侧空亡（旬空，UI 表现专用；由排盘引擎提供 isVoid，Widget 不计算）。
+  final bool isVoid;
+
   bool get isYang => movementType == MovementType.shaoYang ||
       movementType == MovementType.laoYang;
 
@@ -102,7 +114,7 @@ class ReviewLineView {
   String get mainPrimary {
     final base = sixRelative ?? branch;
     if (base == null) return '—';
-    return displayExtra == null ? base : '$base（$displayExtra）';
+    return displayExtra == null ? base : '$base($displayExtra)';
   }
 }
 
