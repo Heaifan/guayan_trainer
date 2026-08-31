@@ -61,9 +61,13 @@ abstract final class ReviewDemoData {
           ReviewShenShaItem(name: '羊刃', value: '午'),
         ],
         yearPillar: '丙午年',
+        yearNaYin: '天河水',
         monthPillar: '丙申月',
+        monthNaYin: '山下火',
         dayPillar: '丙子日',
+        dayNaYin: '涧下水',
         hourPillar: '丁酉时',
+        hourNaYin: '山下火',
         xunKong: '申酉空',
         originalHexagramName: '泽山咸',
         changedHexagramName: '泽水困',
@@ -75,8 +79,7 @@ abstract final class ReviewDemoData {
         lineTraditional: {
           6: ReviewLineTraditional(
             sixSpirit: '青龙',
-            hiddenSpirit1: '财寅木', // 3 字短格式：六亲简称+地支+五行
-            hiddenSpirit2: '父未土',
+            hiddenSpirit1: '财丙寅',
             sixRelative: '父母丁未土',
             displayExtra: '天河水',
             shiYing: '应',
@@ -88,8 +91,7 @@ abstract final class ReviewDemoData {
           ),
           5: ReviewLineTraditional(
             sixSpirit: '玄武',
-            hiddenSpirit1: '孙子水',
-            hiddenSpirit2: '兄酉金',
+            hiddenSpirit1: null,
             sixRelative: '兄弟丁酉金',
             displayExtra: '山下火',
             isVoid: true, // 酉 在 申酉空
@@ -102,8 +104,7 @@ abstract final class ReviewDemoData {
           ),
           4: ReviewLineTraditional(
             sixSpirit: '白虎',
-            hiddenSpirit1: '父戌土',
-            hiddenSpirit2: '孙亥水',
+            hiddenSpirit1: null,
             sixRelative: '子孙丁亥水',
             displayExtra: '屋上土',
             changedShiYing: '应',
@@ -115,8 +116,7 @@ abstract final class ReviewDemoData {
           ),
           3: ReviewLineTraditional(
             sixSpirit: '腾蛇',
-            hiddenSpirit1: '兄申金',
-            hiddenSpirit2: '父丑土',
+            hiddenSpirit1: '兄弟丙申金',
             sixRelative: '兄弟丙申金',
             displayExtra: '山下火',
             shiYing: '世',
@@ -129,8 +129,7 @@ abstract final class ReviewDemoData {
           ),
           2: ReviewLineTraditional(
             sixSpirit: '勾陈',
-            hiddenSpirit1: '官午火',
-            hiddenSpirit2: '财卯木',
+            hiddenSpirit1: null,
             sixRelative: '官鬼丙午火',
             displayExtra: '天河水',
             changed: ReviewChangedLine(
@@ -141,8 +140,7 @@ abstract final class ReviewDemoData {
           ),
           1: ReviewLineTraditional(
             sixSpirit: '朱雀',
-            hiddenSpirit1: '父辰土',
-            hiddenSpirit2: '官巳火',
+            hiddenSpirit1: null,
             sixRelative: '父母丙辰土',
             displayExtra: '沙中土',
             changedShiYing: '世',

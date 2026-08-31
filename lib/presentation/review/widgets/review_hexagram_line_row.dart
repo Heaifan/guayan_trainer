@@ -29,13 +29,14 @@ class ReviewHexagramLineRow extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  /// 设计坐标空间（宽 400 = 402 卡片内宽）。
-  static const double _designW = 400;
+  static const double _designW = 402;
   static const double _rowH = 48;
-  static const double _primaryBaseline = 19;
-  static const double _naYinBaseline = 35;
 
-  /// 主卦爻槽种类：空亡优先于阴阳（isVoid 由排盘引擎提供，Widget 不计算）。
+  static const double _mainBaseline = 18;
+  static const double _naYinBaseline = 34;
+  static const double _spiritBaseline = 24;
+  static const double _yaoCenterY = 24;
+
   YaoKind get _mainYaoKind {
     if (line.isVoid) return YaoKind.voidYao;
     return line.isYang ? YaoKind.yang : YaoKind.yin;
@@ -49,23 +50,25 @@ class ReviewHexagramLineRow extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // 六神 / 伏神（辅助信息：不加大、不加粗）
-          _primaryText(22, 28, line.sixSpirit ?? '—', _spiritStyle),
-          _primaryText(62, 32, line.hiddenSpirit1 ?? '', _hiddenStyle),
-          _primaryText(100, 32, line.hiddenSpirit2 ?? '', _hiddenStyle),
-          // 主卦正文 + 纳音（重点：加粗加大）
-          _primaryText(
-            174,
-            56,
-            line.sixRelative ?? line.branch ?? '—',
-            _linePrimaryStyle,
-          ),
+          // 六神 / 伏神
+          _leftText(18, line.sixSpirit ?? '—', _spiritStyle, _spiritBaseline),
+          if (line.hiddenSpirit1 != null || line.hiddenSpirit2 != null) ...[
+            if (line.hiddenSpirit1 != null)
+              _leftText(44, line.hiddenSpirit1!, _hiddenStyle, _spiritBaseline),
+            if (line.hiddenSpirit2 != null)
+              _leftText(70, line.hiddenSpirit2!, _hiddenStyle, _spiritBaseline),
+          ] else
+            _centerText(72, '—', _hiddenStyle, _spiritBaseline),
+          
+          // 主卦正文 + 纳音
+          _leftText(136, line.mainPrimary, _linePrimaryStyle, _mainBaseline),
           if (line.displayExtra != null && line.displayExtra!.isNotEmpty)
-            _naYinText(174, 56, line.displayExtra!),
-          // 主卦爻槽（24×6，槽顶 = PrimaryBaseline - 6 = 13）
+            _leftText(136, line.displayExtra!, _naYinStyle, _naYinBaseline),
+
+          // 主卦爻槽
           Positioned(
-            left: 222 - YaoGlyph.slotWidth / 2,
-            top: _primaryBaseline - YaoGlyph.slotHeight,
+            left: 212,
+            top: _yaoCenterY - YaoGlyph.slotHeight / 2,
             width: YaoGlyph.slotWidth,
             height: YaoGlyph.slotHeight,
             child: YaoGlyph(
@@ -75,18 +78,13 @@ class ReviewHexagramLineRow extends StatelessWidget {
           ),
           // 主卦世应
           if (line.shiYing != null)
-            _primaryText(
-              250,
-              16,
-              line.shiYing!,
-              _shiYingStyle,
-              textKey: Key('shi_ying_${line.position}'),
-            ),
-          // 动爻标记（12×12，中心 = PrimaryBaseline - 3）
+            _leftText(244, line.shiYing!, _shiYingStyle, _spiritBaseline, textKey: Key('shi_ying_${line.position}')),
+            
+          // 动爻标记
           if (line.movementType.isMoving)
             Positioned(
-              left: 268 - MovingMarker.markerSize / 2,
-              top: _primaryBaseline - 3 - MovingMarker.markerSize / 2,
+              left: 260 - MovingMarker.markerSize / 2,
+              top: _yaoCenterY - MovingMarker.markerSize / 2,
               width: MovingMarker.markerSize,
               height: MovingMarker.markerSize,
               child: MovingMarker(
@@ -94,33 +92,26 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 isYin: line.movementType == MovementType.laoYin,
               ),
             ),
+            
           // 箭头
           if (line.movementType.isMoving)
             Positioned(
-              left: 280 - 3,
-              top: _primaryBaseline - 3 - 6,
+              left: 277,
+              top: _yaoCenterY - 6,
               width: 6,
               height: 12,
               child: const _MovingArrow(),
             ),
+
           // 变卦正文 + 纳音
-          _primaryText(
-            318,
-            56,
-            line.changed == null
-                ? '—'
-                : (line.changed!.sixRelative ??
-                    line.changed!.earthlyBranch ??
-                    '—'),
-            _linePrimaryStyle,
-          ),
-          if (line.changed?.displayExtra != null &&
-              line.changed!.displayExtra!.isNotEmpty)
-            _naYinText(318, 56, line.changed!.displayExtra!),
+          _leftText(278, line.changed?.primaryLabel ?? '—', _linePrimaryStyle, _mainBaseline),
+          if (line.changed?.displayExtra != null && line.changed!.displayExtra!.isNotEmpty)
+            _leftText(278, line.changed!.displayExtra!, _naYinStyle, _naYinBaseline),
+
           // 变卦爻槽
           Positioned(
-            left: 358 - YaoGlyph.slotWidth / 2,
-            top: _primaryBaseline - YaoGlyph.slotHeight,
+            left: 368,
+            top: _yaoCenterY - YaoGlyph.slotHeight / 2,
             width: YaoGlyph.slotWidth,
             height: YaoGlyph.slotHeight,
             child: line.changed?.movementType == null
@@ -139,29 +130,20 @@ class ReviewHexagramLineRow extends StatelessWidget {
           ),
           // 变卦世应
           if (line.changedShiYing != null)
-            _primaryText(
-              388,
-              16,
-              line.changedShiYing!,
-              _shiYingStyle,
-              textKey: Key('changed_shi_ying_${line.position}'),
-            ),
+            _leftText(396, line.changedShiYing!, _shiYingStyle, _spiritBaseline, textKey: Key('changed_shi_ying_${line.position}')),
         ],
       ),
     );
 
     final row = Container(
       key: Key('review_line_${line.position}'),
-      height: _rowH,
       width: double.infinity,
-      // 注意：行内不带底边框（边框由表格层独立分割线绘制），
-      // 保证 FittedBox 父高恰为 48，行内容不做任何纵向缩放。
       decoration: BoxDecoration(
-        color: selected ? CastingTokens.surfaceActive : Colors.transparent,
+        color: selected ? const Color(0xFFE6F0EB) : Colors.transparent,
       ),
       child: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.center,
+        fit: BoxFit.contain,
+        alignment: Alignment.centerLeft,
         child: content,
       ),
     );
@@ -173,23 +155,21 @@ class ReviewHexagramLineRow extends StatelessWidget {
     );
   }
 
-  /// 主基线文本：Baseline 数学锁定在 RowTop + 19，列内水平居中。
-  Widget _primaryText(
-    double center,
-    double width,
+  Widget _leftText(
+    double left,
     String text,
-    TextStyle style, {
+    TextStyle style,
+    double baseline, {
     Key? textKey,
   }) {
     return Positioned(
-      left: center - width / 2,
+      left: left,
       top: 0,
-      width: width,
-      height: _rowH,
+      bottom: 0,
       child: Align(
         alignment: Alignment.topCenter,
         child: Baseline(
-          baseline: _primaryBaseline,
+          baseline: baseline,
           baselineType: TextBaseline.alphabetic,
           child: Text(text, key: textKey, maxLines: 1, style: style),
         ),
@@ -197,56 +177,61 @@ class ReviewHexagramLineRow extends StatelessWidget {
     );
   }
 
-  /// 纳音文本：Baseline 数学锁定在 RowTop + 35。
-  Widget _naYinText(double center, double width, String text) {
+  Widget _centerText(
+    double centerX,
+    String text,
+    TextStyle style,
+    double baseline, {
+    Key? textKey,
+  }) {
     return Positioned(
-      left: center - width / 2,
+      left: centerX - 50,
       top: 0,
-      width: width,
-      height: _rowH,
+      width: 100,
+      bottom: 0,
       child: Align(
         alignment: Alignment.topCenter,
         child: Baseline(
-          baseline: _naYinBaseline,
+          baseline: baseline,
           baselineType: TextBaseline.alphabetic,
-          child: Text(text, maxLines: 1, style: _naYinStyle),
+          child: Text(text, key: textKey, maxLines: 1, textAlign: TextAlign.center, style: style),
         ),
       ),
     );
   }
 
   static const TextStyle _spiritStyle = TextStyle(
-    fontSize: 9.4,
-    fontWeight: FontWeight.w400,
-    color: CastingTokens.spiritGold,
+    fontSize: 10,
+    fontWeight: FontWeight.w700,
+    color: Color(0xFF9A7B45),
     height: 1.2,
   );
 
   static const TextStyle _hiddenStyle = TextStyle(
     fontSize: 9,
     fontWeight: FontWeight.w400,
-    color: CastingTokens.textBody,
+    color: Color(0xFF71838B),
     height: 1.2,
   );
 
   static const TextStyle _linePrimaryStyle = TextStyle(
-    fontSize: 10.5,
+    fontSize: 12,
     fontWeight: FontWeight.w700,
-    color: CastingTokens.linePrimary,
+    color: Color(0xFF243744),
     height: 1.2,
   );
 
   static const TextStyle _naYinStyle = TextStyle(
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: FontWeight.w400,
-    color: CastingTokens.textSecondary,
+    color: Color(0xFF71838B),
     height: 1.2,
   );
 
   static const TextStyle _shiYingStyle = TextStyle(
-    fontSize: 8.8,
-    fontWeight: FontWeight.w400,
-    color: CastingTokens.shiYingRed,
+    fontSize: 9,
+    fontWeight: FontWeight.w700,
+    color: Color(0xFFB66F6F),
     height: 1.2,
   );
 }

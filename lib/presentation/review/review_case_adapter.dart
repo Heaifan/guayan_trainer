@@ -50,9 +50,13 @@ class ReviewTraditionalProfile {
     this.lunarDateTime,
     this.shenShaItems = const [],
     this.yearPillar,
+    this.yearNaYin,
     this.monthPillar,
+    this.monthNaYin,
     this.dayPillar,
+    this.dayNaYin,
     this.hourPillar,
+    this.hourNaYin,
     this.xunKong,
     this.originalHexagramName,
     this.changedHexagramName,
@@ -68,9 +72,13 @@ class ReviewTraditionalProfile {
   final String? lunarDateTime;
   final List<ReviewShenShaItem> shenShaItems;
   final String? yearPillar;
+  final String? yearNaYin;
   final String? monthPillar;
+  final String? monthNaYin;
   final String? dayPillar;
+  final String? dayNaYin;
   final String? hourPillar;
+  final String? hourNaYin;
   final String? xunKong;
   final String? originalHexagramName;
   final String? changedHexagramName;
@@ -120,9 +128,13 @@ class ReviewCaseAdapter {
       lunarDateTime: profile?.lunarDateTime,
       shenShaItems: profile?.shenShaItems ?? const [],
       yearPillar: profile?.yearPillar,
+      yearNaYin: profile?.yearNaYin,
       monthPillar: profile?.monthPillar,
+      monthNaYin: profile?.monthNaYin,
       dayPillar: profile?.dayPillar,
+      dayNaYin: profile?.dayNaYin,
       hourPillar: profile?.hourPillar,
+      hourNaYin: profile?.hourNaYin,
       xunKong: profile?.xunKong,
       originalHexagramName: profile?.originalHexagramName,
       changedHexagramName: profile?.changedHexagramName,

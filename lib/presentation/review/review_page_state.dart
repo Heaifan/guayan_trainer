@@ -47,7 +47,7 @@ class ReviewChangedLine {
   String get primaryLabel {
     final base = sixRelative ?? earthlyBranch;
     if (base == null) return '—';
-    return displayExtra == null ? base : '$base($displayExtra)';
+    return base;
   }
 }
 
@@ -79,10 +79,10 @@ class ReviewLineView {
   /// 六神（排盘引擎未落地前由演示档案提供，真实计算为空）。
   final String? sixSpirit;
 
-  /// 伏神 1（如 财丙寅；不含「伏：」前缀）。
+  /// 伏神1（如 财丙寅；不含「伏：」前缀）。
   final String? hiddenSpirit1;
 
-  /// 伏神 2（如 父丁未）。
+  /// 伏神2。
   final String? hiddenSpirit2;
 
   /// 六亲 + 地支（如 父母丁未土）。
@@ -114,7 +114,7 @@ class ReviewLineView {
   String get mainPrimary {
     final base = sixRelative ?? branch;
     if (base == null) return '—';
-    return displayExtra == null ? base : '$base($displayExtra)';
+    return base;
   }
 }
 
@@ -130,9 +130,13 @@ class ReviewPageState {
     this.lunarDateTime,
     this.shenShaItems = const [],
     this.yearPillar,
+    this.yearNaYin,
     this.monthPillar,
+    this.monthNaYin,
     this.dayPillar,
+    this.dayNaYin,
     this.hourPillar,
+    this.hourNaYin,
     this.xunKong,
     this.originalHexagramName,
     this.changedHexagramName,
@@ -158,9 +162,13 @@ class ReviewPageState {
   final List<ReviewShenShaItem> shenShaItems;
 
   final String? yearPillar;
+  final String? yearNaYin;
   final String? monthPillar;
+  final String? monthNaYin;
   final String? dayPillar;
+  final String? dayNaYin;
   final String? hourPillar;
+  final String? hourNaYin;
 
   /// 旬空文本（如 申酉空）。
   final String? xunKong;

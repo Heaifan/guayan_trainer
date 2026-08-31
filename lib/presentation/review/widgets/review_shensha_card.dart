@@ -16,16 +16,14 @@ class ReviewShenShaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = state.shenShaItems;
-    final cellCount = items.length <= 16
-        ? 16
-        : ((items.length / 4).ceil() * 4);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
-        color: CastingTokens.surface,
-        borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: CastingTokens.border),
+        color: const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFDCE5E1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,58 +31,54 @@ class ReviewShenShaCard extends StatelessWidget {
           const Text(
             '神煞',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: CastingTokens.textPrimary,
+              color: Color(0xFF243744),
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 12),
           if (items.isEmpty)
             const Text(
               '暂无神煞数据（排盘引擎接入后展示）',
               style: TextStyle(
-                fontSize: 11,
-                color: CastingTokens.textMuted,
+                fontSize: 10,
+                color: Color(0xFF71838B),
                 height: 1.4,
               ),
             )
           else
-            GridView(
+            GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
-                crossAxisSpacing: 6,
-                mainAxisSpacing: 4,
-                mainAxisExtent: 18,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 7,
+                mainAxisExtent: 20,
               ),
-              children: [
-                for (var i = 0; i < cellCount; i++)
-                  i < items.length
-                      ? Container(
-                          key: Key('shensha_${items[i].name}'),
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: CastingTokens.chipSurface,
-                            borderRadius: BorderRadius.circular(9),
-                            border: Border.all(color: CastingTokens.chipBorder),
-                          ),
-                          child: Text(
-                            items[i].label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 9.4,
-                              fontWeight: FontWeight.w600,
-                              color: CastingTokens.shenShaItem,
-                              height: 1.2,
-                            ),
-                          ),
-                        )
-                      : const SizedBox(), // 留空占位：保持 4×4 固定几何
-              ],
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  key: Key('shensha_${items[index].name}'),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAF9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    items[index].label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF71838B),
+                      height: 1.1,
+                    ),
+                  ),
+                );
+              },
             ),
         ],
       ),

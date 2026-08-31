@@ -7,10 +7,11 @@ import 'review_demo_data.dart';
 import 'review_page_state.dart';
 import 'widgets/review_app_bar.dart';
 import 'widgets/review_basic_info_card.dart';
-import 'widgets/review_four_pillars_strip.dart';
+import 'widgets/review_time_card.dart';
 import 'widgets/review_hexagram_result_table.dart';
 import 'widgets/review_line_detail_sheet.dart';
 import 'widgets/review_shensha_card.dart';
+import 'widgets/review_relation_toolbar.dart';
 
 /// 审卦页 —— 审卦一屏版（GUAYAN-2.0 审卦首屏总基准）。
 ///
@@ -85,7 +86,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CastingTokens.page,
+      backgroundColor: const Color(0xFFF5F8F6),
       body: SafeArea(
         top: true,
         bottom: false,
@@ -100,16 +101,17 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                   children: [
                     ReviewBasicInfoCard(state: widget.state),
                     const SizedBox(height: 6),
-                    ReviewFourPillarsStrip(state: widget.state),
-                    const SizedBox(height: 6),
                     ReviewShenShaCard(state: widget.state),
                     const SizedBox(height: 6),
-                    // 完整卦盘已内嵌【主卦】/【变卦】标题。
+                    ReviewTimeCard(state: widget.state),
+                    const SizedBox(height: 6),
                     ReviewHexagramResultTable(
                       state: widget.state,
                       selectedPosition: _selectedPosition,
                       onLineTap: _onLineTap,
                     ),
+                    const SizedBox(height: 6),
+                    const ReviewRelationToolbar(),
                   ],
                 ),
               ),

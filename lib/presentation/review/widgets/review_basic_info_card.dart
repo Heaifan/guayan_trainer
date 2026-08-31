@@ -26,148 +26,86 @@ class ReviewBasicInfoCard extends StatelessWidget {
     final lunar = state.lunarDateTime ?? '—';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+      width: double.infinity,
+      height: 72,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       decoration: BoxDecoration(
-        color: CastingTokens.surface,
-        borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: CastingTokens.border),
+        color: const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFDCE5E1)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const _Label('问事'),
-              const SizedBox(width: 8),
+              const Text(
+                '问事',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF243744),
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   state.question.isEmpty ? '—' : state.question,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 10,
-                    color: CastingTokens.textBody,
-                    height: 1.3,
+                    fontSize: 12,
+                    color: Color(0xFF405E6C),
+                    height: 1.2,
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               Container(
-                key: const Key('basic_method_chip'),
-                height: 22,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                width: 72,
+                height: 24,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: CastingTokens.surfaceActive,
-                  borderRadius: BorderRadius.circular(11),
-                  border: Border.all(color: CastingTokens.borderActive),
+                  color: const Color(0xFFF0F5F2),
+                  borderRadius: BorderRadius.circular(13),
+                  border: Border.all(color: const Color(0xFF9BB2A6)),
                 ),
                 child: Text(
                   state.castingMethod ?? '—',
-                  maxLines: 1,
                   style: const TextStyle(
-                    fontSize: 8.8,
-                    color: CastingTokens.textSecondary,
+                    fontSize: 10,
+                    color: Color(0xFF71838B),
                     height: 1.1,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    const _Label('公历'),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        solar,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: CastingTokens.textBody,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Row(
-                  children: [
-                    const _Label('农历'),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        lunar,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: CastingTokens.textBody,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          const Spacer(),
+          Text(
+            '公历 $solar　农历 $lunar',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 10,
+              color: Color(0xFF71838B),
+              height: 1.2,
+            ),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              _MetaText(_rulePackLabel),
-              const SizedBox(width: 24),
-              _MetaText(state.castingMethod == null ? '—' : '手动起卦'),
-              const SizedBox(width: 24),
-              const _MetaText('排盘已生成'),
-            ],
+          const SizedBox(height: 2),
+          Text(
+            '$_rulePackLabel　${state.castingMethod == null ? '—' : '手动起卦'}　排盘已生成',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 10,
+              color: Color(0xFF71838B),
+              height: 1.2,
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: CastingTokens.textPrimary,
-        height: 1.2,
-      ),
-    );
-  }
-}
-
-class _MetaText extends StatelessWidget {
-  const _MetaText(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      maxLines: 1,
-      style: const TextStyle(
-        fontSize: 9,
-        color: CastingTokens.textSecondary,
-        height: 1.2,
       ),
     );
   }

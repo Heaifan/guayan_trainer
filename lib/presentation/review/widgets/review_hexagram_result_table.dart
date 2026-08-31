@@ -18,26 +18,24 @@ class ReviewHexagramResultTable extends StatelessWidget {
   });
 
   final ReviewPageState state;
-
-  /// 当前高亮爻位（点爻后）。
   final int? selectedPosition;
-
-  /// 点爻回调。
   final ValueChanged<int>? onLineTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: CastingTokens.surface,
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: CastingTokens.border),
+        border: Border.all(color: const Color(0xFFDCE5E1)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _HeaderZone(state: state),
+          const _ColumnHeaderZone(),
           for (var i = 0; i < state.displayLines.length; i++) ...[
             ReviewHexagramLineRow(
               line: state.displayLines[i],
@@ -46,23 +44,20 @@ class ReviewHexagramResultTable extends StatelessWidget {
                   ? null
                   : () => onLineTap!(state.displayLines[i].position),
             ),
-            // 行间独立 1px 分割线（行内容高恒为 48，不做纵向缩放）。
             if (i < state.displayLines.length - 1)
-              const SizedBox(
+              Container(
                 height: 1,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(color: CastingTokens.divider),
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                color: const Color(0xFFE5ECE8),
               ),
           ],
-          const _FooterNote(),
+          const SizedBox(height: 4), // Bottom padding
         ],
       ),
     );
   }
 }
 
-/// 表头区：浅底 +【主卦】/【变卦】标题 + 卦名（金色），高度 54（紧凑）。
 class _HeaderZone extends StatelessWidget {
   const _HeaderZone({required this.state});
 
@@ -71,11 +66,9 @@ class _HeaderZone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 54,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      height: 60,
       decoration: const BoxDecoration(
-        color: CastingTokens.surfaceSoft,
-        border: Border(bottom: BorderSide(color: CastingTokens.divider)),
+        border: Border(bottom: BorderSide(color: Color(0xFFE5ECE8))),
       ),
       child: Row(
         children: [
@@ -111,21 +104,21 @@ class _HexTitle extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: CastingTokens.textPrimary,
+            color: Color(0xFF243744),
             height: 1.2,
           ),
         ),
-        const SizedBox(height: 1),
+        const SizedBox(height: 4),
         Text(
           name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 10.8,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: CastingTokens.guaNameGold,
+            color: Color(0xFF9A7B45),
             height: 1.2,
           ),
         ),
@@ -134,24 +127,48 @@ class _HexTitle extends StatelessWidget {
   }
 }
 
-/// 表尾提示：点爻查看关系、规则依据与关系备注。
-class _FooterNote extends StatelessWidget {
-  const _FooterNote();
+class _ColumnHeaderZone extends StatelessWidget {
+  const _ColumnHeaderZone();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: CastingTokens.divider)),
-      ),
-      child: const Text(
-        '点击任一爻查看关系、规则依据与关系备注',
-        style: TextStyle(
-          fontSize: 8,
-          color: CastingTokens.textMuted,
-          height: 1.4,
+      width: double.infinity,
+      padding: const EdgeInsets.only(bottom: 12, top: 10),
+      child: FittedBox(
+        fit: BoxFit.contain,
+        alignment: Alignment.centerLeft,
+        child: SizedBox(
+          width: 402,
+          height: 12,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: const [
+              Positioned(left: 18, child: _ColText('六神')),
+              Positioned(left: 72, child: _ColText('伏神')),
+              Positioned(left: 136, child: _ColText('主卦')),
+              Positioned(left: 222, child: _ColText('爻')),
+              Positioned(left: 278, child: _ColText('变卦')),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _ColText extends StatelessWidget {
+  const _ColText(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 9,
+        color: Color(0xFF7C8D94),
+        height: 1.0,
       ),
     );
   }

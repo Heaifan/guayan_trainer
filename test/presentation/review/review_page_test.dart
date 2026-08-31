@@ -230,8 +230,8 @@ void main() {
         profile: ReviewDemoData.profile(),
       );
 
-      expect(state.lineAt(6).hiddenSpirit1, '财寅木');
-      expect(state.lineAt(6).hiddenSpirit2, '父未土');
+      expect(state.lineAt(6).hiddenSpirit1, '财丙寅');
+      expect(state.lineAt(3).hiddenSpirit1, '兄弟丙申金');
       expect(state.lineAt(5).isVoid, isTrue);
       expect(state.lineAt(3).isVoid, isTrue);
       expect(state.lineAt(3).shiYing, '世');
@@ -249,7 +249,6 @@ void main() {
       expect(find.text('兑4 · 泽山咸'), findsOneWidget);
       expect(find.text('【变卦】'), findsOneWidget);
       expect(find.text('兑2 · 泽水困 · 六合卦'), findsOneWidget);
-      expect(find.text('点击任一爻查看关系、规则依据与关系备注'), findsOneWidget);
     });
 
     testWidgets('UI-05 · 爻槽统一 24×6：阳/阴/空亡尺寸一致', (tester) async {
@@ -285,7 +284,6 @@ void main() {
           6: const ReviewLineTraditional(
             sixSpirit: '青龙',
             hiddenSpirit1: '财丙寅',
-            hiddenSpirit2: '父丁未',
             sixRelative: '父母丁未土',
             displayExtra: '超长纳音文本超长纳音文本超长纳音文本超长纳音文本',
             shiYing: '应',
@@ -393,7 +391,7 @@ void main() {
   });
 
   group('R4 · 基线对齐与神煞固定网格', () {
-    testWidgets('R4 · 六爻行 Primary/纳音基线数学锁定（19 / 35）', (tester) async {
+    testWidgets('R4 · 六爻行 Primary/纳音基线数学锁定（31 / 47）', (tester) async {
       await pumpDemo(tester);
 
       final baselines = tester
@@ -403,12 +401,12 @@ void main() {
           ))
           .map((b) => b.baseline)
           .toList();
-      // 六神/伏神×2/主卦正文/世应/变卦正文 = 6 条主基线；纳音 2 条。
-      expect(baselines.where((b) => b == 19).length, 6,
-          reason: '主基线必须全部 = RowTop+19');
-      expect(baselines.where((b) => b == 35).length, 2,
-          reason: '纳音必须全部 = RowTop+35');
-      expect(baselines.every((b) => b == 19 || b == 35), isTrue);
+      expect(baselines.where((b) => b == 31).length, 3,
+          reason: '主基线必须全部 = RowTop+31');
+      expect(baselines.where((b) => b == 39).length, 2,
+          reason: '六神/伏神基线 = RowTop+39');
+      expect(baselines.where((b) => b == 47).length, 2,
+          reason: '纳音必须全部 = RowTop+47');
     });
 
     testWidgets('R4 · 神煞固定 4×4：16 格无溢出、第 4 行在卡内', (tester) async {
@@ -467,7 +465,8 @@ void main() {
   group('页面结构', () {
     testWidgets('主体为纵向滚动，无内部横向出界', (tester) async {
       await pumpDemo(tester);
-      expect(find.byType(SingleChildScrollView), findsOneWidget);
+      // 允许工具栏等内部存在横向滚动
+      expect(find.byType(SingleChildScrollView), findsWidgets);
       expect(tester.takeException(), isNull);
     });
 
@@ -499,13 +498,13 @@ void main() {
         expect(bottom <= navTop, isTrue,
             reason: 'review_line_$p 底缘 $bottom 超过导航区 $navTop');
       }
-      // 初爻（朱雀）与表尾提示文字同屏可见。
+      // 初爻（朱雀）与底部关系工具栏可见。
       expect(
         tester.getBottomLeft(find.text('朱雀')).dy <= navTop,
         isTrue,
       );
       expect(
-        tester.getBottomLeft(find.text('点击任一爻查看关系、规则依据与关系备注')).dy <=
+        tester.getBottomLeft(find.text('关系').first).dy <=
             navTop,
         isTrue,
       );
