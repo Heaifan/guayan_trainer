@@ -16,6 +16,9 @@ migrate_working_dir/
 # 本机开发辅助（不入库；含机器绝对路径与本机代理端口）
 scripts/flutter.local.ps1
 
+# 历法数据包生成器的权威源缓存（开发阶段联网抓取；正式产物为 assets/calendar/*.json）
+tool/calendar_pack_gen/.cache/
+
 # IntelliJ related
 *.iml
 *.ipr

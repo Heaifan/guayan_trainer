@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "calendarYear": 2024,
+  "timeStandard": "UTC",
+  "revision": 1,
+  "source": {
+    "name": "Hong Kong Observatory (HKO)",
+    "reference": "https://www.hko.gov.hk/en/gts/astronomy/data/files/24SolarTerms_2024.xml",
+    "generatedAt": "2026-09-10T18:03:12Z",
+    "note": "Astronomical data by HM Nautical Almanac Office (UK) and United States Naval Observatory. Original times in HKT (UTC+8), converted to UTC. Source precision: 1 minute."
+  },
+  "terms": [
+    {
+      "term": "xiaoHan",
+      "instantUtc": "2024-01-05T20:49:00Z"
+    },
+    {
+      "term": "daHan",
+      "instantUtc": "2024-01-20T14:07:00Z"
+    },
+    {
+      "term": "liChun",
+      "instantUtc": "2024-02-04T08:27:00Z"
+    },
+    {
+      "term": "yuShui",
+      "instantUtc": "2024-02-19T04:13:00Z"
+    },
+    {
+      "term": "jingZhe",
+      "instantUtc": "2024-03-05T02:23:00Z"
+    },
+    {
+      "term": "chunFen",
+      "instantUtc": "2024-03-20T03:06:00Z"
+    },
+    {
+      "term": "qingMing",
+      "instantUtc": "2024-04-04T07:02:00Z"
+    },
+    {
+      "term": "guYu",
+      "instantUtc": "2024-04-19T14:00:00Z"
+    },
+    {
+      "term": "liXia",
+      "instantUtc": "2024-05-05T00:10:00Z"
+    },
+    {
+      "term": "xiaoMan",
+      "instantUtc": "2024-05-20T13:00:00Z"
+    },
+    {
+      "term": "mangZhong",
+      "instantUtc": "2024-06-05T04:10:00Z"
+    },
+    {
+      "term": "xiaZhi",
+      "instantUtc": "2024-06-20T20:51:00Z"
+    },
+    {
+      "term": "xiaoShu",
+      "instantUtc": "2024-07-06T14:20:00Z"
+    },
+    {
+      "term": "daShu",
+      "instantUtc": "2024-07-22T07:44:00Z"
+    },
+    {
+      "term": "liQiu",
+      "instantUtc": "2024-08-07T00:09:00Z"
+    },
+    {
+      "term": "chuShu",
+      "instantUtc": "2024-08-22T14:55:00Z"
+    },
+    {
+      "term": "baiLu",
+      "instantUtc": "2024-09-07T03:11:00Z"
+    },
+    {
+      "term": "qiuFen",
+      "instantUtc": "2024-09-22T12:44:00Z"
+    },
+    {
+      "term": "hanLu",
+      "instantUtc": "2024-10-07T19:00:00Z"
+    },
+    {
+      "term": "shuangJiang",
+      "instantUtc": "2024-10-22T22:15:00Z"
+    },
+    {
+      "term": "liDong",
+      "instantUtc": "2024-11-06T22:20:00Z"
+    },
+    {
+      "term": "xiaoXue",
+      "instantUtc": "2024-11-21T19:56:00Z"
+    },
+    {
+      "term": "daXue",
+      "instantUtc": "2024-12-06T15:17:00Z"
+    },
+    {
+      "term": "dongZhi",
+      "instantUtc": "2024-12-21T09:21:00Z"
+    }
+  ]
+}
