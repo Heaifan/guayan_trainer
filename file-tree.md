@@ -2,10 +2,48 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-10 09:51
+> **最后编辑：** 2026-09-11 01:25
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 排盘引擎 R3 卦体层 — GUAYAN-2.0-R3-ENGINE-A（2026-09-11，未发布）
+
+> **排盘从演示档案变成真实计算。** 纯 Dart 领域层，零 Flutter 依赖；
+> Widget 一律不得自行排卦（总计划 §10）。本轮覆盖 R3 清单 12 项中的 9 项。
+
+### 新增（lib/domain/ — 基础坐标）
+- `wu_xing.dart` — 五行 + 生克；`relationTo(self)` 是六亲判定唯一入口
+- `di_zhi.dart` — 十二地支：五行 / 阴阳 / 六冲 / 六合
+- `tian_gan.dart` — 十天干：五行 / 阴阳 / 六十甲子取干
+
+### 新增（lib/domain/casting/ — 排盘引擎）
+- `bagua.dart` — 八卦（三爻自下而上）+ 卦符 + 五行 + 先天序
+- `najia.dart` — 纳甲表（干支）：乾纳甲壬、坤纳乙癸；内外卦分别装卦
+- `palace.dart` — 京房八宫卦序 + 世应（算法生成，非硬编码 64 条）
+- `hexagram_names.dart` — 六十四卦名表（上卦 × 下卦）
+- `hexagram64.dart` — 六爻阴阳 → 卦名 / 宫位 / 世应
+- `six_relative.dart` — 六亲（以宫位五行为「我」）
+- `six_spirit.dart` — 六神（按日干起例，自初爻向上顺排）
+- `cast_chart.dart` — 排盘结果模型（CastLine / CastChart）
+- `casting_engine.dart` — 引擎组装：本卦 / 变卦 / 动变 / 纳甲 / 世应 / 六亲 / 六神
+
+### 关键契约
+- 世应由「本宫卦逐爻翻转 → 游魂回翻四爻 → 归魂还原内卦」推导，
+  世爻序列恒为 6/1/2/3/4/5/4/3，不维护 64 条硬编码表；
+- **变卦六亲仍取本卦之宫**为「我」（传统固定规则）；
+- 静卦不生成变卦；无日干时六神为 null；非法输入抛异常。
+
+### 测试（+23，共 129/129 通过；analyze 0 issue）
+- `test/domain/casting/hexagram_tables_test.dart` — 表完整性与规则测试
+- `test/domain/casting/casting_engine_test.dart` — 经典排盘对照
+  （乾为天 / 坤为地 / 泽山咸 全爻纳甲·六亲·世应）
+
+### 未做（R3-B）
+- 四柱 / 月建 / 日辰 / 旬空（需干支历法 + 节气推算）；
+- 引擎接入审卦页，替换 `ReviewTraditionalProfile` 占位字段。
 
 ---
 
@@ -533,7 +571,7 @@ lib/
 ├── app.dart                # MaterialApp 主题配置
 ├── app/                    # 2.0 应用壳（GuayanApp / AppShell / 导航）
 ├── core/                   # 2.0 常量
-├── domain/                 # 2.0 领域层（GUAYAN-2.0-DOMAIN）
+├── domain/                 # 2.0 领域层（DOMAIN + R3 排盘引擎；casting/ 为引擎）
 ├── application/            # 2.0 用例层（预留）
 ├── presentation/           # 2.0 五个主页面 + 规则库/设置/关于
 ├── shell/                  # 旧导航壳（1.0 遗留）
@@ -597,8 +635,25 @@ lib/
 | `relation_note.dart` | 关系笔记实体（caseId + RelationKey 绑定） |
 | `relation_note_store.dart` | 笔记绑定存储：纯内存 + JSON 导入导出 |
 | `README.md` | 领域设计与 Stable Relation Identity 说明 |
+| `wu_xing.dart` | 五行 + 生克；`relationTo(self)` 为六亲判定唯一入口（R3） |
+| `di_zhi.dart` | 十二地支：五行 / 阴阳 / 六冲 / 六合（R3） |
+| `tian_gan.dart` | 十天干：五行 / 阴阳 / 六十甲子取干（R3） |
 
-### 5.3.2 lib/presentation/review/（2.0 审卦工作台）
+### 5.3.2 lib/domain/casting/（R3 排盘引擎）
+
+| 文件 | 职责 |
+| --- | --- |
+| `bagua.dart` | 八卦（三爻自下而上）+ 卦符 + 五行 + 先天序 |
+| `najia.dart` | 纳甲表（干支）：乾纳甲壬、坤纳乙癸；内外卦分别装卦 |
+| `palace.dart` | 京房八宫卦序 + 世应（算法生成，非硬编码 64 条） |
+| `hexagram_names.dart` | 六十四卦名表（上卦 × 下卦） |
+| `hexagram64.dart` | 六爻阴阳 → 卦名 / 宫位 / 世应 |
+| `six_relative.dart` | 六亲（以宫位五行为「我」） |
+| `six_spirit.dart` | 六神（按日干起例，自初爻向上顺排） |
+| `cast_chart.dart` | 排盘结果模型（CastLine / CastChart） |
+| `casting_engine.dart` | 引擎组装：本卦 / 变卦 / 动变 / 纳甲 / 世应 / 六亲 / 六神 |
+
+### 5.3.3 lib/presentation/review/（2.0 审卦工作台）
 
 | 文件 | 职责 |
 | --- | --- |
@@ -614,7 +669,7 @@ lib/
 | `widgets/review_hexagram_line_row.dart` | 六爻单行（11 列冻结，六亲地支/纳音拆两行无省略号，可点高亮） |
 | `widgets/review_line_detail_sheet.dart` | 点爻 Bottom Sheet（关系列表/规则依据/备注/进入关系页） |
 
-### 5.3.3 lib/presentation/shared/（2.0 共享爻组件，排卦/审卦强制复用）
+### 5.3.4 lib/presentation/shared/（2.0 共享爻组件，排卦/审卦强制复用）
 
 | 文件 | 职责 |
 | --- | --- |
@@ -745,6 +800,8 @@ lib/
 | `presentation/casting/casting_page_test.dart` | 排卦工作台测试（Test A–D / 行顺序 / 草稿仓库 / 纯逻辑 / UI-01~03） |
 | `presentation/review/review_page_test.dart` | 审卦工作台测试（§22 A–H / UI-04~08 / 适配器 / 双数据路径） |
 | `presentation/shared/yao_glyph_test.dart` | 共享爻组件尺寸冻结测试（24×6 / 12×12） |
+| `domain/casting/hexagram_tables_test.dart` | R3 表与规则：八卦/64 卦唯一性/八宫世应/纳甲/六亲/六神 |
+| `domain/casting/casting_engine_test.dart` | R3 引擎：经典排盘对照（乾为天/坤为地/泽山咸）+ 动变 |
 
 ---
 

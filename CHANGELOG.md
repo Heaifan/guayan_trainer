@@ -8,6 +8,65 @@
 
 ---
 
+## 2026-09-11 · GUAYAN-2.0-R3-ENGINE-A（排盘引擎 · 卦体层，未发布）
+
+> R3 第一阶段：把「排盘」从演示档案变成**真实计算**。纯 Dart 领域层，
+> 零 Flutter 依赖 —— Widget 一律不得自行排卦（总计划 §10）。
+> 本轮覆盖 R3 清单 12 项中的 9 项（卦体层）；
+> 四柱 / 月建 / 日辰 / 旬空需干支历法，留待 R3-B。
+
+### 新增（lib/domain/ — 基础坐标）
+| 文件 | 职责 |
+| --- | --- |
+| `wu_xing.dart` | 五行 + 生克；`relationTo(self)` 为六亲判定唯一入口 |
+| `di_zhi.dart` | 十二地支：五行 / 阴阳 / 六冲 / 六合 |
+| `tian_gan.dart` | 十天干：五行 / 阴阳 / 六十甲子取干 |
+
+### 新增（lib/domain/casting/ — 排盘引擎）
+| 文件 | 职责 |
+| --- | --- |
+| `bagua.dart` | 八卦（三爻自下而上）+ 卦符 + 五行 + 先天序 |
+| `najia.dart` | 纳甲表（干支）：乾纳甲壬、坤纳乙癸；内外卦分别装卦 |
+| `palace.dart` | 京房八宫卦序 + 世应（**算法生成，非硬编码 64 条**） |
+| `hexagram_names.dart` | 六十四卦名表（上卦 × 下卦） |
+| `hexagram64.dart` | 六爻阴阳 → 卦名 / 宫位 / 世应 |
+| `six_relative.dart` | 六亲（以宫位五行为「我」） |
+| `six_spirit.dart` | 六神（按日干起例，自初爻向上顺排） |
+| `cast_chart.dart` | 排盘结果模型（CastLine / CastChart） |
+| `casting_engine.dart` | 引擎组装：本卦 / 变卦 / 动变 / 纳甲 / 世应 / 六亲 / 六神 |
+
+### 设计要点
+- **世应不硬编码**：由「本宫卦逐爻翻转 → 游魂回翻四爻 → 归魂还原内卦」
+  生成八宫 64 卦，世爻序列自然为 6/1/2/3/4/5/4/3，消灭一张易抄错的表；
+- **变卦六亲仍取本卦之宫**为「我」（传统固定规则，引擎内已注释防止被当 bug 改掉）；
+- **静卦不生成变卦**——不返回「与本卦相同」的伪变卦；
+- **无日干则六神为 null**，不猜默认日干；非法输入抛异常，绝不返回半成品。
+
+### 修复
+- `wu_xing.dart` — `relationTo` 的「我生 / 生我」与「我克 / 克我」两对方向
+  判断写反，导致六亲 **子孙与父母颠倒**；由经典卦对照测试捕获后修正。
+
+### 测试（+23，共 129/129 通过）
+- `test/domain/casting/hexagram_tables_test.dart` — 八卦五行 / 64 卦表唯一性 /
+  八宫顺序与世爻序列（乾宫、兑宫）/ 世应相隔三 / 纳甲内外卦 / 六亲 / 六神起例；
+- `test/domain/casting/casting_engine_test.dart` — **经典排盘对照**（Gate A 的
+  离线等价物）：乾为天、坤为地、泽山咸 全爻纳甲·六亲·世应逐项比对；
+  老阳变阴、老阴变阳、多动爻、静卦无变卦、六神按日干接入、非法输入拒绝；
+- `flutter analyze --no-pub lib/domain test/domain`：**0 issue**。
+
+### 本机环境（不入库）
+- `scripts/flutter.local.ps1` — 重建本机 Flutter 包装脚本。本机 `$env:PATH`
+  被裁剪至仅剩 pnpm shim，缺 `System32` / `git` / `flutter` / `PowerShell`，
+  直接调用 `flutter` 报 `Error: PowerShell executable not found`。
+  该脚本补齐 PATH 后转发；因 `pwsh` 亦不在 PATH，须用绝对路径调用：
+  `& "$PSHOME\pwsh.exe" -File scripts/flutter.local.ps1 test`
+
+### 未做（R3-B）
+- 四柱（年/月/日/时柱）/ 月建 / 日辰 / 旬空 —— 需干支历法（含节气推算）；
+- 把引擎接入审卦页，替换 `ReviewTraditionalProfile` 演示档案占位字段。
+
+---
+
 ## 2026-09-10 · GUAYAN-2.0-R5-BASELINE-CLOSEOUT（基线收口，未发布）
 
 > 收口 `3c00187` 遗留基线：排卦 lines 顺序 Bug 独立落库（`7266332`）；
