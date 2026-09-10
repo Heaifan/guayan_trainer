@@ -118,6 +118,17 @@ void main() {
     testWidgets('演示草稿 UI：4 / 6 已完成 · 动爻 2', (tester) async {
       await pumpPage(tester); // CastingDraft.demo()
       expect(find.text('4 / 6 已完成 · 动爻 2'), findsOneWidget);
+
+      // 逐爻位断言（回归：lines 索引必须为 position - 1）。
+      String status(int p) =>
+          tester.widget<Text>(find.byKey(Key('yao_status_$p'))).data!;
+      expect(status(6), '阴 · 静'); // 上爻
+      expect(status(5), '阳 · 静'); // 五爻
+      expect(status(4), '阴 · 动'); // 四爻 老阴
+      expect(status(3), '阳 · 动'); // 三爻 老阳（当前编辑）
+      expect(find.text('点击录入二爻'), findsOneWidget);
+      expect(find.text('点击录入初爻'), findsOneWidget);
+      expect(find.byKey(const Key('yao_edit_badge_3')), findsOneWidget);
     });
   });
 

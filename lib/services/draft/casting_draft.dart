@@ -21,6 +21,7 @@ class CastingDraft {
 
   /// 视觉定稿基准（任务书总 SVG）的演示初始草稿：
   /// 4/6 爻、两动爻、起卦时间与问事信息已完成、三爻为当前编辑爻。
+  /// lines 索引契约：index = position - 1（1 初爻 .. 6 上爻）。
   /// 正式版本可改为空草稿起步（构造 `CastingDraft()`）。
   factory CastingDraft.demo() => CastingDraft(
         questionTitle: '事业发展 · 项目推进',
@@ -29,12 +30,12 @@ class CastingDraft {
         questionNote: '已补充对象、背景与补充说明',
         castingTime: DateTime(2026, 8, 30, 9, 30),
         lines: [
-          LineState(position: 6, movementType: MovementType.shaoYin), // 上爻
-          LineState(position: 5, movementType: MovementType.shaoYang), // 五爻
-          LineState(position: 4, movementType: MovementType.laoYin), // 四爻
-          LineState(position: 3, movementType: MovementType.laoYang), // 三爻
-          null, // 二爻 待录
           null, // 初爻 待录
+          null, // 二爻 待录
+          LineState(position: 3, movementType: MovementType.laoYang), // 三爻 阳·动
+          LineState(position: 4, movementType: MovementType.laoYin), // 四爻 阴·动
+          LineState(position: 5, movementType: MovementType.shaoYang), // 五爻 阳·静
+          LineState(position: 6, movementType: MovementType.shaoYin), // 上爻 阴·静
         ],
       );
 
