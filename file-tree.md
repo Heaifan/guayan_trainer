@@ -2,10 +2,30 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-08-31 00:49
+> **最后编辑：** 2026-09-10 09:51
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 基线收口 — GUAYAN-2.0-R5-BASELINE-CLOSEOUT（2026-09-10，未发布）
+
+> 收口 `3c00187` 遗留基线：排卦 lines 顺序 Bug 独立落库（`7266332`）；
+> 审卦 4 个红测逐项契约审计（3 项 TEST STALE、1 项混合），恢复全量测试绿色。
+
+- `lib/services/draft/casting_draft.dart` — demo().lines 改升序，锁死
+  `index = position - 1` 契约；`casting_page_test.dart` 补逐爻位回归
+- `lib/presentation/review/widgets/review_hexagram_line_row.dart` —
+  主/变卦文本列宽封顶（74/88 设计 px，列缘裁剪不压爻槽）；
+  类文档对齐实际基线 18/24/34 与 FittedBox(contain)
+- `lib/presentation/review/widgets/review_shensha_card.dart` — 类文档改为
+  「数据驱动固定 4 列（按实际数据渲染，无强制空占位）」；移除未使用 import
+- `test/presentation/review/review_page_test.dart` — F1 基线（六行共享基线 +
+  恰 3 条基线带，不绑绝对坐标）/ F2 神煞（按数据渲染无占位）/ F3 基本信息
+  （合并行信息在场）/ F4 超长纳音（缩放无关列契约 + 主变卦双侧不压爻槽）
+  四测重写
+- 验证：flutter test 106/106 通过；analyze 本轮文件 0 issue；无依赖浮动。
 
 ---
 

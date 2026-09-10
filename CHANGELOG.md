@@ -8,6 +8,40 @@
 
 ---
 
+## 2026-09-10 · GUAYAN-2.0-R5-BASELINE-CLOSEOUT（基线收口，未发布）
+
+> 收口 `3c00187` 遗留基线：排卦 lines 顺序 Bug 独立落库（`7266332`）；
+> 审卦 4 个红测逐项契约审计——3 项 TEST STALE、1 项混合
+> （断言过时 + 文本列无右界的真实缺陷），恢复全量测试绿色。
+> 本轮禁止新功能（排盘引擎/关系/卦例/训练均未动）。
+
+### T1 · 排卦（commit 7266332）
+- `casting_draft.dart` — `CastingDraft.demo().lines` 由倒序改升序，
+  锁死 `index = position - 1` 契约；
+- `casting_page_test.dart` — 补逐爻位回归（yao_status_1..6 + 编辑徽标 + 待录文案）。
+
+### T2/T3 · 审卦契约审计结论与修复
+| 失败项 | 定性 | 处理 |
+| --- | --- | --- |
+| F1 基线 31/47 | TEST STALE | 3c00187 基线值改为 18/24/34（三条带），机制未丢；测试改为「同样式文本六行共享基线 + 恰 3 条基线带」，不再绑定历史绝对坐标 |
+| F2 神煞强制 4×4 | TEST STALE | 3c00187 定稿即「按实际数据渲染、不再强制空占位」（commit message 明示修复底部空洞）；测试改为按数据渲染 + 无占位 + 4 列几何保持 |
+| F3 基本信息拆分断言 | TEST STALE | 公历/农历与 meta 合并为单行（紧凑化），信息全在；测试改 textContaining 验证信息在场 |
+| F4 超长纳音不压爻槽 | 混合 | 绝对 24px 断言被 FittedBox(contain) 放大失效（缩放无关化）；真实缺陷：主/变卦文本列无右界可穿过爻槽 → 列宽封顶 74/88 设计 px，列缘裁剪 |
+
+### 修改
+| 路径 | 说明 |
+| --- | --- |
+| `review_hexagram_line_row.dart` | 主卦文本列 136→210、变卦列 278→366 封顶；类文档对齐实际基线 18/24/34 与 contain |
+| `review_shensha_card.dart` | 类文档改为「数据驱动固定 4 列」；移除未使用 CastingTokens import |
+| `review_page_test.dart` | F1/F2/F3/F4 四测重写为缩放无关 / 结构无关契约 |
+
+### 验证
+- `flutter test`：**106/106 通过**（含审卦 26/26）；`flutter analyze` 本轮文件 0 issue。
+- `pubspec.lock`：测试用 `--no-pub` 运行，无依赖浮动，不入库。
+- `uploads/screenshots/`：人工验收截图，保持未跟踪原状。
+
+---
+
 ## 2026-08-31 · GUAYAN-2.0-REVIEW-BASELINE-R4（审卦首屏基线对齐定稿，未发布）
 
 > 只动两个组件：六爻卦盘（Baseline Alignment）+ 神煞（FIXED 4×4），
