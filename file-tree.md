@@ -2,10 +2,59 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-11 01:25
+> **最后编辑：** 2026-09-11 02:40
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 离线历法基础层 — GUAYAN-2.0-R3-B-CALENDAR（2026-09-11，未发布）
+
+> **路线变更**：不再把 1900–2100 的 4824 条节气硬编码进源码，
+> 改为 **年度数据包 + 本地仓储 + 完全离线计算**。
+> 已导入年份离线排盘；未导入年份**明确拒绝**，绝不近似补算。
+> 纯 Dart，零 Flutter / 零运行时网络 / 零天文库 / 零近似 fallback。
+
+### 新增（lib/domain/calendar/）
+- 根：`calendar_engine.dart`（聚合）/ `calendar_request.dart` / `calendar_context.dart` /
+  `calendar_error.dart`（类型化失败）/ `day_boundary_rule.dart`（两种规则，无默认值）
+- `day/`：`ganzhi_day.dart`（JDN → 六十甲子）/ `xun_kong.dart`（旬空由旬首推导）
+- `solar_term/`：`solar_term_id.dart` / `solar_term.dart` / `solar_term_provider.dart` /
+  `calendar_year_data.dart` / `month_branch_resolver.dart`（十二「节」切月建）
+- `import/`：`calendar_data_pack.dart` / `calendar_data_pack_parser.dart` /
+  `calendar_data_pack_terms.dart` / `calendar_data_pack_validator.dart` /
+  `calendar_data_pack_importer.dart`（解析→校验→修订→**原子提交**）
+- `store/`：`calendar_data_store.dart`（仓储边界 + 内存实现）/
+  `stored_solar_term_provider.dart`（仓储→Provider，装载快照后引擎保持同步）
+
+### 新增（数据与工具）
+- `assets/calendar/2019..2028.calendar.json` — 种子数据包 10 年，
+  与用户导入**同一种格式**（不存在「内置走 Dart 常量」的第二套体系）
+- `tool/calendar_pack_gen/generate_calendar_packs.dart` — 开发阶段生成器，
+  **不参与 App 运行时**；权威源缓存 `.cache/` 已 gitignore
+
+### 数据来源（可复核）
+- 香港天文台 HKO「二十四節氣的日期及時間資料」；HKO 注明其天文数据来自
+  英国 HM Nautical Almanac Office 与美国 United States Naval Observatory；
+- 原始基准 HKT（UTC+8）→ 统一折算 UTC；
+- **来源为分钟级，秒位恒为 `:00`**（如实记录，不虚构秒级精度）；
+- 覆盖 2019–2028（HKO 公开范围）；与 NAOJ 在重叠年份逐项一致。
+
+### 关键契约
+- 月建边界：`instant < 交节 → 旧月建`，`instant >= 交节 → 新月建`（三态断言）；
+- 缺年份抛 `CalendarDataMissing`；导入原子性（校验通过前不写仓储）；
+- 修订四态 NEW / UPDATE / SAME / DOWNGRADE，降级拒绝且旧数据不变；
+- 日界：仓库既有代码未冻结规则 → 核心层实现两种并要求显式传入。
+
+### 测试（+103，共 232/232 通过；analyze 0 issue）
+`test/domain/calendar/`：ganzhi_day / xun_kong / day_boundary /
+month_branch_resolver / calendar_data_pack_parser / calendar_data_pack_validator /
+calendar_pack_import / calendar_engine / offline_gate（+ 夹具 fixtures）
+
+### 未做
+历法管理 UI、导入按钮、文件选择器、覆盖确认弹窗；完整天文算法；
+旺衰 / 月破 / 日冲 / 神煞 / 四柱完整系统。
 
 ---
 
@@ -548,10 +597,12 @@
 guayan_trainer/
 ├── .claude/                # AI 协作规则
 ├── android/                # Android 原生壳
+├── assets/                 # 随包资源（assets/calendar/ = 年度历法数据包）
 ├── lib/                    # 主程序源码
 ├── memory/                 # 记忆与反馈记录
 ├── scripts/                # 开发辅助脚本（本机 flutter 包装）
 ├── test/                   # 测试
+├── tool/                   # 开发阶段工具（不参与 App 运行时）
 ├── uploads/                # 参考资料（开发计划、组件文档）
 ├── 五行相克特效/            # 相克 HTML 动画原型（5 个）
 ├── 五行相生特效/            # 相生 HTML 动画原型（5 个）
@@ -571,7 +622,7 @@ lib/
 ├── app.dart                # MaterialApp 主题配置
 ├── app/                    # 2.0 应用壳（GuayanApp / AppShell / 导航）
 ├── core/                   # 2.0 常量
-├── domain/                 # 2.0 领域层（DOMAIN + R3 排盘引擎；casting/ 为引擎）
+├── domain/                 # 2.0 领域层（DOMAIN + R3 排盘引擎 + R3-B 历法层）
 ├── application/            # 2.0 用例层（预留）
 ├── presentation/           # 2.0 五个主页面 + 规则库/设置/关于
 ├── shell/                  # 旧导航壳（1.0 遗留）
@@ -653,7 +704,31 @@ lib/
 | `cast_chart.dart` | 排盘结果模型（CastLine / CastChart） |
 | `casting_engine.dart` | 引擎组装：本卦 / 变卦 / 动变 / 纳甲 / 世应 / 六亲 / 六神 |
 
-### 5.3.3 lib/presentation/review/（2.0 审卦工作台）
+### 5.3.3 lib/domain/calendar/（R3-B 离线历法层）
+
+| 文件 | 职责 |
+| --- | --- |
+| `calendar_engine.dart` | 历法引擎：聚合月建 / 日辰 / 旬空 |
+| `calendar_request.dart` | 输入契约：localDateTime + utcOffset + dayBoundaryRule |
+| `calendar_context.dart` | 输出契约：完整历法上下文（不允许半成品） |
+| `calendar_error.dart` | 类型化失败：InvalidCalendarDate / CalendarDataMissing / PackInvalid / RevisionRejected |
+| `day_boundary_rule.dart` | 日界规则：midnight / ziHourStart，无隐式默认值 |
+| `day/ganzhi_day.dart` | 日柱：儒略日序 → 六十甲子（锚点 1949-10-01 甲子日） |
+| `day/xun_kong.dart` | 旬空：由旬首推导，不维护手抄表 |
+| `solar_term/solar_term_id.dart` | 二十四节气 + 太阳黄经 + 节/气区分 |
+| `solar_term/solar_term.dart` | 节气记录（真源为「瞬间」而非日期） |
+| `solar_term/solar_term_provider.dart` | 节气来源抽象（可替换边界） |
+| `solar_term/calendar_year_data.dart` | 已校验的单年历法数据 |
+| `solar_term/month_branch_resolver.dart` | 月建：十二「节」区间判断（与公历月无关） |
+| `import/calendar_data_pack.dart` | 数据包原始形态（字段可空，交由校验器汇总） |
+| `import/calendar_data_pack_parser.dart` | JSON → 数据包（只负责语法与结构） |
+| `import/calendar_data_pack_terms.dart` | 节气列表规则：数量 / 唯一 / 递增 / 年份合理性 |
+| `import/calendar_data_pack_validator.dart` | 元数据校验 + 一次性汇总全部失败原因 |
+| `import/calendar_data_pack_importer.dart` | 解析→校验→修订判定→**原子提交** |
+| `store/calendar_data_store.dart` | 本地仓储边界 + 内存实现 |
+| `store/stored_solar_term_provider.dart` | 仓储 → Provider（异步装载快照，引擎保持同步） |
+
+### 5.3.4 lib/presentation/review/（2.0 审卦工作台）
 
 | 文件 | 职责 |
 | --- | --- |
@@ -669,7 +744,7 @@ lib/
 | `widgets/review_hexagram_line_row.dart` | 六爻单行（11 列冻结，六亲地支/纳音拆两行无省略号，可点高亮） |
 | `widgets/review_line_detail_sheet.dart` | 点爻 Bottom Sheet（关系列表/规则依据/备注/进入关系页） |
 
-### 5.3.4 lib/presentation/shared/（2.0 共享爻组件，排卦/审卦强制复用）
+### 5.3.5 lib/presentation/shared/（2.0 共享爻组件，排卦/审卦强制复用）
 
 | 文件 | 职责 |
 | --- | --- |
@@ -802,6 +877,16 @@ lib/
 | `presentation/shared/yao_glyph_test.dart` | 共享爻组件尺寸冻结测试（24×6 / 12×12） |
 | `domain/casting/hexagram_tables_test.dart` | R3 表与规则：八卦/64 卦唯一性/八宫世应/纳甲/六亲/六神 |
 | `domain/casting/casting_engine_test.dart` | R3 引擎：经典排盘对照（乾为天/坤为地/泽山咸）+ 动变 |
+| `domain/calendar/ganzhi_day_test.dart` | R3-B 日柱：13 个跨年代基准（双独立源校验） |
+| `domain/calendar/xun_kong_test.dart` | R3-B 旬空：六旬 + 60 日循环 + 独立性质验证 |
+| `domain/calendar/day_boundary_test.dart` | R3-B 日界：两种规则 × 四个关键时刻 |
+| `domain/calendar/month_branch_resolver_test.dart` | R3-B 月建：十二「节」× 三时点边界 |
+| `domain/calendar/calendar_data_pack_parser_test.dart` | R3-B 数据包解析 |
+| `domain/calendar/calendar_data_pack_validator_test.dart` | R3-B 数据包校验（数量/唯一/时间/来源/年份） |
+| `domain/calendar/calendar_pack_import_test.dart` | R3-B 导入原子性 Golden + 修订四态 |
+| `domain/calendar/calendar_engine_test.dart` | R3-B 引擎综合 Golden + 缺年份拒绝 |
+| `domain/calendar/offline_gate_test.dart` | R3-B 离线门禁（无网络 / 无 Flutter / 无 DateTime.now） |
+| `domain/calendar/calendar_pack_fixtures.dart` | R3-B 测试夹具（构造数据包 + 读取种子包） |
 
 ---
 

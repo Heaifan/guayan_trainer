@@ -8,6 +8,96 @@
 
 ---
 
+## 2026-09-11 · GUAYAN-2.0-R3-B-CALENDAR（离线历法基础层，未发布）
+
+> **路线变更（重要）**：原方案「把 1900–2100 共 4824 条节气硬编码进 Dart 源码」
+> 已废弃，改为 **年度数据包 + 本地仓储 + 完全离线计算**：
+>
+> ```text
+> 算法属于程序，节气属于可验证数据。
+> 历法数据可以逐年增加，不要求重新编译 APP。
+> 已导入年份完全离线排盘；未导入年份明确拒绝月建计算。
+> 永远不拿近似结果冒充精确结果。
+> ```
+>
+> 纯 Dart 领域层，零 Flutter 依赖、零运行时网络、零天文库、零近似 fallback。
+
+### 新增（lib/domain/calendar/ — 历法域）
+| 文件 | 职责 |
+| --- | --- |
+| `calendar_request.dart` | 输入契约：localDateTime + utcOffset + dayBoundaryRule，显式传入 |
+| `calendar_context.dart` | 输出契约：instantUtc / monthBranch / day / xunKong |
+| `calendar_engine.dart` | 聚合月建 + 日辰 + 旬空 |
+| `calendar_error.dart` | 类型化失败（沿用项目「抛异常」既有体系，不另立 Result） |
+| `day_boundary_rule.dart` | `midnight` / `ziHourStart`，**无隐式默认值** |
+| `day/ganzhi_day.dart` | 日柱：JDN → 六十甲子（锚点 1949-10-01 甲子日） |
+| `day/xun_kong.dart` | 旬空：由旬首推导，不维护手抄表 |
+| `solar_term/solar_term_id.dart` | 二十四节气 + 太阳黄经 + 节/气区分 |
+| `solar_term/solar_term.dart` | 节气记录（真源是**瞬间**，不是日期） |
+| `solar_term/solar_term_provider.dart` | 数据来源抽象（可替换边界） |
+| `solar_term/calendar_year_data.dart` | 已校验的单年数据 |
+| `solar_term/month_branch_resolver.dart` | 月建：十二「节」区间判断 |
+| `import/calendar_data_pack.dart` | 数据包原始形态 |
+| `import/calendar_data_pack_parser.dart` | JSON → 数据包（只管语法结构） |
+| `import/calendar_data_pack_terms.dart` | 节气列表规则（数量/唯一/递增/年份合理性） |
+| `import/calendar_data_pack_validator.dart` | 元数据校验 + 汇总失败原因 |
+| `import/calendar_data_pack_importer.dart` | 解析 → 校验 → 修订判定 → **原子提交** |
+| `store/calendar_data_store.dart` | 本地仓储边界 + 内存实现 |
+| `store/stored_solar_term_provider.dart` | 仓储 → Provider（异步装载快照，引擎保持同步） |
+
+### 新增（lib/services 之外的本轮产物）
+- `assets/calendar/2019..2028.calendar.json` — **种子数据包 10 年**（163 行级别，
+  与用户导入使用**完全相同的格式**，不存在「内置走 Dart 常量」的第二套体系）
+- `tool/calendar_pack_gen/generate_calendar_packs.dart` — 开发阶段生成器
+  （**不参与 App 运行时**）
+
+### 关键契约
+- **月建边界**：`instant < 交节 → 旧月建`；`instant >= 交节 → 新月建`，
+  已做「交节前 1 秒 / 交节时刻 / 交节后 1 秒」三态断言；
+- **缺少年份**：抛 `CalendarDataMissing`，**禁止近似补算**；
+- **导入原子性**：校验全部通过前绝不写仓储，不存在「导了一半」的中间态；
+- **修订规则**：NEW / UPDATE / SAME / DOWNGRADE 四态，降级导入被拒绝且旧数据不变；
+- **日界**：仓库既有代码未冻结规则，故核心层同时实现两种并要求显式传入，
+  最终采用哪一种留给业务层决定。
+
+### 数据来源（可复核）
+- 来源：**香港天文台 HKO**「二十四節氣的日期及時間資料」；
+  HKO 注明其天文数据来自英国 **HM Nautical Almanac Office** 与
+  美国 **United States Naval Observatory**；
+- 端点：`https://www.hko.gov.hk/en/gts/astronomy/data/files/24SolarTerms_<YEAR>.xml`；
+- 原始时间基准 HKT（UTC+8），生成时统一折算为 **UTC**；
+- **精度如实记录：来源为分钟级，故秒位恒为 `:00`**，不虚构秒级精度；
+- 覆盖年份 2019–2028（HKO 公开范围）；
+- 交叉验证：HKO 与日本国立天文台 NAOJ 在重叠年份逐项一致
+  （例：2026 小寒 HKO 16:23 HKT = NAOJ 17:23 JST = 08:23 UTC）。
+
+### 测试（+103，共 232/232 通过）
+| 测试 | 覆盖 |
+| --- | --- |
+| `ganzhi_day_test.dart` | T1 日柱：**13 个跨年代基准**（1900–2023，含闰日 2020-02-29），双独立源校验 |
+| `xun_kong_test.dart` | T2 旬空：六旬冻结值 + 完整 60 日循环 + **独立性质验证**（空亡 = 旬内未覆盖二支） |
+| `calendar_data_pack_parser_test.dart` | T3 解析：合法 / 语法错 / 根非对象 / terms 非数组 / 元素非对象 |
+| `calendar_data_pack_validator_test.dart` | T4 校验：24-23-25 条 / 重复 / 未知 / 倒序 / 非严格递增 / 非法 UTC / 非 Z / 元数据缺失 / 年份错位 / 跨年边界不误杀 |
+| `calendar_pack_import_test.dart` | T5 **导入原子性 Golden**（INVALID 导入后旧数据逐字段不变）+ T6 修订四态 |
+| `month_branch_resolver_test.dart` | T7 十二「节」× 3 时点边界 + 跨公历年 + 「气」不切换月建 |
+| `calendar_engine_test.dart` | T8 缺少年份拒绝 + T9 引擎综合 Golden（真实数据包全链路） |
+| `day_boundary_test.dart` | 日界两规则 × 22:59:59 / 23:00:00 / 23:59:59 / 00:00:00 + 跨月跨年闰日 |
+| `offline_gate_test.dart` | §26 离线门禁：无网络依赖、无 Flutter 依赖、无 `DateTime.now` |
+
+### 验证
+- `flutter test` → **232/232 通过**（基线 129，零回归）；
+- `flutter analyze --no-pub lib/domain test/domain` → **0 issue**；
+- `dart format --output=none --set-exit-if-changed`（R3-B 文件）→ **0 changed**；
+- 5+100 门禁：`lib/domain/calendar/` 全部文件 **≤ 99 行**，每目录 ≤ 5 文件；
+- `git diff --check` → clean。
+
+### 未做（明确边界）
+- 历法管理 UI / 导入按钮 / 文件选择器 / 覆盖确认弹窗（属后续 UI 层）；
+- 完整天文算法（仅保留 `SolarTermProvider` 可替换边界，未实现 `Astronomical*`）；
+- 旺衰 / 月破 / 日冲 / 神煞 / 四柱完整系统 —— 均不在本轮。
+
+---
+
 ## 2026-09-11 · GUAYAN-2.0-R3-ENGINE-A（排盘引擎 · 卦体层，未发布）
 
 > R3 第一阶段：把「排盘」从演示档案变成**真实计算**。纯 Dart 领域层，
