@@ -6,17 +6,17 @@ import '../../../presentation/shared/yao_glyph.dart';
 import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
-/// 六爻排盘单行（审卦首屏 R4 · Baseline Alignment 定稿版）。
+/// 六爻排盘单行（审卦首屏 SVG 定稿 · 3c00187 版）。
 ///
-/// 数学上强制两条水平线（不允许"看起来差不多"）：
-/// - PRIMARY BASELINE = RowTop + 19：六神 / 伏神1 / 伏神2 / 主卦正文 /
-///   主卦世应 / 变卦正文 / 变卦世应，全部共用同一基线；
-/// - NAYIN BASELINE = RowTop + 35：主卦纳音 / 变卦纳音。
+/// 数学上强制三条水平基线（不允许"看起来差不多"）：
+/// - 正文基线 RowTop+18：主卦/变卦六亲正文；
+/// - 神系基线 RowTop+24：六神 / 伏神 / 世应 / 变卦世应；
+/// - 纳音基线 RowTop+34：主卦/变卦纳音。
 ///
-/// 行高固定 48；设计坐标空间宽 400（对应 402 卡片内宽），列中心冻结：
-/// 六神22 伏神1·62 伏神2·100 主卦正文174 主卦爻222 世应250 动爻268 箭头280
-/// 变卦正文318 变卦爻358 变卦世应388。整行 FittedBox(scaleDown) 自适应窄屏，
-/// 任何宽度不溢出、文本不侵占爻槽/世应槽。
+/// 行高固定 48；设计坐标空间宽 402，列左缘冻结：六神18 伏神1·44 伏神2·70
+/// 主卦文136 主卦爻212 世应244 动爻260 箭头277 变卦文278 变卦爻368 变卦世应396。
+/// 主/变卦文本列宽封顶（74 / 88），超长文本在列缘裁剪（无省略号），
+/// 任何情况下不侵占爻槽；整行 FittedBox(contain) 自适应缩放。
 class ReviewHexagramLineRow extends StatelessWidget {
   const ReviewHexagramLineRow({
     super.key,
@@ -36,6 +36,12 @@ class ReviewHexagramLineRow extends StatelessWidget {
   static const double _naYinBaseline = 34;
   static const double _spiritBaseline = 24;
   static const double _yaoCenterY = 24;
+
+  /// 主卦文本列宽封顶：136 → 210，主卦爻槽 212（留 2px 安全距）。
+  static const double _mainTextW = 74;
+
+  /// 变卦文本列宽封顶：278 → 366，变卦爻槽 368（留 2px 安全距）。
+  static const double _changedTextW = 88;
 
   YaoKind get _mainYaoKind {
     if (line.isVoid) return YaoKind.voidYao;
@@ -60,10 +66,12 @@ class ReviewHexagramLineRow extends StatelessWidget {
           ] else
             _centerText(72, '—', _hiddenStyle, _spiritBaseline),
           
-          // 主卦正文 + 纳音
-          _leftText(136, line.mainPrimary, _linePrimaryStyle, _mainBaseline),
+          // 主卦正文 + 纳音（列宽封顶，超长在列缘裁剪，不压爻槽）
+          _leftText(136, line.mainPrimary, _linePrimaryStyle, _mainBaseline,
+              width: _mainTextW),
           if (line.displayExtra != null && line.displayExtra!.isNotEmpty)
-            _leftText(136, line.displayExtra!, _naYinStyle, _naYinBaseline),
+            _leftText(136, line.displayExtra!, _naYinStyle, _naYinBaseline,
+                width: _mainTextW),
 
           // 主卦爻槽
           Positioned(
@@ -103,10 +111,15 @@ class ReviewHexagramLineRow extends StatelessWidget {
               child: const _MovingArrow(),
             ),
 
-          // 变卦正文 + 纳音
-          _leftText(278, line.changed?.primaryLabel ?? '—', _linePrimaryStyle, _mainBaseline),
-          if (line.changed?.displayExtra != null && line.changed!.displayExtra!.isNotEmpty)
-            _leftText(278, line.changed!.displayExtra!, _naYinStyle, _naYinBaseline),
+          // 变卦正文 + 纳音（列宽封顶，超长在列缘裁剪，不压爻槽）
+          _leftText(278, line.changed?.primaryLabel ?? '—', _linePrimaryStyle,
+              _mainBaseline,
+              width: _changedTextW),
+          if (line.changed?.displayExtra != null &&
+              line.changed!.displayExtra!.isNotEmpty)
+            _leftText(
+                278, line.changed!.displayExtra!, _naYinStyle, _naYinBaseline,
+                width: _changedTextW),
 
           // 变卦爻槽
           Positioned(
@@ -160,14 +173,17 @@ class ReviewHexagramLineRow extends StatelessWidget {
     String text,
     TextStyle style,
     double baseline, {
+    double? width,
     Key? textKey,
   }) {
     return Positioned(
       left: left,
+      width: width,
       top: 0,
       bottom: 0,
       child: Align(
-        alignment: Alignment.topCenter,
+        // 有列宽封顶时左对齐（列左缘即文本起点），否则按内容自适应。
+        alignment: width == null ? Alignment.topCenter : Alignment.topLeft,
         child: Baseline(
           baseline: baseline,
           baselineType: TextBaseline.alphabetic,

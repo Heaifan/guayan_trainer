@@ -277,19 +277,20 @@ void main() {
       expect(yangSize.height, 12);
     });
 
-    testWidgets('UI-07 · 超长纳音文本不覆盖爻槽、无省略号', (tester) async {
-      final longExtra = '超长纳音文本超长纳音文本超长纳音文本超长纳音文本';
-      final profile = ReviewTraditionalProfile(
+    testWidgets('UI-07 · 超长纳音不侵占爻槽、无省略号（任意缩放）',
+        (tester) async {
+      const longExtra = '超长纳音文本超长纳音文本超长纳音文本超长纳音文本';
+      const profile = ReviewTraditionalProfile(
         lineTraditional: {
-          6: const ReviewLineTraditional(
+          6: ReviewLineTraditional(
             sixSpirit: '青龙',
             hiddenSpirit1: '财丙寅',
             sixRelative: '父母丁未土',
-            displayExtra: '超长纳音文本超长纳音文本超长纳音文本超长纳音文本',
+            displayExtra: longExtra,
             shiYing: '应',
             changed: ReviewChangedLine(
               sixRelative: '父母丁未土',
-              displayExtra: '超长纳音文本超长纳音文本超长纳音文本超长纳音文本',
+              displayExtra: longExtra,
               movementType: MovementType.shaoYin,
             ),
           ),
@@ -306,15 +307,30 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      // 爻槽固定 24×6。
-      final yaoRect = tester.getRect(find.byKey(const Key('yao_glyph_6')));
-      expect(yaoRect.width, 24);
-      expect(yaoRect.height, 6);
-      // 六亲地支行（line1）右缘不越过爻槽左缘；纳音行（line2）无省略号。
-      final line1 = tester.getRect(find.text('父母丁未土').first);
-      expect(line1.right <= yaoRect.left, isTrue);
-      final line2Text = tester.widget<Text>(find.text(longExtra).first);
-      expect(line2Text.overflow, isNot(TextOverflow.ellipsis));
+      // 布局空间（设计坐标）爻槽恒为 24×6；绘制尺寸随 FittedBox(contain)
+      // 缩放而变，不作为像素契约（见 3c00187「自适应全宽」定稿）。
+      final yaoSize = tester.getSize(find.byKey(const Key('yao_glyph_6')));
+      expect(yaoSize.width, 24);
+      expect(yaoSize.height, 6);
+      // 绘制空间列契约（同缩放系比较，缩放因子约去）：
+      // 主卦文本列（正文与纳音）右缘 ≤ 主卦爻槽左缘。
+      final mainYaoRect = tester.getRect(find.byKey(const Key('yao_glyph_6')));
+      final mainPrimary = tester.getRect(find.text('父母丁未土').first);
+      expect(mainPrimary.right <= mainYaoRect.left, isTrue,
+          reason: '主卦正文压爻槽');
+      final mainNaYin = tester.getRect(find.text(longExtra).first);
+      expect(mainNaYin.right <= mainYaoRect.left, isTrue,
+          reason: '主卦纳音压爻槽');
+      // 变卦纳音列右缘 ≤ 变卦爻槽左缘。
+      final changedYaoRect =
+          tester.getRect(find.byKey(const Key('changed_yao_glyph_6')));
+      final changedNaYin = tester.getRect(find.text(longExtra).at(1));
+      expect(changedNaYin.right <= changedYaoRect.left, isTrue,
+          reason: '变卦纳音压变卦爻槽');
+      // 超长文本在列缘裁剪，不出现省略号。
+      for (final t in tester.widgetList<Text>(find.text(longExtra))) {
+        expect(t.overflow, isNot(TextOverflow.ellipsis));
+      }
     });
 
     testWidgets('UI-08 · 变卦爻槽与变卦世应同时可见、顺序正确', (tester) async {
@@ -337,16 +353,20 @@ void main() {
   });
 
   group('基本信息（一屏版）', () {
-    testWidgets('问事 / 公历 / 农历 / meta / 方式 chip', (tester) async {
+    testWidgets('问事 / 公历 / 农历 / meta / 方式 chip（合并行，信息不丢）',
+        (tester) async {
       await pumpDemo(tester);
 
+      expect(find.text('问事'), findsOneWidget);
       expect(find.text('事业发展 · 项目推进是否顺利？'), findsOneWidget);
-      expect(find.text('2026-08-30 09:30'), findsOneWidget); // 公历
-      expect(find.text('七月十八 · 巳时'), findsOneWidget); // 农历
-      expect(find.text('默认规则包 v1'), findsOneWidget);
-      expect(find.text('手动起卦'), findsOneWidget);
-      expect(find.text('排盘已生成'), findsOneWidget);
       expect(find.text('铜钱手动'), findsOneWidget); // 方式 chip
+      // 3c00187 起公历/农历合并为单行、meta 合并为单行（结构紧凑化），
+      // 业务信息必须全部在场，但不再绑定拆分的 Widget 结构。
+      expect(find.textContaining('公历 2026-08-30 09:30'), findsOneWidget);
+      expect(find.textContaining('农历 七月十八 · 巳时'), findsOneWidget);
+      expect(find.textContaining('默认规则包 v1'), findsOneWidget);
+      expect(find.textContaining('手动起卦'), findsOneWidget);
+      expect(find.textContaining('排盘已生成'), findsOneWidget);
     });
 
     testWidgets('真实卦例：传统字段显式置空（GAP 不伪造）', (tester) async {
@@ -390,23 +410,39 @@ void main() {
     });
   });
 
-  group('R4 · 基线对齐与神煞固定网格', () {
-    testWidgets('R4 · 六爻行 Primary/纳音基线数学锁定（31 / 47）', (tester) async {
+  group('基线对齐与神煞网格（R5 契约收口）', () {
+    testWidgets('R5 · 行内基线数学锁定：同类文本共享基线、六行一致', (tester) async {
       await pumpDemo(tester);
 
-      final baselines = tester
-          .widgetList<Baseline>(find.descendant(
-            of: find.byKey(const Key('review_line_6')),
-            matching: find.byType(Baseline),
-          ))
-          .map((b) => b.baseline)
-          .toList();
-      expect(baselines.where((b) => b == 31).length, 3,
-          reason: '主基线必须全部 = RowTop+31');
-      expect(baselines.where((b) => b == 39).length, 2,
-          reason: '六神/伏神基线 = RowTop+39');
-      expect(baselines.where((b) => b == 47).length, 2,
-          reason: '纳音必须全部 = RowTop+47');
+      // 不绑定绝对坐标（SVG 迭代会移动基线值），锁定三条视觉契约：
+      // 1) 同样式文本在全部六行中共享同一基线值（列水平对齐的数学保证）；
+      // 2) 正文 / 神系 / 纳音三条基线带互不相同；
+      // 3) 基线值都在行高 48 内。
+      final signatureToBaselines = <String, Set<double>>{};
+      for (var p = 1; p <= 6; p++) {
+        final rowBaselines = tester.widgetList<Baseline>(find.descendant(
+          of: find.byKey(Key('review_line_$p')),
+          matching: find.byType(Baseline),
+        ));
+        expect(rowBaselines, isNotEmpty, reason: 'review_line_$p 无 Baseline');
+        for (final b in rowBaselines) {
+          final text = b.child as Text;
+          final s = text.style!;
+          final signature = '${s.fontSize}|${s.fontWeight}|${s.color}';
+          signatureToBaselines
+              .putIfAbsent(signature, () => <double>{})
+              .add(b.baseline);
+        }
+      }
+      for (final e in signatureToBaselines.entries) {
+        expect(e.value, hasLength(1),
+            reason: '样式 ${e.key} 的基线在六行间不一致：${e.value}');
+        expect(e.value.single, allOf(greaterThan(0), lessThan(48)),
+            reason: '样式 ${e.key} 基线超出行高 48');
+      }
+      expect(signatureToBaselines.values.map((v) => v.single).toSet(),
+          hasLength(3),
+          reason: '应恰有 3 条基线带（正文/神系/纳音）');
     });
 
     testWidgets('R4 · 神煞固定 4×4：16 格无溢出、第 4 行在卡内', (tester) async {
@@ -433,7 +469,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('R4 · 神煞不足 16 项：留空占位、仍保持 4×4', (tester) async {
+    testWidgets('R5 · 神煞按实际数据渲染：不足 16 项不留空占位', (tester) async {
       const profile = ReviewTraditionalProfile(
         shenShaItems: [
           ReviewShenShaItem(name: '卦身', value: '申'),
@@ -452,12 +488,25 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 12 个留空占位 + 4 个 chip = 16 格（保持 4×4 几何）。
-      final placeholders = tester.widgetList(find.descendant(
+      // 3c00187 定稿：按实际数据渲染，恰好 4 格（无 12 个强制空占位）。
+      final cells = tester.widgetList<Container>(find.descendant(
         of: find.byType(GridView),
-        matching: find.byType(SizedBox),
+        matching: find.byType(Container),
       ));
-      expect(placeholders.length, 12);
+      expect(cells.length, 4);
+      expect(
+        tester.widgetList<SizedBox>(find.descendant(
+          of: find.byType(GridView),
+          matching: find.byType(SizedBox),
+        )),
+        isEmpty,
+        reason: '不得保留空占位格',
+      );
+      // 4 项仍按 4 列几何占满一行。
+      final dys = ['卦身', '香闺', '驿马', '桃花']
+          .map((n) => tester.getTopLeft(find.byKey(Key('shensha_$n'))).dy)
+          .toSet();
+      expect(dys, hasLength(1), reason: '4 项必须在同一行');
       expect(tester.takeException(), isNull);
     });
   });

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
-/// 神煞卡 · FIXED 4×4 定稿版（审卦首屏 R4 SVG：402×128）。
+/// 神煞卡 · 数据驱动固定 4 列网格（3c00187 定稿：按实际数据渲染）。
 ///
-/// 真正固定的 4 列 × 4 行 Grid：格宽 89、格高 18、列距 6、行距 4，
+/// 固定 4 列；按神煞实际数量渲染格数，不足 16 项不强制空占位
+/// （避免卡片底部大片留白空洞），超过 16 项自动增加第 5 行。
 /// 四行全部包含在 Card 内，禁止自由 Wrap 乱换行、禁止第 4 行越界。
-/// 数据不足 16 个时留空占位（保持 4×4 几何）；超过 16 个才增加第 5 行。
 class ReviewShenShaCard extends StatelessWidget {
   const ReviewShenShaCard({super.key, required this.state});
 
