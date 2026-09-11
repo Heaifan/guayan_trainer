@@ -1,19 +1,15 @@
-# Gate A runner (local absolute paths; never committed to version control logic).
+# Gate A runner (local absolute paths).
 #
-# Why this file exists: on this machine $env:PATH is trimmed so that `dart` is
-# not found, and dart.exe needs System32 on PATH to run at all. This wrapper
-# rebuilds a usable PATH before invoking dart.
-#
-# NOTE: this file is deliberately ASCII-only. Windows PowerShell 5.1 reads
-# .ps1 files without a BOM as ANSI, so non-ASCII comments here would be mangled
-# into a syntax error. All Chinese documentation lives in the Dart sources,
-# which are always read as UTF-8.
+# ASCII-only on purpose: Windows PowerShell 5.1 mis-parses this file when it
+# contains non-ASCII comments or long quoted paths inside blocks, so all
+# documentation lives in the Dart sources instead.
 #
 # Usage (from the repository root):
-#   powershell -File tool/gate_a/gate_a_runner.ps1 run
-#   powershell -File tool/gate_a/gate_a_runner.ps1 run tool/gate_a/gate_a_solve.dart
+#   powershell -File tool/gate_a/gate_a_runner.ps1 run tool/gate_a/gate_a_main.dart
 #   powershell -File tool/gate_a/gate_a_runner.ps1 test
-#   powershell -File tool/gate_a/gate_a_runner.ps1 astro 2026
+#   powershell -File tool/gate_a/gate_a_runner.ps1 cross
+#   powershell -File tool/gate_a/gate_a_runner.ps1 residual
+#   powershell -File tool/gate_a/gate_a_runner.ps1 closeout
 #   powershell -File tool/gate_a/gate_a_runner.ps1 enumerate
 
 $ErrorActionPreference = 'Stop'
@@ -23,7 +19,7 @@ $GitRoot = 'D:\MyApp\app-git\Git'
 
 $dartExe = Join-Path $DartRoot 'bin\dart.exe'
 if (-not (Test-Path $dartExe)) {
-  throw "dart not found: $dartExe (edit `$DartRoot at the top of this script)"
+  throw "dart not found: $dartExe"
 }
 
 $systemDirs = @(
@@ -36,35 +32,37 @@ $toolDirs = @(
   (Join-Path $DartRoot 'bin')
   (Join-Path $GitRoot 'cmd')
 )
-
 $existing = $env:PATH -split ';' | Where-Object { $_ -ne '' }
 $missing = @($systemDirs + $toolDirs) |
   Where-Object { $existing -notcontains $_ } |
   Select-Object -Unique
 $env:PATH = (@($missing) + $existing) -join ';'
 
-# dart writes normal progress to stderr; Stop would abort on it.
+# dart writes progress to stderr; Stop would abort on it.
 $ErrorActionPreference = 'Continue'
 
-$mode = if ($args.Count -gt 0) { $args[0] } else { 'run' }
-$rest = if ($args.Count -gt 1) { $args[1..($args.Count - 1)] } else { @() }
-
-switch ($mode) {
-  'run' {
-    $target = if ($rest.Count -gt 0) { $rest[0] } else { 'tool/gate_a/gate_a_main.dart' }
-    if ($rest.Count -gt 1) {
-      & $dartExe run $target @($rest[1..($rest.Count - 1)])
-    } else {
-      & $dartExe run $target
-    }
-  }
-  'test' { & $dartExe run tool/gate_a/gate_a_selftest.dart }
-  'cross' { & $dartExe run tool/gate_a/gate_a_cross_source.dart @rest }
-  'residual' { & $dartExe run tool/gate_a/gate_a_oracle_residual.dart @rest }
-  'enumerate' { & $dartExe run tool/gate_a/gate_a_enumerate.dart @rest }
-  default {
-    Write-Host 'usage: gate_a_runner.ps1 [run [script.dart]|test|cross|residual|enumerate]'
-    exit 1
-  }
+if ($args.Count -lt 1) {
+  Write-Host 'usage: gate_a_runner.ps1 [run <script.dart>|test|cross|residual|closeout|enumerate]'
+  exit 1
 }
+
+$mode = [string]$args[0]
+
+if ($mode -eq 'test') { & $dartExe run tool/gate_a/gate_a_selftest.dart; exit $LASTEXITCODE }
+if ($mode -eq 'cross') { & $dartExe run tool/gate_a/gate_a_cross_source.dart; exit $LASTEXITCODE }
+if ($mode -eq 'residual') { & $dartExe run tool/gate_a/gate_a_oracle_residual.dart; exit $LASTEXITCODE }
+if ($mode -eq 'closeout') { & $dartExe run tool/gate_a/gate_a_precision_closeout.dart; exit $LASTEXITCODE }
+if ($mode -eq 'enumerate') { & $dartExe run tool/gate_a/gate_a_enumerate.dart; exit $LASTEXITCODE }
+
+if ($mode -ne 'run') {
+  Write-Host "unknown mode: $mode"
+  exit 1
+}
+
+if ($args.Count -lt 2) {
+  Write-Host 'run mode needs a script path, e.g. run tool/gate_a/gate_a_main.dart'
+  exit 1
+}
+
+& $dartExe run ([string]$args[1])
 exit $LASTEXITCODE
