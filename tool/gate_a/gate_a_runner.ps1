@@ -59,10 +59,11 @@ switch ($mode) {
     }
   }
   'test' { & $dartExe run tool/gate_a/gate_a_selftest.dart }
-  'astro' { & $dartExe run tool/gate_a/gate_a_verify_astronomy.dart @rest }
+  'cross' { & $dartExe run tool/gate_a/gate_a_cross_source.dart @rest }
+  'residual' { & $dartExe run tool/gate_a/gate_a_oracle_residual.dart @rest }
   'enumerate' { & $dartExe run tool/gate_a/gate_a_enumerate.dart @rest }
   default {
-    Write-Host 'usage: gate_a_runner.ps1 [run [script.dart]|test|astro [year]|enumerate]'
+    Write-Host 'usage: gate_a_runner.ps1 [run [script.dart]|test|cross|residual|enumerate]'
     exit 1
   }
 }
