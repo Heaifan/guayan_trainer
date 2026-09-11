@@ -2,10 +2,46 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-11 02:40
+> **最后编辑：** 2026-09-11 23:04
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## Gate A 专业排盘人工对照验收 — GUAYAN-2.0-GATE-A（2026-09-11，未发布）
+
+> 本轮**不写产品功能**，只做 R3-A + R3-B 的业务真值验收：
+> 把「起卦时间 + 卦象输入」交给专业排盘软件逐项对照，
+> 确认月建 / 日辰 / 旬空 / 六神 / 本卦 / 变卦 / 纳甲 / 五行 / 六亲 / 世应
+> 与专业软件一致。**人工对照是唯一真值来源，Agent 不做自动判定。**
+
+### 新增（tool/gate_a/ — 验收案例生成器，不参与 App 运行时）
+- `gate_a_main.dart` — 入口：装载真实数据包 → 结构自检 → 生成 6 份验收表单
+- `gate_a_context.dart` — 与产品完全同路径的引擎装配（JSON→校验→导入→仓储→Provider→Engine）
+- `gate_a_cases.dart` — 案例矩阵：普通 13 例 / 经典 6 例 / 节气 6 个 / 日界 3 日
+- `gate_a_hexagram_facts.dart` — 卦例事实计算 + **案例锁定**（本卦/变卦与声明不符即报错）
+- `gate_a_case_report.dart` — 卦例对照表渲染（逐爻对照 + 专业软件填写位）
+- `gate_a_solar_term_report.dart` — 节气边界 ±2min/±1min/边界/±30s 矩阵
+- `gate_a_day_report.dart` — 日界跨子时连续时间轴 × 两种规则
+- `gate_a_hexagram_audit.dart` — 八宫表完整性 / 纳甲组装顺序 独立复核
+- `gate_a_pillars.dart` — 四柱旁证（年柱以立春换年 / 五虎遁 / 五鼠遁）
+- `gate_a_format.dart` / `gate_a_selftest.dart` / `gate_a_enumerate.dart` / `gate_a_solve.dart`
+- `gate_a_runner.ps1` — 本机 PATH 包装（UTF-8 **带 BOM**，否则 PowerShell 5.1 按 ANSI 解析会语法报错）
+
+### 新增（gate-a/ — 生成的验收表单，待用户回填）
+- `README.md` / `01-normal-cases.md` / `02-classic-cases.md` /
+  `03-solar-term-boundaries.md` / `04-day-boundary.md` / `05-master-table.md`
+
+### 结构与真值自检结论
+- 八宫表：64 组合一一对应、每宫 8 卦、世应相隔三位 → PASS；
+- 案例锁定：19 例本卦/变卦与声明一致、纳甲组装顺序正确 → PASS；
+- 日柱锚点 1949-10-01 = 甲子（外部黄历源核），2026-02-04 = 己酉（跨 76 年独立源核）；
+- 节气取用错误（误取 2025 年同名节气）与「六冲/六合」手感分类错误已修正并留档。
+
+### 未做
+产品代码未改动；Gate A 未 PASS（等待用户回填专业软件结果）；
+日界默认值未冻结；节气分钟精度是否可接受待判定。
 
 ---
 
