@@ -144,7 +144,7 @@ IN PROGRESS — WAITING FOR USER MANUAL GATE INPUT
 | --- | --- |
 | `01-normal-cases.md` | GA-1 普通真实卦例 ${normalCases.length} 例（月建/日辰/旬空/卦体/纳甲/六亲/世应） |
 | `02-classic-cases.md` | GA-2 经典卦体 ${classicCases.length} 例（乾为天/坤为地/泽山咸/归魂/游魂…） |
-| `03-solar-term-boundaries.md` | GA-3 节气边界 ${solarTermCases.length} 个节气 × 7 个时间点 |
+| `03-solar-term-boundaries.md` | GA-3 节气边界：2026 十二「节」差异窗口全量测量 + 窗口最大的前 6 个详表 |
 | `04-day-boundary.md` | GA-4 日界 ${dayBoundaryCases.length} 个日期 × 6 个时刻 × 2 种规则 |
 | `05-master-table.md` | Gate A 总表（回填后定稿） |
 
@@ -186,7 +186,7 @@ GA14 Final Gate Decision  BLOCKED
 ```text
 普通案例        ${facts.where((f) => f.def.group == 'GA-1').length} 例（要求 >= 10）
 经典卦体        ${facts.where((f) => f.def.group == 'GA-2').length} 例（要求 >= 6）
-节气边界        ${solarTermCases.length} 个节气（要求 >= 3，推荐 5）
+节气边界        2026 十二「节」全量（要求 >= 3，推荐 5）；详表出窗口最大的 6 个
 日界专项        ${dayBoundaryCases.length} 日 × ${dayBoundaryClockPoints.length} 时间点 × 2 规则
 有变 / 无变     ${facts.where((f) => f.changed != null).length} / ${facts.where((f) => f.changed == null).length}
 单变 / 多变     ${facts.where((f) => f.chart.movingPositions.length == 1).length} / ${facts.where((f) => f.chart.movingPositions.length > 1).length}
@@ -202,9 +202,18 @@ GA14 Final Gate Decision  BLOCKED
 
 ## 已知需要重点观察的三处
 
-1. **GA-3 · 立春**：`-1min` 与 `-30s` 两行是分钟精度风险的唯一判定点；
-2. **GA-4 · 23:00—23:59**：日界流派分歧窗口，只判日辰与旬空；
+1. **GA-3 · 差异窗口起点**：四个测试点里，**只有「窗口起点」一行是决定性的** ——
+   它决定 `Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY` 是否 PASS。
+   `-1min` / `-30s` **不再是判据**（实测差异窗口 16s～729s，远大于 30s）。
+2. **GA-4 · 23:00—23:59**：日界流派分歧窗口，只判日辰与旬空。
 3. **GA-2 · GA-C-06**：验证**变卦六亲仍取本卦之宫**（不得按变卦宫计算）。
+
+## 本轮新增结论（需你决定）
+
+`Gate A2 SOLAR TERM ABSOLUTE PRECISION` 已可如实记录：数据包为**分钟级**，
+但与天算真实交节的最大差异窗口达 **729 秒**（立夏），
+十二「节」中只有 2 个与天算同分钟。原「分钟精度误差 ≤ 30 秒」的假设不成立。
+**真正待决的是：数据源是否升级到秒级天文数据。**（架构已就绪，只需换数据包。）
 ''';
 
 String _names(List<CaseFacts> facts, bool Function(CaseFacts) test) {
