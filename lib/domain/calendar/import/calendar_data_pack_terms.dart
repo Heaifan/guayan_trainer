@@ -6,6 +6,7 @@ library;
 import '../solar_term/solar_term.dart';
 import '../solar_term/solar_term_id.dart';
 import 'calendar_data_pack.dart';
+import 'calendar_data_pack_term_source.dart';
 
 /// 节气列表校验规则。
 class CalendarDataPackTerms {
@@ -26,6 +27,7 @@ class CalendarDataPackTerms {
 
     for (var i = 0; i < pack.terms.length; i++) {
       final raw = pack.terms[i];
+      CalendarDataPackTermSource.check(raw, i, problems);
       final id = _termIdOf(raw.term);
       if (id == null) {
         problems.add('terms[$i].term 未知：${raw.term}');
@@ -48,9 +50,42 @@ class CalendarDataPackTerms {
       }
       previous = utc;
       first = false;
-      terms.add(SolarTerm(id: id, instantUtc: utc));
+      final precision = _precisionOf(raw, i, problems);
+      if (precision == null) continue;
+      terms.add(
+        SolarTerm(
+          id: id,
+          instantUtc: utc,
+          precision: precision,
+          sourceName: raw.sourceName,
+          sourceReference: raw.sourceReference,
+        ),
+      );
     }
     return terms;
+  }
+
+  /// 解析精度字段并校验。
+  ///
+  /// - 未提供（v1 老包）→ [TermPrecision.minute]，即「该分钟内交节」的旧语义；
+  /// - 提供了但类型错误（如数字）→ 报错；
+  /// - 未知文本 → 报错。
+  /// 任一错误都返回 null 并跳过该条（不猜默认值，宁可失败）。
+  static TermPrecision? _precisionOf(
+    CalendarDataPackTerm raw,
+    int i,
+    List<String> problems,
+  ) {
+    if (!raw.hasPrecisionKey) return TermPrecision.minute;
+    if (raw.precision == null) {
+      problems.add('terms[$i].precision 类型错误（必须是字符串）');
+      return null;
+    }
+    final parsed = TermPrecision.tryParse(raw.precision);
+    if (parsed == null) {
+      problems.add('terms[$i].precision 未知：${raw.precision}');
+    }
+    return parsed;
   }
 
   /// 年份合理性：按**真实节气范围**判定（小寒必在 1 月、冬至必在 12 月），

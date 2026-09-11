@@ -8,6 +8,94 @@
 
 ---
 
+## 2026-09-12 · R3-B-DATA-PRECISION-FIX（节气数据精度专项修复，未发布）
+
+> **根因（一句话）**：分钟级官方显示值被保存为 `:00` 秒 Instant，
+> 而该分钟内存在可验证的真实秒级交节时刻 ——
+> **分钟级数据不足以表达该秒级边界**。
+> 这不是「HKO 错了」，官方双源（HKO / NAOJ）24/24 分钟级一致。
+
+### 修复
+| 项 | 修复前 | 修复后 |
+| --- | --- | --- |
+| 2026 立春 UTC 瞬间 | `2026-02-03T20:02:00Z` | `2026-02-03T20:02:08Z` |
+| 月建切换时刻（+08:00） | 04:02:00（提前 8 秒） | 04:02:08 |
+| 04:02:00—04:02:07 区间月建 | 寅（错） | 丑（对） |
+| 记录精度 | 无该概念 | `precision = second` |
+| 来源归属 | 仅年度 HKO | + 逐节气 `sourceOverride`（紫金山天文台科普部） |
+
+### 新增：数据包混合精度契约（schemaVersion 2，向后兼容 v1）
+```text
+年度 source          = 默认来源
+term sourceOverride  = 可选覆盖（须含 name + reference）
+term precision       = minute（缺省） / second
+```
+- 冻结语义：`precision = minute` 时 `instantUtc` 秒位恒为 `:00`，
+  只表示「**该分钟内**交节」，**不**表示「恰在第 0 秒交节」；
+- v2 中亦可混合精度：**已知多少精度就诚实保存多少精度**；
+- 未知 `precision`、残缺 `sourceOverride` 一律拒绝导入（不猜默认值）。
+
+### 数据包变更范围（严格最小）
+- 仅 `assets/calendar/2026.calendar.json`：`schemaVersion 1→2`、`revision 1→2`、
+  立春单条改为秒级并附来源覆盖；
+- **其余 23 条节气与其余 9 个年份数据包一律不动** ——
+  未取得可信秒级真值的节气**不补秒、不插值、不估算**。
+
+### 新增文件
+| 文件 | 职责 |
+| --- | --- |
+| `lib/domain/calendar/import/calendar_data_pack_term_source.dart` | 逐节气来源覆盖校验 |
+| `test/domain/calendar/solar_term_second_boundary_test.dart` | 立春秒级边界 Golden Test（11 例） |
+| `test/domain/calendar/calendar_terms_precision_test.dart` | 精度 / 来源元数据校验（11 例） |
+| `test/domain/calendar/solar_term_precision_revision_test.dart` | 精度修订导入回归（4 例） |
+| `tool/gate_a/gate_a_precision_closeout.dart` | 验收断言（走真实产品链路） |
+| `tool/gate_a/gate_a_hko_source.dart` | HKO 官方 XML 解析（交叉核验用原始发布件） |
+
+### 修改文件
+| 文件 | 改动 |
+| --- | --- |
+| `solar_term/solar_term.dart` | 增加 `precision` / `sourceName` / `sourceReference` |
+| `import/calendar_data_pack.dart` | 增加 `TermPrecision` 枚举与逐节气可选字段 |
+| `import/calendar_data_pack_parser.dart` | 解析 `precision` / `sourceOverride` |
+| `import/calendar_data_pack_terms.dart` | 精度校验（缺省 minute、未知/类型错误拒绝） |
+| `import/calendar_data_pack_validator.dart` | 支持 `schemaVersion 1..2` |
+| `test/domain/calendar/calendar_engine_test.dart` | 原断言「04:02:00 即寅月」已随数据修正更新 |
+
+### NOT changed（冻结范围，diff = 0）
+```text
+MonthBranchResolver / CalendarEngine / GanzhiDay / XunKong
+CastingEngine / 八宫 / 纳甲 / 六亲 / 世应 / 六神 / UI
+自建 Meeus 尺子：保持 DIAGNOSTIC ONLY / REJECTED AS GATE ORACLE
+```
+
+### 验收断言（CalendarEngine 实际执行）
+```text
+2026-02-04 04:01:00 +08 → 丑
+2026-02-04 04:02:00 +08 → 丑   （修复点）
+2026-02-04 04:02:07 +08 → 丑
+2026-02-04 04:02:08 +08 → 寅   （交节瞬间，含）
+2026-02-04 04:02:09 +08 → 寅
+2026-02-04 04:03:00 +08 → 寅
+```
+
+### Gate 状态
+```text
+Gate A1  WAITING FOR USER MANUAL INPUT
+Gate A2  PARTIALLY VERIFIED
+         2026 LiChun = 04:02:08 +08:00；该点 precision gap FIXED
+         其余 2026 节气 minute-level only（无伪造秒级真值）
+Gate A   READY FOR FINAL CLOSEOUT
+```
+
+### 验证
+```text
+flutter test                       259 / 259 PASS（原 232 + 新 27）
+flutter analyze lib/domain test/domain   No issues found
+flutter analyze（全仓）             27 issue = 改动前基线，new = 0，removed = 0
+```
+
+---
+
 ## 2026-09-11 · GUAYAN-2.0-R3-B-CALENDAR（离线历法基础层，未发布）
 
 > **路线变更（重要）**：原方案「把 1900–2100 共 4824 条节气硬编码进 Dart 源码」

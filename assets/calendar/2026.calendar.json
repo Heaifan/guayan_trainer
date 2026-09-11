@@ -1,13 +1,13 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "calendarYear": 2026,
   "timeStandard": "UTC",
-  "revision": 1,
+  "revision": 2,
   "source": {
     "name": "Hong Kong Observatory (HKO)",
     "reference": "https://www.hko.gov.hk/en/gts/astronomy/data/files/24SolarTerms_2026.xml",
     "generatedAt": "2026-09-10T18:03:12Z",
-    "note": "Astronomical data by HM Nautical Almanac Office (UK) and United States Naval Observatory. Original times in HKT (UTC+8), converted to UTC. Source precision: 1 minute."
+    "note": "Astronomical data by HM Nautical Almanac Office (UK) and United States Naval Observatory. Original times in HKT (UTC+8), converted to UTC. Term precision defaults to 'minute': the second field is always :00 and means 'occurs within this minute', NOT 'occurs at second 0'. Cross-checked against NAOJ Koyomi 2026: 24/24 same minute."
   },
   "terms": [
     {
@@ -20,7 +20,13 @@
     },
     {
       "term": "liChun",
-      "instantUtc": "2026-02-03T20:02:00Z"
+      "instantUtc": "2026-02-03T20:02:08Z",
+      "precision": "second",
+      "sourceOverride": {
+        "name": "中国科学院紫金山天文台科普部",
+        "reference": "https://www.sina.cn/news/detail/5262178065581695.html",
+        "note": "Published second-level LiChun instant 2026-02-04 04:02:08 +08:00. Same minute as HKO 04:02 and NAOJ 04:02; this record preserves the finer boundary."
+      }
     },
     {
       "term": "yuShui",

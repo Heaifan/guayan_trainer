@@ -16,8 +16,10 @@ import 'package:guayan_trainer/domain/line_state.dart';
 import 'package:guayan_trainer/domain/tian_gan.dart';
 
 import 'gate_a_context.dart';
+import 'gate_a_cross_source.dart';
 import 'gate_a_format.dart';
 import 'gate_a_hexagram_audit.dart';
+import 'gate_a_hko_source.dart';
 import 'gate_a_naoj_source.dart';
 import 'gate_a_pillars.dart';
 import 'gate_a_sun_longitude.dart';
@@ -111,23 +113,31 @@ Future<void> main() async {
 
   stdout.writeln('');
   stdout.writeln('== 官方双源交叉：HKO vs NAOJ（2026 二十四节气）==');
+  stdout.writeln('（用的是官方原始发布件夹具，不是本仓库数据包）');
   final naoj = loadNaojFixture();
   check('NAOJ 夹具解析条数', naoj.length, 24);
-  final crossCtx = await loadGateAContext();
-  final hkoTerms = crossCtx.engine.monthBranchResolver.provider
-      .termsOfYear(2026);
-  var dateOk = 0;
-  var minuteOk = 0;
-  for (final id in SolarTermId.values) {
-    final hko = hktOf(hkoTerms.firstWhere((t) => t.id == id).instantUtc);
-    final n = naoj.firstWhere((t) => t.longitude == id.longitude).hktJstShifted;
-    if (hko.year == n.year && hko.month == n.month && hko.day == n.day) {
-      dateOk++;
+  final hko = loadHkoFixture();
+  check('HKO 夹具解析条数', hko.length, 24);
+  final crossRows = buildCrossSourceRows();
+  check('HKO vs NAOJ 日期一致', crossRows.where((r) => r.sameDate).length, 24);
+  check('HKO vs NAOJ 分钟一致', crossRows.where((r) => r.sameMinute).length, 24);
+
+  stdout.writeln('');
+  stdout.writeln('== 数据包忠实转写官方分钟值（除已核实秒级项）==');
+  final packCtx = await loadGateAContext();
+  final packTerms = packCtx.engine.monthBranchResolver.provider.termsOfYear(2026);
+  var faithful = 0;
+  for (var i = 0; i < 24; i++) {
+    final t = packTerms.firstWhere((x) => x.id == SolarTermId.values[i]);
+    final packMinute = hktOf(t.instantUtc);
+    final official = hko[i];
+    if (packMinute.hour == official.hour &&
+        packMinute.minute == official.minute &&
+        packMinute.day == official.day) {
+      faithful++;
     }
-    if (hko.hour == n.hour && hko.minute == n.minute) minuteOk++;
   }
-  check('HKO vs NAOJ 日期一致', dateOk, 24);
-  check('HKO vs NAOJ 分钟一致', minuteOk, 24);
+  check('数据包 24 条仍落在官方同一分钟（秒级细化不改变分钟）', faithful, 24);
 
   stdout.writeln('');
   stdout.writeln('== 日柱锚点（外部独立来源已核）==');

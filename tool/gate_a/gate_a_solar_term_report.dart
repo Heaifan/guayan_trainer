@@ -53,6 +53,7 @@ class OfficialTermReference {
     required this.term,
     required this.year,
     required this.packHkt,
+    required this.isSecondPrecise,
     this.secondLevel,
   });
 
@@ -61,6 +62,9 @@ class OfficialTermReference {
 
   /// 数据包（HKO，分钟精度）交节时刻（HKT）。
   final DateTime packHkt;
+
+  /// 该瞬间在数据包中的记录精度是否为秒级。
+  final bool isSecondPrecise;
 
   /// 可追溯秒级公开值（若存在）。
   final SecondLevelReference? secondLevel;
@@ -88,6 +92,7 @@ OfficialTermReference? resolveOfficialReference(
     term: id,
     year: year,
     packHkt: hktOf(t.instantUtc),
+    isSecondPrecise: t.isSecondPrecise,
     secondLevel: secondLevelReferences
         .where((r) => r.term == id && r.year == year)
         .firstOrNull,
@@ -119,7 +124,8 @@ String renderOfficialTermCase(GateAContext ctx, OfficialTermReference r) {
       '${r.oldMonth.label}月 → ${r.newMonth.label}月');
   b.writeln();
   b.writeln('```text');
-  b.writeln('官方交节（HKO，HKT）  ${_full(r.packHkt)}');
+  b.writeln('数据包边界（HKT）     ${_full(r.packHkt)}');
+  b.writeln('记录精度              ${r.isSecondPrecise ? 'second' : 'minute'}');
   if (r.secondLevel != null) {
     b.writeln('秒级公开值（HKT）     ${_full(r.secondLevel!.hkt)}');
     b.writeln('秒级来源              ${r.secondLevel!.source}');
@@ -129,6 +135,14 @@ String renderOfficialTermCase(GateAContext ctx, OfficialTermReference r) {
   }
   b.writeln('```');
   b.writeln();
+  if (!r.isSecondPrecise) {
+    b.writeln(
+      '> ⚠️ 本节气为**分钟级**：`instantUtc` 秒位为 `:00` 只表示'
+      '「该分钟内交节」，**不**表示「恰在第 0 秒交节」。'
+      '在取得可信秒级真值前，不追加秒级测试点。',
+    );
+    b.writeln();
+  }
 
   final boundary = r.packHkt.subtract(const Duration(minutes: 1));
   final probes = <(String, DateTime, String)>[

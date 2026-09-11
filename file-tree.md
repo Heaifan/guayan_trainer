@@ -2,10 +2,69 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-12 00:12
+> **最后编辑：** 2026-09-12 00:52
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## 节气数据精度专项修复 — R3-B-DATA-PRECISION-FIX（2026-09-12，未发布）
+
+> **根因**：分钟级官方显示值被保存为 `:00` 秒 Instant，而该分钟内存在
+> 可验证的真实秒级交节时刻 —— **分钟级数据不足以表达该秒级边界**。
+> 不是「HKO 错了」：官方双源 HKO / NAOJ 24 / 24 分钟级一致。
+
+### 契约变更：数据包支持**混合精度**（schemaVersion 2，向后兼容 v1）
+- `TermPrecision`：`minute`（缺省）/ `second`；
+- 冻结语义：`minute` 时 `instantUtc` 秒位恒为 `:00`，
+  只表示「**该分钟内**交节」，**不**表示「恰在第 0 秒交节」；
+- 逐节气可选 `sourceOverride`（`name` + `reference`），不覆盖时沿用年度 `source`；
+- 未知 `precision`、残缺 `sourceOverride` 一律拒绝导入。
+- 原则：**数据包可以混合精度，但每条数据必须说清精度与来源**。
+  以后逐年补更高精度节气只需替换对应 term，不必推翻年度包。
+
+### 数据变更（严格最小）
+- `assets/calendar/2026.calendar.json`：`schemaVersion 1→2`、`revision 1→2`；
+  立春 `2026-02-03T20:02:00Z` → `2026-02-03T20:02:08Z`，
+  附 `precision: second` 与来源覆盖（中国科学院紫金山天文台科普部）。
+- 其余 23 条节气、其余 9 个年份包：**未改动**。
+  未取得可信秒级真值的节气不补秒、不插值、不估算。
+
+### 新增
+| 文件 | 职责 |
+| --- | --- |
+| `lib/domain/calendar/import/calendar_data_pack_term_source.dart` | 逐节气来源覆盖校验 |
+| `test/domain/calendar/solar_term_second_boundary_test.dart` | 立春秒级边界 Golden Test |
+| `test/domain/calendar/calendar_terms_precision_test.dart` | 精度 / 来源元数据校验 |
+| `test/domain/calendar/solar_term_precision_revision_test.dart` | 精度修订导入回归 |
+| `tool/gate_a/gate_a_precision_closeout.dart` | 验收断言（走真实产品链路） |
+| `tool/gate_a/gate_a_hko_source.dart` | HKO 官方 XML 解析（交叉核验用原始发布件） |
+| `tool/gate_a/hko/24SolarTerms_2026.xml` | HKO 官方 XML 夹具（离线可重复） |
+
+### 修改
+- `solar_term/solar_term.dart`：增加 `precision` / `sourceName` / `sourceReference`
+- `import/calendar_data_pack.dart`：增加 `TermPrecision` 与逐节气可选字段
+- `import/calendar_data_pack_parser.dart`：解析 `precision` / `sourceOverride`
+- `import/calendar_data_pack_terms.dart`：精度校验
+- `import/calendar_data_pack_validator.dart`：支持 `schemaVersion 1..2`
+- `test/domain/calendar/calendar_engine_test.dart`：原断言「04:02:00 即寅月」
+  已随数据修正更新（该断言原本把缺陷锁成了「正确行为」）
+
+### NOT changed（冻结范围 diff = 0）
+`MonthBranchResolver` / `CalendarEngine` / `GanzhiDay` / `XunKong` /
+`CastingEngine` / 八宫 / 纳甲 / 六亲 / 世应 / 六神 / UI；
+自建 Meeus 尺子保持 `DIAGNOSTIC ONLY / REJECTED AS GATE ORACLE`。
+
+### 验收断言
+```text
+04:01:00 → 丑   04:02:00 → 丑（修复点）   04:02:07 → 丑
+04:02:08 → 寅（交节瞬间，含）   04:02:09 → 寅   04:03:00 → 寅
+```
+
+### 验证
+`flutter test` 259 / 259；scoped analyze 0 issue；
+全仓 analyze 27 = 基线（new 0 / removed 0）。
 
 ---
 
@@ -62,8 +121,11 @@
   追加 `exact −1s / exact / exact +1s`。
   **已删除**所有由未验证尺子推导的差异窗口测试点。
   来源无法确认的 `04:01:51` 不予收录。
-- **Gate A2 状态**：`UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED`。
-  既不 PASS 也不 FAIL 数据源；**不得据此升级 CalendarDataPack**。
+- **Gate A2 状态**：当时为 `UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED`，
+  既不 PASS 也不 FAIL 数据源、不得据此升级 CalendarDataPack。
+  > ⚠️ **该状态已被同日后续的 R3-B-DATA-PRECISION-FIX 取代**：
+  > 立春取得可信秒级真值并写入数据包，Gate A2 现为 `PARTIALLY VERIFIED`。
+  > 本节保留为历史教训（不得删除）。
 
 ### 新增（gate-a/ — 生成的验收表单，待用户回填）
 - `README.md` / `01-normal-cases.md` / `02-classic-cases.md` /

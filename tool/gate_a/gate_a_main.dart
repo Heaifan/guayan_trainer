@@ -129,10 +129,13 @@ Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY
   WAITING FOR USER MANUAL INPUT
 
 Gate A2 SOLAR TERM ABSOLUTE PRECISION
-  UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED
+  PARTIALLY VERIFIED
+  2026 LiChun = 04:02:08 +08:00（已纳入数据包）
+  2026 LiChun precision gap FIXED
+  其余 2026 节气 minute-level only
 
 GATE A
-  NOT PASSED
+  READY FOR FINAL CLOSEOUT
 ```
 
 ## 数据来源
@@ -224,9 +227,23 @@ GA14 Final Gate Decision  BLOCKED
 
 ## 关于 Gate A2
 
-`Gate A2` 现为 **UNRESOLVED**：官方双源（HKO / NAOJ）已互相印证分钟级真值，
-但**独立秒级天文真值尚未建立**，因此既不 PASS 也不 FAIL 数据源。
-**不要据此升级 `CalendarDataPack`。**
+`Gate A2` 现为 **PARTIALLY VERIFIED**：
+2026 立春已有可信秒级真值并已写入数据包（该点的 precision gap 已修复）；
+其余 2026 节气仍为 **minute-level only**，**没有**伪造的秒级真值。
+独立天文 oracle 尚未建立（自建尺子仍为 `REJECTED AS GATE ORACLE`），
+因此**不**对数据源整体做 PASS/FAIL 判定。
+
+## 数据包精度原则（长期保留）
+
+```text
+数据包可以混合精度，但每条数据必须说清：
+  - 是分钟级还是秒级（precision）
+  - 来自哪里（年度 source / 逐节气 sourceOverride）
+
+:00 秒 ≠ 「恰在第 0 秒交节」，只表示「该分钟内交节」。
+以后逐年补更高精度节气时，只需替换对应 term，
+不必推翻现有年度包。
+```
 ''';
 
 String _names(List<CaseFacts> facts, bool Function(CaseFacts) test) {
@@ -252,17 +269,23 @@ String _solarTermSection(GateAContext ctx) {
 
 String _solarTermSummary(List<OfficialTermReference> refs) {
   final b = StringBuffer();
-  b.writeln('## 一、官方交节时刻（数据包 = HKO，分钟精度）\n');
-  b.writeln('| 节气 | 月建切换 | 官方交节（HKT） | 秒级公开值 | 秒级来源 |');
-  b.writeln('| --- | --- | --- | --- | --- |');
+  b.writeln('## 一、数据包交节时刻与记录精度（2026 十二「节」）\n');
+  b.writeln('| 节气 | 月建切换 | 数据包边界（HKT） | 精度 | 秒级公开值 | 秒级来源 |');
+  b.writeln('| --- | --- | --- | --- | --- | --- |');
   for (final r in refs) {
     b.writeln(
       '| ${r.term.label} | ${r.oldMonth.label}→${r.newMonth.label} '
       '| ${_short(r.packHkt)} '
+      '| ${r.isSecondPrecise ? '**second**' : 'minute'} '
       '| ${r.secondLevel == null ? '无' : _short(r.secondLevel!.hkt)} '
       '| ${r.secondLevel?.source ?? '—'} |',
     );
   }
+  b.writeln();
+  b.writeln(
+    '> `minute` 表示该瞬间秒位仅作占位（`:00`），真实交节落在该分钟内；'
+    '`second` 表示秒位可信。',
+  );
   b.writeln();
   b.writeln('## 二、官方双源交叉核验（HKO vs NAOJ）\n');
   b.writeln('```text');
@@ -282,14 +305,34 @@ String _gateCriteria(List<OfficialTermReference> refs) {
   b.writeln('```text');
   b.writeln('Gate A1 · PROFESSIONAL SOFTWARE COMPATIBILITY');
   b.writeln('  问题：目标专业软件与卦眼（同一输入）是否给出同一月建？');
-  b.writeln('  方法：用上表「边界 -1min / 边界 / 边界 +1min」三点做人工对照。');
+  b.writeln('  方法：用上表「边界 -1min / 边界 / 边界 +1min」三点做人工对照；');
+  b.writeln('        立春另有秒级三点。');
   b.writeln('  状态：WAITING FOR USER MANUAL INPUT');
   b.writeln('');
   b.writeln('Gate A2 · SOLAR TERM ABSOLUTE PRECISION');
-  b.writeln('  状态：UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED');
-  b.writeln('  原因：自建天文尺子的绝对精度尚未建立，');
-  b.writeln('        不得用它证明数据包存在误差，也不得据此 FAIL 数据包。');
-  b.writeln('  已确立的事实：HKO 与 NAOJ 官方分钟值 24/24 一致。');
+  b.writeln('  状态：PARTIALLY VERIFIED');
+  b.writeln('  Verified second-level case:');
+  b.writeln('    2026 LiChun = 04:02:08 +08:00');
+  b.writeln('  2026 LiChun precision gap:');
+  b.writeln('    FIXED');
+  b.writeln('  Other 2026 solar terms:');
+  b.writeln('    minute-level only');
+  b.writeln('    no fabricated second-level truth');
+  b.writeln('```');
+  b.writeln();
+  b.writeln('> 不得写成 `ALL 2026 SOLAR TERMS SECOND-LEVEL VERIFIED` —— 那是假的。');
+  b.writeln('> 本轮的修复范围只有**已核实的 2026 立春单点**。');
+  b.writeln();
+  b.writeln('### 立春精度修复（R3-B-DATA-PRECISION-FIX）\n');
+  b.writeln('```text');
+  b.writeln('根因：分钟级官方显示值被保存为 :00 秒 Instant，');
+  b.writeln('      而该分钟内存在可验证的真实秒级交节时刻。');
+  b.writeln('      分钟级数据**不足以表达**该秒级边界 —— 不是 HKO 错了。');
+  b.writeln('');
+  b.writeln('修复前：2026-02-03T20:02:00Z → 04:02:00 起即切寅月（提前 8 秒）');
+  b.writeln('修复后：2026-02-03T20:02:08Z → 04:02:08 起才切寅月');
+  b.writeln('数据包：schemaVersion 2 / revision 2 / precision = second /');
+  b.writeln('        sourceOverride = 中国科学院紫金山天文台科普部');
   b.writeln('```');
   b.writeln();
   b.writeln('### 自建天文尺子的现状（不可作为真值）\n');

@@ -17,7 +17,13 @@ class CalendarDataPackValidator {
   const CalendarDataPackValidator._();
 
   /// 当前支持的数据包结构版本。
-  static const int supportedSchemaVersion = 1;
+  ///
+  /// v1 = 仅年度来源 + 分钟级瞬间（历史数据包，继续支持）；
+  /// v2 = 增加逐节气 `precision` 与 `sourceOverride`（可混合精度）。
+  static const int supportedSchemaVersion = 2;
+
+  /// 兼容的最低版本。
+  static const int minSupportedSchemaVersion = 1;
 
   /// 校验并转换；失败抛 [CalendarDataPackInvalid]。
   static CalendarYearData validate(CalendarDataPack pack) {
@@ -51,10 +57,11 @@ class CalendarDataPackValidator {
   static void _checkMetadata(CalendarDataPack pack, List<String> problems) {
     if (pack.schemaVersion == null) {
       problems.add('缺少 schemaVersion');
-    } else if (pack.schemaVersion != supportedSchemaVersion) {
+    } else if (pack.schemaVersion! < minSupportedSchemaVersion ||
+        pack.schemaVersion! > supportedSchemaVersion) {
       problems.add(
         'schemaVersion 不支持：${pack.schemaVersion}'
-        '（支持 $supportedSchemaVersion）',
+        '（支持 $minSupportedSchemaVersion..$supportedSchemaVersion）',
       );
     }
 

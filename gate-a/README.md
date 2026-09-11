@@ -10,10 +10,13 @@ Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY
   WAITING FOR USER MANUAL INPUT
 
 Gate A2 SOLAR TERM ABSOLUTE PRECISION
-  UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED
+  PARTIALLY VERIFIED
+  2026 LiChun = 04:02:08 +08:00（已纳入数据包）
+  2026 LiChun precision gap FIXED
+  其余 2026 节气 minute-level only
 
 GATE A
-  NOT PASSED
+  READY FOR FINAL CLOSEOUT
 ```
 
 ## 数据来源
@@ -105,6 +108,20 @@ GA14 Final Gate Decision  BLOCKED
 
 ## 关于 Gate A2
 
-`Gate A2` 现为 **UNRESOLVED**：官方双源（HKO / NAOJ）已互相印证分钟级真值，
-但**独立秒级天文真值尚未建立**，因此既不 PASS 也不 FAIL 数据源。
-**不要据此升级 `CalendarDataPack`。**
+`Gate A2` 现为 **PARTIALLY VERIFIED**：
+2026 立春已有可信秒级真值并已写入数据包（该点的 precision gap 已修复）；
+其余 2026 节气仍为 **minute-level only**，**没有**伪造的秒级真值。
+独立天文 oracle 尚未建立（自建尺子仍为 `REJECTED AS GATE ORACLE`），
+因此**不**对数据源整体做 PASS/FAIL 判定。
+
+## 数据包精度原则（长期保留）
+
+```text
+数据包可以混合精度，但每条数据必须说清：
+  - 是分钟级还是秒级（precision）
+  - 来自哪里（年度 source / 逐节气 sourceOverride）
+
+:00 秒 ≠ 「恰在第 0 秒交节」，只表示「该分钟内交节」。
+以后逐年补更高精度节气时，只需替换对应 term，
+不必推翻现有年度包。
+```

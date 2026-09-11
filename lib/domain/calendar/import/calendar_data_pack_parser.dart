@@ -30,19 +30,9 @@ class CalendarDataPackParser {
     if (termsRaw is! List) {
       throw const CalendarDataPackInvalid(['terms 必须是数组']);
     }
-    final terms = <CalendarDataPackTerm>[];
-    for (var i = 0; i < termsRaw.length; i++) {
-      final entry = termsRaw[i];
-      if (entry is! Map) {
-        throw CalendarDataPackInvalid(['terms[$i] 必须是对象']);
-      }
-      terms.add(
-        CalendarDataPackTerm(
-          term: _str(entry['term']),
-          instantUtc: _str(entry['instantUtc']),
-        ),
-      );
-    }
+    final terms = <CalendarDataPackTerm>[
+      for (var i = 0; i < termsRaw.length; i++) _term(termsRaw[i], i),
+    ];
 
     final sourceRaw = root['source'];
     final source = sourceRaw is Map ? sourceRaw : const <String, Object?>{};
@@ -56,6 +46,25 @@ class CalendarDataPackParser {
       sourceReference: _str(source['reference']),
       generatedAt: _str(source['generatedAt']),
       terms: terms,
+    );
+  }
+
+  /// 解析单条节气记录（含可选的 precision / sourceOverride）。
+  static CalendarDataPackTerm _term(Object? entry, int i) {
+    if (entry is! Map) {
+      throw CalendarDataPackInvalid(['terms[$i] 必须是对象']);
+    }
+    final overrideRaw = entry['sourceOverride'];
+    final override = overrideRaw is Map ? overrideRaw : const <Object?, Object?>{};
+    return CalendarDataPackTerm(
+      term: _str(entry['term']),
+      instantUtc: _str(entry['instantUtc']),
+      precision: _str(entry['precision']),
+      sourceName: _str(override['name']),
+      sourceReference: _str(override['reference']),
+      sourceNote: _str(override['note']),
+      hasSourceOverride: overrideRaw != null,
+      hasPrecisionKey: entry.containsKey('precision'),
     );
   }
 
