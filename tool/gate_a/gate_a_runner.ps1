@@ -1,30 +1,36 @@
-﻿# Gate A 运行器（含机器绝对路径，已 .gitignore 不入库）
+# Gate A runner (local absolute paths; never committed to version control logic).
 #
-# 背景与本机 `scripts/flutter.local.ps1` 相同：$env:PATH 被裁剪，
-# `dart` 不在 PATH 中，且 dart.exe 依赖 System32 下的基础命令。
-# 本脚本在调用 dart 前把 System32 与工具链目录重新拼进 PATH。
+# Why this file exists: on this machine $env:PATH is trimmed so that `dart` is
+# not found, and dart.exe needs System32 on PATH to run at all. This wrapper
+# rebuilds a usable PATH before invoking dart.
 #
-# 用法（仓库根目录）：
-#   pwsh -File tool/gate_a/gate_a_runner.ps1 run
-#   pwsh -File tool/gate_a/gate_a_runner.ps1 test
-#   pwsh -File tool/gate_a/gate_a_runner.ps1 analyze
+# NOTE: this file is deliberately ASCII-only. Windows PowerShell 5.1 reads
+# .ps1 files without a BOM as ANSI, so non-ASCII comments here would be mangled
+# into a syntax error. All Chinese documentation lives in the Dart sources,
+# which are always read as UTF-8.
+#
+# Usage (from the repository root):
+#   powershell -File tool/gate_a/gate_a_runner.ps1 run
+#   powershell -File tool/gate_a/gate_a_runner.ps1 run tool/gate_a/gate_a_solve.dart
+#   powershell -File tool/gate_a/gate_a_runner.ps1 test
+#   powershell -File tool/gate_a/gate_a_runner.ps1 astro 2026
+#   powershell -File tool/gate_a/gate_a_runner.ps1 enumerate
 
 $ErrorActionPreference = 'Stop'
 
-# dart/flutter 会把正常进度写进 stderr；Stop 会把它当致命错误中断脚本。
 $DartRoot = 'D:\MyApp\app-flutter\flutter\bin\cache\dart-sdk'
 $GitRoot = 'D:\MyApp\app-git\Git'
 
 $dartExe = Join-Path $DartRoot 'bin\dart.exe'
-
 if (-not (Test-Path $dartExe)) {
-  throw "找不到 dart: $dartExe（请修改本脚本顶部的 `$DartRoot）"
+  throw "dart not found: $dartExe (edit `$DartRoot at the top of this script)"
 }
 
 $systemDirs = @(
   "$env:SystemRoot\System32"
   "$env:SystemRoot"
   "$env:SystemRoot\System32\Wbem"
+  "$env:SystemRoot\System32\WindowsPowerShell\v1.0"
 )
 $toolDirs = @(
   (Join-Path $DartRoot 'bin')
@@ -37,13 +43,26 @@ $missing = @($systemDirs + $toolDirs) |
   Select-Object -Unique
 $env:PATH = (@($missing) + $existing) -join ';'
 
+# dart writes normal progress to stderr; Stop would abort on it.
 $ErrorActionPreference = 'Continue'
 
-switch ($args[0]) {
-  'run' { & $dartExe run tool/gate_a/gate_a_main.dart @($args[1..($args.Count - 1)]) }
+$mode = if ($args.Count -gt 0) { $args[0] } else { 'run' }
+$rest = if ($args.Count -gt 1) { $args[1..($args.Count - 1)] } else { @() }
+
+switch ($mode) {
+  'run' {
+    $target = if ($rest.Count -gt 0) { $rest[0] } else { 'tool/gate_a/gate_a_main.dart' }
+    if ($rest.Count -gt 1) {
+      & $dartExe run $target @($rest[1..($rest.Count - 1)])
+    } else {
+      & $dartExe run $target
+    }
+  }
   'test' { & $dartExe run tool/gate_a/gate_a_selftest.dart }
+  'astro' { & $dartExe run tool/gate_a/gate_a_verify_astronomy.dart @rest }
+  'enumerate' { & $dartExe run tool/gate_a/gate_a_enumerate.dart @rest }
   default {
-    Write-Host '用法: pwsh -File tool/gate_a/gate_a_runner.ps1 [run|test]'
+    Write-Host 'usage: gate_a_runner.ps1 [run [script.dart]|test|astro [year]|enumerate]'
     exit 1
   }
 }

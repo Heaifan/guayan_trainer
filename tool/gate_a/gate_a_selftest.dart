@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:guayan_trainer/domain/calendar/day/ganzhi_day.dart';
 import 'package:guayan_trainer/domain/calendar/day/xun_kong.dart';
+import 'package:guayan_trainer/domain/calendar/solar_term/solar_term_id.dart';
 import 'package:guayan_trainer/domain/casting/bagua.dart';
 import 'package:guayan_trainer/domain/casting/casting_engine.dart';
 import 'package:guayan_trainer/domain/casting/hexagram64.dart';
@@ -16,6 +17,7 @@ import 'package:guayan_trainer/domain/tian_gan.dart';
 
 import 'gate_a_hexagram_audit.dart';
 import 'gate_a_pillars.dart';
+import 'gate_a_sun_longitude.dart';
 
 int _failures = 0;
 
@@ -60,6 +62,40 @@ void check(String label, Object? actual, Object? expected) {
 }
 
 void main() {
+  stdout.writeln('== 天文尺子（Meeus 太阳视黄经）自检 ==');
+  // JD ↔ Unix 时标：曾经因为多加 0.5 天导致全部结果偏移 12 小时，
+  // 因此把「纪元往返」固定为哨兵测试。
+  check(
+    'JD(2000-01-01T12:00Z) = 2451545.0',
+    julianDayOfUtc(DateTime.utc(2000, 1, 1, 12)),
+    2451545.0,
+  );
+  check(
+    'JD(1970-01-01T00:00Z) = 2440587.5',
+    julianDayOfUtc(DateTime.utc(1970, 1, 1)),
+    2440587.5,
+  );
+  // 算法自证：在 HKO 自己给出的交节时刻，太阳视黄经应等于该节气黄经。
+  // 这同时说明「本尺子与 HKO 的时刻定义一致」，差异只可能来自时刻本身。
+  const probes = <(SolarTermId, int, int, int, int)>[
+    (SolarTermId.liChun, 2, 4, 4, 2),
+    (SolarTermId.jingZhe, 3, 5, 21, 59),
+    (SolarTermId.qingMing, 4, 5, 2, 40),
+    (SolarTermId.baiLu, 9, 7, 22, 41),
+    (SolarTermId.dongZhi, 12, 22, 4, 50),
+  ];
+  for (final (id, month, day, hour, minute) in probes) {
+    final utc = DateTime.utc(2026, month, day, hour - 8, minute);
+    final lon = sunApparentLongitude(julianDayOfUtc(utc));
+    final delta = angleDiff(lon, id.longitude.toDouble());
+    check(
+      'HKO ${id.label} 时刻黄经偏差（度，应 < 0.01）',
+      delta.abs() < 0.01,
+      true,
+    );
+  }
+
+  stdout.writeln('');
   stdout.writeln('== 日柱锚点（外部独立来源已核）==');
   // 外部来源 1：zhanbuwang.com / ximizi.net
   // 「西历 1949 年 10 月 1 日 … 己丑年 癸酉月 甲子日」。这是 JDN 锚点。
