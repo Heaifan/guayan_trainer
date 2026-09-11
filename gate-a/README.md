@@ -6,18 +6,30 @@
 ## 状态
 
 ```text
-IN PROGRESS — WAITING FOR USER MANUAL GATE INPUT
+Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY
+  WAITING FOR USER MANUAL INPUT
+
+Gate A2 SOLAR TERM ABSOLUTE PRECISION
+  UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED
+
+GATE A
+  NOT PASSED
 ```
 
 ## 数据来源
 
 ```text
 数据包年份      2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028
-节气来源        Hong Kong Observatory（HKO）
-节气精度        1 分钟（秒位恒为 :00）
+节气来源        Hong Kong Observatory（HKO），分钟精度（秒位恒为 :00）
+第二官方源      日本国立天文台 NAOJ「暦要項」（JST → HKT 减 1 小时）
+双源交叉        2026 年 24 / 24 日期一致、分钟一致
+秒级公开值      仅立春 2026（紫金山天文台科普部 04:02:08 +08:00）
 时区基准        +08:00
 卦眼日界（本表）midnight（00:00 换日）
 ```
+
+> 自建天文尺子（Meeus）状态：**REJECTED AS GATE ORACLE**，仅作 diagnostic。
+> 详见 `03-solar-term-boundaries.md` 的「自建天文尺子的现状」一节。
 
 ## 文件说明
 
@@ -45,9 +57,11 @@ IN PROGRESS — WAITING FOR USER MANUAL GATE INPUT
 GA0 Git baseline 核验                      DONE
 GA1 GA-1 测试矩阵（13 例）                    DONE
 GA3 GA-2 测试矩阵（6 例）                     DONE
-GA4 GA-3 测试矩阵（6 节气 × 7 时间点）      DONE
+GA4 GA-3 测试矩阵（2026 十二「节」× 官方测试点）  DONE
 GA6 GA-4 测试矩阵（3 日 × 6 点 × 2 规则） DONE
 结构自检（八宫表 / 纳甲组装 / 案例锁定）    DONE
+官方双源交叉（HKO vs NAOJ 24/24）           DONE
+自建天文尺子验证（REJECTED AS ORACLE）      DONE
 ```
 
 **待用户人工对照（Agent 不得代做）**
@@ -83,15 +97,14 @@ GA14 Final Gate Decision  BLOCKED
 
 ## 已知需要重点观察的三处
 
-1. **GA-3 · 差异窗口起点**：四个测试点里，**只有「窗口起点」一行是决定性的** ——
-   它决定 `Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY` 是否 PASS。
-   `-1min` / `-30s` **不再是判据**（实测差异窗口 16s～729s，远大于 30s）。
+1. **GA-3 · 立春 2026**：唯一有秒级公开值的节气 ——
+   `边界 −1min / 边界 / 边界 +1min / 秒级 exact −1s / exact / exact +1s` 六点，
+   是 `Gate A1` 最关键的一组。
 2. **GA-4 · 23:00—23:59**：日界流派分歧窗口，只判日辰与旬空。
 3. **GA-2 · GA-C-06**：验证**变卦六亲仍取本卦之宫**（不得按变卦宫计算）。
 
-## 本轮新增结论（需你决定）
+## 关于 Gate A2
 
-`Gate A2 SOLAR TERM ABSOLUTE PRECISION` 已可如实记录：数据包为**分钟级**，
-但与天算真实交节的最大差异窗口达 **729 秒**（立夏），
-十二「节」中只有 2 个与天算同分钟。原「分钟精度误差 ≤ 30 秒」的假设不成立。
-**真正待决的是：数据源是否升级到秒级天文数据。**（架构已就绪，只需换数据包。）
+`Gate A2` 现为 **UNRESOLVED**：官方双源（HKO / NAOJ）已互相印证分钟级真值，
+但**独立秒级天文真值尚未建立**，因此既不 PASS 也不 FAIL 数据源。
+**不要据此升级 `CalendarDataPack`。**

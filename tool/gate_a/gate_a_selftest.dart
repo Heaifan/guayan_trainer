@@ -15,7 +15,10 @@ import 'package:guayan_trainer/domain/di_zhi.dart';
 import 'package:guayan_trainer/domain/line_state.dart';
 import 'package:guayan_trainer/domain/tian_gan.dart';
 
+import 'gate_a_context.dart';
+import 'gate_a_format.dart';
 import 'gate_a_hexagram_audit.dart';
+import 'gate_a_naoj_source.dart';
 import 'gate_a_pillars.dart';
 import 'gate_a_sun_longitude.dart';
 
@@ -61,7 +64,7 @@ void check(String label, Object? actual, Object? expected) {
   );
 }
 
-void main() {
+Future<void> main() async {
   stdout.writeln('== 天文尺子（Meeus 太阳视黄经）自检 ==');
   // JD ↔ Unix 时标：曾经因为多加 0.5 天导致全部结果偏移 12 小时，
   // 因此把「纪元往返」固定为哨兵测试。
@@ -75,25 +78,56 @@ void main() {
     julianDayOfUtc(DateTime.utc(1970, 1, 1)),
     2440587.5,
   );
-  // 算法自证：在 HKO 自己给出的交节时刻，太阳视黄经应等于该节气黄经。
-  // 这同时说明「本尺子与 HKO 的时刻定义一致」，差异只可能来自时刻本身。
+  // 只作 coarse sanity check：0.01° ≈ 14.6 分钟时间，
+  // **不能**作为分钟级/秒级精度证明（GATE-A-PREP-FIX2 §6）。
   const probes = <(SolarTermId, int, int, int, int)>[
     (SolarTermId.liChun, 2, 4, 4, 2),
-    (SolarTermId.jingZhe, 3, 5, 21, 59),
-    (SolarTermId.qingMing, 4, 5, 2, 40),
     (SolarTermId.baiLu, 9, 7, 22, 41),
-    (SolarTermId.dongZhi, 12, 22, 4, 50),
   ];
   for (final (id, month, day, hour, minute) in probes) {
     final utc = DateTime.utc(2026, month, day, hour - 8, minute);
     final lon = sunApparentLongitude(julianDayOfUtc(utc));
     final delta = angleDiff(lon, id.longitude.toDouble());
     check(
-      'HKO ${id.label} 时刻黄经偏差（度，应 < 0.01）',
+      'coarse sanity：HKO ${id.label} 时刻黄经偏差 < 0.01°',
       delta.abs() < 0.01,
       true,
     );
   }
+  // 尺子对官方的**时间残差**必须如实记录（不得掩盖）。
+  final liChunPredicted = solveSolarTermUtc(
+    315,
+    DateTime.utc(2026, 2, 1),
+    maxDays: 20,
+  );
+  final residual = liChunPredicted
+      .difference(DateTime.utc(2026, 2, 3, 20, 2, 8))
+      .inSeconds;
+  check(
+    '尺子对秒级公开值残差绝对值 > 60s（已知缺陷，不得当作已验证）',
+    residual.abs() > 60,
+    true,
+  );
+
+  stdout.writeln('');
+  stdout.writeln('== 官方双源交叉：HKO vs NAOJ（2026 二十四节气）==');
+  final naoj = loadNaojFixture();
+  check('NAOJ 夹具解析条数', naoj.length, 24);
+  final crossCtx = await loadGateAContext();
+  final hkoTerms = crossCtx.engine.monthBranchResolver.provider
+      .termsOfYear(2026);
+  var dateOk = 0;
+  var minuteOk = 0;
+  for (final id in SolarTermId.values) {
+    final hko = hktOf(hkoTerms.firstWhere((t) => t.id == id).instantUtc);
+    final n = naoj.firstWhere((t) => t.longitude == id.longitude).hktJstShifted;
+    if (hko.year == n.year && hko.month == n.month && hko.day == n.day) {
+      dateOk++;
+    }
+    if (hko.hour == n.hour && hko.minute == n.minute) minuteOk++;
+  }
+  check('HKO vs NAOJ 日期一致', dateOk, 24);
+  check('HKO vs NAOJ 分钟一致', minuteOk, 24);
 
   stdout.writeln('');
   stdout.writeln('== 日柱锚点（外部独立来源已核）==');

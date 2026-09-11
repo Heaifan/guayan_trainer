@@ -305,7 +305,12 @@ const List<GateACase> classicCases = <GateACase>[
   ),
 ];
 
-/// 节气边界专项。
+/// GA-3 节气边界：**序号编排说明**。
+///
+/// 实际测试点由 `gate_a_solar_term_report.dart` 从**官方发布值**（HKO 数据包，
+/// 并由 NAOJ 交叉印证）逐节生成，覆盖 2026 年全部十二「节」；
+/// 本常量只保留「节气 → 序号」的稳定编号约定（`GA-ST-<黄经序>`），
+/// 不再承载测试点定义，避免矩阵与真值来源分家。
 class SolarTermBoundaryCase {
   const SolarTermBoundaryCase({
     required this.id,
@@ -329,46 +334,6 @@ class SolarTermBoundaryCase {
   /// 完整标题，如 `立春 2026`。
   String get title => '${term.label} $year';
 }
-
-/// GA-3 节气边界：覆盖十二「节」中的 6 个（分属不同月份与季节）。
-const List<SolarTermBoundaryCase> solarTermCases = <SolarTermBoundaryCase>[
-  SolarTermBoundaryCase(
-    id: 'GA-ST-01',
-    term: SolarTermId.liChun,
-    year: 2026,
-    purpose: '立春：丑月→寅月（同时是年柱换年点，最高风险）',
-  ),
-  SolarTermBoundaryCase(
-    id: 'GA-ST-02',
-    term: SolarTermId.jingZhe,
-    year: 2026,
-    purpose: '惊蛰：寅月→卯月',
-  ),
-  SolarTermBoundaryCase(
-    id: 'GA-ST-03',
-    term: SolarTermId.qingMing,
-    year: 2026,
-    purpose: '清明：卯月→辰月',
-  ),
-  SolarTermBoundaryCase(
-    id: 'GA-ST-04',
-    term: SolarTermId.liQiu,
-    year: 2026,
-    purpose: '立秋：未月→申月',
-  ),
-  SolarTermBoundaryCase(
-    id: 'GA-ST-05',
-    term: SolarTermId.baiLu,
-    year: 2026,
-    purpose: '白露：申月→酉月',
-  ),
-  SolarTermBoundaryCase(
-    id: 'GA-ST-06',
-    term: SolarTermId.xiaoHan,
-    year: 2026,
-    purpose: '小寒：子月→丑月（年初，需读上一年数据）',
-  ),
-];
 
 /// 日界专项：跨「子时」的连续时间轴。
 ///

@@ -125,18 +125,30 @@ String _header(GateAContext ctx, List<CaseFacts> facts) => '''# 卦眼 2.0 · Ga
 ## 状态
 
 ```text
-IN PROGRESS — WAITING FOR USER MANUAL GATE INPUT
+Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY
+  WAITING FOR USER MANUAL INPUT
+
+Gate A2 SOLAR TERM ABSOLUTE PRECISION
+  UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED
+
+GATE A
+  NOT PASSED
 ```
 
 ## 数据来源
 
 ```text
 数据包年份      ${ctx.installedYears.join(', ')}
-节气来源        Hong Kong Observatory（HKO）
-节气精度        1 分钟（秒位恒为 :00）
+节气来源        Hong Kong Observatory（HKO），分钟精度（秒位恒为 :00）
+第二官方源      日本国立天文台 NAOJ「暦要項」（JST → HKT 减 1 小时）
+双源交叉        2026 年 24 / 24 日期一致、分钟一致
+秒级公开值      仅立春 2026（紫金山天文台科普部 04:02:08 +08:00）
 时区基准        +08:00
 卦眼日界（本表）midnight（00:00 换日）
 ```
+
+> 自建天文尺子（Meeus）状态：**REJECTED AS GATE ORACLE**，仅作 diagnostic。
+> 详见 `03-solar-term-boundaries.md` 的「自建天文尺子的现状」一节。
 
 ## 文件说明
 
@@ -164,9 +176,11 @@ IN PROGRESS — WAITING FOR USER MANUAL GATE INPUT
 GA0 Git baseline 核验                      DONE
 GA1 GA-1 测试矩阵（${normalCases.length} 例）                    DONE
 GA3 GA-2 测试矩阵（${classicCases.length} 例）                     DONE
-GA4 GA-3 测试矩阵（${solarTermCases.length} 节气 × 7 时间点）      DONE
+GA4 GA-3 测试矩阵（2026 十二「节」× 官方测试点）  DONE
 GA6 GA-4 测试矩阵（${dayBoundaryCases.length} 日 × 6 点 × 2 规则） DONE
 结构自检（八宫表 / 纳甲组装 / 案例锁定）    DONE
+官方双源交叉（HKO vs NAOJ 24/24）           DONE
+自建天文尺子验证（REJECTED AS ORACLE）      DONE
 ```
 
 **待用户人工对照（Agent 不得代做）**
@@ -202,18 +216,17 @@ GA14 Final Gate Decision  BLOCKED
 
 ## 已知需要重点观察的三处
 
-1. **GA-3 · 差异窗口起点**：四个测试点里，**只有「窗口起点」一行是决定性的** ——
-   它决定 `Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY` 是否 PASS。
-   `-1min` / `-30s` **不再是判据**（实测差异窗口 16s～729s，远大于 30s）。
+1. **GA-3 · 立春 2026**：唯一有秒级公开值的节气 ——
+   `边界 −1min / 边界 / 边界 +1min / 秒级 exact −1s / exact / exact +1s` 六点，
+   是 `Gate A1` 最关键的一组。
 2. **GA-4 · 23:00—23:59**：日界流派分歧窗口，只判日辰与旬空。
 3. **GA-2 · GA-C-06**：验证**变卦六亲仍取本卦之宫**（不得按变卦宫计算）。
 
-## 本轮新增结论（需你决定）
+## 关于 Gate A2
 
-`Gate A2 SOLAR TERM ABSOLUTE PRECISION` 已可如实记录：数据包为**分钟级**，
-但与天算真实交节的最大差异窗口达 **729 秒**（立夏），
-十二「节」中只有 2 个与天算同分钟。原「分钟精度误差 ≤ 30 秒」的假设不成立。
-**真正待决的是：数据源是否升级到秒级天文数据。**（架构已就绪，只需换数据包。）
+`Gate A2` 现为 **UNRESOLVED**：官方双源（HKO / NAOJ）已互相印证分钟级真值，
+但**独立秒级天文真值尚未建立**，因此既不 PASS 也不 FAIL 数据源。
+**不要据此升级 `CalendarDataPack`。**
 ''';
 
 String _names(List<CaseFacts> facts, bool Function(CaseFacts) test) {
@@ -225,127 +238,85 @@ String _names(List<CaseFacts> facts, bool Function(CaseFacts) test) {
 }
 
 String _solarTermSection(GateAContext ctx) {
-  // 全量：2026 年十二「节」逐项测量差异窗口。
-  final all = resolveTermReferencesForYear(ctx, 2026);
-  final ranked = [...all]..sort((a, b) => b.windowSeconds.compareTo(a.windowSeconds));
-  // 详表只出窗口最大的前 6 个（人工对照成本受控），其余在总表中列出。
-  final detailed = ranked.take(6).toList();
-
+  final refs = resolveOfficialReferences(ctx, 2026);
   final b = StringBuffer()
-    ..write(_solarTermSummary(all, ranked, detailed))
+    ..write(_solarTermSummary(refs))
     ..writeln()
-    ..write(_gateCriteria(all))
+    ..write(_gateCriteria(refs))
     ..writeln();
-  for (final r in detailed) {
-    b.write(renderSolarTermCase(ctx, r));
+  for (final r in refs) {
+    b.write(renderOfficialTermCase(ctx, r));
   }
   return b.toString();
 }
 
-String _solarTermSummary(
-  List<TermReference> all,
-  List<TermReference> ranked,
-  List<TermReference> detailed,
-) {
+String _solarTermSummary(List<OfficialTermReference> refs) {
   final b = StringBuffer();
-  b.writeln('## 一、2026 年十二「节」：数据包 vs 天算（差异窗口全表）\n');
-  b.writeln('| 优先 | 节气 | 月建切换 | 数据包（HKT） | 天算（HKT） | 残差 | '
-      '窗口时长 | 同分钟 |');
-  b.writeln('| --- | --- | --- | --- | --- | --- | --- | --- |');
-  for (var i = 0; i < ranked.length; i++) {
-    final r = ranked[i];
-    final isDetailed = detailed.contains(r);
+  b.writeln('## 一、官方交节时刻（数据包 = HKO，分钟精度）\n');
+  b.writeln('| 节气 | 月建切换 | 官方交节（HKT） | 秒级公开值 | 秒级来源 |');
+  b.writeln('| --- | --- | --- | --- | --- |');
+  for (final r in refs) {
     b.writeln(
-      '| ${isDetailed ? '**详表**' : '仅记录'} '
-      '| ${i + 1}. ${r.term.id.label} '
-      '| ${previousMonthBranch(r.term.id).label}→${r.term.id.monthBranch!.label} '
-      '| ${_short(r.packHkt)} | ${_short(r.astroHkt)} '
-      '| ${r.residualSeconds}s | ${r.windowSeconds}s '
-      '| ${r.sameMinute ? '是' : '否'} |',
+      '| ${r.term.label} | ${r.oldMonth.label}→${r.newMonth.label} '
+      '| ${_short(r.packHkt)} '
+      '| ${r.secondLevel == null ? '无' : _short(r.secondLevel!.hkt)} '
+      '| ${r.secondLevel?.source ?? '—'} |',
     );
   }
   b.writeln();
-  final maxWin = ranked.first;
-  final minWin = ranked.last;
-  b.writeln(
-    '> 窗口时长区间：**${minWin.windowSeconds}s ～ ${maxWin.windowSeconds}s**'
-    '（最大 ${maxWin.term.id.label}）。',
-  );
-  b.writeln();
-  b.writeln('## 二、数据包与天算的切换时刻对照（月建口径）\n');
-  b.writeln('| 节气 | 数据包口径下切换于 | 天算口径下切换于 | 错判窗口 |');
-  b.writeln('| --- | --- | --- | --- |');
-  for (final r in ranked) {
-    b.writeln(
-      '| ${r.term.id.label} | ${_short(r.packHkt)} | ${_short(r.astroHkt)} '
-      '| [${_short(r.windowStart)}, ${_short(r.windowEnd)}) = '
-      '${r.windowSeconds}s |',
-    );
-  }
-  b.writeln();
-  b.writeln(
-    '> 窗口语义：在窗口区间内起卦时，「以数据包为准的月建」与'
-    '「以真实交节为准的月建」**不同**。',
-  );
+  b.writeln('## 二、官方双源交叉核验（HKO vs NAOJ）\n');
+  b.writeln('```text');
+  b.writeln('HKO：香港天文台「二十四節氣的日期及時間資料」（HKT, UTC+8）');
+  b.writeln('NAOJ：日本国立天文台「暦要項」（JST, UTC+9）→ 减 1 小时换算 HKT');
+  b.writeln('结果：2026 年 24 / 24 日期一致、分钟一致（详见 gate_a_cross_source 输出）');
+  b.writeln('结论：官方分钟级真值成立，两个独立机构互相印证。');
+  b.writeln('```');
   b.writeln();
   return b.toString();
 }
 
-String _gateCriteria(List<TermReference> all) {
-  final maxWin = all.map((r) => r.windowSeconds).reduce((a, b) => a > b ? a : b);
-  final minWin = all.map((r) => r.windowSeconds).reduce((a, b) => a < b ? a : b);
-  final sameMinute = all.where((r) => r.sameMinute).length;
+String _gateCriteria(List<OfficialTermReference> refs) {
+  final withSecond = refs.where((r) => r.secondLevel != null).length;
   final b = StringBuffer();
-  b.writeln('## 三、Gate 判据（两层拆分，互不替代）\n');
+  b.writeln('## 三、Gate 判据（两层拆分）\n');
   b.writeln('```text');
   b.writeln('Gate A1 · PROFESSIONAL SOFTWARE COMPATIBILITY');
   b.writeln('  问题：目标专业软件与卦眼（同一输入）是否给出同一月建？');
-  b.writeln('  方法：在「窗口起点」一行输入专业软件（详表已给出该时刻）。');
-  b.writeln('  结果：一致 → PASS；分歧 → 记 F8/F10 并先定位根因再谈修。');
+  b.writeln('  方法：用上表「边界 -1min / 边界 / 边界 +1min」三点做人工对照。');
+  b.writeln('  状态：WAITING FOR USER MANUAL INPUT');
   b.writeln('');
   b.writeln('Gate A2 · SOLAR TERM ABSOLUTE PRECISION');
-  b.writeln('  问题：卦眼所用数据源的绝对精度到什么量级？');
-  b.writeln('  方法：与天算交节时刻逐项比对（本页全表即为结果）。');
-  b.writeln('  结果：如实记录量级，**不得**把分钟级数据说成秒级。');
+  b.writeln('  状态：UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED');
+  b.writeln('  原因：自建天文尺子的绝对精度尚未建立，');
+  b.writeln('        不得用它证明数据包存在误差，也不得据此 FAIL 数据包。');
+  b.writeln('  已确立的事实：HKO 与 NAOJ 官方分钟值 24/24 一致。');
   b.writeln('```');
   b.writeln();
-  b.writeln('### 为什么 `-1min` / `-30s` 不能作判据（实测数据）\n');
+  b.writeln('### 自建天文尺子的现状（不可作为真值）\n');
   b.writeln('```text');
-  b.writeln('旧判据的隐含假设：数据包分钟值 = 真实交节四舍五入到分钟，误差 <= 30 秒。');
-  b.writeln('实测：2026 十二「节」中只有 $sameMinute 个与天算落在同一分钟；');
-  b.writeln('      差异窗口最小 ${minWin}s、最大 ${maxWin}s。');
-  b.writeln('因此 -1min / -30s 两个点既可能在真实边界之前、也可能在之后，');
-  b.writeln('      不可能成为「分钟精度是否足够」的决定性测试。');
+  b.writeln('状态：REJECTED AS GATE ORACLE（保留为 diagnostic tool）');
+  b.writeln('证据：与官方发布时刻相比，时间残差最大约 729 秒（立夏）；');
+  b.writeln('      2026 立春对秒级公开值残差约 -343 秒。');
+  b.writeln('根因（已定位）：视黄经**日变率正确**（1.0187 vs 官方 1.0187 °/日），');
+  b.writeln('      但在官方交节瞬间，本尺子给出的视黄经已越过目标角 9～30 角秒，');
+  b.writeln('      且该偏差随季节变化（与中心差 C 同相）—— 属绝对项偏差，');
+  b.writeln('      自洽性（求根反代 = 0.000000°）不能证明绝对正确。');
   b.writeln('');
-  b.writeln('正确判据：以窗口 [min(数据包, 天算), max(数据包, 天算)) 为准，');
-  b.writeln('      在「窗口起点 -1s」与「窗口起点」两点上做人工对照。');
+  b.writeln('旧的 <0.01° 自检已降级为 coarse sanity check：');
+  b.writeln('      0.01° ≈ 14.6 分钟时间，通过它**不足以**证明分钟级或秒级精度。');
   b.writeln('```');
   b.writeln();
-  b.writeln('### 详表四个测试点的分工\n');
-  b.writeln('| 测试点 | 作用 |');
+  b.writeln('### 测试点构建规则\n');
+  b.writeln('| 情形 | 测试点 |');
   b.writeln('| --- | --- |');
-  b.writeln('| 窗口起点 −1s | **对照行**：天算尚未交节，'
-      '专业软件应给旧月建（若给新月建则说明它用的边界更早，另需定位） |');
-  b.writeln('| 窗口起点 | **决定性行**：天算已交节。'
-      '专业软件给新月建 → 与天算一致、卦眼落后 → F8 数据精度差异 |');
-  b.writeln('| 数据包边界 −1s | **错判窗口内**：卦眼给旧月建；'
-      '专业软件若给新月建即说明冲突就发生在这里 |');
-  b.writeln('| 数据包边界 | **收敛行**：两套口径均为新月建（应为一致） |');
+  b.writeln('| 仅有官方分钟值（全部 ${refs.length} 个「节」） | '
+      '边界 −1min / 边界 / 边界 +1min |');
+  b.writeln('| 另有可追溯秒级公开值（当前 $withSecond 个「节」） | '
+      '追加 exact −1s / exact / exact +1s |');
   b.writeln();
-  b.writeln('> 旧的 `-1min` / `-30s` 两个点**仍然保留价值，但身份变了**：');
-  b.writeln('> 它们不再是「分钟精度是否足够」的判据，而是**对照组** ——');
-  b.writeln('> 用来确认专业软件不会在真实边界之前就换月建。');
-  b.writeln();
-  b.writeln('> 天算尺子来自 `tool/gate_a/gate_a_sun_longitude.dart`'
-      '（Meeus 章动 + 光行差，**不入产品、不改架构**），');
-  b.writeln('> 仅用于测量差异窗口，**不**作为产品数据源。');
-  b.writeln();
-  b.writeln('> ⚠️ **本轮新发现，需你决定**：数据包与真实交节的最大差异窗口达 '
-      '$maxWin 秒，');
-  b.writeln('> 这**远大于**原假设的 30 秒。这意味着「HKO 分钟精度是否可接受」'
-      '这一问法本身需要改口径：');
-  b.writeln('> 真正要决定的是**数据源是否升级到秒级天文数据**，'
-      '而不是分钟精度是否够用。');
+  b.writeln('> **已删除**：所有由未验证天文尺推导的「差异窗口」测试点');
+  b.writeln('> （如立春 03:56:24~04:02:00、立夏 19:36:50~19:49:00）——'
+      '标记为 `UNVERIFIED TOOL OUTPUT`，不作为 Gate 真值。');
   b.writeln();
   return b.toString();
 }
