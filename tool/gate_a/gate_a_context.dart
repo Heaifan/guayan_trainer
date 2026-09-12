@@ -9,7 +9,7 @@ library;
 
 import 'package:guayan_trainer/domain/calendar/calendar_engine.dart';
 
-import 'core/pack_loader.dart';
+import 'core/time/pack_loader.dart';
 
 /// 数据包年份范围（`assets/calendar/` 内实际存在的年份）。
 const List<int> gateAYears = <int>[

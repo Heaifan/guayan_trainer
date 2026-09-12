@@ -18,7 +18,7 @@ import 'dart:io';
 import 'cases/derive.dart';
 import 'commands/digest.dart';
 import 'commands/generate_reports.dart';
-import 'core/hexagram_audit.dart';
+import 'core/audit/hexagram_audit.dart';
 import 'gate_a_context.dart';
 
 Future<void> main(List<String> args) async {

@@ -12,7 +12,7 @@ import 'package:guayan_trainer/domain/calendar/solar_term/month_branch_resolver.
 import 'package:guayan_trainer/domain/calendar/store/calendar_data_store.dart';
 import 'package:guayan_trainer/domain/calendar/store/stored_solar_term_provider.dart';
 
-import '../gate_a_context.dart';
+import '../../gate_a_context.dart';
 
 /// 按给定年份列表装载；列表中不存在的文件自动跳过。
 Future<GateAContext> loadContextFromAssets(List<int> years) async {

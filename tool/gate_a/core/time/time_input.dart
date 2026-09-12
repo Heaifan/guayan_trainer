@@ -9,7 +9,7 @@ import 'package:guayan_trainer/domain/calendar/day_boundary_rule.dart';
 import 'package:guayan_trainer/domain/calendar/solar_term/solar_term.dart';
 import 'package:guayan_trainer/domain/calendar/solar_term/solar_term_id.dart';
 
-import '../gate_a_context.dart';
+import '../../gate_a_context.dart';
 
 /// 东八区偏移（卦眼与专业软件的对照基准时区）。
 const Duration tzPlus8 = Duration(hours: 8);

@@ -1,7 +1,7 @@
 /// GA-1 普通真实卦例数据：GA-08 … GA-13（与 a 册合计 13 例）。
 library;
 
-import 'case_model.dart';
+import '../logic/case_model.dart';
 
 const List<GateACase> normalCasesB = <GateACase>[
 

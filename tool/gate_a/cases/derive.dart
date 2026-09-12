@@ -10,20 +10,20 @@ import 'package:guayan_trainer/domain/casting/casting_engine.dart';
 import 'package:guayan_trainer/domain/casting/hexagram64.dart';
 import 'package:guayan_trainer/domain/di_zhi.dart';
 
-import '../core/hexagram_audit.dart';
+import '../core/audit/hexagram_audit.dart';
 import '../gate_a_context.dart';
-import 'case_model.dart';
-import '../core/time_input.dart';
+import 'logic/case_model.dart';
+import '../core/time/time_input.dart';
 
-import 'classic_cases.dart';
-import 'normal_cases_a.dart';
-import 'normal_cases_b.dart';
+import 'data/classic_cases.dart';
+import 'data/normal_cases_a.dart';
+import 'data/normal_cases_b.dart';
 
-export 'boundary_cases.dart';
-export 'case_model.dart';
-export 'classic_cases.dart';
-export 'normal_cases_a.dart';
-export 'normal_cases_b.dart';
+export 'data/boundary_cases.dart';
+export 'logic/case_model.dart';
+export 'data/classic_cases.dart';
+export 'data/normal_cases_a.dart';
+export 'data/normal_cases_b.dart';
 
 /// 一个卦例的全部对照事实。
 class CaseFacts {

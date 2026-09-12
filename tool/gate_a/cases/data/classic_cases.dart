@@ -1,7 +1,7 @@
 /// GA-2 经典卦体专项数据：6 例（R3-A Golden Tests 之外的第二道清单）。
 library;
 
-import 'case_model.dart';
+import '../logic/case_model.dart';
 
 const List<GateACase> classicCases = <GateACase>[
 

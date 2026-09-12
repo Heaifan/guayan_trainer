@@ -9,8 +9,8 @@ import 'package:guayan_trainer/domain/tian_gan.dart';
 
 import '../cases/derive.dart';
 import '../gate_a_context.dart';
-import '../core/format.dart';
-import '../core/time_input.dart';
+import '../core/formatting/format.dart';
+import '../core/time/time_input.dart';
 
 /// 渲染单个日界案例。
 String renderDayBoundaryCase(GateAContext ctx, DayBoundaryCase c) {

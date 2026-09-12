@@ -2,7 +2,7 @@
 library;
 
 import "../cases/derive.dart";
-import "../core/gate_status.dart";
+import "status/gate_status.dart";
 
 String renderMasterTable(List<CaseFacts> facts) {
   final b = StringBuffer();

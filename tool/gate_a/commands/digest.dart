@@ -6,7 +6,7 @@ library;
 import 'dart:io';
 
 import '../cases/derive.dart';
-import '../core/gate_status.dart';
+import '../reports/status/gate_status.dart';
 
 /// 打印 GA-1 / GA-2 案例摘要。
 void printDigest(List<CaseFacts> normal, List<CaseFacts> classic) {

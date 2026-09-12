@@ -14,8 +14,8 @@ library;
 import 'package:guayan_trainer/domain/di_zhi.dart';
 import 'package:guayan_trainer/domain/tian_gan.dart';
 
-import '../cases/derive.dart';
-import '../gate_a_context.dart';
+import '../../cases/derive.dart';
+import '../../gate_a_context.dart';
 
 /// 数学取模（显式封装，便于自检）。
 int mod(int a, int b) => ((a % b) + b) % b;

@@ -17,11 +17,11 @@ import 'package:guayan_trainer/domain/tian_gan.dart';
 
 import '../gate_a_context.dart';
 import '../astro/cross_source.dart';
-import '../core/format.dart';
-import '../core/hexagram_audit.dart';
+import '../core/formatting/format.dart';
+import '../core/audit/hexagram_audit.dart';
 import '../data/hko_source.dart';
 import '../data/naoj_source.dart';
-import '../core/pillars.dart';
+import '../core/pillars/pillars.dart';
 import '../astro/cross_source_rows.dart';
 import '../astro/sun_longitude.dart';
 import '../astro/sun_terms.dart';

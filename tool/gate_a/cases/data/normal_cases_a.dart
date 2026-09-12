@@ -3,7 +3,7 @@ library;
 
 import 'package:guayan_trainer/domain/line_state.dart';
 
-import 'case_model.dart';
+import '../logic/case_model.dart';
 
 const _y = MovementType.shaoYang;
 const _o = MovementType.shaoYin;

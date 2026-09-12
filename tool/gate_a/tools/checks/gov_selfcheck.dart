@@ -1,17 +1,15 @@
 /// POST-R3-GOV-01 治理自检（**只读**）。
 ///
-/// 检查 `tool/gate_a/` 是否满足：
-/// ```text
 /// 1. 普通 Dart 源文件 <= 100 行
-/// 2. 每个功能目录 <= 5 个文件（递归计数）
+/// 2. 每个目录的**直接子项**（文件 + 子目录） <= 5
 /// 3. 生成文档 SHA256 仍等于治理前的黄金快照
-/// ```
+///
 /// 只读：不修改任何文件，仅打印 PASS/FAIL 与违规清单。
 library;
 
 import 'dart:io';
 
-import '../core/sha256.dart';
+import 'sha256.dart';
 
 const int maxLines = 100;
 const int maxFilesPerDir = 5;

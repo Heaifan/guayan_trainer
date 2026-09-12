@@ -1,8 +1,8 @@
 /// GA-3 节气边界章节：官方测试点表 + Gate 判据块。
 library;
 
-import "../core/gate_status.dart";
-import "../core/gate_truth_items.dart";
+import "status/gate_status.dart";
+import "status/gate_truth_items.dart";
 import "../gate_a_context.dart";
 import "solar_term_report.dart";
 
