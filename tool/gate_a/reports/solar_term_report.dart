@@ -12,8 +12,9 @@ import 'package:guayan_trainer/domain/calendar/solar_term/solar_term.dart';
 import 'package:guayan_trainer/domain/calendar/solar_term/solar_term_id.dart';
 import 'package:guayan_trainer/domain/di_zhi.dart';
 
-import 'gate_a_context.dart';
-import 'gate_a_format.dart';
+import '../gate_a_context.dart';
+import '../core/format.dart';
+import '../core/time_input.dart';
 
 /// 可追溯的秒级公开值（来源必须写明；来源不明者**不得**收录）。
 class SecondLevelReference {

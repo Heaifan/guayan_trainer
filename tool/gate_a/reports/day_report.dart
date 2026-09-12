@@ -7,9 +7,10 @@ library;
 import 'package:guayan_trainer/domain/calendar/day_boundary_rule.dart';
 import 'package:guayan_trainer/domain/tian_gan.dart';
 
-import 'gate_a_cases.dart';
-import 'gate_a_context.dart';
-import 'gate_a_format.dart';
+import '../cases/derive.dart';
+import '../gate_a_context.dart';
+import '../core/format.dart';
+import '../core/time_input.dart';
 
 /// 渲染单个日界案例。
 String renderDayBoundaryCase(GateAContext ctx, DayBoundaryCase c) {

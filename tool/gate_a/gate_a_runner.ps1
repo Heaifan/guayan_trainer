@@ -42,17 +42,23 @@ $env:PATH = (@($missing) + $existing) -join ';'
 $ErrorActionPreference = 'Continue'
 
 if ($args.Count -lt 1) {
-  Write-Host 'usage: gate_a_runner.ps1 [run <script.dart>|test|cross|residual|closeout|enumerate]'
+  Write-Host 'usage: gate_a_runner.ps1 [run <script.dart>|test|cross|residual|closeout|enumerate|diag|solve]'
   exit 1
 }
 
 $mode = [string]$args[0]
 
-if ($mode -eq 'test') { & $dartExe run tool/gate_a/gate_a_selftest.dart; exit $LASTEXITCODE }
-if ($mode -eq 'cross') { & $dartExe run tool/gate_a/gate_a_cross_source.dart; exit $LASTEXITCODE }
-if ($mode -eq 'residual') { & $dartExe run tool/gate_a/gate_a_oracle_residual.dart; exit $LASTEXITCODE }
-if ($mode -eq 'closeout') { & $dartExe run tool/gate_a/gate_a_precision_closeout.dart; exit $LASTEXITCODE }
-if ($mode -eq 'enumerate') { & $dartExe run tool/gate_a/gate_a_enumerate.dart; exit $LASTEXITCODE }
+if ($mode -eq 'test') { & $dartExe run tool/gate_a/tools/selftest.dart; exit $LASTEXITCODE }
+if ($mode -eq 'cross') { & $dartExe run tool/gate_a/astro/cross_source.dart; exit $LASTEXITCODE }
+if ($mode -eq 'residual') { & $dartExe run tool/gate_a/tools/oracle_residual.dart; exit $LASTEXITCODE }
+if ($mode -eq 'closeout') { & $dartExe run tool/gate_a/tools/precision_closeout.dart; exit $LASTEXITCODE }
+if ($mode -eq 'enumerate') { & $dartExe run tool/gate_a/tools/enumerate_hexagrams.dart; exit $LASTEXITCODE }
+if ($mode -eq 'diag') { & $dartExe run tool/gate_a/astro/diag_oracle.dart; exit $LASTEXITCODE }
+if ($mode -eq 'solve') {
+  if ($args.Count -lt 3) { Write-Host 'solve needs <from> <to> hexagram names'; exit 1 }
+  & $dartExe run tool/gate_a/tools/solve_cases.dart ([string]$args[1]) ([string]$args[2])
+  exit $LASTEXITCODE
+}
 
 if ($mode -ne 'run') {
   Write-Host "unknown mode: $mode"

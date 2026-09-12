@@ -58,7 +58,7 @@ List<HkoTerm> parseHkoXmlBytes(List<int> bytes) {
 }
 
 /// 仓库内缓存的官方 XML 夹具路径。
-const String hkoFixturePath = 'tool/gate_a/hko/24SolarTerms_2026.xml';
+const String hkoFixturePath = 'tool/gate_a/data/fixtures/hko/24SolarTerms_2026.xml';
 
 /// 从本地夹具读取（离线、可重复）。
 List<HkoTerm> loadHkoFixture([String path = hkoFixturePath]) {

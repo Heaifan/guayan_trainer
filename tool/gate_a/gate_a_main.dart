@@ -9,14 +9,18 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'gate_a_case_report.dart';
-import 'gate_a_cases.dart';
+import 'reports/case_report.dart';
+import 'cases/derive.dart';
 import 'gate_a_context.dart';
-import 'gate_a_day_report.dart';
-import 'gate_a_gate_status.dart';
-import 'gate_a_hexagram_audit.dart';
-import 'gate_a_hexagram_facts.dart';
-import 'gate_a_solar_term_report.dart';
+import 'reports/day_report.dart';
+import 'core/pillars.dart';
+import 'core/gate_status.dart';
+import 'core/gate_truth_items.dart';
+import 'core/hexagram_audit.dart';
+import 'cases/derive.dart';
+import 'cases/derive.dart';
+import 'reports/readme_header.dart';
+import 'reports/solar_term_report.dart';
 
 const String _outDir = 'gate-a';
 
@@ -121,133 +125,10 @@ String _instructions() => '''> **使用方式（Gate A-Compat 专用，可选）
 
 \n''';
 
-String _header(GateAContext ctx, List<CaseFacts> facts) => '''# 卦眼 2.0 · Gate A 收口（真值 Gate + 兼容性 Gate）
+/// README 头与使用说明文本见 `reports/readme_header.dart`。
+String _header(GateAContext ctx, List<CaseFacts> facts) =>
+    renderReadmeHeader(ctx, facts);
 
-> 本目录全部文件由 `tool/gate_a/gate_a_main.dart` 生成。
-> **核心真值不来自专业软件**：由独立规则核验、官方历法双源与边界 Golden Test 承担。
-> 专业软件对照是**独立观察项**，见 `Gate A-Compat`。
-
-## 状态
-
-```text
-${r3FinalStatusBlock()}
-```
-
-### Gate A-Truth 逐项
-
-| 验收域 | 结果 | 证据 |
-| --- | --- | --- |
-${truthItems.map((t) => '| ${t.domain} | **${t.result}** | ${t.evidence} |').join('\n')}
-
-```text
-Gate A-Truth  = R3 的 blocker（当前 PASS）
-Gate A-Compat = $compatStatus，NON-BLOCKING
-```
-
-> Gate A-Compat 未执行的理由：$compatReason
-
-## 数据来源
-
-```text
-数据包年份      ${ctx.installedYears.join(', ')}
-节气来源        Hong Kong Observatory（HKO），分钟精度（秒位恒为 :00）
-第二官方源      日本国立天文台 NAOJ「暦要項」（JST → HKT 减 1 小时）
-双源交叉        2026 年 24 / 24 日期一致、分钟一致
-秒级公开值      仅立春 2026（紫金山天文台科普部 04:02:08 +08:00）
-时区基准        +08:00
-卦眼日界        midnight 与 ziHourStart 均已实现并通过测试
-                产品默认策略 OPEN（属产品配置决定，不阻塞 R3 Domain Foundation）
-```
-
-> 自建天文尺子（Meeus）状态：**REJECTED AS GATE ORACLE**，仅作 diagnostic。
-> 详见 `03-solar-term-boundaries.md` 的「自建天文尺子的现状」一节。
-
-## 文件说明
-
-| 文件 | 内容 | 归属 |
-| --- | --- | --- |
-| `01-normal-cases.md` | GA-1 普通真实卦例 ${normalCases.length} 例（月建/日辰/旬空/卦体/纳甲/六亲/世应） | Truth + Compat |
-| `02-classic-cases.md` | GA-2 经典卦体 ${classicCases.length} 例（乾为天/坤为地/泽山咸/归魂/游魂…） | Truth + Compat |
-| `03-solar-term-boundaries.md` | GA-3 节气边界：2026 十二「节」官方测试点 + 立春秒级三点 | Truth（精度另外记） |
-| `04-day-boundary.md` | GA-4 日界 ${dayBoundaryCases.length} 个日期 × 6 个时刻 × 2 种规则 | Truth + Compat |
-| `05-master-table.md` | 总表：**Truth Result 与 Compatibility Result 分列** | 两者 |
-
-## Gate A-Compat 怎么用（后续可选）
-
-1. 打开专业排盘软件（建议 **2 个独立来源**）；
-2. 按 `01`/`02`/`03`/`04` 中给出的时间与卦象输入；
-3. 把结果填回或截图发回，并注明**软件名与版本**。
-
-> 用户不需要自己设计测试案例 —— 测试设计责任在 Agent。
-> 结果只用于记录**兼容性 / 配置差异**，不会改写 Gate A-Truth 的结论。
-
-## 已有结果 vs 尚未执行
-
-**Gate A-Truth（已由自动核验完成，可复核）**
-
-```text
-GA0 Git baseline 核验                      DONE
-GA1 GA-1 测试矩阵（${normalCases.length} 例）                    DONE
-GA3 GA-2 测试矩阵（${classicCases.length} 例）                     DONE
-GA4 GA-3 测试矩阵（2026 十二「节」× 官方测试点）  DONE
-GA6 GA-4 测试矩阵（${dayBoundaryCases.length} 日 × 6 点 × 2 规则） DONE
-结构自检（八宫表 / 纳甲组装 / 案例锁定）    DONE
-官方双源交叉（HKO vs NAOJ 24/24）           DONE
-秒级边界 Golden Test（立春 04:02:08）       DONE
-自建天文尺子验证（REJECTED AS ORACLE）      DONE
-```
-
-**Gate A-Compat（尚未执行，不阻塞 R3）**
-
-```text
-专业软件人工对照          $compatStatus
-差异分类（兼容性）        NOT EXECUTED — 需先有对照结果
-```
-
-## 覆盖矩阵（程序统计）
-
-```text
-普通案例        ${facts.where((f) => f.def.group == 'GA-1').length} 例（要求 >= 10）
-经典卦体        ${facts.where((f) => f.def.group == 'GA-2').length} 例（要求 >= 6）
-节气边界        2026 十二「节」全量（要求 >= 3，推荐 5）；各 3 点，立春另 3 点（秒级）
-日界专项        ${dayBoundaryCases.length} 日 × ${dayBoundaryClockPoints.length} 时间点 × 2 规则
-有变 / 无变     ${facts.where((f) => f.changed != null).length} / ${facts.where((f) => f.changed == null).length}
-单变 / 多变     ${facts.where((f) => f.chart.movingPositions.length == 1).length} / ${facts.where((f) => f.chart.movingPositions.length > 1).length}
-六冲卦例        ${_names(facts, (f) => f.isLiuChong)}
-六合卦例        ${_names(facts, (f) => f.isLiuHe)}
-变卦为六合      ${_names(facts, (f) => f.isChangedLiuHe)}
-游魂卦例        ${_names(facts, (f) => f.original.rank.label == '游魂')}
-归魂卦例        ${_names(facts, (f) => f.original.rank.label == '归魂')}
-```
-
-> 六十四卦中其余六冲卦（坎为水 / 艮为山 / 巽为风 / 离为火 / 兑为泽 /
-> 雷天大壮 / 天雷无妄）**未**强行造例凑覆盖率 —— 需求明确禁止为覆盖率伪造案例。
-
-## 立春 2026 是本轮精度焦点
-
-```text
-2026 LiChun = 04:02:08 +08:00（秒级，已纳入数据包）
-已知 precision gap：FIXED
-其余 2026 节气：MINUTE-LEVEL VERIFIED（via HKO + NAOJ）
-               No fabricated second-level values
-状态：PARTIALLY SECOND-LEVEL VERIFIED
-```
-
-> 不要写 `UNRESOLVED`（该点已有秒级真值）；
-> 也**禁止**写 `ALL SOLAR TERMS SECOND-LEVEL VERIFIED`（那是假的）。
-
-## 数据包精度原则（长期保留）
-
-```text
-数据包可以混合精度，但每条数据必须说清：
-  - 是分钟级还是秒级（precision）
-  - 来自哪里（年度 source / 逐节气 sourceOverride）
-
-:00 秒 ≠ 「恰在第 0 秒交节」，只表示「该分钟内交节」。
-以后逐年补更高精度节气时，只需替换对应 term，
-不必推翻现有年度包。
-```
-''';
 
 String _names(List<CaseFacts> facts, bool Function(CaseFacts) test) {
   final names = <String>[

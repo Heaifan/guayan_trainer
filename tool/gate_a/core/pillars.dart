@@ -14,6 +14,9 @@ library;
 import 'package:guayan_trainer/domain/di_zhi.dart';
 import 'package:guayan_trainer/domain/tian_gan.dart';
 
+import '../cases/derive.dart';
+import '../gate_a_context.dart';
+
 /// 数学取模（显式封装，便于自检）。
 int mod(int a, int b) => ((a % b) + b) % b;
 
@@ -94,3 +97,24 @@ String hourPillar(TianGan dayGan, int hour) {
 /// 次日的日干（`(cycleIndex + 1) % 10`），供晚子时口径对照。
 TianGan nextDayGan(TianGan dayGan) =>
     TianGan.values[mod(dayGan.index + 1, 10)];
+/// 四柱旁证扩展：把 `CaseFacts` 与 `pillars.dart` 的纯函数连接起来。
+extension CasePillars on CaseFacts {
+  /// 年柱文本。
+  String get yearPillarText => yearPillar(local.year, beforeLiChun);
+
+  /// 月柱文本（五虎遁 + 月建）。
+  String get monthPillarText => monthPillar(yearGanOf(), calendar.monthBranch);
+
+  /// 时柱文本（按当日日干起例；23 时后即「晚子时」口径）。
+  String get hourPillarText => hourPillar(calendar.day.gan, local.hour);
+
+  /// 是否落在 23:00—23:59（时干口径存在流派差异的窗口）。
+  bool get isLateZiHour => local.hour == 23;
+
+  /// 时柱的另一种口径（按次日日干起例；仅供 23 时后对照）。
+  String get hourPillarNextDayText =>
+      hourPillar(nextDayGan(calendar.day.gan), local.hour);
+
+  /// 年干（立春换年后的年干）。
+  TianGan yearGanOf() => yearGan(local.year, beforeLiChun);
+}

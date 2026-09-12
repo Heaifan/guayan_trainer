@@ -1,6 +1,7 @@
-/// 卦例事实计算：一个 [GateACase] → 完整可对照的排盘事实（含旁证四柱）。
+/// 卦例事实：模型 + 计算 + 案例锁定（合并自 case_facts / derive 两份文件）。
 ///
-/// 只算事实，不渲染；渲染见 `gate_a_case_report.dart`。
+/// 锁定规则：本卦 / 变卦卦名必须与案例声明的一致，否则记入 `auditProblems`；
+/// 另外复核纳甲组装顺序（下卦内三支 + 上卦外三支）。
 library;
 
 import 'package:guayan_trainer/domain/calendar/calendar_context.dart';
@@ -8,17 +9,27 @@ import 'package:guayan_trainer/domain/casting/cast_chart.dart';
 import 'package:guayan_trainer/domain/casting/casting_engine.dart';
 import 'package:guayan_trainer/domain/casting/hexagram64.dart';
 import 'package:guayan_trainer/domain/di_zhi.dart';
-import 'package:guayan_trainer/domain/tian_gan.dart';
 
-import 'gate_a_cases.dart';
-import 'gate_a_context.dart';
-import 'gate_a_hexagram_audit.dart';
-import 'gate_a_pillars.dart';
+import '../core/hexagram_audit.dart';
+import '../gate_a_context.dart';
+import 'case_model.dart';
+import '../core/time_input.dart';
+
+import 'classic_cases.dart';
+import 'normal_cases_a.dart';
+import 'normal_cases_b.dart';
+
+export 'boundary_cases.dart';
+export 'case_model.dart';
+export 'classic_cases.dart';
+export 'normal_cases_a.dart';
+export 'normal_cases_b.dart';
 
 /// 一个卦例的全部对照事实。
 class CaseFacts {
   const CaseFacts({
     required this.def,
+    required this.local,
     required this.calendar,
     required this.chart,
     required this.beforeLiChun,
@@ -26,13 +37,17 @@ class CaseFacts {
   });
 
   final GateACase def;
+
+  /// 起卦当地挂钟时间（已解析，供派生取值复用）。
+  final DateTime local;
+
   final CalendarContext calendar;
   final CastChart chart;
 
   /// 该时刻是否尚未交立春（决定年柱/月干的「年」）。
   final bool beforeLiChun;
 
-  /// 结构自检问题（本卦/变卦纳甲组装顺序）。
+  /// 结构自检问题（案例锁定 + 纳甲组装顺序）。
   final List<String> auditProblems;
 
   /// 本卦。
@@ -42,65 +57,41 @@ class CaseFacts {
   Hexagram? get changed => chart.changed;
 
   /// 六爻地支自初爻至上爻。
-  List<dynamic> get branches => branchesOf(chart);
-
-  /// 年柱文本。
-  String get yearPillarText =>
-      yearPillar(parseWallClock(def.localTime).year, beforeLiChun);
-
-  /// 月柱文本（五虎遁 + 月建）。
-  String get monthPillarText =>
-      monthPillar(yearGanOf(), calendar.monthBranch);
-
-  /// 时柱文本（按当日日干起例；23 时后即「晚子时」口径）。
-  String get hourPillarText =>
-      hourPillar(calendar.day.gan, parseWallClock(def.localTime).hour);
-
-  /// 是否落在 23:00—23:59（时干口径存在流派差异的窗口）。
-  bool get isLateZiHour => parseWallClock(def.localTime).hour == 23;
-
-  /// 时柱的另一种口径（按次日日干起例；仅供 23 时后对照）。
-  String get hourPillarNextDayText => hourPillar(
-    nextDayGan(calendar.day.gan),
-    parseWallClock(def.localTime).hour,
-  );
-
-  /// 年干（立春换年后的年干）。
-  TianGan yearGanOf() => yearGan(parseWallClock(def.localTime).year, beforeLiChun);
+  List<DiZhi> get branches => branchesOf(chart);
 
   /// 卦体特征标签。
-  String get bodyLabelText => bodyLabel(original, branchesOf(chart));
+  String get bodyLabelText => bodyLabel(original, branches);
 
   /// 动爻显示文本。
   String get movingText => def.movingText;
 
   /// 是否为六冲卦。
-  bool get isLiuChong => isLiuChongBranches(branchesOf(chart));
+  bool get isLiuChong => isLiuChongBranches(branches);
 
   /// 是否为六合卦。
-  bool get isLiuHe => isLiuHeBranches(branchesOf(chart));
+  bool get isLiuHe => isLiuHeBranches(branches);
 
-  /// 变卦是否为六合卦（静卦为 false）。
+  /// 变卦六爻地支；静卦为 null。
+  List<DiZhi>? get changedBranches =>
+      chart.changed == null ? null : changedBranchList;
+
+  /// 变卦六爻地支（仅变卦存在时有意义）。
+  List<DiZhi> get changedBranchList =>
+      [for (final l in chart.lines) l.changedBranch!];
+
+  /// 变卦是否为六合卦 / 六冲卦（静卦为 false）。
   bool get isChangedLiuHe {
-    if (chart.changed == null) return false;
-    return isLiuHeBranches(<DiZhi>[
-      for (final l in chart.lines) l.changedBranch!,
-    ]);
+    final b = changedBranches;
+    return b != null && isLiuHeBranches(b);
   }
 
-  /// 变卦是否为六冲卦（静卦为 false）。
   bool get isChangedLiuChong {
-    if (chart.changed == null) return false;
-    return isLiuChongBranches(<DiZhi>[
-      for (final l in chart.lines) l.changedBranch!,
-    ]);
+    final b = changedBranches;
+    return b != null && isLiuChongBranches(b);
   }
 }
 
 /// 计算一个卦例的全部事实。
-///
-/// 同时**锁定案例**：本卦 / 变卦卦名必须与案例声明的期望一致，
-/// 否则把问题记进 [CaseFacts.auditProblems]（不静默通过）。
 CaseFacts computeCaseFacts(GateAContext ctx, GateACase def) {
   final local = parseWallClock(def.localTime);
   final calendar = ctx.engine.resolve(
@@ -127,6 +118,7 @@ CaseFacts computeCaseFacts(GateAContext ctx, GateACase def) {
 
   return CaseFacts(
     def: def,
+    local: local,
     calendar: calendar,
     chart: chart,
     beforeLiChun: before,
@@ -138,4 +130,10 @@ CaseFacts computeCaseFacts(GateAContext ctx, GateACase def) {
 List<CaseFacts> computeAllCaseFacts(GateAContext ctx) => [
   for (final c in normalCases) computeCaseFacts(ctx, c),
   for (final c in classicCases) computeCaseFacts(ctx, c),
+];
+
+/// GA-1 全量十三例（a 册 + b 册）。
+final List<GateACase> normalCases = <GateACase>[
+  ...normalCasesA,
+  ...normalCasesB,
 ];

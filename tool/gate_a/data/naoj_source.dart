@@ -92,7 +92,7 @@ List<NaojTerm> loadNaojFixture([String path = _fixturePath]) {
   return parseNaojPageBytes(file.readAsBytesSync());
 }
 
-const String _fixturePath = 'tool/gate_a/naoj/rekiyou262.2026.html';
+const String _fixturePath = 'tool/gate_a/data/fixtures/naoj/rekiyou262.2026.html';
 
 /// 夹具路径（供报告展示来源）。
 String get naojFixturePath => _fixturePath;

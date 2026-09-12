@@ -9,10 +9,10 @@ import 'dart:io';
 
 import 'package:guayan_trainer/domain/calendar/solar_term/solar_term_id.dart';
 
-import 'gate_a_context.dart';
-import 'gate_a_format.dart';
-import 'gate_a_naoj_source.dart';
-import 'gate_a_sun_longitude.dart';
+import '../gate_a_context.dart';
+import '../core/format.dart';
+import '../data/naoj_source.dart';
+import '../astro/sun_longitude.dart';
 
 /// 「节」的搜索锚点（UTC），保证起点尚未越过目标黄经。
 const Map<SolarTermId, (int, int)> _anchor = <SolarTermId, (int, int)>{

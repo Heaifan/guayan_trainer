@@ -4,8 +4,12 @@
 /// 由用户填入外部软件结果后回传。
 library;
 
-import 'gate_a_context.dart';
-import 'gate_a_hexagram_facts.dart';
+import '../cases/derive.dart';
+import '../cases/derive.dart';
+import '../core/format.dart';
+import '../core/pillars.dart';
+import '../gate_a_context.dart';
+import '../core/time_input.dart';
 
 /// 顺序渲染一组卦例。
 String renderCaseFacts(List<CaseFacts> facts) {
@@ -26,7 +30,7 @@ String renderOneCase(CaseFacts f) {
   b.writeln('### ${f.def.id} · ${f.def.purpose}');
   b.writeln();
   b.writeln('```text');
-  b.writeln('起卦时间    ${wallClockWithOffset(local, tzPlus8)}');
+  b.writeln('起卦时间    ${wallClockWithOffsetText(local)}');
   b.writeln('UTC 瞬间    ${cal.instantUtc.toIso8601String()}');
   b.writeln('日界规则    midnight（00:00 换日）');
   b.writeln(

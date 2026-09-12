@@ -15,14 +15,16 @@ import 'package:guayan_trainer/domain/di_zhi.dart';
 import 'package:guayan_trainer/domain/line_state.dart';
 import 'package:guayan_trainer/domain/tian_gan.dart';
 
-import 'gate_a_context.dart';
-import 'gate_a_cross_source.dart';
-import 'gate_a_format.dart';
-import 'gate_a_hexagram_audit.dart';
-import 'gate_a_hko_source.dart';
-import 'gate_a_naoj_source.dart';
-import 'gate_a_pillars.dart';
-import 'gate_a_sun_longitude.dart';
+import '../gate_a_context.dart';
+import '../astro/cross_source.dart';
+import '../core/format.dart';
+import '../core/hexagram_audit.dart';
+import '../data/hko_source.dart';
+import '../data/naoj_source.dart';
+import '../core/pillars.dart';
+import '../astro/cross_source_rows.dart';
+import '../astro/sun_longitude.dart';
+import '../astro/sun_terms.dart';
 
 int _failures = 0;
 
