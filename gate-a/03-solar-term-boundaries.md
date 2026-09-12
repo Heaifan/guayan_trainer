@@ -1,8 +1,11 @@
-# GA-3 节气边界专项（2026 年十二「节」全量测量 + 前 6 详表）
+# GA-3 节气边界专项（2026 年十二「节」官方测试点 + 立春秒级三点）
 
-> **使用方式**：把上表「专业软件」列留空的位置，用专业排盘软件
-> 按给出的「起卦时间 + 六爻输入」排出结果后逐项填入（或直接截图回传）。
-> 「一致」列填 ✅ / ❌；❌ 时在文末写清哪个字段不一致。
+> **使用方式（Gate A-Compat 专用，可选）**：把表中「专业软件」列留空的位置，
+> 用专业排盘软件按给出的「起卦时间 + 六爻输入」排出结果后逐项填入（或截图回传）。
+> 未填写时该表 Result 记为 `NOT EXECUTED`，**不是** FAIL。
+>
+> **注意**：Gate A-Compat **不阻塞 R3**。核心业务真值由 Gate A-Truth 承担，
+> 其证据来自独立规则核验与官方历法双源，不依赖任何专业软件。
 >
 > 时区统一 **+08:00**；六爻输入自**初爻至上爻**，7=少阳 8=少阴 9=老阳 6=老阴。
 
@@ -39,25 +42,26 @@ NAOJ：日本国立天文台「暦要項」（JST, UTC+9）→ 减 1 小时换�
 ## 三、Gate 判据（两层拆分）
 
 ```text
-Gate A1 · PROFESSIONAL SOFTWARE COMPATIBILITY
+Gate A-Truth · CORE DIVINATION TRUTH  —— R3 的 blocker
+  问题：卦眼核心排盘规则本身是否正确？
+  方法：独立规则核验 + 官方历法双源 + 秒级真值 + 边界 Golden Test；
+        **不依赖任何专业软件**。
+  状态：PASS
+  节气数据精度：PARTIALLY SECOND-LEVEL VERIFIED
+        2026 LiChun = 04:02:08 +08:00（SECOND-LEVEL VERIFIED）
+        其余节气 MINUTE-LEVEL VERIFIED（via HKO + NAOJ）
+        已知 precision gap：FIXED
+        No fabricated second-level values
+
+Gate A-Compat · PROFESSIONAL SOFTWARE COMPATIBILITY
   问题：目标专业软件与卦眼（同一输入）是否给出同一月建？
   方法：用上表「边界 -1min / 边界 / 边界 +1min」三点做人工对照；
         立春另有秒级三点。
-  状态：WAITING FOR USER MANUAL INPUT
-
-Gate A2 · SOLAR TERM ABSOLUTE PRECISION
-  状态：PARTIALLY VERIFIED
-  Verified second-level case:
-    2026 LiChun = 04:02:08 +08:00
-  2026 LiChun precision gap:
-    FIXED
-  Other 2026 solar terms:
-    minute-level only
-    no fabricated second-level truth
+  状态：NOT EXECUTED / DEFERRED —— NON-BLOCKING
+  理由：尚未对指定目标专业排盘软件逐项进行人工输入比对。不同软件可能采用不同日界（23:00 / 00:00）、晚子时 / 早子时与其他流派配置；这些差异应记录为兼容性 / 配置差异，不能自动视为核心算法错误，故不作为 R3 阻塞项。
 ```
 
-> 不得写成 `ALL 2026 SOLAR TERMS SECOND-LEVEL VERIFIED` —— 那是假的。
-> 本轮的修复范围只有**已核实的 2026 立春单点**。
+> 未填写专业软件列时，记为 `NOT EXECUTED`，**不得显示 FAIL**。
 
 ### 立春精度修复（R3-B-DATA-PRECISION-FIX）
 

@@ -1,6 +1,7 @@
-/// Gate A2 官方双源交叉核验：HKO（HKT） vs NAOJ（JST→HKT），24 项逐条比对。
+/// Gate A-Truth 官方双源交叉核验：HKO（HKT） vs NAOJ（JST→HKT），24 项逐条比对。
 ///
-/// 这是 Gate A2 的**真值来源**：两个互相独立的官方机构发布表。
+/// 这是 Gate A-Truth 中「节气数据」一项的**真值来源**：
+/// 两个互相独立的官方机构发布表。
 /// 自建天文算法（`gate_a_sun_longitude.dart`）只是 diagnostic，
 /// **不参与**本核验，也不得据此判定数据源有误。
 library;

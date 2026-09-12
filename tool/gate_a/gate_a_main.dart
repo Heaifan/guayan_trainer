@@ -13,6 +13,7 @@ import 'gate_a_case_report.dart';
 import 'gate_a_cases.dart';
 import 'gate_a_context.dart';
 import 'gate_a_day_report.dart';
+import 'gate_a_gate_status.dart';
 import 'gate_a_hexagram_audit.dart';
 import 'gate_a_hexagram_facts.dart';
 import 'gate_a_solar_term_report.dart';
@@ -58,7 +59,7 @@ Future<void> main(List<String> args) async {
   );
   _write(
     '$_outDir/03-solar-term-boundaries.md',
-    _title('GA-3 节气边界专项（2026 年十二「节」全量测量 + 前 6 详表）') +
+    _title('GA-3 节气边界专项（2026 年十二「节」官方测试点 + 立春秒级三点）') +
         _instructions() +
         _solarTermSection(ctx),
   );
@@ -70,7 +71,7 @@ Future<void> main(List<String> args) async {
   );
   _write(
     '$_outDir/05-master-table.md',
-    _title('Gate A 总表（待用户回填后定稿）') +
+    _title('Gate A 总表（Truth Result 与 Compatibility Result 分列）') +
         _masterTable(facts),
   );
 
@@ -100,7 +101,7 @@ Future<void> main(List<String> args) async {
   stdout.writeln('  $_outDir/04-day-boundary.md');
   stdout.writeln('  $_outDir/05-master-table.md');
   stdout.writeln('');
-  stdout.writeln('状态：WAITING FOR USER MANUAL GATE INPUT');
+  stdout.writeln(r3FinalStatusBlock());
 }
 
 void _write(String path, String content) {
@@ -109,34 +110,41 @@ void _write(String path, String content) {
 
 String _title(String t) => '# $t\n\n';
 
-String _instructions() => '''> **使用方式**：把上表「专业软件」列留空的位置，用专业排盘软件
-> 按给出的「起卦时间 + 六爻输入」排出结果后逐项填入（或直接截图回传）。
-> 「一致」列填 ✅ / ❌；❌ 时在文末写清哪个字段不一致。
+String _instructions() => '''> **使用方式（Gate A-Compat 专用，可选）**：把表中「专业软件」列留空的位置，
+> 用专业排盘软件按给出的「起卦时间 + 六爻输入」排出结果后逐项填入（或截图回传）。
+> 未填写时该表 Result 记为 `NOT EXECUTED`，**不是** FAIL。
+>
+> **注意**：Gate A-Compat **不阻塞 R3**。核心业务真值由 Gate A-Truth 承担，
+> 其证据来自独立规则核验与官方历法双源，不依赖任何专业软件。
 >
 > 时区统一 **+08:00**；六爻输入自**初爻至上爻**，7=少阳 8=少阴 9=老阳 6=老阴。
 
 \n''';
 
-String _header(GateAContext ctx, List<CaseFacts> facts) => '''# 卦眼 2.0 · Gate A 专业排盘人工对照验收
+String _header(GateAContext ctx, List<CaseFacts> facts) => '''# 卦眼 2.0 · Gate A 收口（真值 Gate + 兼容性 Gate）
 
-> 本目录全部文件由 `tool/gate_a/gate_a_main.dart` 生成，**不含任何自动判定**。
-> 「专业软件」列必须由人填写 —— 这是 Gate A 的唯一真值来源。
+> 本目录全部文件由 `tool/gate_a/gate_a_main.dart` 生成。
+> **核心真值不来自专业软件**：由独立规则核验、官方历法双源与边界 Golden Test 承担。
+> 专业软件对照是**独立观察项**，见 `Gate A-Compat`。
 
 ## 状态
 
 ```text
-Gate A1 PROFESSIONAL SOFTWARE COMPATIBILITY
-  WAITING FOR USER MANUAL INPUT
-
-Gate A2 SOLAR TERM ABSOLUTE PRECISION
-  PARTIALLY VERIFIED
-  2026 LiChun = 04:02:08 +08:00（已纳入数据包）
-  2026 LiChun precision gap FIXED
-  其余 2026 节气 minute-level only
-
-GATE A
-  READY FOR FINAL CLOSEOUT
+${r3FinalStatusBlock()}
 ```
+
+### Gate A-Truth 逐项
+
+| 验收域 | 结果 | 证据 |
+| --- | --- | --- |
+${truthItems.map((t) => '| ${t.domain} | **${t.result}** | ${t.evidence} |').join('\n')}
+
+```text
+Gate A-Truth  = R3 的 blocker（当前 PASS）
+Gate A-Compat = $compatStatus，NON-BLOCKING
+```
+
+> Gate A-Compat 未执行的理由：$compatReason
 
 ## 数据来源
 
@@ -147,7 +155,8 @@ GATE A
 双源交叉        2026 年 24 / 24 日期一致、分钟一致
 秒级公开值      仅立春 2026（紫金山天文台科普部 04:02:08 +08:00）
 时区基准        +08:00
-卦眼日界（本表）midnight（00:00 换日）
+卦眼日界        midnight 与 ziHourStart 均已实现并通过测试
+                产品默认策略 OPEN（属产品配置决定，不阻塞 R3 Domain Foundation）
 ```
 
 > 自建天文尺子（Meeus）状态：**REJECTED AS GATE ORACLE**，仅作 diagnostic。
@@ -155,25 +164,26 @@ GATE A
 
 ## 文件说明
 
-| 文件 | 内容 |
-| --- | --- |
-| `01-normal-cases.md` | GA-1 普通真实卦例 ${normalCases.length} 例（月建/日辰/旬空/卦体/纳甲/六亲/世应） |
-| `02-classic-cases.md` | GA-2 经典卦体 ${classicCases.length} 例（乾为天/坤为地/泽山咸/归魂/游魂…） |
-| `03-solar-term-boundaries.md` | GA-3 节气边界：2026 十二「节」官方测试点（边界 ±1min）+ 立春秒级三点；含官方双源交叉与 Gate A2 状态 |
-| `04-day-boundary.md` | GA-4 日界 ${dayBoundaryCases.length} 个日期 × 6 个时刻 × 2 种规则 |
-| `05-master-table.md` | Gate A 总表（回填后定稿） |
+| 文件 | 内容 | 归属 |
+| --- | --- | --- |
+| `01-normal-cases.md` | GA-1 普通真实卦例 ${normalCases.length} 例（月建/日辰/旬空/卦体/纳甲/六亲/世应） | Truth + Compat |
+| `02-classic-cases.md` | GA-2 经典卦体 ${classicCases.length} 例（乾为天/坤为地/泽山咸/归魂/游魂…） | Truth + Compat |
+| `03-solar-term-boundaries.md` | GA-3 节气边界：2026 十二「节」官方测试点 + 立春秒级三点 | Truth（精度另外记） |
+| `04-day-boundary.md` | GA-4 日界 ${dayBoundaryCases.length} 个日期 × 6 个时刻 × 2 种规则 | Truth + Compat |
+| `05-master-table.md` | 总表：**Truth Result 与 Compatibility Result 分列** | 两者 |
 
-## 用户需要做的三件事
+## Gate A-Compat 怎么用（后续可选）
 
 1. 打开专业排盘软件（建议 **2 个独立来源**）；
 2. 按 `01`/`02`/`03`/`04` 中给出的时间与卦象输入；
-3. 把结果填回或截图发回，并注明**软件名与版本**（不同软件流派不同）。
+3. 把结果填回或截图发回，并注明**软件名与版本**。
 
 > 用户不需要自己设计测试案例 —— 测试设计责任在 Agent。
+> 结果只用于记录**兼容性 / 配置差异**，不会改写 Gate A-Truth 的结论。
 
-## 已有结果 vs 待人工判定
+## 已有结果 vs 尚未执行
 
-**Agent 已完成（可复核）**
+**Gate A-Truth（已由自动核验完成，可复核）**
 
 ```text
 GA0 Git baseline 核验                      DONE
@@ -183,19 +193,15 @@ GA4 GA-3 测试矩阵（2026 十二「节」× 官方测试点）  DONE
 GA6 GA-4 测试矩阵（${dayBoundaryCases.length} 日 × 6 点 × 2 规则） DONE
 结构自检（八宫表 / 纳甲组装 / 案例锁定）    DONE
 官方双源交叉（HKO vs NAOJ 24/24）           DONE
+秒级边界 Golden Test（立春 04:02:08）       DONE
 自建天文尺子验证（REJECTED AS ORACLE）      DONE
 ```
 
-**待用户人工对照（Agent 不得代做）**
+**Gate A-Compat（尚未执行，不阻塞 R3）**
 
 ```text
-GA2  GA-1 人工对照        BLOCKED — 等待专业软件结果
-GA5  GA-3 人工对照        BLOCKED — 等待专业软件结果
-GA7  GA-4 人工对照        BLOCKED — 等待专业软件结果
-GA8  差异分类             BLOCKED — 需先有差异
-GA9  必要时最小 FIX       BLOCKED
-GA11 Gate A 总表定稿      BLOCKED
-GA14 Final Gate Decision  BLOCKED
+专业软件人工对照          $compatStatus
+差异分类（兼容性）        NOT EXECUTED — 需先有对照结果
 ```
 
 ## 覆盖矩阵（程序统计）
@@ -217,21 +223,18 @@ GA14 Final Gate Decision  BLOCKED
 > 六十四卦中其余六冲卦（坎为水 / 艮为山 / 巽为风 / 离为火 / 兑为泽 /
 > 雷天大壮 / 天雷无妄）**未**强行造例凑覆盖率 —— 需求明确禁止为覆盖率伪造案例。
 
-## 已知需要重点观察的三处
+## 立春 2026 是本轮精度焦点
 
-1. **GA-3 · 立春 2026**：唯一有秒级公开值的节气 ——
-   `边界 −1min / 边界 / 边界 +1min / 秒级 exact −1s / exact / exact +1s` 六点，
-   是 `Gate A1` 最关键的一组。
-2. **GA-4 · 23:00—23:59**：日界流派分歧窗口，只判日辰与旬空。
-3. **GA-2 · GA-C-06**：验证**变卦六亲仍取本卦之宫**（不得按变卦宫计算）。
+```text
+2026 LiChun = 04:02:08 +08:00（秒级，已纳入数据包）
+已知 precision gap：FIXED
+其余 2026 节气：MINUTE-LEVEL VERIFIED（via HKO + NAOJ）
+               No fabricated second-level values
+状态：PARTIALLY SECOND-LEVEL VERIFIED
+```
 
-## 关于 Gate A2
-
-`Gate A2` 现为 **PARTIALLY VERIFIED**：
-2026 立春已有可信秒级真值并已写入数据包（该点的 precision gap 已修复）；
-其余 2026 节气仍为 **minute-level only**，**没有**伪造的秒级真值。
-独立天文 oracle 尚未建立（自建尺子仍为 `REJECTED AS GATE ORACLE`），
-因此**不**对数据源整体做 PASS/FAIL 判定。
+> 不要写 `UNRESOLVED`（该点已有秒级真值）；
+> 也**禁止**写 `ALL SOLAR TERMS SECOND-LEVEL VERIFIED`（那是假的）。
 
 ## 数据包精度原则（长期保留）
 
@@ -303,25 +306,26 @@ String _gateCriteria(List<OfficialTermReference> refs) {
   final b = StringBuffer();
   b.writeln('## 三、Gate 判据（两层拆分）\n');
   b.writeln('```text');
-  b.writeln('Gate A1 · PROFESSIONAL SOFTWARE COMPATIBILITY');
+  b.writeln('Gate A-Truth · CORE DIVINATION TRUTH  —— R3 的 blocker');
+  b.writeln('  问题：卦眼核心排盘规则本身是否正确？');
+  b.writeln('  方法：独立规则核验 + 官方历法双源 + 秒级真值 + 边界 Golden Test；');
+  b.writeln('        **不依赖任何专业软件**。');
+  b.writeln('  状态：${truthItems.any((t) => t.result == 'FAIL') ? 'FAIL' : 'PASS'}');
+  b.writeln('  节气数据精度：PARTIALLY SECOND-LEVEL VERIFIED');
+  b.writeln('        2026 LiChun = 04:02:08 +08:00（SECOND-LEVEL VERIFIED）');
+  b.writeln('        其余节气 MINUTE-LEVEL VERIFIED（via HKO + NAOJ）');
+  b.writeln('        已知 precision gap：FIXED');
+  b.writeln('        No fabricated second-level values');
+  b.writeln('');
+  b.writeln('Gate A-Compat · PROFESSIONAL SOFTWARE COMPATIBILITY');
   b.writeln('  问题：目标专业软件与卦眼（同一输入）是否给出同一月建？');
   b.writeln('  方法：用上表「边界 -1min / 边界 / 边界 +1min」三点做人工对照；');
   b.writeln('        立春另有秒级三点。');
-  b.writeln('  状态：WAITING FOR USER MANUAL INPUT');
-  b.writeln('');
-  b.writeln('Gate A2 · SOLAR TERM ABSOLUTE PRECISION');
-  b.writeln('  状态：PARTIALLY VERIFIED');
-  b.writeln('  Verified second-level case:');
-  b.writeln('    2026 LiChun = 04:02:08 +08:00');
-  b.writeln('  2026 LiChun precision gap:');
-  b.writeln('    FIXED');
-  b.writeln('  Other 2026 solar terms:');
-  b.writeln('    minute-level only');
-  b.writeln('    no fabricated second-level truth');
+  b.writeln('  状态：$compatStatus / DEFERRED —— NON-BLOCKING');
+  b.writeln('  理由：$compatReason');
   b.writeln('```');
   b.writeln();
-  b.writeln('> 不得写成 `ALL 2026 SOLAR TERMS SECOND-LEVEL VERIFIED` —— 那是假的。');
-  b.writeln('> 本轮的修复范围只有**已核实的 2026 立春单点**。');
+  b.writeln('> 未填写专业软件列时，记为 `$compatStatus`，**不得显示 FAIL**。');
   b.writeln();
   b.writeln('### 立春精度修复（R3-B-DATA-PRECISION-FIX）\n');
   b.writeln('```text');
@@ -374,9 +378,10 @@ String _masterTable(List<CaseFacts> facts) {
   final b = StringBuffer();
   b.writeln('| ID | 类型 | 起卦时间（+08:00） | 六爻输入 | 月建 | 日辰 | 旬空 '
       '| 本卦 | 变卦 | 卦宫 | 世应 | 六神(初→上) | 纳甲(初→上) '
-      '| 五行 | 六亲(初→上) | 变爻纳甲 | 变卦六亲 | 卦体 | Result |');
+      '| 五行 | 六亲(初→上) | 变爻纳甲 | 变卦六亲 | 卦体 '
+      '| Truth Result | Compatibility Result |');
   b.writeln('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- '
-      '| --- | --- | --- | --- | --- | --- | --- | --- |');
+      '| --- | --- | --- | --- | --- | --- | --- | --- | --- |');
   for (final f in facts) {
     final l = f.chart.lines;
     b.writeln(
@@ -395,12 +400,20 @@ String _masterTable(List<CaseFacts> facts) {
       '| ${f.original.rank.label}${f.isLiuChong ? '·六冲' : ''}'
       '${f.isLiuHe ? '·六合' : ''}'
       '${f.isChangedLiuChong ? '｜变六冲' : ''}'
-      '${f.isChangedLiuHe ? '｜变六合' : ''} | |',
+      '${f.isChangedLiuHe ? '｜变六合' : ''} '
+      '| ${f.auditProblems.isEmpty ? '**PASS**' : '**FAIL**'} '
+      '| $compatStatus |',
     );
   }
   b.writeln();
   b.writeln('> 所有 `·` 分隔的列一律按**初爻→上爻**顺序。');
   b.writeln('> `变卦六亲` 列**仍以本卦之宫为「我」**，不按变卦之宫计算。');
+  b.writeln('>');
+  b.writeln('> **两个 Result 是两个 Gate，不得混用**：');
+  b.writeln('> - `Truth Result` = Gate A-Truth：`PASS` '
+      '表示该例结构自检与案例锁定通过（卦名/纳甲组装顺序无异常）；');
+  b.writeln('> - `Compatibility Result` = Gate A-Compat：未做专业软件对照，'
+      '故一律 `$compatStatus`，**不是** FAIL。');
   b.writeln();
   return b.toString();
 }

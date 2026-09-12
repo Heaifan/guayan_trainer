@@ -2,10 +2,62 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-12 00:52
+> **最后编辑：** 2026-09-12 01:30
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## Gate A 收口 — GATE-A-FINAL-CLOSEOUT（2026-09-12，未发布）
+
+> 本轮不开发功能，只做事实收口。产品代码 diff = 0、历法数据 diff = 0。
+
+### Gate 定义正式拆分
+
+```text
+Gate A-Truth   CORE DIVINATION TRUTH                —— R3 的 blocker
+Gate A-Compat  PROFESSIONAL SOFTWARE COMPATIBILITY  —— 不阻塞 R3
+```
+
+**理由**：原 Gate A 把「某专业软件人工填写结果」设为唯一真值来源，
+把一件本质上是「兼容性观察」的事变成了 R3 blocker。
+核心真值改由可复核的独立证据承担（独立规则核验 + 官方历法双源 +
+秒级真值 + 边界 Golden Test + 259/259 自动测试）；
+专业软件之间的流派差异（23:00 / 00:00 日界、晚子时 / 早子时、其他配置）
+记为**兼容性 / 配置差异**，不自动视为核心算法错误。
+
+### 新增
+| 文件 | 职责 |
+| --- | --- |
+| `tool/gate_a/gate_a_gate_status.dart` | 双 Gate 定义 + Gate A-Truth 逐项表 + R3 最终状态块（单一真源） |
+
+### 修改
+- `tool/gate_a/gate_a_main.dart`：README 头改双 Gate 结构；
+  总表拆出 `Truth Result` / `Compatibility Result` 两列；
+  使用说明改为 Gate A-Compat 专用；清理残留旧标题
+- `tool/gate_a/gate_a_cross_source.dart`：注释归属改为 Gate A-Truth
+- `tool/gate_a/gate_a_solar_term_report.dart`：注释改为 PARTIALLY SECOND-LEVEL VERIFIED
+- `gate-a/*.md`：全部重新生成（改 generator 真源，非手改产物）
+
+### 最终状态
+```text
+R3-A                        PASS
+R3-B                        PASS
+R3-B-DATA-PRECISION-FIX     PASS
+GATE A-TRUTH                PASS
+GATE A-COMPAT               NOT EXECUTED / DEFERRED — NON-BLOCKING
+R3                          FINAL ACCEPTED
+```
+
+### 日界
+```text
+DAY BOUNDARY ENGINE      PASS
+PRODUCT DEFAULT POLICY   OPEN（不阻塞 R3 Domain Foundation）
+```
+
+### 未做
+R4 未进入；专业软件人工对照未执行（Gate A-Compat，不阻塞）。
 
 ---
 

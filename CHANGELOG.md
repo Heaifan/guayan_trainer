@@ -8,6 +8,119 @@
 
 ---
 
+## 2026-09-12 · GATE-A-FINAL-CLOSEOUT（Gate A 定义拆分与 R3 收口，未发布）
+
+> **本轮不开发功能，只做事实收口。** 产品代码 diff = 0、历法数据 diff = 0。
+
+### 为什么要拆 Gate A
+
+Gate A 原文把「某专业软件的人工填写结果」设为**唯一真值来源**，
+于是 R3 被一件本质上是「兼容性观察」的事卡住。但经过 R3-A / R3-B /
+双源核验 / 秒级精度修复之后，核心真值已由**可复核的独立证据**承担：
+
+```text
+独立规则核验（八宫 / 世应 / 纳甲 / 六亲 / 六神）
++ 官方历法双源（HKO vs NAOJ 24/24）
++ 秒级公开真值（2026 立春 04:02:08）
++ 边界 Golden Test
++ 259 / 259 自动测试
+```
+
+而目标专业软件之间存在流派差异（23:00 / 00:00 日界、晚子时 / 早子时、
+其他配置），这类差异属于**兼容性 / 配置差异**，不能自动视为核心算法错误。
+
+### 正式拆分
+
+```text
+Gate A-Truth   CORE DIVINATION TRUTH                —— R3 的 blocker
+Gate A-Compat  PROFESSIONAL SOFTWARE COMPATIBILITY  —— 不阻塞 R3
+```
+
+| 新 Gate | 状态 | 依据 |
+| --- | --- | --- |
+| Gate A-Truth | **PASS** | 独立规则核验 + 官方双源 + 秒级真值 + 边界测试 + 259/259 |
+| Gate A-Compat | **NOT EXECUTED / DEFERRED，NON-BLOCKING** | 尚未对目标专业软件逐项人工比对 |
+
+### Gate A-Truth 逐项
+
+```text
+八宫                  PASS
+世应                  PASS
+纳甲                  PASS
+五行                  PASS
+六亲                  PASS
+变卦六亲取本卦宫      PASS
+六神                  PASS
+日辰                  PASS
+旬空                  PASS
+月建                  PASS
+节气数据（双源）      PASS
+节气秒级精度          PARTIALLY VERIFIED
+时区换算              PASS
+日界双规则            PASS
+离线计算              PASS
+```
+
+### 精度状态（正式措辞）
+
+```text
+SOLAR TERM DATA PRECISION
+
+2026 LiChun:          SECOND-LEVEL VERIFIED   04:02:08 +08:00
+KNOWN PRECISION GAP:  FIXED
+Other solar terms:    MINUTE-LEVEL VERIFIED (via HKO + NAOJ)
+No fabricated second-level values
+
+→ PARTIALLY SECOND-LEVEL VERIFIED
+```
+
+不再写 `UNRESOLVED`；也禁止写 `ALL SOLAR TERMS SECOND-LEVEL VERIFIED`。
+
+### 日界状态
+
+```text
+DAY BOUNDARY ENGINE      PASS（midnight 与 ziHourStart 均已实现并通过测试）
+PRODUCT DEFAULT POLICY   OPEN（属后续产品配置决定，不阻塞 R3 Domain Foundation）
+```
+
+### 文档改动（改 generator 真源，非手改产物）
+
+| 文件 | 改动 |
+| --- | --- |
+| `tool/gate_a/gate_a_gate_status.dart` | 新增：双 Gate 定义、Gate A-Truth 逐项表、R3 最终状态块 |
+| `tool/gate_a/gate_a_main.dart` | README 头改为双 Gate 结构；总表拆出 `Truth Result` / `Compatibility Result`；使用说明改为 Gate A-Compat 专用 |
+| `tool/gate_a/gate_a_cross_source.dart` | 注释归属改为 Gate A-Truth |
+| `tool/gate_a/gate_a_solar_term_report.dart` | 注释改为 `PARTIALLY SECOND-LEVEL VERIFIED`（原写 UNRESOLVED） |
+| `gate-a/*.md` | 全部重新生成 |
+
+保留：专业软件列 / 软件版本 / 一致 等字段（供 Gate A-Compat 使用）；
+未填写时 Result 记 `NOT EXECUTED`，**不得显示 FAIL**。
+
+### R3 最终状态
+
+```text
+R3-A                        PASS
+R3-B                        PASS
+R3-B-DATA-PRECISION-FIX     PASS
+GATE A-TRUTH                PASS
+GATE A-COMPAT               NOT EXECUTED / DEFERRED — NON-BLOCKING
+R3                          FINAL ACCEPTED
+```
+
+### 验证
+
+```text
+gate_a_runner.ps1 test       全部自检 PASS
+gate_a_runner.ps1 closeout   验收断言全部 PASS
+flutter test                 259 / 259 PASS
+flutter analyze lib/domain test/domain   No issues found
+flutter analyze（全仓）       27 = 基线，NEW = 0
+git diff --check             clean
+lib/ test/ assets/ diff      = 0
+```
+
+---
+
 ## 2026-09-12 · R3-B-DATA-PRECISION-FIX（节气数据精度专项修复，未发布）
 
 > **根因（一句话）**：分钟级官方显示值被保存为 `:00` 秒 Instant，

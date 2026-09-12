@@ -4,7 +4,8 @@
 /// 1. 测试点只以**官方发布值**（HKO / NAOJ）为准；
 /// 2. 自建天文尺子一律标 `UNVERIFIED TOOL OUTPUT`，**不**参与建窗、不做真值；
 /// 3. 有可追溯秒级公开值的节气，才追加 `exact −1s / exact / exact +1s`；
-/// 4. Gate A2 在独立天文真值建立前恒为 `UNRESOLVED`。
+/// 4. 精度结论记在 `Gate A-Truth` 下，且只能是
+///    `PARTIALLY SECOND-LEVEL VERIFIED`（立春秒级已核实，其余仅分钟级）。
 library;
 
 import 'package:guayan_trainer/domain/calendar/solar_term/solar_term.dart';
