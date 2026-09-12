@@ -5,11 +5,10 @@
 library;
 
 import '../cases/derive.dart';
-import '../cases/derive.dart';
 import '../core/format.dart';
 import '../core/pillars.dart';
-import '../gate_a_context.dart';
 import '../core/time_input.dart';
+import '../gate_a_context.dart';
 
 /// 顺序渲染一组卦例。
 String renderCaseFacts(List<CaseFacts> facts) {

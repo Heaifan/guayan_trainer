@@ -4,8 +4,7 @@ library;
 import "../cases/derive.dart";
 import "../core/gate_status.dart";
 
-
-String _masterTable(List<CaseFacts> facts) {
+String renderMasterTable(List<CaseFacts> facts) {
   final b = StringBuffer();
   b.writeln('| ID | 类型 | 起卦时间（+08:00） | 六爻输入 | 月建 | 日辰 | 旬空 '
       '| 本卦 | 变卦 | 卦宫 | 世应 | 六神(初→上) | 纳甲(初→上) '

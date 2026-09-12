@@ -7,7 +7,7 @@ import "../gate_a_context.dart";
 import "solar_term_report.dart";
 
 
-String _solarTermSection(GateAContext ctx) {
+String renderSolarTermSection(GateAContext ctx) {
   final refs = resolveOfficialReferences(ctx, 2026);
   final b = StringBuffer()
     ..write(_solarTermSummary(refs))

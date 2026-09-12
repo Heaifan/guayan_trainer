@@ -2,13 +2,12 @@
 library;
 
 import '../cases/derive.dart';
-import '../cases/derive.dart';
 import '../core/gate_status.dart';
 import '../core/gate_truth_items.dart';
 import '../gate_a_context.dart';
 import '../reports/boundary_report.dart';
 import '../reports/master_table.dart';
-import '../reports/master_table.dart';
+
 String renderReadmeHeader(GateAContext ctx, List<CaseFacts> facts) => '''# 卦眼 2.0 · Gate A 收口（真值 Gate + 兼容性 Gate）
 
 > 本目录全部文件由 `tool/gate_a/gate_a_main.dart` 生成。
