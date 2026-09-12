@@ -1,17 +1,9 @@
 /// GA-1 普通真实卦例数据：GA-01 … GA-07。
 library;
 
-import 'package:guayan_trainer/domain/line_state.dart';
-
 import '../logic/case_model.dart';
 
-const _y = MovementType.shaoYang;
-const _o = MovementType.shaoYin;
-const _Y = MovementType.laoYang;
-const _O = MovementType.laoYin;
-
 const List<GateACase> normalCasesA = <GateACase>[
-
   GateACase(
     id: 'GA-01',
     group: 'GA-1',

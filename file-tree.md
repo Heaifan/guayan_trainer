@@ -37,7 +37,7 @@
 | `tool/gate_a/tools/gov/rules_regression.dart` | **规则 0**：临时夹具自证「数的是直接文件」，先自证再查仓库 |
 | `tool/gate_a/tools/gov/gov_rules.dart` | 规则编排 + 逐目录证据打印 |
 | `tool/gate_a/tools/checks/gov_selfcheck.dart` | 改为薄入口（规则实现全部移入 `tools/gov/`） |
-| `tool/gate_a/gate_a_runner.ps1` | 模式路径集中成 `$Scripts` 表、缺文件即失败；新增 `verify` 链（imports → generate → gov → selftest → cross；生成器失败即停止并声明 SHA 无意义） |
+| `tool/gate_a/gate_a_runner.ps1` | 模式路径集中成 `$Scripts` 表、缺文件即失败；新增 `verify` 链（**先 preflight 检查全部 9 个模式是否都能解析**，再 imports → generate → gov → selftest → cross；生成器失败即终止并声明 SHA 无意义） |
 | `tool/gate_a/tools/checks/check_imports.dart` | 只跳过 `package:` / `dart:`；注释内示例不再误报 |
 | `.gitattributes`（新增） | `gate-a/*.md text eol=lf` —— 生成文档锁 LF，黄金快照在任何机器上都成立 |
 
@@ -111,7 +111,7 @@ gate_a_runner closeout        PASS
 gate_a_runner cross           24 / 24
 flutter test                  259 / 259 PASS
 flutter analyze lib/domain test/domain   No issues found
-dart analyze tool/gate_a      7 warnings（全部为改动前既存：diag_oracle / normal_cases_a）
+dart analyze tool/gate_a      No issues found（顺手清掉 7 条改动前既存 warning）
 lib/ test/ assets/ diff       0
 ```
 

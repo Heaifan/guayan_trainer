@@ -79,6 +79,28 @@ $mode = [string]$args[0]
 
 # Read-only gate chain, in dependency order. Stops at the first failure.
 if ($mode -eq 'verify') {
+  # Preflight: EVERY mode must resolve to an existing file.
+  # POST-R3-GOV-01 defect #2: four of the eight modes silently pointed at files
+  # deleted by the subdirectory migration, so 'closeout PASS' was unobtainable.
+  # Checking only the modes that happen to be run would not have caught it.
+  $preflightBad = 0
+  $allModes = @($Scripts.GetEnumerator() | ForEach-Object {
+    @{ name = $_.Key; script = $_.Value }
+  })
+  $allModes += @{ name = 'solve'; script = 'tool/gate_a/tools/checks/solve_cases.dart' }
+  Write-Host '--- preflight: every runner mode must resolve ---'
+  foreach ($m in $allModes) {
+    if (-not (Test-Path $m.script)) {
+      Write-Host "PREFLIGHT FAIL: mode '$($m.name)' -> missing $($m.script)"
+      $preflightBad++
+    }
+  }
+  if ($preflightBad -gt 0) {
+    Write-Host "PREFLIGHT: FAIL ($preflightBad mode(s) broken)"
+    exit 1
+  }
+  Write-Host "PREFLIGHT: PASS ($($allModes.Count) modes resolve)"
+
   $chain = @(
     @{ name = 'imports';  script = 'tool/gate_a/tools/checks/check_imports.dart' }
     @{ name = 'generate'; script = 'tool/gate_a/gate_a_main.dart' }

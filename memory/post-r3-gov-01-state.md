@@ -107,10 +107,24 @@ tool/gate_a 根目录 = 3 文件 + 7 子目录（files=3 判 PASS，subdirs 单�
 规则 2（直接文件 <=5）   PASS — 25 个目录，MAX = 5
 规则 3（SHA 等价）      PASS — 6/6 IDENTICAL
 独立目录审计            PASS — MAX DIRECT FILES = 5，0 个目录超 5
-lib/ test/ assets/ diff 0
+runner verify preflight PASS — 9 个模式全部可解析（负例已验：改坏一个即 FAIL）
+dart analyze tool/gate_a   No issues found（清掉 7 条改动前既存 warning）
+flutter test 259/259 · flutter analyze No issues
+lib/ test/ assets/ diff 0 · 工作树 CLEAN · a24e641 已 push
 ```
 
 9 个超限文件全部拆完（去向见 `file-tree.md` 的 POST-R3-GOV-01 一节）。
+
+补做的两处收尾：
+```text
+1. verify 增加 preflight：先确认**全部 9 个模式**都能解析，再跑链。
+   理由：缺陷 2（4/8 模式失效）只在「恰好跑到那个模式」时才暴露，
+   只检查将要运行的模式是抓不住的。已用负例验证（改坏 diag 路径 → PREFLIGHT FAIL）。
+2. 清掉 dart analyze 的 7 条既存 warning（dead code，非本轮引入）：
+   astro/diag_oracle.dart 的 _deg；cases/data/normal_cases_a.dart 的
+   _y/_o/_Y/_O（案例实际用 originalBits + movingPositions，这四个别名从未被使用），
+   连带移除随之无用的 line_state.dart import。SHA 6/6 证明行为未变。
+```
 
 ---
 
@@ -150,9 +164,7 @@ lib/ test/ assets/ diff 0
     在重定向下产出 0 字节日志，换成 `| Tee-Object -FilePath` 才看到实时进展。
 ```
 
-## 下一步
-
-```text
+## 下一步```text
 本轮 POST-R3-GOV-01 已收口 → 可进入 R4（需用户明确批准）。
 R4 前建议：把 .gitattributes 的行尾锁定策略推广到 tool/ 与 lib/（需单独一轮，
 否则一次性重排会淹没真实 diff）。

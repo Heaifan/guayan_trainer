@@ -42,7 +42,10 @@ void reportRates() {
     '立春 官方 04:02:08 HKT': (DateTime.utc(2026, 2, 3, 20, 2, 8), 315),
     '立夏 官方 19:49 HKT': (DateTime.utc(2026, 5, 5, 11, 49), 45),
   }.entries) {
-    final delta = angleDiff(sunApparentLongitude(julianDayOfUtc(e.value.$1)), e.value.$2);
+    final delta = angleDiff(
+      sunApparentLongitude(julianDayOfUtc(e.value.$1)),
+      e.value.$2,
+    );
     stdout.writeln(
       '  ${e.key}  偏差 ${(delta * 3600).toStringAsFixed(1)} 角秒'
       ' = ${(delta / 0.9856 * 86400).toStringAsFixed(0)} 秒时间',
@@ -56,8 +59,6 @@ void reportRates() {
 // 二、指定时刻的中间量对账
 // ---------------------------------------------------------------------------
 
-const double _deg = math.pi / 180.0;
-
 /// 逐项打印中间量，便于与天文手册手算对账。
 void reportIntermediate(String label, DateTime utc, double target) {
   final jd = julianDayOfUtc(utc);
@@ -68,7 +69,9 @@ void reportIntermediate(String label, DateTime utc, double target) {
   final delta = angleDiff(app, target);
   stdout.writeln('--- $label  ${utc.toIso8601String()}');
   stdout.writeln('    JD=${jd.toStringAsFixed(6)}  T=${t.toStringAsFixed(8)}');
-  stdout.writeln('    L0=${l0.toStringAsFixed(6)}  M=${(m % 360).toStringAsFixed(6)}');
+  stdout.writeln(
+    '    L0=${l0.toStringAsFixed(6)}  M=${(m % 360).toStringAsFixed(6)}',
+  );
   stdout.writeln(
     '    视黄经=${app.toStringAsFixed(6)}  目标=$target  '
     '偏差=${(delta * 3600).toStringAsFixed(1)} 角秒',
@@ -78,6 +81,14 @@ void reportIntermediate(String label, DateTime utc, double target) {
 void main() {
   reportRates();
   stdout.writeln('');
-  reportIntermediate('立春 官方哨兵 04:02:08 HKT', DateTime.utc(2026, 2, 3, 20, 2, 8), 315);
-  reportIntermediate('立春 数据包 04:02:08 HKT', DateTime.utc(2026, 2, 3, 20, 2, 8), 315);
+  reportIntermediate(
+    '立春 官方哨兵 04:02:08 HKT',
+    DateTime.utc(2026, 2, 3, 20, 2, 8),
+    315,
+  );
+  reportIntermediate(
+    '立春 数据包 04:02:08 HKT',
+    DateTime.utc(2026, 2, 3, 20, 2, 8),
+    315,
+  );
 }
