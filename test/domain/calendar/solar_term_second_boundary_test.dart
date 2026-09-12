@@ -72,11 +72,7 @@ void main() {
       for (final t in data.monthStartTerms) {
         if (t.id == SolarTermId.liChun) continue;
         expect(t.isSecondPrecise, isFalse, reason: '${t.id.label} 不应是秒级');
-        expect(
-          t.instantUtc.second,
-          0,
-          reason: '${t.id.label} 为分钟级，秒位必须是 0',
-        );
+        expect(t.instantUtc.second, 0, reason: '${t.id.label} 为分钟级，秒位必须是 0');
       }
     });
   });

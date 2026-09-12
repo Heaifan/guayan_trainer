@@ -7,25 +7,25 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:guayan_trainer/domain/line_endpoint.dart';
+import 'package:guayan_trainer/domain/relation_endpoint.dart';
 import 'package:guayan_trainer/domain/relation_key.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
 
 void main() {
-  final changed3 = LineEndpoint(LineScope.changed, 3);
-  final original3 = LineEndpoint(LineScope.original, 3);
-  final original1 = LineEndpoint(LineScope.original, 1);
-  final original6 = LineEndpoint(LineScope.original, 6);
+  final changed3 = YaoEndpoint(LineScope.changed, 3);
+  final original3 = YaoEndpoint(LineScope.original, 3);
+  final original1 = YaoEndpoint(LineScope.original, 1);
+  final original6 = YaoEndpoint(LineScope.original, 6);
 
-  final original5 = LineEndpoint(LineScope.original, 5);
+  final original5 = YaoEndpoint(LineScope.original, 5);
 
   RelationKey huiTouSheng({int ruleVersion = 1}) => RelationKey.from(
-        type: RelationType.huiTouSheng,
-        ruleId: SystemRuleIds.huiTouSheng,
-        ruleVersion: ruleVersion,
-        source: changed3,
-        target: original3,
-      );
+    type: RelationType.huiTouSheng,
+    ruleId: SystemRuleIds.huiTouSheng,
+    ruleVersion: ruleVersion,
+    source: changed3,
+    target: original3,
+  );
 
   group('Test A · 确定性', () {
     test('相同输入重复构造，RelationKey 完全一致', () {
@@ -71,7 +71,7 @@ void main() {
       final k2 = RelationKey.from(
         type: RelationType.huiTouSheng,
         ruleId: SystemRuleIds.huiTouSheng,
-        source: LineEndpoint(LineScope.changed, 5),
+        source: YaoEndpoint(LineScope.changed, 5),
         target: original3,
       );
       expect(k1.canonical, isNot(k2.canonical));

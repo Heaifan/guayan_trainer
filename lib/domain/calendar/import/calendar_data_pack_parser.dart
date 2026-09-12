@@ -55,7 +55,9 @@ class CalendarDataPackParser {
       throw CalendarDataPackInvalid(['terms[$i] 必须是对象']);
     }
     final overrideRaw = entry['sourceOverride'];
-    final override = overrideRaw is Map ? overrideRaw : const <Object?, Object?>{};
+    final override = overrideRaw is Map
+        ? overrideRaw
+        : const <Object?, Object?>{};
     return CalendarDataPackTerm(
       term: _str(entry['term']),
       instantUtc: _str(entry['instantUtc']),

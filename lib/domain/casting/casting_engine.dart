@@ -23,24 +23,13 @@ class CastingEngine {
   ///
   /// [dayGan] 仅用于六神起例；为 null 时六神一律为 null（不猜默认日干）。
   /// 返回值恒为非空；非法输入抛 [ArgumentError]，绝不返回半成品。
-  static CastChart cast(
-    List<MovementType> movementTypes, {
-    TianGan? dayGan,
-  }) {
+  static CastChart cast(List<MovementType> movementTypes, {TianGan? dayGan}) {
     if (movementTypes.length != 6) {
-      throw ArgumentError.value(
-        movementTypes,
-        'movementTypes',
-        '必须恰好 6 爻',
-      );
+      throw ArgumentError.value(movementTypes, 'movementTypes', '必须恰好 6 爻');
     }
 
-    final originalLines = [
-      for (final m in movementTypes) isYangMovement(m),
-    ];
-    final changedLines = [
-      for (final m in movementTypes) changedIsYang(m),
-    ];
+    final originalLines = [for (final m in movementTypes) isYangMovement(m)];
+    final changedLines = [for (final m in movementTypes) changedIsYang(m)];
 
     final original = resolveHexagram(originalLines);
     final hasMoving = movementTypes.any((m) => m.isMoving);
@@ -50,10 +39,12 @@ class CastingEngine {
     final originalGans = najiaGans(original.lower, original.upper);
     final originalBranches = najiaLines(original.lower, original.upper);
 
-    final changedGans =
-        changed == null ? null : najiaGans(changed.lower, changed.upper);
-    final changedBranches =
-        changed == null ? null : najiaLines(changed.lower, changed.upper);
+    final changedGans = changed == null
+        ? null
+        : najiaGans(changed.lower, changed.upper);
+    final changedBranches = changed == null
+        ? null
+        : najiaLines(changed.lower, changed.upper);
 
     final spirits = dayGan == null ? null : sixSpiritsFor(dayGan);
 
@@ -99,8 +90,8 @@ bool isYangMovement(MovementType m) =>
 
 /// 变卦阴阳：老阳变阴、老阴变阳，少阴少阳不变。
 bool changedIsYang(MovementType m) => switch (m) {
-      MovementType.shaoYang => true,
-      MovementType.laoYang => false,
-      MovementType.shaoYin => false,
-      MovementType.laoYin => true,
-    };
+  MovementType.shaoYang => true,
+  MovementType.laoYang => false,
+  MovementType.shaoYin => false,
+  MovementType.laoYin => true,
+};

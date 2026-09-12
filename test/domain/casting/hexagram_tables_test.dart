@@ -24,9 +24,7 @@ void main() {
 
     test('八卦五行正确（乾兑金 离火 震巽木 坎水 艮坤土）', () {
       expect(
-        {
-          for (final b in Bagua.values) b.label: b.wuXing,
-        },
+        {for (final b in Bagua.values) b.label: b.wuXing},
         {
           '乾': WuXing.jin,
           '兑': WuXing.jin,
@@ -81,8 +79,7 @@ void main() {
     });
 
     test('乾宫八卦顺序与世爻序列（本宫/一世..五世/游魂/归魂）', () {
-      final qian =
-          baGongTable.where((e) => e.palace == Bagua.qian).toList();
+      final qian = baGongTable.where((e) => e.palace == Bagua.qian).toList();
       expect(qian.map((e) => hexagramNameOf(e.upper, e.lower)), [
         '乾为天',
         '天风姤',
@@ -126,23 +123,39 @@ void main() {
   group('纳甲', () {
     test('乾坤内外卦地支（乾 子寅辰/午申戌、坤 未巳卯/丑亥酉）', () {
       expect(najiaLines(Bagua.qian, Bagua.qian), [
-        DiZhi.zi, DiZhi.yin, DiZhi.chen,
-        DiZhi.wu, DiZhi.shen, DiZhi.xu,
+        DiZhi.zi,
+        DiZhi.yin,
+        DiZhi.chen,
+        DiZhi.wu,
+        DiZhi.shen,
+        DiZhi.xu,
       ]);
       expect(najiaLines(Bagua.kun, Bagua.kun), [
-        DiZhi.wei, DiZhi.si, DiZhi.mao,
-        DiZhi.chou, DiZhi.hai, DiZhi.you,
+        DiZhi.wei,
+        DiZhi.si,
+        DiZhi.mao,
+        DiZhi.chou,
+        DiZhi.hai,
+        DiZhi.you,
       ]);
     });
 
     test('纳甲天干：乾纳甲壬、坤纳乙癸，其余内外同干', () {
       expect(najiaGans(Bagua.qian, Bagua.qian), [
-        TianGan.jia, TianGan.jia, TianGan.jia,
-        TianGan.ren, TianGan.ren, TianGan.ren,
+        TianGan.jia,
+        TianGan.jia,
+        TianGan.jia,
+        TianGan.ren,
+        TianGan.ren,
+        TianGan.ren,
       ]);
       expect(najiaGans(Bagua.kan, Bagua.li), [
-        TianGan.wu, TianGan.wu, TianGan.wu,
-        TianGan.ji, TianGan.ji, TianGan.ji,
+        TianGan.wu,
+        TianGan.wu,
+        TianGan.wu,
+        TianGan.ji,
+        TianGan.ji,
+        TianGan.ji,
       ]);
     });
 
@@ -181,9 +194,7 @@ void main() {
 
     test('自初爻向上顺排，六爻恰配满一轮', () {
       final spirits = sixSpiritsFor(TianGan.geng); // 庚 → 初爻白虎
-      expect(spirits.map((s) => s.label), [
-        '白虎', '玄武', '青龙', '朱雀', '勾陈', '螣蛇',
-      ]);
+      expect(spirits.map((s) => s.label), ['白虎', '玄武', '青龙', '朱雀', '勾陈', '螣蛇']);
       expect(spirits.toSet(), hasLength(6));
     });
   });

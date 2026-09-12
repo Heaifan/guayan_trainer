@@ -39,6 +39,10 @@ enum RelationType {
 
 /// 系统计算规则的稳定 RuleId（机器名，非展示标题）。
 ///
+/// 同一种 [RelationType]（如「生」）可以由不同规则产生：
+/// 爻与爻的五行相生用 [sheng]，月建对爻的生用 [monthBranch] ——
+/// 因此 key 里 ruleId 承担「谁作用于谁」的区分，type 只表示作用方向类别。
+///
 /// 自定义规则（JSON `id` 字段）后续接入，key 机制不变。
 abstract final class SystemRuleIds {
   static const dongBian = 'sys.dong_bian';
@@ -48,4 +52,6 @@ abstract final class SystemRuleIds {
   static const ke = 'sys.ke';
   static const liuChong = 'sys.liu_chong';
   static const liuHe = 'sys.liu_he';
+  static const monthBranch = 'sys.month_branch';
+  static const dayBranch = 'sys.day_branch';
 }

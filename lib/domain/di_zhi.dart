@@ -54,17 +54,17 @@ enum DiZhi {
 
   /// 六合（子丑、寅亥、卯戌、辰酉、巳申、午未）。
   DiZhi get he => switch (this) {
-        DiZhi.zi => DiZhi.chou,
-        DiZhi.chou => DiZhi.zi,
-        DiZhi.yin => DiZhi.hai,
-        DiZhi.hai => DiZhi.yin,
-        DiZhi.mao => DiZhi.xu,
-        DiZhi.xu => DiZhi.mao,
-        DiZhi.chen => DiZhi.you,
-        DiZhi.you => DiZhi.chen,
-        DiZhi.si => DiZhi.shen,
-        DiZhi.shen => DiZhi.si,
-        DiZhi.wu => DiZhi.wei,
-        DiZhi.wei => DiZhi.wu,
-      };
+    DiZhi.zi => DiZhi.chou,
+    DiZhi.chou => DiZhi.zi,
+    DiZhi.yin => DiZhi.hai,
+    DiZhi.hai => DiZhi.yin,
+    DiZhi.mao => DiZhi.xu,
+    DiZhi.xu => DiZhi.mao,
+    DiZhi.chen => DiZhi.you,
+    DiZhi.you => DiZhi.chen,
+    DiZhi.si => DiZhi.shen,
+    DiZhi.shen => DiZhi.si,
+    DiZhi.wu => DiZhi.wei,
+    DiZhi.wei => DiZhi.wu,
+  };
 }

@@ -37,9 +37,7 @@ enum Bagua {
       throw ArgumentError.value(ls, 'ls', '八卦必须恰好 3 爻');
     }
     for (final b in Bagua.values) {
-      if (b.lines[0] == ls[0] &&
-          b.lines[1] == ls[1] &&
-          b.lines[2] == ls[2]) {
+      if (b.lines[0] == ls[0] && b.lines[1] == ls[1] && b.lines[2] == ls[2]) {
         return b;
       }
     }

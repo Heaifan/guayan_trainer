@@ -26,18 +26,16 @@ const Map<Bagua, List<DiZhi>> najiaByBagua = {
 };
 
 /// 该卦作内卦（下卦，初二三爻）时的三支。
-List<DiZhi> innerBranches(Bagua bagua) =>
-    najiaByBagua[bagua]!.sublist(0, 3);
+List<DiZhi> innerBranches(Bagua bagua) => najiaByBagua[bagua]!.sublist(0, 3);
 
 /// 该卦作外卦（上卦，四五六爻）时的三支。
-List<DiZhi> outerBranches(Bagua bagua) =>
-    najiaByBagua[bagua]!.sublist(3, 6);
+List<DiZhi> outerBranches(Bagua bagua) => najiaByBagua[bagua]!.sublist(3, 6);
 
 /// 装卦：由下卦 + 上卦得到六爻地支（自初爻至上爻）。
 List<DiZhi> najiaLines(Bagua lower, Bagua upper) => [
-      ...innerBranches(lower),
-      ...outerBranches(upper),
-    ];
+  ...innerBranches(lower),
+  ...outerBranches(upper),
+];
 
 /// 纳甲天干：内卦干 / 外卦干。
 ///

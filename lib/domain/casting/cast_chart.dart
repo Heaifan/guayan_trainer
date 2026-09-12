@@ -70,10 +70,9 @@ class CastLine {
   String get ganZhi => '${gan.label}${branch.label}';
 
   /// 变卦纳甲干支文本；无变卦时为 null。
-  String? get changedGanZhi =>
-      (changedGan == null || changedBranch == null)
-          ? null
-          : '${changedGan!.label}${changedBranch!.label}';
+  String? get changedGanZhi => (changedGan == null || changedBranch == null)
+      ? null
+      : '${changedGan!.label}${changedBranch!.label}';
 
   /// 世应标记：世 / 应 / 空串。
   String get shiYingLabel => isShi ? '世' : (isYing ? '应' : '');

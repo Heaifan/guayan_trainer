@@ -19,21 +19,21 @@ enum WuXing {
 
   /// 我生者（相生：木→火→土→金→水→木）。
   WuXing get generates => switch (this) {
-        WuXing.mu => WuXing.huo,
-        WuXing.huo => WuXing.tu,
-        WuXing.tu => WuXing.jin,
-        WuXing.jin => WuXing.shui,
-        WuXing.shui => WuXing.mu,
-      };
+    WuXing.mu => WuXing.huo,
+    WuXing.huo => WuXing.tu,
+    WuXing.tu => WuXing.jin,
+    WuXing.jin => WuXing.shui,
+    WuXing.shui => WuXing.mu,
+  };
 
   /// 我克者（相克：木克土、土克水、水克火、火克金、金克木）。
   WuXing get controls => switch (this) {
-        WuXing.mu => WuXing.tu,
-        WuXing.tu => WuXing.shui,
-        WuXing.shui => WuXing.huo,
-        WuXing.huo => WuXing.jin,
-        WuXing.jin => WuXing.mu,
-      };
+    WuXing.mu => WuXing.tu,
+    WuXing.tu => WuXing.shui,
+    WuXing.shui => WuXing.huo,
+    WuXing.huo => WuXing.jin,
+    WuXing.jin => WuXing.mu,
+  };
 
   /// 生我者。
   WuXing get generatedBy =>

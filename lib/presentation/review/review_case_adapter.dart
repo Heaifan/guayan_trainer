@@ -8,9 +8,9 @@
 library;
 
 import '../../domain/hexagram_case.dart';
-import '../../domain/line_endpoint.dart';
 import '../../domain/line_state.dart';
 import '../../domain/relation_calculator.dart';
+import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
 import '../../domain/relation_type.dart';
 import 'review_page_state.dart';
@@ -113,7 +113,8 @@ class ReviewCaseAdapter {
         ? <RelationInstance>[]
         : [
             for (final r in relations)
-              if (r.source.position == focusLine || r.target.position == focusLine)
+              if (_touchesLine(r.source, focusLine) ||
+                  _touchesLine(r.target, focusLine))
                 r,
           ];
 
@@ -195,8 +196,17 @@ class ReviewCaseAdapter {
     return null;
   }
 
-  static String _endpointLabel(LineEndpoint endpoint) {
-    final pos = reviewLinePositionName(endpoint.position);
-    return endpoint.scope == LineScope.changed ? '变$pos' : pos;
-  }
+  /// 端点是否就是某爻（月建 / 日辰端点不是爻，恒不命中）。
+  static bool _touchesLine(RelationEndpoint endpoint, int position) =>
+      endpoint is YaoEndpoint && endpoint.position == position;
+
+  static String _endpointLabel(RelationEndpoint endpoint) =>
+      switch (endpoint) {
+        YaoEndpoint(:final position, :final scope) => scope ==
+                LineScope.changed
+            ? '变${reviewLinePositionName(position)}'
+            : reviewLinePositionName(position),
+        MonthEndpoint() => '月建',
+        DayEndpoint() => '日辰',
+      };
 }

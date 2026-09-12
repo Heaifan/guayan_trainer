@@ -2,10 +2,74 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-12 23:16
+> **最后编辑：** 2026-09-13 00:03
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## R4 · 基础关系引擎（2026-09-13，未发布）
+
+> 总开发计划 §12.1 第一批九类关系全部落地。纯 Domain，不依赖 Flutter / 页面 / Painter。
+> 详细契约见 `lib/domain/README.md` 的「R4 · 基础关系引擎」一节。
+
+### 冻结契约（用户批准）
+
+```text
+1. 五行相生/相克 = 本卦六爻两两穷举 C(6,2)=15 对；同五行不产出。
+   R4 是「事实账本」，不判断作用力 —— 作用力交给后续 Effect / Rule 层。
+   UI 用筛选器控制可视关系，不得为图面简洁反向裁剪 Domain 数据。
+2. 新增 RelationEndpoint 领域端点抽象（sealed）：爻 / 月建 / 日辰。
+   RelationKey 的 source/target 必须表示真实语义对象，
+   禁止为非爻对象制造虚假 position（不写 month-1）。
+   LineEndpoint 降级为绘线定位层类型，不再是身份真源。
+3. HexagramCase 持有可选 CalendarSnapshot（月建支 + 日辰干支）。
+   存「起卦当时认定的结果」，不存计算器 —— 数据包升级不得让历史卦例月建漂移。
+   calendar 缺失 → 月/日关系不产出 + 诊断报告缺失；禁止自动补算。
+```
+
+### 新增
+
+| 文件 | 职责 |
+| --- | --- |
+| `lib/domain/relation_endpoint.dart` | 关系端点领域身份（sealed：YaoEndpoint / MonthEndpoint / DayEndpoint） |
+| `lib/domain/line_scope.dart` | 卦侧（本卦 / 变卦）—— 领域概念，独立成文件供端点与绘线层共用 |
+| `lib/domain/calendar_snapshot.dart` | 起卦当时的历法快照（月建支 + 日辰干支） |
+| `lib/domain/relation_diagnostics.dart` | 关系计算诊断（missingInputs / warnings） |
+| `lib/domain/relation_rules/changed_lines.dart` | 动变 · 回头生 · 回头克 |
+| `lib/domain/relation_rules/branch_pairs.dart` | 六冲 · 六合（改用 `DiZhi.chong/he`，删掉自带映射表） |
+| `lib/domain/relation_rules/wu_xing_pairs.dart` | 五行相生 · 相克（六爻两两，事实账本） |
+| `lib/domain/relation_rules/month_day.dart` | 月建 / 日辰基础作用 |
+| `lib/domain/relation_rules/rule_support.dart` | 规则共用（replay 版本取值 / 地支解析 / 端点构造） |
+| `test/domain/relation_engine_r4_test.dart` | 九类关系组成 + 端点不变量 |
+| `test/domain/relation_engine_r4_facts_test.dart` | 五行事实关系 + 月建/日辰组成 |
+| `test/domain/relation_engine_r4_inputs_test.dart` | 缺失输入诊断 + 确定性契约 |
+
+### 修改
+
+- `lib/domain/relation_calculator.dart`：改为 R4 编排（四类规则合并、canonical 稳定排序、
+  重复 key 警告、缺失输入诊断），并保留 `calculateRelations()` 兼容入口
+- `lib/domain/relation_type.dart`：新增 `sys.month_branch` / `sys.day_branch` 规则 id
+- `lib/domain/line_state.dart`：新增可选 `changedBranch`（变爻地支，回头生/克必需）
+- `lib/domain/hexagram_case.dart`：新增可选 `calendar`（历法快照）+ JSON round-trip
+- `lib/domain/line_endpoint.dart`：降级为绘线定位键，`LineScope` 移入 `line_scope.dart`
+- `lib/presentation/review/review_case_adapter.dart`、`review_page_state.dart`：
+  端点改为 `RelationEndpoint`（月/日端点不是爻，点爻不命中）+ 标签支持「月建 / 日辰」
+
+### 验证
+
+```text
+flutter test                 278 / 278 PASS（R4 新增 19 项）
+flutter analyze lib/domain test/domain   No issues found
+lib/domain 文件 > 150 行      0
+Gate A verify                PASS（gate-a 6 份文档 SHA256 6/6 IDENTICAL，未受影响）
+```
+
+> ⚠️ 本轮**故意**改变了既有测试期望（非削弱）：
+> 端点 canonical 由 `original-3` 变为 `yao:original:3`（契约 2）；
+> 演示卦例关系数由 2 变为 16（动变 1 + 六冲 1 + 五行 14，契约 1）。
+> 旧 JSON 仍可解析（`RelationEndpoint.fromJson` 兼容无 `kind` 的旧端点结构）。
 
 ---
 

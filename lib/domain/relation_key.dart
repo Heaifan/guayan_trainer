@@ -8,7 +8,7 @@
 /// 一切 key 只能通过 [RelationKey.from] 单一入口构造。
 library;
 
-import 'line_endpoint.dart';
+import 'relation_endpoint.dart';
 import 'relation_type.dart';
 
 /// 关系方向（构造 RelationKey 时显式处理）。
@@ -27,7 +27,11 @@ enum RelationDirection {
 /// 有向:   {type}|{ruleId}|v{ruleVersion}|{subtype|-}|{source}->{target}
 /// 对称:   {type}|{ruleId}|v{ruleVersion}|{subtype|-}|{min}<->{max}
 /// ```
-/// 例：`hui_tou_sheng|sys.hui_tou_sheng|v1|-|changed-3->original-3`
+/// 例：`hui_tou_sheng|sys.hui_tou_sheng|v1|-|yao:changed:3->yao:original:3`
+/// 例：`sheng|sys.month_branch|v1|-|month->yao:original:5`
+///
+/// 端点身份由 [RelationEndpoint] 提供（`yao:original:3` / `month` / `day`）；
+/// 非爻端点不得为了复用旧模型而伪造成 `month-1` 这类带假 position 的坐标。
 ///
 /// 无歧义性：所有字符串字段（type / ruleId / subtype / 端点）在拼接前经
 /// [_escape] 稳定转义（`\` → `\\`，`|` → `\|`），因此任意合法字段组合
@@ -48,8 +52,8 @@ class RelationKey {
     required RelationType type,
     required String ruleId,
     int ruleVersion = 1,
-    required LineEndpoint source,
-    required LineEndpoint target,
+    required RelationEndpoint source,
+    required RelationEndpoint target,
     String? subtype,
   }) {
     if (ruleVersion < 1) {
@@ -73,15 +77,15 @@ class RelationKey {
   /// 规则版本：规则语义变更时递增，key 随之变化（有意为之）。
   final int ruleVersion;
 
-  final LineEndpoint source;
-  final LineEndpoint target;
+  final RelationEndpoint source;
+  final RelationEndpoint target;
 
   /// 可选变体/上下文（稳定机器名），例如未来区分合的种类。
   final String? subtype;
 
   /// 显式方向：对称类型 → symmetric；有向类型 → directed（顺序即方向）。
-  RelationDirection get direction => type.directionKind ==
-          RelationDirectionKind.symmetric
+  RelationDirection get direction =>
+      type.directionKind == RelationDirectionKind.symmetric
       ? RelationDirection.symmetric
       : RelationDirection.directed;
 
@@ -102,29 +106,26 @@ class RelationKey {
 
   /// 稳定转义：仅转义段分隔符 `|` 与转义符本身 `\`。
   /// 保证不同字段组合绝不生成相同 canonical（单射）。
-  static String _escape(String s) => s
-      .replaceAll(r'\', r'\\')
-      .replaceAll('|', r'\|');
+  static String _escape(String s) =>
+      s.replaceAll(r'\', r'\\').replaceAll('|', r'\|');
 
   Map<String, Object?> toJson() => {
-        'type': type.machineName,
-        'ruleId': ruleId,
-        'ruleVersion': ruleVersion,
-        'source': source.toJson(),
-        'target': target.toJson(),
-        if (subtype != null) 'subtype': subtype,
-      };
+    'type': type.machineName,
+    'ruleId': ruleId,
+    'ruleVersion': ruleVersion,
+    'source': source.toJson(),
+    'target': target.toJson(),
+    if (subtype != null) 'subtype': subtype,
+  };
 
   factory RelationKey.fromJson(Map<String, Object?> json) => RelationKey.from(
-        type: RelationType.fromMachineName(json['type'] as String),
-        ruleId: json['ruleId'] as String,
-        ruleVersion: json['ruleVersion'] as int? ?? 1,
-        source:
-            LineEndpoint.fromJson(json['source'] as Map<String, Object?>),
-        target:
-            LineEndpoint.fromJson(json['target'] as Map<String, Object?>),
-        subtype: json['subtype'] as String?,
-      );
+    type: RelationType.fromMachineName(json['type'] as String),
+    ruleId: json['ruleId'] as String,
+    ruleVersion: json['ruleVersion'] as int? ?? 1,
+    source: RelationEndpoint.fromJson(json['source'] as Map<String, Object?>),
+    target: RelationEndpoint.fromJson(json['target'] as Map<String, Object?>),
+    subtype: json['subtype'] as String?,
+  );
 
   @override
   bool operator ==(Object other) =>

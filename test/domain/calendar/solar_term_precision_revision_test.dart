@@ -52,10 +52,7 @@ void main() {
     return terms;
   }
 
-  Future<DiZhi> monthAt(
-    CalendarDataStore store,
-    String hkt,
-  ) async {
+  Future<DiZhi> monthAt(CalendarDataStore store, String hkt) async {
     final engine = CalendarEngine(
       monthBranchResolver: MonthBranchResolver(
         await StoredSolarTermProvider.load(store),

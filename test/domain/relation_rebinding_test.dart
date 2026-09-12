@@ -23,7 +23,9 @@ void main() {
         round1.map((r) => r.key.canonical).toList(),
         round2.map((r) => r.key.canonical).toList(),
       );
-      expect(round1, hasLength(2));
+      // R4 基础关系引擎的组合（见 domain_test_utils.buildDemoCase 注释）：
+      // 动变 1 + 六冲 1 + 五行相生/相克 14 = 16。
+      expect(round1, hasLength(16));
     });
 
     test('演示卦例产出 动变(三爻) 与 六冲(三爻↔上爻)', () {
@@ -31,10 +33,12 @@ void main() {
       final types = instances.map((r) => r.type).toSet();
       expect(types, contains(RelationType.dongBian));
       expect(types, contains(RelationType.liuChong));
-      final dongBian =
-          instances.firstWhere((r) => r.type == RelationType.dongBian);
-      expect(dongBian.source.semanticId, 'original-3');
-      expect(dongBian.target.semanticId, 'changed-3');
+      final dongBian = instances.firstWhere(
+        (r) => r.type == RelationType.dongBian,
+      );
+      // 端点身份自 R4 起为领域语义 id（爻带真实爻位；月/日无 position）。
+      expect(dongBian.source.semanticId, 'yao:original:3');
+      expect(dongBian.target.semanticId, 'yao:changed:3');
     });
   });
 
@@ -45,8 +49,9 @@ void main() {
 
       // Round 1：生成关系实例 A，并给「动变」写笔记。
       final round1 = calculateRelations(c);
-      final instanceA =
-          round1.firstWhere((r) => r.type == RelationType.dongBian);
+      final instanceA = round1.firstWhere(
+        (r) => r.type == RelationType.dongBian,
+      );
       store.upsertNote(
         caseId: c.id,
         relationKey: instanceA.key,
@@ -58,8 +63,9 @@ void main() {
       // 销毁 Round 1 全部实例（模拟重新打开 / 重新排盘）。
       // Round 2：从原始 Case 状态重新计算，生成全新实例 B。
       final round2 = calculateRelations(c);
-      final instanceB =
-          round2.firstWhere((r) => r.type == RelationType.dongBian);
+      final instanceB = round2.firstWhere(
+        (r) => r.type == RelationType.dongBian,
+      );
 
       // A != B 运行时对象，但 stableKey 完全一致。
       expect(identical(instanceA, instanceB), isFalse);
@@ -89,8 +95,14 @@ void main() {
       final a2 = round2.firstWhere((r) => r.key == a.key);
       final b2 = round2.firstWhere((r) => r.key == b.key);
 
-      expect(store.noteFor(caseId: c.id, relationKey: a2.key)!.content, 'note-A');
-      expect(store.noteFor(caseId: c.id, relationKey: b2.key)!.content, 'note-B');
+      expect(
+        store.noteFor(caseId: c.id, relationKey: a2.key)!.content,
+        'note-A',
+      );
+      expect(
+        store.noteFor(caseId: c.id, relationKey: b2.key)!.content,
+        'note-B',
+      );
     });
 
     test('相同关系 key 在不同卦例中笔记互不干扰（caseId 作用域）', () {

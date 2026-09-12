@@ -9,8 +9,10 @@ import 'package:guayan_trainer/domain/line_endpoint.dart';
 import 'package:guayan_trainer/domain/line_state.dart';
 
 void main() {
-  LineState line(int position, {MovementType movement = MovementType.shaoYin}) =>
-      LineState(position: position, movementType: movement);
+  LineState line(
+    int position, {
+    MovementType movement = MovementType.shaoYin,
+  }) => LineState(position: position, movementType: movement);
 
   List<LineState> sixLines({int replaceIndex = -1, int? replacePosition}) {
     final lines = [1, 2, 3, 4, 5, 6].map(line).toList();
@@ -52,10 +54,7 @@ void main() {
 
     test('坏 position 的 JSON 反序列化同样被拒绝', () {
       expect(
-        () => LineState.fromJson({
-              'position': 0,
-              'movementType': 'shaoYin',
-            }),
+        () => LineState.fromJson({'position': 0, 'movementType': 'shaoYin'}),
         throwsArgumentError,
       );
     });
@@ -119,18 +118,17 @@ void main() {
 
     test('坏 JSON：爻数不对 / position 重复 / position 越界 全部被拒绝', () {
       final validLines = [
-        for (var p = 1; p <= 6; p++)
-          {'position': p, 'movementType': 'shaoYin'},
+        for (var p = 1; p <= 6; p++) {'position': p, 'movementType': 'shaoYin'},
       ];
 
       // 5 爻。
       expect(
         () => HexagramCase.fromJson({
-              'id': 'c',
-              'question': '',
-              'createdAt': '2026-08-27T00:00:00.000Z',
-              'lines': validLines.sublist(0, 5),
-            }),
+          'id': 'c',
+          'question': '',
+          'createdAt': '2026-08-27T00:00:00.000Z',
+          'lines': validLines.sublist(0, 5),
+        }),
         throwsArgumentError,
       );
 
@@ -144,27 +142,26 @@ void main() {
       ];
       expect(
         () => HexagramCase.fromJson({
-              'id': 'c',
-              'question': '',
-              'createdAt': '2026-08-27T00:00:00.000Z',
-              'lines': dupLines,
-            }),
+          'id': 'c',
+          'question': '',
+          'createdAt': '2026-08-27T00:00:00.000Z',
+          'lines': dupLines,
+        }),
         throwsArgumentError,
       );
 
       // position 越界（7）。
       final outOfRange = [
-        for (var p = 1; p <= 5; p++)
-          {'position': p, 'movementType': 'shaoYin'},
+        for (var p = 1; p <= 5; p++) {'position': p, 'movementType': 'shaoYin'},
         {'position': 7, 'movementType': 'shaoYin'},
       ];
       expect(
         () => HexagramCase.fromJson({
-              'id': 'c',
-              'question': '',
-              'createdAt': '2026-08-27T00:00:00.000Z',
-              'lines': outOfRange,
-            }),
+          'id': 'c',
+          'question': '',
+          'createdAt': '2026-08-27T00:00:00.000Z',
+          'lines': outOfRange,
+        }),
         throwsArgumentError,
       );
     });

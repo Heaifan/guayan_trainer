@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:guayan_trainer/domain/line_endpoint.dart';
+import 'package:guayan_trainer/domain/relation_endpoint.dart';
 import 'package:guayan_trainer/domain/relation_key.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
 
@@ -13,8 +13,8 @@ void main() {
       final key = RelationKey.from(
         type: RelationType.huiTouSheng,
         ruleId: SystemRuleIds.huiTouSheng,
-        source: LineEndpoint(LineScope.changed, 3),
-        target: LineEndpoint(LineScope.original, 3),
+        source: YaoEndpoint(LineScope.changed, 3),
+        target: YaoEndpoint(LineScope.original, 3),
       );
       final restored = RelationKey.fromJson(key.toJson());
       expect(restored, key);
@@ -25,8 +25,8 @@ void main() {
       final key = RelationKey.from(
         type: RelationType.huiTouSheng,
         ruleId: SystemRuleIds.huiTouSheng,
-        source: LineEndpoint(LineScope.changed, 3),
-        target: LineEndpoint(LineScope.original, 3),
+        source: YaoEndpoint(LineScope.changed, 3),
+        target: YaoEndpoint(LineScope.original, 3),
       );
       expect(
         key.canonical,

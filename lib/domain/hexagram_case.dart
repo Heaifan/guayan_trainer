@@ -7,6 +7,7 @@
 /// category / favorite / outcome / rulePackSnapshot 等留待后续阶段。
 library;
 
+import 'calendar_snapshot.dart';
 import 'line_state.dart';
 import 'rule_execution_context.dart';
 
@@ -17,6 +18,7 @@ class HexagramCase {
     required this.lines,
     required this.createdAt,
     required this.ruleContext,
+    this.calendar,
   });
 
   /// 唯一构造入口：runtime 校验六爻不变量
@@ -28,6 +30,7 @@ class HexagramCase {
     required List<LineState> lines,
     required DateTime createdAt,
     RuleExecutionContext ruleContext = const RuleExecutionContext.empty(),
+    CalendarSnapshot? calendar,
   }) {
     _validateLines(lines);
     return HexagramCase._(
@@ -36,6 +39,7 @@ class HexagramCase {
       lines: lines,
       createdAt: createdAt,
       ruleContext: ruleContext,
+      calendar: calendar,
     );
   }
 
@@ -56,16 +60,21 @@ class HexagramCase {
   /// 重算旧卦例时据此复现历史 RelationKey（replay 契约）。
   final RuleExecutionContext ruleContext;
 
+  /// 起卦当时的历法快照（月建 / 日辰）。
+  ///
+  /// **R4 确定性契约**：关系计算的正式输入只有本对象，
+  /// 因此一切影响关系结果的事实都必须能从本对象自身复现。
+  /// 旧卦例缺此快照时保持 `null`：月建 / 日辰相关关系**不产出**
+  /// （由 `RelationCalculationDiagnostics` 明确报告缺失），
+  /// **禁止**自动补算或猜测。
+  final CalendarSnapshot? calendar;
+
   LineState lineAt(int position) =>
       lines.firstWhere((l) => l.position == position);
 
   static void _validateLines(List<LineState> lines) {
     if (lines.length != 6) {
-      throw ArgumentError.value(
-        lines.length,
-        'lines.length',
-        '六爻卦必须恰好 6 爻',
-      );
+      throw ArgumentError.value(lines.length, 'lines.length', '六爻卦必须恰好 6 爻');
     }
     final positions = lines.map((l) => l.position).toSet();
     if (positions.length != 6) {
@@ -79,25 +88,30 @@ class HexagramCase {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'question': question,
-        'createdAt': createdAt.toIso8601String(),
-        'lines': lines.map((l) => l.toJson()).toList(),
-        'ruleContext': ruleContext.toJson(),
-      };
+    'id': id,
+    'question': question,
+    'createdAt': createdAt.toIso8601String(),
+    'lines': lines.map((l) => l.toJson()).toList(),
+    'ruleContext': ruleContext.toJson(),
+    if (calendar != null) 'calendar': calendar!.toJson(),
+  };
 
   factory HexagramCase.fromJson(Map<String, Object?> json) => HexagramCase(
-        id: json['id'] as String,
-        question: json['question'] as String? ?? '',
-        createdAt: DateTime.parse(json['createdAt'] as String),
-        lines: (json['lines'] as List<Object?>)
-            .map((e) => LineState.fromJson(e as Map<String, Object?>))
-            .toList(),
-        ruleContext: json['ruleContext'] == null
-            ? const RuleExecutionContext.empty()
-            : RuleExecutionContext.fromJson(
-                json['ruleContext'] as Map<String, Object?>),
-      );
+    id: json['id'] as String,
+    question: json['question'] as String? ?? '',
+    createdAt: DateTime.parse(json['createdAt'] as String),
+    lines: (json['lines'] as List<Object?>)
+        .map((e) => LineState.fromJson(e as Map<String, Object?>))
+        .toList(),
+    ruleContext: json['ruleContext'] == null
+        ? const RuleExecutionContext.empty()
+        : RuleExecutionContext.fromJson(
+            json['ruleContext'] as Map<String, Object?>,
+          ),
+    calendar: json['calendar'] == null
+        ? null
+        : CalendarSnapshot.fromJson(json['calendar'] as Map<String, Object?>),
+  );
 
   @override
   String toString() => 'HexagramCase($id, ${lines.length} lines)';

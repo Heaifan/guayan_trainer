@@ -60,8 +60,7 @@ class PalaceEntry {
   int get shiPosition => rank.shiPosition;
 
   /// 应爻位置（1..6）：世应相隔三位。
-  int get yingPosition =>
-      shiPosition <= 3 ? shiPosition + 3 : shiPosition - 3;
+  int get yingPosition => shiPosition <= 3 ? shiPosition + 3 : shiPosition - 3;
 }
 
 /// 八宫顺序（京房）：乾 坎 艮 震 巽 离 坤 兑。

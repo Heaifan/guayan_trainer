@@ -7,6 +7,7 @@
 library;
 
 import '../../domain/line_state.dart';
+import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
 
 /// 神煞标签项（§8「名称：值」结构，如 卦身：申）。
@@ -208,11 +209,15 @@ class ReviewPageState {
   ReviewLineView lineAt(int position) => lines[position - 1];
 
   /// 某爻相关的全部关系实例（点爻弹层使用；数据来自 Domain，非字符串重算）。
+  ///
+  /// 月建 / 日辰端点不是爻，因此不会被「点某爻」命中。
   List<RelationInstance> relationsInvolving(int position) => [
         for (final r in allRelations)
-          if (r.source.position == position || r.target.position == position)
-            r,
+          if (_isLine(r.source, position) || _isLine(r.target, position)) r,
       ];
+
+  static bool _isLine(RelationEndpoint endpoint, int position) =>
+      endpoint is YaoEndpoint && endpoint.position == position;
 
   String? get originalHexagramLabel {
     if (originalHexagramName == null && originalPalaceInfo == null) return null;

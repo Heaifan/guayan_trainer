@@ -41,8 +41,7 @@ class RelationNoteStore {
   RelationNote? noteFor({
     required String caseId,
     required RelationKey relationKey,
-  }) =>
-      _byCase[caseId]?[relationKey];
+  }) => _byCase[caseId]?[relationKey];
 
   /// 某卦例的全部笔记，按创建时间升序。
   List<RelationNote> notesForCase(String caseId) {
@@ -56,18 +55,17 @@ class RelationNoteStore {
       _byCase.values.fold(0, (total, byKey) => total + byKey.length);
 
   Map<String, Object?> toJson() => {
-        'notes': _byCase.values
-            .expand((byKey) => byKey.values)
-            .map((n) => n.toJson())
-            .toList(),
-      };
+    'notes': _byCase.values
+        .expand((byKey) => byKey.values)
+        .map((n) => n.toJson())
+        .toList(),
+  };
 
   factory RelationNoteStore.fromJson(Map<String, Object?> json) {
     final store = RelationNoteStore();
     for (final e in json['notes'] as List<Object?>? ?? const []) {
       final note = RelationNote.fromJson(e as Map<String, Object?>);
-      store._byCase.putIfAbsent(note.caseId, () => {})[note.relationKey] =
-          note;
+      store._byCase.putIfAbsent(note.caseId, () => {})[note.relationKey] = note;
     }
     return store;
   }

@@ -5,7 +5,7 @@
 /// 不持有任何按次生成的临时实例 id —— 那类 id 不能承担业务身份语义。
 library;
 
-import 'line_endpoint.dart';
+import 'relation_endpoint.dart';
 import 'relation_key.dart';
 import 'relation_type.dart';
 
@@ -21,8 +21,8 @@ class RelationInstance {
     required RelationType type,
     required String ruleId,
     int ruleVersion = 1,
-    required LineEndpoint source,
-    required LineEndpoint target,
+    required RelationEndpoint source,
+    required RelationEndpoint target,
     String? subtype,
   }) {
     final key = RelationKey.from(
@@ -42,20 +42,22 @@ class RelationInstance {
   /// 关系类型（以 key 为唯一事实来源）。
   RelationType get type => key.type;
 
-  final LineEndpoint source;
-  final LineEndpoint target;
+  final RelationEndpoint source;
+  final RelationEndpoint target;
 
   Map<String, Object?> toJson() => {
-        'key': key.toJson(),
-        'source': source.toJson(),
-        'target': target.toJson(),
-      };
+    'key': key.toJson(),
+    'source': source.toJson(),
+    'target': target.toJson(),
+  };
 
   factory RelationInstance.fromJson(Map<String, Object?> json) {
-    final source =
-        LineEndpoint.fromJson(json['source'] as Map<String, Object?>);
-    final target =
-        LineEndpoint.fromJson(json['target'] as Map<String, Object?>);
+    final source = RelationEndpoint.fromJson(
+      json['source'] as Map<String, Object?>,
+    );
+    final target = RelationEndpoint.fromJson(
+      json['target'] as Map<String, Object?>,
+    );
     final key = RelationKey.fromJson(json['key'] as Map<String, Object?>);
     return RelationInstance._(key: key, source: source, target: target);
   }

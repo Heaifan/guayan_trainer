@@ -27,29 +27,29 @@ class RelationNote {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  RelationNote copyWith({String? content, DateTime? updatedAt}) =>
-      RelationNote(
-        caseId: caseId,
-        relationKey: relationKey,
-        content: content ?? this.content,
-        createdAt: createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+  RelationNote copyWith({String? content, DateTime? updatedAt}) => RelationNote(
+    caseId: caseId,
+    relationKey: relationKey,
+    content: content ?? this.content,
+    createdAt: createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
 
   Map<String, Object?> toJson() => {
-        'caseId': caseId,
-        'relationKey': relationKey.toJson(),
-        'content': content,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'caseId': caseId,
+    'relationKey': relationKey.toJson(),
+    'content': content,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 
   factory RelationNote.fromJson(Map<String, Object?> json) => RelationNote(
-        caseId: json['caseId'] as String,
-        relationKey:
-            RelationKey.fromJson(json['relationKey'] as Map<String, Object?>),
-        content: json['content'] as String,
-        createdAt: DateTime.parse(json['createdAt'] as String),
-        updatedAt: DateTime.parse(json['updatedAt'] as String),
-      );
+    caseId: json['caseId'] as String,
+    relationKey: RelationKey.fromJson(
+      json['relationKey'] as Map<String, Object?>,
+    ),
+    content: json['content'] as String,
+    createdAt: DateTime.parse(json['createdAt'] as String),
+    updatedAt: DateTime.parse(json['updatedAt'] as String),
+  );
 }

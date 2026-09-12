@@ -4,28 +4,27 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:guayan_trainer/domain/line_endpoint.dart';
+import 'package:guayan_trainer/domain/relation_endpoint.dart';
 import 'package:guayan_trainer/domain/relation_key.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
 
 void main() {
-  final source = LineEndpoint(LineScope.original, 3);
-  final target = LineEndpoint(LineScope.changed, 3);
+  final source = YaoEndpoint(LineScope.original, 3);
+  final target = YaoEndpoint(LineScope.changed, 3);
 
   RelationKey build({
     RelationType type = RelationType.huiTouSheng,
     String ruleId = 'sys.hui_tou_sheng',
     int ruleVersion = 1,
     String? subtype,
-  }) =>
-      RelationKey.from(
-        type: type,
-        ruleId: ruleId,
-        ruleVersion: ruleVersion,
-        source: source,
-        target: target,
-        subtype: subtype,
-      );
+  }) => RelationKey.from(
+    type: type,
+    ruleId: ruleId,
+    ruleVersion: ruleVersion,
+    source: source,
+    target: target,
+    subtype: subtype,
+  );
 
   group('T1 · canonical 无歧义性', () {
     test('ruleId 含 | 时与其他字段组合不碰撞', () {
@@ -86,14 +85,14 @@ void main() {
       final ab = RelationKey.from(
         type: RelationType.liuChong,
         ruleId: 'sys.liu_chong',
-        source: LineEndpoint(LineScope.original, 1),
-        target: LineEndpoint(LineScope.original, 6),
+        source: YaoEndpoint(LineScope.original, 1),
+        target: YaoEndpoint(LineScope.original, 6),
       );
       final ba = RelationKey.from(
         type: RelationType.liuChong,
         ruleId: 'sys.liu_chong',
-        source: LineEndpoint(LineScope.original, 6),
-        target: LineEndpoint(LineScope.original, 1),
+        source: YaoEndpoint(LineScope.original, 6),
+        target: YaoEndpoint(LineScope.original, 1),
       );
       expect(ab.canonical, ba.canonical);
     });

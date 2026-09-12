@@ -196,12 +196,14 @@ void main() {
       final state = ReviewCaseAdapter.adapt(realCase());
 
       expect(state.focusedLine, 3);
-      expect(state.focusedRelations, hasLength(1));
-      final rel = state.focusedRelations.first;
-      expect(rel.type, RelationType.dongBian);
+      // R4 之后「焦点关系」不再只有 1 条（五行事实关系也会触及三爻），
+      // 因此按契约断言：非空、且焦点关系里的动变仍是那条本体→变体。
+      expect(state.focusedRelations, isNotEmpty);
+      final rel = state.focusedRelations
+          .firstWhere((r) => r.type == RelationType.dongBian);
       expect(
         rel.key.canonical,
-        'dong_bian|sys.dong_bian|v1|-|original-3->changed-3',
+        'dong_bian|sys.dong_bian|v1|-|yao:original:3->yao:changed:3',
       );
       expect(state.rulePackId, 'sys.default');
       expect(state.ruleVersion, 3);
@@ -213,13 +215,28 @@ void main() {
         profile: ReviewDemoData.profile(),
       );
 
-      // 全部关系：动变×2（二/三爻）+ 六合×2（辰酉 1-5、午未 2-6）。
-      expect(state.allRelations, hasLength(4));
-      expect(state.relationsInvolving(3), hasLength(1)); // 动变三爻→变三爻
-      expect(state.relationsInvolving(6), hasLength(1)); // 六合二爻—六爻
+      // R4 是「事实账本」：五行相生/相克（C(6,2) 对）也进账，
+      // 总数不再等于 4，因此按**类型**断言，并额外要求新家族确实产出。
+      final all = state.allRelations;
+      expect(all.where((r) => r.type == RelationType.dongBian), hasLength(2));
+      expect(all.where((r) => r.type == RelationType.liuHe), hasLength(2));
+      expect(all.where((r) => r.type == RelationType.sheng), isNotEmpty);
+      expect(all.where((r) => r.type == RelationType.ke), isNotEmpty);
+      // 按爻过滤只命中「爻端点」的关系（月/日端点不会被点爻命中）。
+      expect(
+        state.relationsInvolving(3).any((r) => r.type == RelationType.dongBian),
+        isTrue,
+      );
+      expect(
+        state.relationsInvolving(6).any((r) => r.type == RelationType.liuHe),
+        isTrue,
+      );
       // 关系标签由实例生成。
       expect(
-        ReviewCaseAdapter.relationLabel(state.relationsInvolving(3).first),
+        ReviewCaseAdapter.relationLabel(
+          state.relationsInvolving(3)
+              .firstWhere((r) => r.type == RelationType.dongBian),
+        ),
         '动变：三爻→变三爻',
       );
     });

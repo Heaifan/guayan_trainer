@@ -20,16 +20,10 @@ class RuleVersionRef {
   /// 该卦例计算关系时使用的规则版本（>= 1）。
   final int version;
 
-  Map<String, Object> toJson() => {
-        'ruleId': ruleId,
-        'version': version,
-      };
+  Map<String, Object> toJson() => {'ruleId': ruleId, 'version': version};
 
   factory RuleVersionRef.fromJson(Map<String, Object?> json) =>
-      RuleVersionRef(
-        json['ruleId'] as String,
-        json['version'] as int,
-      );
+      RuleVersionRef(json['ruleId'] as String, json['version'] as int);
 
   @override
   bool operator ==(Object other) =>
@@ -73,8 +67,9 @@ class RuleExecutionContext {
   int versionForOrDefault(String ruleId, {int fallback = 1}) =>
       versionFor(ruleId) ?? fallback;
 
-  Map<String, Object?> toJson() =>
-      {'refs': refs.map((r) => r.toJson()).toList()};
+  Map<String, Object?> toJson() => {
+    'refs': refs.map((r) => r.toJson()).toList(),
+  };
 
   factory RuleExecutionContext.fromJson(Map<String, Object?> json) {
     final refs = (json['refs'] as List<Object?>? ?? const [])

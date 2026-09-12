@@ -45,8 +45,9 @@ void main() {
         ]),
       );
       final roundNew = calculateRelations(newCase);
-      final chongNew =
-          roundNew.firstWhere((r) => r.type == RelationType.liuChong);
+      final chongNew = roundNew.firstWhere(
+        (r) => r.type == RelationType.liuChong,
+      );
       expect(chongNew.key.canonical, contains('v2'));
       expect(chongNew.key, isNot(chong1.key), reason: 'v2 与 v1 的 key 必须不同');
 
@@ -58,8 +59,7 @@ void main() {
         reason: 'reload 后必须保留 v1 规则上下文',
       );
       final round2 = calculateRelations(reloaded);
-      final chong2 =
-          round2.firstWhere((r) => r.type == RelationType.liuChong);
+      final chong2 = round2.firstWhere((r) => r.type == RelationType.liuChong);
       expect(chong2.key, chong1.key, reason: 'replay 后 RelationKey 必须仍是 v1');
 
       // 旧笔记凭 v1 key 恢复。
@@ -72,8 +72,9 @@ void main() {
     test('无规则上下文的 Case 回退默认版本 v1（向后兼容）', () {
       final c = buildDemoCase();
       expect(c.ruleContext, const RuleExecutionContext.empty());
-      final chong =
-          calculateRelations(c).firstWhere((r) => r.type == RelationType.liuChong);
+      final chong = calculateRelations(
+        c,
+      ).firstWhere((r) => r.type == RelationType.liuChong);
       expect(chong.key.canonical, contains('|v1|'));
     });
 

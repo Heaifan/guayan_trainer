@@ -29,12 +29,14 @@ class LineState {
     required this.position,
     required this.movementType,
     this.branch,
+    this.changedBranch,
   });
 
   factory LineState({
     required int position,
     required MovementType movementType,
     String? branch,
+    String? changedBranch,
   }) {
     if (position < 1 || position > 6) {
       throw ArgumentError.value(position, 'position', '爻位必须在 1..6');
@@ -43,6 +45,7 @@ class LineState {
       position: position,
       movementType: movementType,
       branch: branch,
+      changedBranch: changedBranch,
     );
   }
 
@@ -55,18 +58,25 @@ class LineState {
   /// R3 排盘引擎落地后由纳甲计算产出，Domain 不关心其来源。
   final String? branch;
 
+  /// 变爻所值地支（本卦之爻变出后的纳甲地支）。
+  ///
+  /// 与 [branch] 同为**已记录状态**输入。静爻恒为 null；
+  /// 回头生 / 回头克（R4）必须有它才能判定，否则该关系无法计算。
+  final String? changedBranch;
+
   Map<String, Object?> toJson() => {
-        'position': position,
-        'movementType': movementType.name,
-        if (branch != null) 'branch': branch,
-      };
+    'position': position,
+    'movementType': movementType.name,
+    if (branch != null) 'branch': branch,
+    if (changedBranch != null) 'changedBranch': changedBranch,
+  };
 
   factory LineState.fromJson(Map<String, Object?> json) => LineState(
-        position: json['position'] as int,
-        movementType:
-            MovementType.values.byName(json['movementType'] as String),
-        branch: json['branch'] as String?,
-      );
+    position: json['position'] as int,
+    movementType: MovementType.values.byName(json['movementType'] as String),
+    branch: json['branch'] as String?,
+    changedBranch: json['changedBranch'] as String?,
+  );
 
   @override
   String toString() =>

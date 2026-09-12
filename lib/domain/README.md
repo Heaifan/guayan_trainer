@@ -1,4 +1,4 @@
-# domain/ — GUAYAN-2.0-DOMAIN（Stable Relation Identity · HARDENING 后）
+# domain/ — GUAYAN-2.0-DOMAIN（Stable Relation Identity · R4 基础关系引擎）
 
 > 阶段：GUAYAN-2.0-DOMAIN + GUAYAN-2.0-DOMAIN-HARDENING
 > 目标：**RelationInstance 可以重建；RelationNote 不能失忆；
@@ -20,7 +20,10 @@ storage-agnostic：只通过 JSON（`dart:convert`）证明
 | `relation_type.dart` | 关系类型枚举（机器名/方向类别/展示名）+ 系统规则 RuleId 常量 |
 | `relation_key.dart` | **Stable Relation Identity 核心**：关系稳定语义 key（单一构造入口） |
 | `relation_instance.dart` | 一条具体关系（重算可重建，身份一律以 key 为准） |
-| `relation_calculator.dart` | 最小确定性关系计算（动变/六冲/六合），输出按 key 稳定排序 |
+| `relation_calculator.dart` | R4 基础关系引擎编排：四类规则合并 + canonical 稳定排序 + 缺失输入诊断 |
+| `relation_endpoint.dart` | 关系端点领域身份（sealed：爻 / 月建 / 日辰），canonical 语义 id |
+| `relation_diagnostics.dart` | 关系计算诊断（missingInputs / warnings，缺失不得静默） |
+| `calendar_snapshot.dart` | 起卦当时的历法快照（月建支 + 日辰干支），历史可复现 |
 | `relation_note.dart` | 关系笔记（通过 caseId + RelationKey 重新绑定） |
 | `relation_note_store.dart` | 笔记绑定存储：纯内存 + JSON 导入导出 |
 | `rule_execution_context.dart` | **规则版本 replay 上下文**：记录计算关系时各规则使用的版本 |
@@ -98,11 +101,78 @@ HexagramCase:
 重算后: 新 RelationInstance → 计算同一 RelationKey → 笔记自动挂回
 ```
 
+## R4 · 基础关系引擎（已落地）
+
+### 端点身份契约
+
+```text
+RelationKey 的 source / target 必须表示真实语义对象。
+禁止为了复用六爻 position 模型，给非爻对象制造虚假的 position。
+```
+
+因此 R4 引入 `relation_endpoint.dart` 的 `sealed class RelationEndpoint`：
+
+| 端点 | semanticId | position |
+| --- | --- | --- |
+| `YaoEndpoint(scope, 1..6)` | `yao:original:3` / `yao:changed:6` | 有（真实爻位） |
+| `MonthEndpoint()` | `month` | **无** |
+| `DayEndpoint()` | `day` | **无** |
+
+后续可无破坏扩展：时、卦名、神煞、纳音、伏神、六神…
+`LineEndpoint`（`line_endpoint.dart`）**降级为绘线定位键**，只服务于
+可视化层（R5 adapter 把领域端点解析成控件位置），不再是关系身份真源。
+
+### 输入 = HexagramCase（确定性契约）
+
+```text
+相同 HexagramCase + 相同 ruleVersion  =>  相同 RelationInstance 集合
+```
+
+一切影响关系结果的事实都必须能从 `HexagramCase` 自身复现，**禁止第二隐式输入**：
+
+- `HexagramCase.calendar`（`CalendarSnapshot`：月建支 + 日辰干支）
+  是**起卦当时的历法快照**，不重新调用历法引擎 —— 历法数据包将来升级时，
+  历史卦例的月建 / 日辰不得漂移（否则复盘会看到「同一个卦几年后月建变了」）。
+- `LineState.changedBranch`：动爻的变爻地支（回头生/克必需）。
+- 缺失是**显式状态**：`calculateRelationResult()` 返回
+  `RelationCalculationDiagnostics.missingInputs`（如 `calendar.monthBranch`、
+  `line[3].changedBranch`），缺失时该类关系**不产出**，
+  **禁止**自动补算、猜测或用本爻地支冒充变爻地支。
+
+### 两层语义（事实账本 vs 作用力）
+
+```text
+ElementRelation / 五行事实关系  —— 全量、客观、无解释倾向（R4 = 本层）
+EffectRelation  / 作用关系      —— 哪些关系在当前卦里真正参与判断（后续规则层）
+```
+
+R4 对本卦六爻执行无序两两组合（C(6,2) = 15 对）：
+
+```text
+A 生 B → A -> B · sheng        A 克 B → A -> B · ke
+B 生 A → B -> A · sheng        B 克 A → B -> A · ke
+同五行 → 本层不产出
+```
+
+**本层不判断作用力**：静爻与静爻之间同样产出事实关系。
+UI 通过筛选器（生 / 克 / 动爻相关 / 月建 / 日辰 / 选中对象）控制可视关系，
+**不得**为了图面简洁反向裁剪 Domain 数据。
+
+### 模块划分
+
+| 文件 | 职责 |
+| --- | --- |
+| `relation_rules/changed_lines.dart` | 动变 · 回头生 · 回头克 |
+| `relation_rules/branch_pairs.dart` | 六冲 · 六合（只用 `DiZhi.chong/he`，禁止自带映射表） |
+| `relation_rules/wu_xing_pairs.dart` | 五行相生 · 相克（本卦六爻两两，事实账本） |
+| `relation_rules/month_day.dart` | 月建基础作用 · 日辰基础作用（只读日历快照） |
+| `relation_rules/rule_support.dart` | 规则共用：replay 版本取值 + 地支解析 + 端点构造 |
+
 ## 本轮明确不做（见 BACKLOG / GAP）
 
 - 完整六爻排盘引擎（纳甲/六亲/六神/世应/旬空…）—— R3；
-- 回头生/回头克等依赖纳甲的关系计算 —— R3 后接入，key 机制已就绪；
-- 完整关系引擎（月日/墓库/空破…）—— R4；
+- 墓库 / 空破 / 旺衰等高级关系 —— R8；
+- 作用力判定（EffectRelation：哪些关系真正参与断卦）—— 后续规则层；
 - 自定义规则 CRUD / 规则包 / 规则编辑器 —— R7；
 - 一条关系多条笔记（isPinned）—— R6 关系页阶段；
 - 持久化实现（SQLite/Drift）—— 待正式决定后落地，Domain 保持无关；

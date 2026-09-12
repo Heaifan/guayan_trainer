@@ -1,19 +1,14 @@
-/// 卦中某一端点（爻）的稳定语义身份。
+/// 卦中某一端点的**绘线定位键**。
 ///
-/// 端点身份只由「卦侧 + 爻位」决定，与运行时对象、计算顺序、UI 顺序、
-/// 数据库 row id 均无关。RelationKey 的端点坐标由此对象产生。
+/// ⚠️ 身份真源已上移：关系身份（RelationKey 的 source / target）自 R4 起由
+/// `relation_endpoint.dart` 的 [RelationEndpoint] 承担。本类型只服务于
+/// 可视化 / 绘线层（R5 adapter 把领域端点解析成控件位置），
+/// **不得**再被用来构造 RelationKey。
 library;
 
-/// 卦侧：本卦（original）与变卦（changed）。
-enum LineScope {
-  original('original'),
-  changed('changed');
+import 'line_scope.dart';
 
-  const LineScope(this.machineName);
-
-  /// 稳定机器名，参与 canonical 序列化，禁止翻译成中文标题。
-  final String machineName;
-}
+export 'line_scope.dart';
 
 /// 爻位端点：1 = 初爻 … 6 = 上爻。
 ///
@@ -35,15 +30,14 @@ class LineEndpoint {
   String get semanticId => '${scope.machineName}-$position';
 
   Map<String, Object> toJson() => {
-        'scope': scope.machineName,
-        'position': position,
-      };
+    'scope': scope.machineName,
+    'position': position,
+  };
 
-  factory LineEndpoint.fromJson(Map<String, Object?> json) =>
-      LineEndpoint(
-        LineScope.values.byName(json['scope'] as String),
-        json['position'] as int,
-      );
+  factory LineEndpoint.fromJson(Map<String, Object?> json) => LineEndpoint(
+    LineScope.values.byName(json['scope'] as String),
+    json['position'] as int,
+  );
 
   @override
   bool operator ==(Object other) =>
