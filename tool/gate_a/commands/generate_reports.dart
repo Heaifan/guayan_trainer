@@ -9,12 +9,12 @@ import 'dart:io';
 
 import '../cases/derive.dart';
 import '../gate_a_context.dart';
-import '../reports/boundary_report.dart';
-import '../reports/case_report.dart';
+import '../reports/cases/case_report.dart';
+import '../reports/cases/master_table.dart';
 import '../reports/day_report.dart';
-import '../reports/master_table.dart';
-import '../reports/readme_header.dart';
-import '../reports/readme_instructions.dart';
+import '../reports/readme/readme_header.dart';
+import '../reports/readme/readme_instructions.dart';
+import '../reports/solar_term/boundary_section.dart';
 
 /// 输出目录（仓库根目录下的 `gate-a/`）。
 const String outDir = 'gate-a';
@@ -26,27 +26,38 @@ int generateReports(GateAContext ctx, List<CaseFacts> facts) {
   Directory(outDir).createSync(recursive: true);
 
   write(outDir, 'README.md', renderReadmeHeader(ctx, facts));
-  write(outDir, '01-normal-cases.md', _doc(
-    'GA-1 普通真实卦例（${normal.length} 例）',
-    renderCaseFacts(normal),
-  ));
-  write(outDir, '02-classic-cases.md', _doc(
-    'GA-2 经典卦体专项（${classic.length} 例）',
-    renderCaseFacts(classic),
-  ));
-  write(outDir, '03-solar-term-boundaries.md', _doc(
-    'GA-3 节气边界专项（2026 年十二「节」官方测试点 + 立春秒级三点）',
-    renderSolarTermSection(ctx),
-  ));
-  write(outDir, '04-day-boundary.md', _doc(
-    'GA-4 日界专项（${dayBoundaryCases.length} 个日期）',
-    dayBoundaryCases.map((c) => renderDayBoundaryCase(ctx, c)).join(),
-  ));
-  write(outDir, '05-master-table.md', _doc(
-    'Gate A 总表（Truth Result 与 Compatibility Result 分列）',
-    renderMasterTable(facts),
-    withInstructions: false,
-  ));
+  write(
+    outDir,
+    '01-normal-cases.md',
+    _doc('GA-1 普通真实卦例（${normal.length} 例）', renderCaseFacts(normal)),
+  );
+  write(
+    outDir,
+    '02-classic-cases.md',
+    _doc('GA-2 经典卦体专项（${classic.length} 例）', renderCaseFacts(classic)),
+  );
+  write(
+    outDir,
+    '03-solar-term-boundaries.md',
+    _doc('GA-3 节气边界专项（2026 年十二「节」官方测试点 + 立春秒级三点）', renderSolarTermSection(ctx)),
+  );
+  write(
+    outDir,
+    '04-day-boundary.md',
+    _doc(
+      'GA-4 日界专项（${dayBoundaryCases.length} 个日期）',
+      dayBoundaryCases.map((c) => renderDayBoundaryCase(ctx, c)).join(),
+    ),
+  );
+  write(
+    outDir,
+    '05-master-table.md',
+    _doc(
+      'Gate A 总表（Truth Result 与 Compatibility Result 分列）',
+      renderMasterTable(facts),
+      withInstructions: false,
+    ),
+  );
   return 6;
 }
 

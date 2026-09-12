@@ -1,17 +1,21 @@
 /// Gate A 总表渲染：Truth Result 与 Compatibility Result 分列。
 library;
 
-import "../cases/derive.dart";
-import "status/gate_status.dart";
+import "../../cases/derive.dart";
+import "../status/gate_status.dart";
 
 String renderMasterTable(List<CaseFacts> facts) {
   final b = StringBuffer();
-  b.writeln('| ID | 类型 | 起卦时间（+08:00） | 六爻输入 | 月建 | 日辰 | 旬空 '
-      '| 本卦 | 变卦 | 卦宫 | 世应 | 六神(初→上) | 纳甲(初→上) '
-      '| 五行 | 六亲(初→上) | 变爻纳甲 | 变卦六亲 | 卦体 '
-      '| Truth Result | Compatibility Result |');
-  b.writeln('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- '
-      '| --- | --- | --- | --- | --- | --- | --- | --- | --- |');
+  b.writeln(
+    '| ID | 类型 | 起卦时间（+08:00） | 六爻输入 | 月建 | 日辰 | 旬空 '
+    '| 本卦 | 变卦 | 卦宫 | 世应 | 六神(初→上) | 纳甲(初→上) '
+    '| 五行 | 六亲(初→上) | 变爻纳甲 | 变卦六亲 | 卦体 '
+    '| Truth Result | Compatibility Result |',
+  );
+  b.writeln(
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- '
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+  );
   for (final f in facts) {
     final l = f.chart.lines;
     b.writeln(
@@ -40,10 +44,14 @@ String renderMasterTable(List<CaseFacts> facts) {
   b.writeln('> `变卦六亲` 列**仍以本卦之宫为「我」**，不按变卦之宫计算。');
   b.writeln('>');
   b.writeln('> **两个 Result 是两个 Gate，不得混用**：');
-  b.writeln('> - `Truth Result` = Gate A-Truth：`PASS` '
-      '表示该例结构自检与案例锁定通过（卦名/纳甲组装顺序无异常）；');
-  b.writeln('> - `Compatibility Result` = Gate A-Compat：未做专业软件对照，'
-      '故一律 `$compatStatus`，**不是** FAIL。');
+  b.writeln(
+    '> - `Truth Result` = Gate A-Truth：`PASS` '
+    '表示该例结构自检与案例锁定通过（卦名/纳甲组装顺序无异常）；',
+  );
+  b.writeln(
+    '> - `Compatibility Result` = Gate A-Compat：未做专业软件对照，'
+    '故一律 `$compatStatus`，**不是** FAIL。',
+  );
   b.writeln();
   return b.toString();
 }

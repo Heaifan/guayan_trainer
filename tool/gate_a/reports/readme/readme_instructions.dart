@@ -4,7 +4,8 @@
 library;
 
 /// 文档顶部的使用说明文本。
-String renderInstructions() => '''> **使用方式（Gate A-Compat 专用，可选）**：把表中「专业软件」列留空的位置，
+String renderInstructions() =>
+    '''> **使用方式（Gate A-Compat 专用，可选）**：把表中「专业软件」列留空的位置，
 > 用专业排盘软件按给出的「起卦时间 + 六爻输入」排出结果后逐项填入（或截图回传）。
 > 未填写时该表 Result 记为 `NOT EXECUTED`，**不是** FAIL。
 >

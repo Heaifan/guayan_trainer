@@ -2,10 +2,127 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-12 01:30
+> **最后编辑：** 2026-09-12 23:16
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+
+---
+
+## POST-R3-GOV-01 — 治理收口（2026-09-12，未发布）
+
+> 不发版、不改产品代码：`lib/` `test/` `assets/` diff = 0。
+> 只做两件事：把 `tool/gate_a/` 收到 **目录直接文件 ≤ 5、Dart 文件 ≤ 100 行**，
+> 以及**先修检查器**——本轮发现了 5 处「检查器给假结论」的隐患。
+
+### S0 事实核验：检查器本身不可信
+
+用第二种只读方式（PowerShell 逐级枚举）独立复核后确认：
+
+| # | 缺陷 | 事实 | 后果 |
+| --- | --- | --- | --- |
+| 1 | `gov_selfcheck` 规则 2 数错 | 用 `listSync(recursive: true)` 数**后代文件**；根目录只数文件、漏掉全部 7 个子目录 | `cases/` 被报成「6 个文件」、`reports/` 数字写成 9；而状态文件与提交 1541660 都写着「规则 2 PASS」——**假 PASS** |
+| 2 | `gate_a_runner.ps1` 8 个模式里 4 个路径失效 | 目录搬迁（1541660）后未同步：`closeout`/`residual`/`enumerate`/`solve` 全指向不存在的文件 | `closeout` 根本跑不起来，「closeout PASS」这类证据不可能诚实产出 |
+| 3 | `check_imports.dart` 盲点 | 只检查以 `.` 开头的 import，`import 'status/x.dart'`（漏写 `../`）被**静默跳过** | 检查器报 OK，生成器随后编译失败 |
+| 4 | 生成器失败时 SHA 比对无意义 | 生成器没成功 → 旧文档仍在盘上 → SHA 显示「OK」 | 等价性证据**空洞**却看似通过 |
+| 5 | 黄金快照对行尾敏感 | `core.autocrlf=true` 且无 `.gitattributes`：checkout 把 LF 还原成 CRLF | 内容一字未改，规则 3 却必然**假 FAIL** |
+
+### 修复
+
+| 文件 | 职责 |
+| --- | --- |
+| `tool/gate_a/tools/gov/dir_scan.dart` | 规则 2：**直接文件**计数（非递归）+ 证据表 |
+| `tool/gate_a/tools/gov/line_scan.dart` | 规则 1：Dart 文件行数上限 |
+| `tool/gate_a/tools/gov/doc_scan.dart` | 规则 3：生成文档 SHA256 vs 黄金快照（缺快照不得当 PASS） |
+| `tool/gate_a/tools/gov/rules_regression.dart` | **规则 0**：临时夹具自证「数的是直接文件」，先自证再查仓库 |
+| `tool/gate_a/tools/gov/gov_rules.dart` | 规则编排 + 逐目录证据打印 |
+| `tool/gate_a/tools/checks/gov_selfcheck.dart` | 改为薄入口（规则实现全部移入 `tools/gov/`） |
+| `tool/gate_a/gate_a_runner.ps1` | 模式路径集中成 `$Scripts` 表、缺文件即失败；新增 `verify` 链（imports → generate → gov → selftest → cross；生成器失败即停止并声明 SHA 无意义） |
+| `tool/gate_a/tools/checks/check_imports.dart` | 只跳过 `package:` / `dart:`；注释内示例不再误报 |
+| `.gitattributes`（新增） | `gate-a/*.md text eol=lf` —— 生成文档锁 LF，黄金快照在任何机器上都成立 |
+
+### tool/gate_a/ 目录树（治理后，63 个 Dart 文件，全部 ≤ 100 行）
+
+```text
+gate_a_context.dart 37        gate_a_main.dart 44        gate_a_runner.ps1
+astro/      cross_source 61 · cross_source_rows 72 · diag_oracle 83
+            sun_longitude 69 · sun_terms 89
+cases/      derive 72
+  data/     boundary_cases 94 · classic_cases 60 · normal_cases_a 79 · normal_cases_b 70
+  logic/    case_facts 81 · case_model 100
+commands/   digest 74 · generate_reports 73
+core/       audit/      hexagram_audit 54 · najia_audit 26 · palace_audit 47
+            formatting/ format 43
+            pillars/    case_pillars 36 · pillar_tables 38 · pillars 64
+            time/       pack_loader 38 · time_input 60
+data/       hko_source 70 · naoj_source 98 · fixtures/hko · fixtures/naoj
+reports/    day_report 68
+  cases/    case_columns_table 49 · case_line_table 51 · case_report 52 · master_table 66
+  readme/   readme_checklist 78 · readme_header 47 · readme_instructions 17
+            readme_sources 46
+  solar_term/ boundary_section 64 · term_fields 48 · term_reference 87
+              term_render 74 · term_resolve 46
+  status/   gate_criteria 86 · gate_status 71 · gate_truth_items 84
+tools/      selftest 36（入口，路径不变）
+  checks/   check_imports 63 · enumerate_hexagrams 90 · gov_selfcheck 31
+            sha256 87 · solve_cases 52
+  diag/     oracle_residual 89 · precision_closeout 80 · residual_anchors 32
+  gov/      dir_scan 81 · doc_scan 33 · gov_rules 98 · line_scan 31
+            rules_regression 100
+  selftest/ checks_astro 93 · checks_liuchong 89 · checks_pillars 70
+            checks_tables 61 · suite 62
+```
+
+### 每个超限文件的去向
+
+| 原文件（行数） | 拆分为 |
+| --- | --- |
+| `cases/derive.dart` 139 | `logic/case_facts.dart`（模型）+ `derive.dart`（推导 / 案例集合） |
+| `core/audit/hexagram_audit.dart` 110 | `najia_audit` + `palace_audit` + `hexagram_audit`（判定） |
+| `core/pillars/pillars.dart` 120 | `pillar_tables` + `pillars`（纯函数）+ `case_pillars`（扩展） |
+| `reports/solar_term_report.dart` 221 | `solar_term/`：`term_reference` + `term_resolve` + `term_fields` + `term_render` |
+| `reports/boundary_report.dart` 125 | `solar_term/boundary_section.dart` + `status/gate_criteria.dart` |
+| `reports/readme_header.dart` 137 | `readme/readme_header` + `readme_sources` + `readme_checklist` |
+| `reports/case_report.dart` 110 | `cases/case_report`（编排）+ `case_columns_table` + `case_line_table` |
+| `tools/diag/oracle_residual.dart` 113 | `diag/residual_anchors.dart` + `oracle_residual.dart` |
+| `tools/selftest.dart` 344 | `tools/selftest/`：`suite` + `checks_astro` + `checks_pillars` + `checks_liuchong` + `checks_tables`（入口路径不变） |
+
+### 删除
+
+```text
+tool/gate_a/reports/boundary_report.dart
+tool/gate_a/reports/case_report.dart
+tool/gate_a/reports/master_table.dart        → reports/cases/master_table.dart
+tool/gate_a/reports/readme_header.dart
+tool/gate_a/reports/readme_instructions.dart → reports/readme/readme_instructions.dart
+tool/gate_a/reports/solar_term_report.dart
+```
+
+### 验证（全部 PASS）
+
+```text
+dart files > 100 lines        = 0        （63 个 Dart 文件）
+directories > 5 direct files  = 0        （25 个目录，MAX = 5）
+gov_selfcheck                 PASS       （规则 0 自证 + 规则 1/2/3）
+independent filesystem audit  PASS       （第二维度：PowerShell 逐级枚举）
+Gate docs SHA256              6/6 IDENTICAL（黄金快照）
+gate_a_runner verify          PASS       （imports + generate + gov + selftest + cross）
+gate_a_runner closeout        PASS
+gate_a_runner cross           24 / 24
+flutter test                  259 / 259 PASS
+flutter analyze lib/domain test/domain   No issues found
+dart analyze tool/gate_a      7 warnings（全部为改动前既存：diag_oracle / normal_cases_a）
+lib/ test/ assets/ diff       0
+```
+
+> `dart analyze` 与 `flutter test` 都要 spawn 带 stdio 的子进程
+> （analysis_server / frontend_server）。在受限文件沙箱下这类 spawn 被直接拒绝
+> （`CreateFile failed 5`），`flutter test` 更会**零输出地静默不动** ——
+> 再遇到时先确认沙箱模式，不要误判成「编译慢」。
+
+> 注：`tool/gate_a` 根目录是「3 个文件 + 7 个子目录」。规则 2 的冻结口径为
+> **直接文件 ≤ 5**；子目录**不**计入父目录预算 —— 否则 7 个语义模块目录
+> 永远无法满足，且与「禁止为凑数硬合并职责」自相矛盾。
 
 ---
 

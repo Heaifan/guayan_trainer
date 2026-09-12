@@ -3,40 +3,18 @@
 /// 这是 GATE-A-PREP-FIX2 §7 要求的报告口径：**报告时间残差，而不是角度残差**。
 ///
 /// 官方真值只用于「测量残差」，**不**用于反推常数（禁止调常数贴答案）。
+/// 搜索锚点与 HKT 文本在 `residual_anchors.dart`。
 library;
 
 import 'dart:io';
 
 import 'package:guayan_trainer/domain/calendar/solar_term/solar_term_id.dart';
 
-import '../../gate_a_context.dart';
 import '../../core/formatting/format.dart';
 import '../../data/naoj_source.dart';
 import '../../astro/sun_longitude.dart';
-
-/// 「节」的搜索锚点（UTC），保证起点尚未越过目标黄经。
-const Map<SolarTermId, (int, int)> _anchor = <SolarTermId, (int, int)>{
-  SolarTermId.xiaoHan: (1, 1),
-  SolarTermId.liChun: (2, 1),
-  SolarTermId.jingZhe: (3, 1),
-  SolarTermId.qingMing: (3, 30),
-  SolarTermId.liXia: (4, 30),
-  SolarTermId.mangZhong: (5, 30),
-  SolarTermId.xiaoShu: (6, 30),
-  SolarTermId.liQiu: (8, 1),
-  SolarTermId.baiLu: (8, 31),
-  SolarTermId.hanLu: (9, 30),
-  SolarTermId.liDong: (11, 1),
-  SolarTermId.daXue: (12, 1),
-};
-
-String _two(int v) => v.toString().padLeft(2, '0');
-
-String _hktText(DateTime utc) {
-  final t = utc.add(const Duration(hours: 8));
-  return '${t.year}-${_two(t.month)}-${_two(t.day)} '
-      '${_two(t.hour)}:${_two(t.minute)}:${_two(t.second)}';
-}
+import '../../gate_a_context.dart';
+import 'residual_anchors.dart';
 
 Future<void> main(List<String> args) async {
   final ctx = await loadGateAContext();
@@ -53,7 +31,7 @@ Future<void> main(List<String> args) async {
   var worst = '';
   for (final id in SolarTermId.monthStartTerms) {
     final official = terms.firstWhere((t) => t.id == id).instantUtc;
-    final anchor = _anchor[id]!;
+    final anchor = residualAnchor[id]!;
     final predicted = solveSolarTermUtc(
       id.longitude.toDouble(),
       DateTime.utc(year, anchor.$1, anchor.$2),
@@ -65,8 +43,8 @@ Future<void> main(List<String> args) async {
       worst = id.label;
     }
     stdout.writeln(
-      '| ${id.label} | ${_hktText(official).substring(0, 16)} '
-      '| ${_hktText(predicted)} | ${residual >= 0 ? '+' : ''}${residual}s |',
+      '| ${id.label} | ${hktText(official).substring(0, 16)} '
+      '| ${hktText(predicted)} | ${residual >= 0 ? '+' : ''}${residual}s |',
     );
   }
   stdout.writeln('');
@@ -87,7 +65,7 @@ Future<void> main(List<String> args) async {
   stdout.writeln('=== 秒级哨兵 ===');
   stdout.writeln('来源：中国科学院紫金山天文台科普部公开值');
   stdout.writeln('公布值：$sentinelHkt (+08:00)');
-  stdout.writeln('天算预测：${_hktText(predictedLiChun)} (+08:00)');
+  stdout.writeln('天算预测：${hktText(predictedLiChun)} (+08:00)');
   stdout.writeln(
     '时间残差：'
     '${predictedLiChun.difference(DateTime.utc(2026, 2, 3, 20, 2, 8)).inSeconds}s',
@@ -98,9 +76,7 @@ Future<void> main(List<String> args) async {
   final naoj = loadNaojFixture();
   var agree = 0;
   for (final id in SolarTermId.values) {
-    final official = hktOf(
-      terms.firstWhere((t) => t.id == id).instantUtc,
-    );
+    final official = hktOf(terms.firstWhere((t) => t.id == id).instantUtc);
     final n = naoj.firstWhere((t) => t.longitude == id.longitude).hktJstShifted;
     if (official.hour == n.hour &&
         official.minute == n.minute &&

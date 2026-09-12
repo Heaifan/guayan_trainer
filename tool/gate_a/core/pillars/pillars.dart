@@ -1,52 +1,22 @@
-/// 四柱（年/月/日/时）计算 —— **仅供 Gate A 人工对照旁证使用**。
-///
-/// 刻意放在 `tool/` 而非 `lib/`：R3 冻结范围只包含月建、日辰、旬空，
-/// 四柱（年柱/月柱/时柱）尚未进入产品域。Gate A 需要它只为
-/// 「专业软件显示的年月时柱是否与卦眼同一时刻」提供旁证，
-/// 因此这里是最小、独立、可丢弃的重算，不冒充产品能力。
+/// 四柱纯函数（自 `pillars.dart` 拆出）：年/月/日/时干支的推导。
 ///
 /// 依据：
 /// - 年柱以**立春**换年（非正月初一），与月建同用十二「节」；
 /// - 月干 = 五虎遁（甲己之年丙作首）自寅月起；
 /// - 时干 = 五鼠遁（甲己还加甲）自子时起，23:00 起为子时。
+///
+/// 表在 `pillar_tables.dart`，`CaseFacts` 上的派生取值在 `case_pillars.dart`。
 library;
 
 import 'package:guayan_trainer/domain/di_zhi.dart';
 import 'package:guayan_trainer/domain/tian_gan.dart';
 
-import '../../cases/derive.dart';
-import '../../gate_a_context.dart';
+import 'pillar_tables.dart';
+
+export 'pillar_tables.dart';
 
 /// 数学取模（显式封装，便于自检）。
 int mod(int a, int b) => ((a % b) + b) % b;
-
-/// 五虎遁：年干 → 该年**寅月**的天干。索引与 [TianGan.index] 对齐。
-const List<TianGan> yinMonthGanByYearGan = <TianGan>[
-  TianGan.bing, // 甲
-  TianGan.wu, // 乙
-  TianGan.geng, // 丙
-  TianGan.ren, // 丁
-  TianGan.jia, // 戊
-  TianGan.bing, // 己
-  TianGan.wu, // 庚
-  TianGan.geng, // 辛
-  TianGan.ren, // 壬
-  TianGan.jia, // 癸
-];
-
-/// 五鼠遁：日干 → 该日子时的天干。
-const List<TianGan> ziHourGanByDayGan = <TianGan>[
-  TianGan.jia, // 甲
-  TianGan.bing, // 乙
-  TianGan.wu, // 丙
-  TianGan.geng, // 丁
-  TianGan.ren, // 戊
-  TianGan.jia, // 己
-  TianGan.bing, // 庚
-  TianGan.wu, // 辛
-  TianGan.geng, // 壬
-  TianGan.ren, // 癸
-];
 
 /// 干支文本。
 String ganZhiText(TianGan gan, DiZhi zhi) => '${gan.label}${zhi.label}';
@@ -72,10 +42,8 @@ String yearPillar(int gregorianYear, bool beforeLiChun) {
 String monthPillar(TianGan yGan, DiZhi monthBranch) {
   // 寅月为一年第 1 月；地支序上寅 = 2，故 offset = (zhiIndex - 2) mod 12。
   final offset = mod(monthBranch.index - DiZhi.yin.index, 12);
-  final gan = TianGan.values[mod(
-    yinMonthGanByYearGan[yGan.index].index + offset,
-    10,
-  )];
+  final gan =
+      TianGan.values[mod(yinMonthGanByYearGan[yGan.index].index + offset, 10)];
   return ganZhiText(gan, monthBranch);
 }
 
@@ -87,34 +55,10 @@ String monthPillar(TianGan yGan, DiZhi monthBranch) {
 String hourPillar(TianGan dayGan, int hour) {
   final zhiIndex = mod((hour + 1) ~/ 2, 12);
   final zhi = DiZhi.values[zhiIndex];
-  final gan = TianGan.values[mod(
-    ziHourGanByDayGan[dayGan.index].index + zhiIndex,
-    10,
-  )];
+  final gan =
+      TianGan.values[mod(ziHourGanByDayGan[dayGan.index].index + zhiIndex, 10)];
   return ganZhiText(gan, zhi);
 }
 
 /// 次日的日干（`(cycleIndex + 1) % 10`），供晚子时口径对照。
-TianGan nextDayGan(TianGan dayGan) =>
-    TianGan.values[mod(dayGan.index + 1, 10)];
-/// 四柱旁证扩展：把 `CaseFacts` 与 `pillars.dart` 的纯函数连接起来。
-extension CasePillars on CaseFacts {
-  /// 年柱文本。
-  String get yearPillarText => yearPillar(local.year, beforeLiChun);
-
-  /// 月柱文本（五虎遁 + 月建）。
-  String get monthPillarText => monthPillar(yearGanOf(), calendar.monthBranch);
-
-  /// 时柱文本（按当日日干起例；23 时后即「晚子时」口径）。
-  String get hourPillarText => hourPillar(calendar.day.gan, local.hour);
-
-  /// 是否落在 23:00—23:59（时干口径存在流派差异的窗口）。
-  bool get isLateZiHour => local.hour == 23;
-
-  /// 时柱的另一种口径（按次日日干起例；仅供 23 时后对照）。
-  String get hourPillarNextDayText =>
-      hourPillar(nextDayGan(calendar.day.gan), local.hour);
-
-  /// 年干（立春换年后的年干）。
-  TianGan yearGanOf() => yearGan(local.year, beforeLiChun);
-}
+TianGan nextDayGan(TianGan dayGan) => TianGan.values[mod(dayGan.index + 1, 10)];

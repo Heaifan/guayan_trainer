@@ -1,0 +1,13 @@
+# Gate A 生成文档的「行为等价」是**按字节**比 SHA256 的
+# （tool/gate_a/tools/checks/gov_selfcheck.dart 规则 3，
+#   黄金快照 memory/gate-a-golden-sha256.txt）。
+#
+# 本机 core.autocrlf = true 且此前没有 .gitattributes：
+# 生成器写出的 gate-a/*.md 是 LF，而 checkout 会按 autocrlf 还原成 CRLF，
+# 于是**内容一字未改**、黄金快照却必然失配 —— 门禁会发假 FAIL。
+# （POST-R3-GOV-01 S7 实测：checkout 出来的 README.md
+#   SHA 048579504D3AAB2D8D6F02B4493B8A4E7C504EECC9B73CE6460AFEABD526483A
+#   ≠ 黄金 062AD56A6C6C1A4E2DF86BB6DD221D80BCD30A814F21BE516BC3BFF1993A1E95。）
+#
+# 因此把生成文档锁定为 LF：checkout 不改写行尾，快照在任何机器上都成立。
+gate-a/*.md text eol=lf
