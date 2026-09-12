@@ -82,4 +82,3 @@ const List<TruthItem> truthItems = <TruthItem>[
     evidence: '零运行时网络；未导入年份明确拒绝（offline_gate_test）',
   ),
 ];
-
