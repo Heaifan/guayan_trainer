@@ -1,19 +1,16 @@
-import 'dart:convert';
 import 'dart:io';
 
-import '../../../lib/domain/calendar_snapshot.dart';
-import '../../../lib/domain/di_zhi.dart';
-import '../../../lib/domain/hexagram_case.dart';
-import '../../../lib/domain/line_state.dart';
-import '../../../lib/domain/relation_calculator.dart';
-import '../../../lib/domain/relation_endpoint.dart';
-import '../../../lib/domain/relation_instance.dart';
-import '../../../lib/domain/relation_key.dart';
-import '../../../lib/domain/relation_type.dart';
-import '../../../lib/domain/wu_xing.dart';
+import 'package:guayan_trainer/domain/calendar_snapshot.dart';
+import 'package:guayan_trainer/domain/di_zhi.dart';
+import 'package:guayan_trainer/domain/hexagram_case.dart';
+import 'package:guayan_trainer/domain/line_state.dart';
+import 'package:guayan_trainer/domain/relation_calculator.dart';
+import 'package:guayan_trainer/domain/relation_endpoint.dart';
+import 'package:guayan_trainer/domain/relation_key.dart';
+import 'package:guayan_trainer/domain/relation_type.dart';
 
 void main() {
-  print('Starting Gate B runner...');
+  // ignore_for_file: avoid_print
   
   final gb01 = buildGb01();
   final gb02 = buildGb02();

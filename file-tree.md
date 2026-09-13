@@ -2,7 +2,7 @@
 
 > **当前版本：** v0.1.10
 > **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-13 00:03
+> **最后编辑：** 2026-09-13 21:44
 
 > 本文件用于记录项目目录结构、模块职责与版本演进。  
 > 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
@@ -1257,6 +1257,17 @@ lib/
 | `domain/calendar/calendar_engine_test.dart` | R3-B 引擎综合 Golden + 缺年份拒绝 |
 | `domain/calendar/offline_gate_test.dart` | R3-B 离线门禁（无网络 / 无 Flutter / 无 DateTime.now） |
 | `domain/calendar/calendar_pack_fixtures.dart` | R3-B 测试夹具（构造数据包 + 读取种子包） |
+| `domain/gate_b/gate_b_runner.dart` | R4-GATE-B 验证测试 / Markdown 报表生成入口 |
+
+### 5.16 gate-b/
+
+| 文件 | 职责 |
+| --- | --- |
+| `README.md` | Gate B 验证说明 |
+| `01-gb-01.md` | Gate B 单动爻测试报告 |
+| `02-gb-02.md` | Gate B 多动爻测试报告 |
+| `03-gb-03.md` | Gate B 静爻事实测试报告 |
+| `04-master-table.md` | 九类关系核对总表 |
 
 ---
 
