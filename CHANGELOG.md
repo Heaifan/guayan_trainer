@@ -8,6 +8,19 @@
 
 ---
 
+## 2026-09-14 · R5-A-SUP1-FIX1 Canonical Condition Vocabulary Update
+
+### 新增/修改
+* **Canonical Condition Registry**: Registered existing operators (relative, spirit, generate, empty) to ensure backwards compatibility with schemaVersion=1.
+* **New Canonical Operators**: Added nayin_is, xun_kong, yue_po, ri_po, in_tomb, ru_mu, chong_mu, chu_mu, has_tag.
+* **Operand Signatures Validation**: Added explicit OperandKind types (bindingRef, literal, nayinIdLiteral, tagCategoryLiteral, shenShaIdLiteral) and enforced positions strictly.
+* **NaYin 60/60 Mapping**: Exact mapping of 60 JiaZi indices to Canonical NaYin vocabulary (30 fixed closed vocabulary items).
+* **Canonical Name**: Set 佛灯火 as Canonical Display Name while maintaining nayin.fu_deng_huo stable ID.
+* **Open ShenSha Policy**: Allowed open string vocabulary for ShenSha tags.
+* **5+100 Refactor**: Split RuleSchemaValidator into binding, expression, condition_semantic, and action validators. Split tests accordingly.
+
+
+
 
 ## 2026-09-14 · R5-A-GATE-FIX2 / Ready for User Acceptance
 * 清理了由于自动化重构导致的范围外代码污染，将 R5-A 严格限制在 rules 相关目录内。
