@@ -48,9 +48,13 @@ class RuleSchemaValidator {
           node.containsKey('evaluator') || node.containsKey('eval')) {
         throw FormatException('规则不允许包含可执行代码字段');
       }
-      for (final value in node.values) _validateNoExecutable(value);
+      for (final value in node.values) {
+        _validateNoExecutable(value);
+      }
     } else if (node is List) {
-      for (final value in node) _validateNoExecutable(value);
+      for (final value in node) {
+        _validateNoExecutable(value);
+      }
     }
   }
 }

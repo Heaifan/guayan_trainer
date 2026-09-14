@@ -1,9 +1,9 @@
 library;
 
-import '../../../../domain/rules/vocabulary/condition_registry.dart';
-import '../../../../domain/rules/vocabulary/condition_definition.dart';
-import '../../../../domain/rules/vocabulary/nayin_id.dart';
-import '../../../../domain/rules/vocabulary/tag_category_ids.dart';
+import '../../../domain/rules/vocabulary/condition_registry.dart';
+import '../../../domain/rules/vocabulary/condition_definition.dart';
+import '../../../domain/rules/vocabulary/nayin_id.dart';
+import '../../../domain/rules/vocabulary/tag_category_ids.dart';
 
 class ConditionSemanticValidator {
   static void validatePredicate(Map<dynamic, dynamic> expr, Set<String> bindingNames) {
@@ -15,7 +15,7 @@ class ConditionSemanticValidator {
     final operands = expr['operands'] as List?;
     if (operands == null) throw FormatException('operands missing');
     if (operands.length != def.operandCount) {
-      throw FormatException('operand count mismatch: expected \, got ');
+      throw FormatException('operand count mismatch: expected ${def.operandCount}, got ${operands.length}');
     }
 
     for (int i = 0; i < operands.length; i++) {

@@ -8,8 +8,10 @@ class ExpressionSchemaValidator {
     final type = expr['type'];
     if (type == 'ALL' || type == 'ANY') {
       final nodes = expr['nodes'] as List?;
-      if (nodes == null || nodes.isEmpty) throw FormatException('\ empty');
-      for (final n in nodes) validate(n, bindingNames);
+      if (nodes == null || nodes.isEmpty) throw FormatException('$type empty');
+      for (final n in nodes) {
+        validate(n, bindingNames);
+      }
     } else if (type == 'NOT') {
       if (!expr.containsKey('node')) throw FormatException('NOT missing node');
       final node = expr['node'];
