@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../casting/casting_tokens.dart';
 import '../review_page_state.dart';
 
 /// 基本信息卡（审卦一屏版总 SVG：问事 / 公历 / 农历 / meta 单行）。

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../data/wuxing_self_center_data.dart';
 import '../../models/mistake_item.dart';
 import '../../models/practice/practice_answer_record.dart';
 import '../../models/practice/practice_enums.dart';

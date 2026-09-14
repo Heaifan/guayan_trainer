@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
@@ -101,10 +100,6 @@ class _WuxingControlWheelState extends State<WuxingControlWheel>
         final size = math.min(constraints.maxWidth, constraints.maxHeight);
         final nodeSize = size * 0.17;
         final activeEdge = _activeEdge;
-
-        final bool showArrow = widget.autoPlay
-            ? (_ctrl.isAnimating && activeEdge != null)
-            : (widget.hasAnswered && activeEdge != null);
 
         return Center(
           child: SizedBox(
