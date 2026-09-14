@@ -8,9 +8,18 @@
 
 ---
 
-## 2026-09-12 · GATE-A-FINAL-CLOSEOUT（Gate A 定义拆分与 R3 收口，未发布）
+## 2026-09-14 · R5-A-GATE-FIX1 (Rule Schema + AST + Core Domain)
 
-> **本轮不开发功能，只做事实收口。** 产品代码 diff = 0、历法数据 diff = 0。
+> **建立卦眼可编程六爻规则引擎以后所有模块共同依赖的 Canonical Domain Contract。**
+
+* **AST 与规则契约**：严格规范化 `RuleDefinition` 与基于树形结的抽象语法树（`ALL`/`ANY`/`NOT`/`PREDICATE`），消除可执行脚本依赖。
+* **强不可变事实环境**：利用 `FactSnapshot` 对规则输入事实强制锁定，防范任意规则对底层状态和排盘对象的篡改。
+* **RulePack 契约与分类**：将系统/自定义（`RuleOrigin`）与通用/主题作用域（`RulePackScope`）进行严格二维度剥离限制。
+* **Canonical JSON与验证体系**：确保了对导入规则强确定性的编解码逻辑和 Fail Closed 的安全验证体系；并建立并实施了基于参数字典重排序的 `EvidenceIdentity`。
+
+---
+
+## 2026-09-12 · GATE-A-FINAL-CLOSEOUT（Gate A 定义拆分与 R3 收口，未发布）
 
 ### 为什么要拆 Gate A
 

@@ -9,9 +9,24 @@
 
 ---
 
-## R4 · 基础关系引擎（2026-09-13，未发布）
+## R5-A · Rule Schema + AST + Core Domain (2026-09-14)
 
-> 总开发计划 §12.1 第一批九类关系全部落地。纯 Domain，不依赖 Flutter / 页面 / Painter。
+> 构建六爻规则引擎相关的 Canonical Domain Contract（Rule Schema、AST、FactSnapshot、RulePack、Evidence等）。本轮纯数据契约，无执行引擎实现。
+
+### 新增规则模型层 (`lib/domain/rules/`)
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `core/rule_definition.dart` 等 | 定义单一规则结构、阶段 (RuleStage)、来源 (RuleOrigin) |
+| `ast/rule_expr.dart` 等 | AST 结构节点 (ALL/ANY/NOT/PREDICATE) 及其绑定系统 |
+| `facts/fact_snapshot.dart` 等 | 强不可变原始事实记录及语义标识 (SemanticRef) |
+| `packs/rule_pack.dart` 等 | 组合规则的 RulePack 契约及 COMMON/TOPIC 作用域限制 |
+| `evidence/evidence_node.dart` 等| Evidence Identity 以及 `TagIdentity` 的身份契约 |
+| `data/rules/codec/` 与 `schema/` | RuleCodec (Canonical JSON 等价编解码) 及 Validator 占位实现 |
+
+---
+
+## R4 · 基础关系引擎（2026-09-13，未发布）
 > 详细契约见 `lib/domain/README.md` 的「R4 · 基础关系引擎」一节。
 
 ### 冻结契约（用户批准）
