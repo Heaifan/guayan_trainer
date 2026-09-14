@@ -1,1360 +1,1362 @@
-# 项目文件树 — 卦眼训练器
+﻿# 椤圭洰鏂囦欢鏍?鈥?鍗︾溂璁粌鍣?
 
-> **当前版本：** v0.1.10
-> **创建时间：** 2026-05-15
-> **最后编辑：** 2026-09-13 21:44
+> **褰撳墠鐗堟湰锛?* v0.1.11
+> **鍒涘缓鏃堕棿锛?* 2026-05-15
+> **鏈€鍚庣紪杈戯細** 2026-09-14 23:51
 
-> 本文件用于记录项目目录结构、模块职责与版本演进。  
-> 每次 AI 或人工修改代码后，如涉及新增、删除、重命名文件，必须同步更新本文档。
+> 鏈枃浠剁敤浜庤褰曢」鐩洰褰曠粨鏋勩€佹ā鍧楄亴璐ｄ笌鐗堟湰婕旇繘銆? 
+> 姣忔 AI 鎴栦汉宸ヤ慨鏀逛唬鐮佸悗锛屽娑夊強鏂板銆佸垹闄ゃ€侀噸鍛藉悕鏂囦欢锛屽繀椤诲悓姝ユ洿鏂版湰鏂囨。銆?
 
 ---
 
-## R5-A · Rule Schema + AST + Core Domain (2026-09-14)
+## R5-A 路 Rule Schema + AST + Core Domain (2026-09-14)
 
-> 构建六爻规则引擎相关的 Canonical Domain Contract（Rule Schema、AST、FactSnapshot、RulePack、Evidence等）。本轮纯数据契约，无执行引擎实现。
+> 鏋勫缓鍏埢瑙勫垯寮曟搸鐩稿叧鐨?Canonical Domain Contract锛圧ule Schema銆丄ST銆丗actSnapshot銆丷ulePack銆丒vidence绛夛級銆傛湰杞函鏁版嵁濂戠害锛屾棤鎵ц寮曟搸瀹炵幇銆?
 
-### 新增规则模型层 (`lib/domain/rules/`)
+### 鏂板瑙勫垯妯″瀷灞?(`lib/domain/rules/`)
 
-| 文件/目录 | 职责 |
+| 鏂囦欢/鐩綍 | 鑱岃矗 |
 | --- | --- |
-| `core/rule_definition.dart` 等 | 定义单一规则结构、阶段 (RuleStage)、来源 (RuleOrigin) |
-| `ast/rule_expr.dart` 等 | AST 结构节点 (ALL/ANY/NOT/PREDICATE) 及其绑定系统 |
-| `facts/fact_snapshot.dart` 等 | 强不可变原始事实记录及语义标识 (SemanticRef) |
-| `packs/rule_pack.dart` 等 | 组合规则的 RulePack 契约及 COMMON/TOPIC 作用域限制 |
-| `evidence/evidence_node.dart` 等| Evidence Identity 以及 `TagIdentity` 的身份契约 |
-| `data/rules/codec/` 与 `schema/` | RuleCodec (Canonical JSON 等价编解码) 及 Validator 占位实现 |
+| `core/rule_definition.dart` 绛?| 瀹氫箟鍗曚竴瑙勫垯缁撴瀯銆侀樁娈?(RuleStage)銆佹潵婧?(RuleOrigin) |
+| `ast/rule_expr.dart` 绛?| AST 缁撴瀯鑺傜偣 (ALL/ANY/NOT/PREDICATE) 鍙婂叾缁戝畾绯荤粺 |
+| `facts/fact_snapshot.dart` 绛?| 寮轰笉鍙彉鍘熷浜嬪疄璁板綍鍙婅涔夋爣璇?(SemanticRef) |
+| `packs/rule_pack.dart` 绛?| 缁勫悎瑙勫垯鐨?RulePack 濂戠害鍙?COMMON/TOPIC 浣滅敤鍩熼檺鍒?|
+| `evidence/evidence_node.dart` 绛墊 Evidence Identity 浠ュ強 `TagIdentity` 鐨勮韩浠藉绾?|
+| `data/rules/codec/` 涓?`schema/` | RuleCodec (Canonical JSON 绛変环缂栬В鐮? 鍙?Validator 鍗犱綅瀹炵幇 |
 
 ---
 
-## R4 · 基础关系引擎（2026-09-13，未发布）
-> 详细契约见 `lib/domain/README.md` 的「R4 · 基础关系引擎」一节。
+## R4 路 鍩虹鍏崇郴寮曟搸锛?026-09-13锛屾湭鍙戝竷锛?
+> 璇︾粏濂戠害瑙?`lib/domain/README.md` 鐨勩€孯4 路 鍩虹鍏崇郴寮曟搸銆嶄竴鑺傘€?
 
-### 冻结契约（用户批准）
+### 鍐荤粨濂戠害锛堢敤鎴锋壒鍑嗭級
 
 ```text
-1. 五行相生/相克 = 本卦六爻两两穷举 C(6,2)=15 对；同五行不产出。
-   R4 是「事实账本」，不判断作用力 —— 作用力交给后续 Effect / Rule 层。
-   UI 用筛选器控制可视关系，不得为图面简洁反向裁剪 Domain 数据。
-2. 新增 RelationEndpoint 领域端点抽象（sealed）：爻 / 月建 / 日辰。
-   RelationKey 的 source/target 必须表示真实语义对象，
-   禁止为非爻对象制造虚假 position（不写 month-1）。
-   LineEndpoint 降级为绘线定位层类型，不再是身份真源。
-3. HexagramCase 持有可选 CalendarSnapshot（月建支 + 日辰干支）。
-   存「起卦当时认定的结果」，不存计算器 —— 数据包升级不得让历史卦例月建漂移。
-   calendar 缺失 → 月/日关系不产出 + 诊断报告缺失；禁止自动补算。
+1. 浜旇鐩哥敓/鐩稿厠 = 鏈崷鍏埢涓や袱绌蜂妇 C(6,2)=15 瀵癸紱鍚屼簲琛屼笉浜у嚭銆?
+   R4 鏄€屼簨瀹炶处鏈€嶏紝涓嶅垽鏂綔鐢ㄥ姏 鈥斺€?浣滅敤鍔涗氦缁欏悗缁?Effect / Rule 灞傘€?
+   UI 鐢ㄧ瓫閫夊櫒鎺у埗鍙鍏崇郴锛屼笉寰椾负鍥鹃潰绠€娲佸弽鍚戣鍓?Domain 鏁版嵁銆?
+2. 鏂板 RelationEndpoint 棰嗗煙绔偣鎶借薄锛坰ealed锛夛細鐖?/ 鏈堝缓 / 鏃ヨ景銆?
+   RelationKey 鐨?source/target 蹇呴』琛ㄧず鐪熷疄璇箟瀵硅薄锛?
+   绂佹涓洪潪鐖诲璞″埗閫犺櫄鍋?position锛堜笉鍐?month-1锛夈€?
+   LineEndpoint 闄嶇骇涓虹粯绾垮畾浣嶅眰绫诲瀷锛屼笉鍐嶆槸韬唤鐪熸簮銆?
+3. HexagramCase 鎸佹湁鍙€?CalendarSnapshot锛堟湀寤烘敮 + 鏃ヨ景骞叉敮锛夈€?
+   瀛樸€岃捣鍗﹀綋鏃惰瀹氱殑缁撴灉銆嶏紝涓嶅瓨璁＄畻鍣?鈥斺€?鏁版嵁鍖呭崌绾т笉寰楄鍘嗗彶鍗︿緥鏈堝缓婕傜Щ銆?
+   calendar 缂哄け 鈫?鏈?鏃ュ叧绯讳笉浜у嚭 + 璇婃柇鎶ュ憡缂哄け锛涚姝㈣嚜鍔ㄨˉ绠椼€?
 ```
 
-### 新增
+### 鏂板
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `lib/domain/relation_endpoint.dart` | 关系端点领域身份（sealed：YaoEndpoint / MonthEndpoint / DayEndpoint） |
-| `lib/domain/line_scope.dart` | 卦侧（本卦 / 变卦）—— 领域概念，独立成文件供端点与绘线层共用 |
-| `lib/domain/calendar_snapshot.dart` | 起卦当时的历法快照（月建支 + 日辰干支） |
-| `lib/domain/relation_diagnostics.dart` | 关系计算诊断（missingInputs / warnings） |
-| `lib/domain/relation_rules/changed_lines.dart` | 动变 · 回头生 · 回头克 |
-| `lib/domain/relation_rules/branch_pairs.dart` | 六冲 · 六合（改用 `DiZhi.chong/he`，删掉自带映射表） |
-| `lib/domain/relation_rules/wu_xing_pairs.dart` | 五行相生 · 相克（六爻两两，事实账本） |
-| `lib/domain/relation_rules/month_day.dart` | 月建 / 日辰基础作用 |
-| `lib/domain/relation_rules/rule_support.dart` | 规则共用（replay 版本取值 / 地支解析 / 端点构造） |
-| `test/domain/relation_engine_r4_test.dart` | 九类关系组成 + 端点不变量 |
-| `test/domain/relation_engine_r4_facts_test.dart` | 五行事实关系 + 月建/日辰组成 |
-| `test/domain/relation_engine_r4_inputs_test.dart` | 缺失输入诊断 + 确定性契约 |
+| `lib/domain/relation_endpoint.dart` | 鍏崇郴绔偣棰嗗煙韬唤锛坰ealed锛歒aoEndpoint / MonthEndpoint / DayEndpoint锛?|
+| `lib/domain/line_scope.dart` | 鍗︿晶锛堟湰鍗?/ 鍙樺崷锛夆€斺€?棰嗗煙姒傚康锛岀嫭绔嬫垚鏂囦欢渚涚鐐逛笌缁樼嚎灞傚叡鐢?|
+| `lib/domain/calendar_snapshot.dart` | 璧峰崷褰撴椂鐨勫巻娉曞揩鐓э紙鏈堝缓鏀?+ 鏃ヨ景骞叉敮锛?|
+| `lib/domain/relation_diagnostics.dart` | 鍏崇郴璁＄畻璇婃柇锛坢issingInputs / warnings锛?|
+| `lib/domain/relation_rules/changed_lines.dart` | 鍔ㄥ彉 路 鍥炲ご鐢?路 鍥炲ご鍏?|
+| `lib/domain/relation_rules/branch_pairs.dart` | 鍏啿 路 鍏悎锛堟敼鐢?`DiZhi.chong/he`锛屽垹鎺夎嚜甯︽槧灏勮〃锛?|
+| `lib/domain/relation_rules/wu_xing_pairs.dart` | 浜旇鐩哥敓 路 鐩稿厠锛堝叚鐖讳袱涓わ紝浜嬪疄璐︽湰锛?|
+| `lib/domain/relation_rules/month_day.dart` | 鏈堝缓 / 鏃ヨ景鍩虹浣滅敤 |
+| `lib/domain/relation_rules/rule_support.dart` | 瑙勫垯鍏辩敤锛坮eplay 鐗堟湰鍙栧€?/ 鍦版敮瑙ｆ瀽 / 绔偣鏋勯€狅級 |
+| `test/domain/relation_engine_r4_test.dart` | 涔濈被鍏崇郴缁勬垚 + 绔偣涓嶅彉閲?|
+| `test/domain/relation_engine_r4_facts_test.dart` | 浜旇浜嬪疄鍏崇郴 + 鏈堝缓/鏃ヨ景缁勬垚 |
+| `test/domain/relation_engine_r4_inputs_test.dart` | 缂哄け杈撳叆璇婃柇 + 纭畾鎬у绾?|
 
-### 修改
+### 淇敼
 
-- `lib/domain/relation_calculator.dart`：改为 R4 编排（四类规则合并、canonical 稳定排序、
-  重复 key 警告、缺失输入诊断），并保留 `calculateRelations()` 兼容入口
-- `lib/domain/relation_type.dart`：新增 `sys.month_branch` / `sys.day_branch` 规则 id
-- `lib/domain/line_state.dart`：新增可选 `changedBranch`（变爻地支，回头生/克必需）
-- `lib/domain/hexagram_case.dart`：新增可选 `calendar`（历法快照）+ JSON round-trip
-- `lib/domain/line_endpoint.dart`：降级为绘线定位键，`LineScope` 移入 `line_scope.dart`
-- `lib/presentation/review/review_case_adapter.dart`、`review_page_state.dart`：
-  端点改为 `RelationEndpoint`（月/日端点不是爻，点爻不命中）+ 标签支持「月建 / 日辰」
+- `lib/domain/relation_calculator.dart`锛氭敼涓?R4 缂栨帓锛堝洓绫昏鍒欏悎骞躲€乧anonical 绋冲畾鎺掑簭銆?
+  閲嶅 key 璀﹀憡銆佺己澶辫緭鍏ヨ瘖鏂級锛屽苟淇濈暀 `calculateRelations()` 鍏煎鍏ュ彛
+- `lib/domain/relation_type.dart`锛氭柊澧?`sys.month_branch` / `sys.day_branch` 瑙勫垯 id
+- `lib/domain/line_state.dart`锛氭柊澧炲彲閫?`changedBranch`锛堝彉鐖诲湴鏀紝鍥炲ご鐢?鍏嬪繀闇€锛?
+- `lib/domain/hexagram_case.dart`锛氭柊澧炲彲閫?`calendar`锛堝巻娉曞揩鐓э級+ JSON round-trip
+- `lib/domain/line_endpoint.dart`锛氶檷绾т负缁樼嚎瀹氫綅閿紝`LineScope` 绉诲叆 `line_scope.dart`
+- `lib/presentation/review/review_case_adapter.dart`銆乣review_page_state.dart`锛?
+  绔偣鏀逛负 `RelationEndpoint`锛堟湀/鏃ョ鐐逛笉鏄埢锛岀偣鐖讳笉鍛戒腑锛? 鏍囩鏀寔銆屾湀寤?/ 鏃ヨ景銆?
 
-### 验证
+### 楠岃瘉
 
 ```text
-flutter test                 278 / 278 PASS（R4 新增 19 项）
+flutter test                 278 / 278 PASS锛圧4 鏂板 19 椤癸級
 flutter analyze lib/domain test/domain   No issues found
-lib/domain 文件 > 150 行      0
-Gate A verify                PASS（gate-a 6 份文档 SHA256 6/6 IDENTICAL，未受影响）
+lib/domain 鏂囦欢 > 150 琛?     0
+Gate A verify                PASS锛坓ate-a 6 浠芥枃妗?SHA256 6/6 IDENTICAL锛屾湭鍙楀奖鍝嶏級
 ```
 
-> ⚠️ 本轮**故意**改变了既有测试期望（非削弱）：
-> 端点 canonical 由 `original-3` 变为 `yao:original:3`（契约 2）；
-> 演示卦例关系数由 2 变为 16（动变 1 + 六冲 1 + 五行 14，契约 1）。
-> 旧 JSON 仍可解析（`RelationEndpoint.fromJson` 兼容无 `kind` 的旧端点结构）。
+> 鈿狅笍 鏈疆**鏁呮剰**鏀瑰彉浜嗘棦鏈夋祴璇曟湡鏈涳紙闈炲墛寮憋級锛?
+> 绔偣 canonical 鐢?`original-3` 鍙樹负 `yao:original:3`锛堝绾?2锛夛紱
+> 婕旂ず鍗︿緥鍏崇郴鏁扮敱 2 鍙樹负 16锛堝姩鍙?1 + 鍏啿 1 + 浜旇 14锛屽绾?1锛夈€?
+> 鏃?JSON 浠嶅彲瑙ｆ瀽锛坄RelationEndpoint.fromJson` 鍏煎鏃?`kind` 鐨勬棫绔偣缁撴瀯锛夈€?
 
 ---
 
-## POST-R3-GOV-01 — 治理收口（2026-09-12，未发布）
+## POST-R3-GOV-01 鈥?娌荤悊鏀跺彛锛?026-09-12锛屾湭鍙戝竷锛?
 
-> 不发版、不改产品代码：`lib/` `test/` `assets/` diff = 0。
-> 只做两件事：把 `tool/gate_a/` 收到 **目录直接文件 ≤ 5、Dart 文件 ≤ 100 行**，
-> 以及**先修检查器**——本轮发现了 5 处「检查器给假结论」的隐患。
+> 涓嶅彂鐗堛€佷笉鏀逛骇鍝佷唬鐮侊細`lib/` `test/` `assets/` diff = 0銆?
+> 鍙仛涓や欢浜嬶細鎶?`tool/gate_a/` 鏀跺埌 **鐩綍鐩存帴鏂囦欢 鈮?5銆丏art 鏂囦欢 鈮?100 琛?*锛?
+> 浠ュ強**鍏堜慨妫€鏌ュ櫒**鈥斺€旀湰杞彂鐜颁簡 5 澶勩€屾鏌ュ櫒缁欏亣缁撹銆嶇殑闅愭偅銆?
 
-### S0 事实核验：检查器本身不可信
+### S0 浜嬪疄鏍搁獙锛氭鏌ュ櫒鏈韩涓嶅彲淇?
 
-用第二种只读方式（PowerShell 逐级枚举）独立复核后确认：
+鐢ㄧ浜岀鍙鏂瑰紡锛圥owerShell 閫愮骇鏋氫妇锛夌嫭绔嬪鏍稿悗纭锛?
 
-| # | 缺陷 | 事实 | 后果 |
+| # | 缂洪櫡 | 浜嬪疄 | 鍚庢灉 |
 | --- | --- | --- | --- |
-| 1 | `gov_selfcheck` 规则 2 数错 | 用 `listSync(recursive: true)` 数**后代文件**；根目录只数文件、漏掉全部 7 个子目录 | `cases/` 被报成「6 个文件」、`reports/` 数字写成 9；而状态文件与提交 1541660 都写着「规则 2 PASS」——**假 PASS** |
-| 2 | `gate_a_runner.ps1` 8 个模式里 4 个路径失效 | 目录搬迁（1541660）后未同步：`closeout`/`residual`/`enumerate`/`solve` 全指向不存在的文件 | `closeout` 根本跑不起来，「closeout PASS」这类证据不可能诚实产出 |
-| 3 | `check_imports.dart` 盲点 | 只检查以 `.` 开头的 import，`import 'status/x.dart'`（漏写 `../`）被**静默跳过** | 检查器报 OK，生成器随后编译失败 |
-| 4 | 生成器失败时 SHA 比对无意义 | 生成器没成功 → 旧文档仍在盘上 → SHA 显示「OK」 | 等价性证据**空洞**却看似通过 |
-| 5 | 黄金快照对行尾敏感 | `core.autocrlf=true` 且无 `.gitattributes`：checkout 把 LF 还原成 CRLF | 内容一字未改，规则 3 却必然**假 FAIL** |
+| 1 | `gov_selfcheck` 瑙勫垯 2 鏁伴敊 | 鐢?`listSync(recursive: true)` 鏁?*鍚庝唬鏂囦欢**锛涙牴鐩綍鍙暟鏂囦欢銆佹紡鎺夊叏閮?7 涓瓙鐩綍 | `cases/` 琚姤鎴愩€? 涓枃浠躲€嶃€乣reports/` 鏁板瓧鍐欐垚 9锛涜€岀姸鎬佹枃浠朵笌鎻愪氦 1541660 閮藉啓鐫€銆岃鍒?2 PASS銆嶁€斺€?*鍋?PASS** |
+| 2 | `gate_a_runner.ps1` 8 涓ā寮忛噷 4 涓矾寰勫け鏁?| 鐩綍鎼縼锛?541660锛夊悗鏈悓姝ワ細`closeout`/`residual`/`enumerate`/`solve` 鍏ㄦ寚鍚戜笉瀛樺湪鐨勬枃浠?| `closeout` 鏍规湰璺戜笉璧锋潵锛屻€宑loseout PASS銆嶈繖绫昏瘉鎹笉鍙兘璇氬疄浜у嚭 |
+| 3 | `check_imports.dart` 鐩茬偣 | 鍙鏌ヤ互 `.` 寮€澶寸殑 import锛宍import 'status/x.dart'`锛堟紡鍐?`../`锛夎**闈欓粯璺宠繃** | 妫€鏌ュ櫒鎶?OK锛岀敓鎴愬櫒闅忓悗缂栬瘧澶辫触 |
+| 4 | 鐢熸垚鍣ㄥけ璐ユ椂 SHA 姣斿鏃犳剰涔?| 鐢熸垚鍣ㄦ病鎴愬姛 鈫?鏃ф枃妗ｄ粛鍦ㄧ洏涓?鈫?SHA 鏄剧ず銆孫K銆?| 绛変环鎬ц瘉鎹?*绌烘礊**鍗寸湅浼奸€氳繃 |
+| 5 | 榛勯噾蹇収瀵硅灏炬晱鎰?| `core.autocrlf=true` 涓旀棤 `.gitattributes`锛歝heckout 鎶?LF 杩樺師鎴?CRLF | 鍐呭涓€瀛楁湭鏀癸紝瑙勫垯 3 鍗村繀鐒?*鍋?FAIL** |
 
-### 修复
+### 淇
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `tool/gate_a/tools/gov/dir_scan.dart` | 规则 2：**直接文件**计数（非递归）+ 证据表 |
-| `tool/gate_a/tools/gov/line_scan.dart` | 规则 1：Dart 文件行数上限 |
-| `tool/gate_a/tools/gov/doc_scan.dart` | 规则 3：生成文档 SHA256 vs 黄金快照（缺快照不得当 PASS） |
-| `tool/gate_a/tools/gov/rules_regression.dart` | **规则 0**：临时夹具自证「数的是直接文件」，先自证再查仓库 |
-| `tool/gate_a/tools/gov/gov_rules.dart` | 规则编排 + 逐目录证据打印 |
-| `tool/gate_a/tools/checks/gov_selfcheck.dart` | 改为薄入口（规则实现全部移入 `tools/gov/`） |
-| `tool/gate_a/gate_a_runner.ps1` | 模式路径集中成 `$Scripts` 表、缺文件即失败；新增 `verify` 链（**先 preflight 检查全部 9 个模式是否都能解析**，再 imports → generate → gov → selftest → cross；生成器失败即终止并声明 SHA 无意义） |
-| `tool/gate_a/tools/checks/check_imports.dart` | 只跳过 `package:` / `dart:`；注释内示例不再误报 |
-| `.gitattributes`（新增） | `gate-a/*.md text eol=lf` —— 生成文档锁 LF，黄金快照在任何机器上都成立 |
+| `tool/gate_a/tools/gov/dir_scan.dart` | 瑙勫垯 2锛?*鐩存帴鏂囦欢**璁℃暟锛堥潪閫掑綊锛? 璇佹嵁琛?|
+| `tool/gate_a/tools/gov/line_scan.dart` | 瑙勫垯 1锛欴art 鏂囦欢琛屾暟涓婇檺 |
+| `tool/gate_a/tools/gov/doc_scan.dart` | 瑙勫垯 3锛氱敓鎴愭枃妗?SHA256 vs 榛勯噾蹇収锛堢己蹇収涓嶅緱褰?PASS锛?|
+| `tool/gate_a/tools/gov/rules_regression.dart` | **瑙勫垯 0**锛氫复鏃跺す鍏疯嚜璇併€屾暟鐨勬槸鐩存帴鏂囦欢銆嶏紝鍏堣嚜璇佸啀鏌ヤ粨搴?|
+| `tool/gate_a/tools/gov/gov_rules.dart` | 瑙勫垯缂栨帓 + 閫愮洰褰曡瘉鎹墦鍗?|
+| `tool/gate_a/tools/checks/gov_selfcheck.dart` | 鏀逛负钖勫叆鍙ｏ紙瑙勫垯瀹炵幇鍏ㄩ儴绉诲叆 `tools/gov/`锛?|
+| `tool/gate_a/gate_a_runner.ps1` | 妯″紡璺緞闆嗕腑鎴?`$Scripts` 琛ㄣ€佺己鏂囦欢鍗冲け璐ワ紱鏂板 `verify` 閾撅紙**鍏?preflight 妫€鏌ュ叏閮?9 涓ā寮忔槸鍚﹂兘鑳借В鏋?*锛屽啀 imports 鈫?generate 鈫?gov 鈫?selftest 鈫?cross锛涚敓鎴愬櫒澶辫触鍗崇粓姝㈠苟澹版槑 SHA 鏃犳剰涔夛級 |
+| `tool/gate_a/tools/checks/check_imports.dart` | 鍙烦杩?`package:` / `dart:`锛涙敞閲婂唴绀轰緥涓嶅啀璇姤 |
+| `.gitattributes`锛堟柊澧烇級 | `gate-a/*.md text eol=lf` 鈥斺€?鐢熸垚鏂囨。閿?LF锛岄粍閲戝揩鐓у湪浠讳綍鏈哄櫒涓婇兘鎴愮珛 |
 
-### tool/gate_a/ 目录树（治理后，63 个 Dart 文件，全部 ≤ 100 行）
+### tool/gate_a/ 鐩綍鏍戯紙娌荤悊鍚庯紝63 涓?Dart 鏂囦欢锛屽叏閮?鈮?100 琛岋級
 
 ```text
 gate_a_context.dart 37        gate_a_main.dart 44        gate_a_runner.ps1
-astro/      cross_source 61 · cross_source_rows 72 · diag_oracle 83
-            sun_longitude 69 · sun_terms 89
+astro/      cross_source 61 路 cross_source_rows 72 路 diag_oracle 83
+            sun_longitude 69 路 sun_terms 89
 cases/      derive 72
-  data/     boundary_cases 94 · classic_cases 60 · normal_cases_a 79 · normal_cases_b 70
-  logic/    case_facts 81 · case_model 100
-commands/   digest 74 · generate_reports 73
-core/       audit/      hexagram_audit 54 · najia_audit 26 · palace_audit 47
+  data/     boundary_cases 94 路 classic_cases 60 路 normal_cases_a 79 路 normal_cases_b 70
+  logic/    case_facts 81 路 case_model 100
+commands/   digest 74 路 generate_reports 73
+core/       audit/      hexagram_audit 54 路 najia_audit 26 路 palace_audit 47
             formatting/ format 43
-            pillars/    case_pillars 36 · pillar_tables 38 · pillars 64
-            time/       pack_loader 38 · time_input 60
-data/       hko_source 70 · naoj_source 98 · fixtures/hko · fixtures/naoj
+            pillars/    case_pillars 36 路 pillar_tables 38 路 pillars 64
+            time/       pack_loader 38 路 time_input 60
+data/       hko_source 70 路 naoj_source 98 路 fixtures/hko 路 fixtures/naoj
 reports/    day_report 68
-  cases/    case_columns_table 49 · case_line_table 51 · case_report 52 · master_table 66
-  readme/   readme_checklist 78 · readme_header 47 · readme_instructions 17
+  cases/    case_columns_table 49 路 case_line_table 51 路 case_report 52 路 master_table 66
+  readme/   readme_checklist 78 路 readme_header 47 路 readme_instructions 17
             readme_sources 46
-  solar_term/ boundary_section 64 · term_fields 48 · term_reference 87
-              term_render 74 · term_resolve 46
-  status/   gate_criteria 86 · gate_status 71 · gate_truth_items 84
-tools/      selftest 36（入口，路径不变）
-  checks/   check_imports 63 · enumerate_hexagrams 90 · gov_selfcheck 31
-            sha256 87 · solve_cases 52
-  diag/     oracle_residual 89 · precision_closeout 80 · residual_anchors 32
-  gov/      dir_scan 81 · doc_scan 33 · gov_rules 98 · line_scan 31
+  solar_term/ boundary_section 64 路 term_fields 48 路 term_reference 87
+              term_render 74 路 term_resolve 46
+  status/   gate_criteria 86 路 gate_status 71 路 gate_truth_items 84
+tools/      selftest 36锛堝叆鍙ｏ紝璺緞涓嶅彉锛?
+  checks/   check_imports 63 路 enumerate_hexagrams 90 路 gov_selfcheck 31
+            sha256 87 路 solve_cases 52
+  diag/     oracle_residual 89 路 precision_closeout 80 路 residual_anchors 32
+  gov/      dir_scan 81 路 doc_scan 33 路 gov_rules 98 路 line_scan 31
             rules_regression 100
-  selftest/ checks_astro 93 · checks_liuchong 89 · checks_pillars 70
-            checks_tables 61 · suite 62
+  selftest/ checks_astro 93 路 checks_liuchong 89 路 checks_pillars 70
+            checks_tables 61 路 suite 62
 ```
 
-### 每个超限文件的去向
+### 姣忎釜瓒呴檺鏂囦欢鐨勫幓鍚?
 
-| 原文件（行数） | 拆分为 |
+| 鍘熸枃浠讹紙琛屾暟锛?| 鎷嗗垎涓?|
 | --- | --- |
-| `cases/derive.dart` 139 | `logic/case_facts.dart`（模型）+ `derive.dart`（推导 / 案例集合） |
-| `core/audit/hexagram_audit.dart` 110 | `najia_audit` + `palace_audit` + `hexagram_audit`（判定） |
-| `core/pillars/pillars.dart` 120 | `pillar_tables` + `pillars`（纯函数）+ `case_pillars`（扩展） |
-| `reports/solar_term_report.dart` 221 | `solar_term/`：`term_reference` + `term_resolve` + `term_fields` + `term_render` |
+| `cases/derive.dart` 139 | `logic/case_facts.dart`锛堟ā鍨嬶級+ `derive.dart`锛堟帹瀵?/ 妗堜緥闆嗗悎锛?|
+| `core/audit/hexagram_audit.dart` 110 | `najia_audit` + `palace_audit` + `hexagram_audit`锛堝垽瀹氾級 |
+| `core/pillars/pillars.dart` 120 | `pillar_tables` + `pillars`锛堢函鍑芥暟锛? `case_pillars`锛堟墿灞曪級 |
+| `reports/solar_term_report.dart` 221 | `solar_term/`锛歚term_reference` + `term_resolve` + `term_fields` + `term_render` |
 | `reports/boundary_report.dart` 125 | `solar_term/boundary_section.dart` + `status/gate_criteria.dart` |
 | `reports/readme_header.dart` 137 | `readme/readme_header` + `readme_sources` + `readme_checklist` |
-| `reports/case_report.dart` 110 | `cases/case_report`（编排）+ `case_columns_table` + `case_line_table` |
+| `reports/case_report.dart` 110 | `cases/case_report`锛堢紪鎺掞級+ `case_columns_table` + `case_line_table` |
 | `tools/diag/oracle_residual.dart` 113 | `diag/residual_anchors.dart` + `oracle_residual.dart` |
-| `tools/selftest.dart` 344 | `tools/selftest/`：`suite` + `checks_astro` + `checks_pillars` + `checks_liuchong` + `checks_tables`（入口路径不变） |
+| `tools/selftest.dart` 344 | `tools/selftest/`锛歚suite` + `checks_astro` + `checks_pillars` + `checks_liuchong` + `checks_tables`锛堝叆鍙ｈ矾寰勪笉鍙橈級 |
 
-### 删除
+### 鍒犻櫎
 
 ```text
 tool/gate_a/reports/boundary_report.dart
 tool/gate_a/reports/case_report.dart
-tool/gate_a/reports/master_table.dart        → reports/cases/master_table.dart
+tool/gate_a/reports/master_table.dart        鈫?reports/cases/master_table.dart
 tool/gate_a/reports/readme_header.dart
-tool/gate_a/reports/readme_instructions.dart → reports/readme/readme_instructions.dart
+tool/gate_a/reports/readme_instructions.dart 鈫?reports/readme/readme_instructions.dart
 tool/gate_a/reports/solar_term_report.dart
 ```
 
-### 验证（全部 PASS）
+### 楠岃瘉锛堝叏閮?PASS锛?
 
 ```text
-dart files > 100 lines        = 0        （63 个 Dart 文件）
-directories > 5 direct files  = 0        （25 个目录，MAX = 5）
-gov_selfcheck                 PASS       （规则 0 自证 + 规则 1/2/3）
-independent filesystem audit  PASS       （第二维度：PowerShell 逐级枚举）
-Gate docs SHA256              6/6 IDENTICAL（黄金快照）
-gate_a_runner verify          PASS       （imports + generate + gov + selftest + cross）
+dart files > 100 lines        = 0        锛?3 涓?Dart 鏂囦欢锛?
+directories > 5 direct files  = 0        锛?5 涓洰褰曪紝MAX = 5锛?
+gov_selfcheck                 PASS       锛堣鍒?0 鑷瘉 + 瑙勫垯 1/2/3锛?
+independent filesystem audit  PASS       锛堢浜岀淮搴︼細PowerShell 閫愮骇鏋氫妇锛?
+Gate docs SHA256              6/6 IDENTICAL锛堥粍閲戝揩鐓э級
+gate_a_runner verify          PASS       锛坕mports + generate + gov + selftest + cross锛?
 gate_a_runner closeout        PASS
 gate_a_runner cross           24 / 24
 flutter test                  259 / 259 PASS
 flutter analyze lib/domain test/domain   No issues found
-dart analyze tool/gate_a      No issues found（顺手清掉 7 条改动前既存 warning）
+dart analyze tool/gate_a      No issues found锛堥『鎵嬫竻鎺?7 鏉℃敼鍔ㄥ墠鏃㈠瓨 warning锛?
 lib/ test/ assets/ diff       0
 ```
 
-> `dart analyze` 与 `flutter test` 都要 spawn 带 stdio 的子进程
-> （analysis_server / frontend_server）。在受限文件沙箱下这类 spawn 被直接拒绝
-> （`CreateFile failed 5`），`flutter test` 更会**零输出地静默不动** ——
-> 再遇到时先确认沙箱模式，不要误判成「编译慢」。
+> `dart analyze` 涓?`flutter test` 閮借 spawn 甯?stdio 鐨勫瓙杩涚▼
+> 锛坅nalysis_server / frontend_server锛夈€傚湪鍙楅檺鏂囦欢娌欑涓嬭繖绫?spawn 琚洿鎺ユ嫆缁?
+> 锛坄CreateFile failed 5`锛夛紝`flutter test` 鏇翠細**闆惰緭鍑哄湴闈欓粯涓嶅姩** 鈥斺€?
+> 鍐嶉亣鍒版椂鍏堢‘璁ゆ矙绠辨ā寮忥紝涓嶈璇垽鎴愩€岀紪璇戞參銆嶃€?
 
-> 注：`tool/gate_a` 根目录是「3 个文件 + 7 个子目录」。规则 2 的冻结口径为
-> **直接文件 ≤ 5**；子目录**不**计入父目录预算 —— 否则 7 个语义模块目录
-> 永远无法满足，且与「禁止为凑数硬合并职责」自相矛盾。
+> 娉細`tool/gate_a` 鏍圭洰褰曟槸銆? 涓枃浠?+ 7 涓瓙鐩綍銆嶃€傝鍒?2 鐨勫喕缁撳彛寰勪负
+> **鐩存帴鏂囦欢 鈮?5**锛涘瓙鐩綍**涓?*璁″叆鐖剁洰褰曢绠?鈥斺€?鍚﹀垯 7 涓涔夋ā鍧楃洰褰?
+> 姘歌繙鏃犳硶婊¤冻锛屼笖涓庛€岀姝负鍑戞暟纭悎骞惰亴璐ｃ€嶈嚜鐩哥煕鐩俱€?
 
 ---
 
-## Gate A 收口 — GATE-A-FINAL-CLOSEOUT（2026-09-12，未发布）
+## Gate A 鏀跺彛 鈥?GATE-A-FINAL-CLOSEOUT锛?026-09-12锛屾湭鍙戝竷锛?
 
-> 本轮不开发功能，只做事实收口。产品代码 diff = 0、历法数据 diff = 0。
+> 鏈疆涓嶅紑鍙戝姛鑳斤紝鍙仛浜嬪疄鏀跺彛銆備骇鍝佷唬鐮?diff = 0銆佸巻娉曟暟鎹?diff = 0銆?
 
-### Gate 定义正式拆分
+### Gate 瀹氫箟姝ｅ紡鎷嗗垎
 
 ```text
-Gate A-Truth   CORE DIVINATION TRUTH                —— R3 的 blocker
-Gate A-Compat  PROFESSIONAL SOFTWARE COMPATIBILITY  —— 不阻塞 R3
+Gate A-Truth   CORE DIVINATION TRUTH                鈥斺€?R3 鐨?blocker
+Gate A-Compat  PROFESSIONAL SOFTWARE COMPATIBILITY  鈥斺€?涓嶉樆濉?R3
 ```
 
-**理由**：原 Gate A 把「某专业软件人工填写结果」设为唯一真值来源，
-把一件本质上是「兼容性观察」的事变成了 R3 blocker。
-核心真值改由可复核的独立证据承担（独立规则核验 + 官方历法双源 +
-秒级真值 + 边界 Golden Test + 259/259 自动测试）；
-专业软件之间的流派差异（23:00 / 00:00 日界、晚子时 / 早子时、其他配置）
-记为**兼容性 / 配置差异**，不自动视为核心算法错误。
+**鐞嗙敱**锛氬師 Gate A 鎶娿€屾煇涓撲笟杞欢浜哄伐濉啓缁撴灉銆嶈涓哄敮涓€鐪熷€兼潵婧愶紝
+鎶婁竴浠舵湰璐ㄤ笂鏄€屽吋瀹规€ц瀵熴€嶇殑浜嬪彉鎴愪簡 R3 blocker銆?
+鏍稿績鐪熷€兼敼鐢卞彲澶嶆牳鐨勭嫭绔嬭瘉鎹壙鎷咃紙鐙珛瑙勫垯鏍搁獙 + 瀹樻柟鍘嗘硶鍙屾簮 +
+绉掔骇鐪熷€?+ 杈圭晫 Golden Test + 259/259 鑷姩娴嬭瘯锛夛紱
+涓撲笟杞欢涔嬮棿鐨勬祦娲惧樊寮傦紙23:00 / 00:00 鏃ョ晫銆佹櫄瀛愭椂 / 鏃╁瓙鏃躲€佸叾浠栭厤缃級
+璁颁负**鍏煎鎬?/ 閰嶇疆宸紓**锛屼笉鑷姩瑙嗕负鏍稿績绠楁硶閿欒銆?
 
-### 新增
-| 文件 | 职责 |
+### 鏂板
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `tool/gate_a/gate_a_gate_status.dart` | 双 Gate 定义 + Gate A-Truth 逐项表 + R3 最终状态块（单一真源） |
+| `tool/gate_a/gate_a_gate_status.dart` | 鍙?Gate 瀹氫箟 + Gate A-Truth 閫愰」琛?+ R3 鏈€缁堢姸鎬佸潡锛堝崟涓€鐪熸簮锛?|
 
-### 修改
-- `tool/gate_a/gate_a_main.dart`：README 头改双 Gate 结构；
-  总表拆出 `Truth Result` / `Compatibility Result` 两列；
-  使用说明改为 Gate A-Compat 专用；清理残留旧标题
-- `tool/gate_a/gate_a_cross_source.dart`：注释归属改为 Gate A-Truth
-- `tool/gate_a/gate_a_solar_term_report.dart`：注释改为 PARTIALLY SECOND-LEVEL VERIFIED
-- `gate-a/*.md`：全部重新生成（改 generator 真源，非手改产物）
+### 淇敼
+- `tool/gate_a/gate_a_main.dart`锛歊EADME 澶存敼鍙?Gate 缁撴瀯锛?
+  鎬昏〃鎷嗗嚭 `Truth Result` / `Compatibility Result` 涓ゅ垪锛?
+  浣跨敤璇存槑鏀逛负 Gate A-Compat 涓撶敤锛涙竻鐞嗘畫鐣欐棫鏍囬
+- `tool/gate_a/gate_a_cross_source.dart`锛氭敞閲婂綊灞炴敼涓?Gate A-Truth
+- `tool/gate_a/gate_a_solar_term_report.dart`锛氭敞閲婃敼涓?PARTIALLY SECOND-LEVEL VERIFIED
+- `gate-a/*.md`锛氬叏閮ㄩ噸鏂扮敓鎴愶紙鏀?generator 鐪熸簮锛岄潪鎵嬫敼浜х墿锛?
 
-### 最终状态
+### 鏈€缁堢姸鎬?
 ```text
 R3-A                        PASS
 R3-B                        PASS
 R3-B-DATA-PRECISION-FIX     PASS
 GATE A-TRUTH                PASS
-GATE A-COMPAT               NOT EXECUTED / DEFERRED — NON-BLOCKING
+GATE A-COMPAT               NOT EXECUTED / DEFERRED 鈥?NON-BLOCKING
 R3                          FINAL ACCEPTED
 ```
 
-### 日界
+### 鏃ョ晫
 ```text
 DAY BOUNDARY ENGINE      PASS
-PRODUCT DEFAULT POLICY   OPEN（不阻塞 R3 Domain Foundation）
+PRODUCT DEFAULT POLICY   OPEN锛堜笉闃诲 R3 Domain Foundation锛?
 ```
 
-### 未做
-R4 未进入；专业软件人工对照未执行（Gate A-Compat，不阻塞）。
+### 鏈仛
+R4 鏈繘鍏ワ紱涓撲笟杞欢浜哄伐瀵圭収鏈墽琛岋紙Gate A-Compat锛屼笉闃诲锛夈€?
 
 ---
 
-## 节气数据精度专项修复 — R3-B-DATA-PRECISION-FIX（2026-09-12，未发布）
+## 鑺傛皵鏁版嵁绮惧害涓撻」淇 鈥?R3-B-DATA-PRECISION-FIX锛?026-09-12锛屾湭鍙戝竷锛?
 
-> **根因**：分钟级官方显示值被保存为 `:00` 秒 Instant，而该分钟内存在
-> 可验证的真实秒级交节时刻 —— **分钟级数据不足以表达该秒级边界**。
-> 不是「HKO 错了」：官方双源 HKO / NAOJ 24 / 24 分钟级一致。
+> **鏍瑰洜**锛氬垎閽熺骇瀹樻柟鏄剧ず鍊艰淇濆瓨涓?`:00` 绉?Instant锛岃€岃鍒嗛挓鍐呭瓨鍦?
+> 鍙獙璇佺殑鐪熷疄绉掔骇浜よ妭鏃跺埢 鈥斺€?**鍒嗛挓绾ф暟鎹笉瓒充互琛ㄨ揪璇ョ绾ц竟鐣?*銆?
+> 涓嶆槸銆孒KO 閿欎簡銆嶏細瀹樻柟鍙屾簮 HKO / NAOJ 24 / 24 鍒嗛挓绾т竴鑷淬€?
 
-### 契约变更：数据包支持**混合精度**（schemaVersion 2，向后兼容 v1）
-- `TermPrecision`：`minute`（缺省）/ `second`；
-- 冻结语义：`minute` 时 `instantUtc` 秒位恒为 `:00`，
-  只表示「**该分钟内**交节」，**不**表示「恰在第 0 秒交节」；
-- 逐节气可选 `sourceOverride`（`name` + `reference`），不覆盖时沿用年度 `source`；
-- 未知 `precision`、残缺 `sourceOverride` 一律拒绝导入。
-- 原则：**数据包可以混合精度，但每条数据必须说清精度与来源**。
-  以后逐年补更高精度节气只需替换对应 term，不必推翻年度包。
+### 濂戠害鍙樻洿锛氭暟鎹寘鏀寔**娣峰悎绮惧害**锛坰chemaVersion 2锛屽悜鍚庡吋瀹?v1锛?
+- `TermPrecision`锛歚minute`锛堢己鐪侊級/ `second`锛?
+- 鍐荤粨璇箟锛歚minute` 鏃?`instantUtc` 绉掍綅鎭掍负 `:00`锛?
+  鍙〃绀恒€?*璇ュ垎閽熷唴**浜よ妭銆嶏紝**涓?*琛ㄧず銆屾伆鍦ㄧ 0 绉掍氦鑺傘€嶏紱
+- 閫愯妭姘斿彲閫?`sourceOverride`锛坄name` + `reference`锛夛紝涓嶈鐩栨椂娌跨敤骞村害 `source`锛?
+- 鏈煡 `precision`銆佹畫缂?`sourceOverride` 涓€寰嬫嫆缁濆鍏ャ€?
+- 鍘熷垯锛?*鏁版嵁鍖呭彲浠ユ贩鍚堢簿搴︼紝浣嗘瘡鏉℃暟鎹繀椤昏娓呯簿搴︿笌鏉ユ簮**銆?
+  浠ュ悗閫愬勾琛ユ洿楂樼簿搴﹁妭姘斿彧闇€鏇挎崲瀵瑰簲 term锛屼笉蹇呮帹缈诲勾搴﹀寘銆?
 
-### 数据变更（严格最小）
-- `assets/calendar/2026.calendar.json`：`schemaVersion 1→2`、`revision 1→2`；
-  立春 `2026-02-03T20:02:00Z` → `2026-02-03T20:02:08Z`，
-  附 `precision: second` 与来源覆盖（中国科学院紫金山天文台科普部）。
-- 其余 23 条节气、其余 9 个年份包：**未改动**。
-  未取得可信秒级真值的节气不补秒、不插值、不估算。
+### 鏁版嵁鍙樻洿锛堜弗鏍兼渶灏忥級
+- `assets/calendar/2026.calendar.json`锛歚schemaVersion 1鈫?`銆乣revision 1鈫?`锛?
+  绔嬫槬 `2026-02-03T20:02:00Z` 鈫?`2026-02-03T20:02:08Z`锛?
+  闄?`precision: second` 涓庢潵婧愯鐩栵紙涓浗绉戝闄㈢传閲戝北澶╂枃鍙扮鏅儴锛夈€?
+- 鍏朵綑 23 鏉¤妭姘斻€佸叾浣?9 涓勾浠藉寘锛?*鏈敼鍔?*銆?
+  鏈彇寰楀彲淇＄绾х湡鍊肩殑鑺傛皵涓嶈ˉ绉掋€佷笉鎻掑€笺€佷笉浼扮畻銆?
 
-### 新增
-| 文件 | 职责 |
+### 鏂板
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `lib/domain/calendar/import/calendar_data_pack_term_source.dart` | 逐节气来源覆盖校验 |
-| `test/domain/calendar/solar_term_second_boundary_test.dart` | 立春秒级边界 Golden Test |
-| `test/domain/calendar/calendar_terms_precision_test.dart` | 精度 / 来源元数据校验 |
-| `test/domain/calendar/solar_term_precision_revision_test.dart` | 精度修订导入回归 |
-| `tool/gate_a/gate_a_precision_closeout.dart` | 验收断言（走真实产品链路） |
-| `tool/gate_a/gate_a_hko_source.dart` | HKO 官方 XML 解析（交叉核验用原始发布件） |
-| `tool/gate_a/hko/24SolarTerms_2026.xml` | HKO 官方 XML 夹具（离线可重复） |
+| `lib/domain/calendar/import/calendar_data_pack_term_source.dart` | 閫愯妭姘旀潵婧愯鐩栨牎楠?|
+| `test/domain/calendar/solar_term_second_boundary_test.dart` | 绔嬫槬绉掔骇杈圭晫 Golden Test |
+| `test/domain/calendar/calendar_terms_precision_test.dart` | 绮惧害 / 鏉ユ簮鍏冩暟鎹牎楠?|
+| `test/domain/calendar/solar_term_precision_revision_test.dart` | 绮惧害淇瀵煎叆鍥炲綊 |
+| `tool/gate_a/gate_a_precision_closeout.dart` | 楠屾敹鏂█锛堣蛋鐪熷疄浜у搧閾捐矾锛?|
+| `tool/gate_a/gate_a_hko_source.dart` | HKO 瀹樻柟 XML 瑙ｆ瀽锛堜氦鍙夋牳楠岀敤鍘熷鍙戝竷浠讹級 |
+| `tool/gate_a/hko/24SolarTerms_2026.xml` | HKO 瀹樻柟 XML 澶瑰叿锛堢绾垮彲閲嶅锛?|
 
-### 修改
-- `solar_term/solar_term.dart`：增加 `precision` / `sourceName` / `sourceReference`
-- `import/calendar_data_pack.dart`：增加 `TermPrecision` 与逐节气可选字段
-- `import/calendar_data_pack_parser.dart`：解析 `precision` / `sourceOverride`
-- `import/calendar_data_pack_terms.dart`：精度校验
-- `import/calendar_data_pack_validator.dart`：支持 `schemaVersion 1..2`
-- `test/domain/calendar/calendar_engine_test.dart`：原断言「04:02:00 即寅月」
-  已随数据修正更新（该断言原本把缺陷锁成了「正确行为」）
+### 淇敼
+- `solar_term/solar_term.dart`锛氬鍔?`precision` / `sourceName` / `sourceReference`
+- `import/calendar_data_pack.dart`锛氬鍔?`TermPrecision` 涓庨€愯妭姘斿彲閫夊瓧娈?
+- `import/calendar_data_pack_parser.dart`锛氳В鏋?`precision` / `sourceOverride`
+- `import/calendar_data_pack_terms.dart`锛氱簿搴︽牎楠?
+- `import/calendar_data_pack_validator.dart`锛氭敮鎸?`schemaVersion 1..2`
+- `test/domain/calendar/calendar_engine_test.dart`锛氬師鏂█銆?4:02:00 鍗冲瘏鏈堛€?
+  宸查殢鏁版嵁淇鏇存柊锛堣鏂█鍘熸湰鎶婄己闄烽攣鎴愪簡銆屾纭涓恒€嶏級
 
-### NOT changed（冻结范围 diff = 0）
+### NOT changed锛堝喕缁撹寖鍥?diff = 0锛?
 `MonthBranchResolver` / `CalendarEngine` / `GanzhiDay` / `XunKong` /
-`CastingEngine` / 八宫 / 纳甲 / 六亲 / 世应 / 六神 / UI；
-自建 Meeus 尺子保持 `DIAGNOSTIC ONLY / REJECTED AS GATE ORACLE`。
+`CastingEngine` / 鍏 / 绾崇敳 / 鍏翰 / 涓栧簲 / 鍏 / UI锛?
+鑷缓 Meeus 灏哄瓙淇濇寔 `DIAGNOSTIC ONLY / REJECTED AS GATE ORACLE`銆?
 
-### 验收断言
+### 楠屾敹鏂█
 ```text
-04:01:00 → 丑   04:02:00 → 丑（修复点）   04:02:07 → 丑
-04:02:08 → 寅（交节瞬间，含）   04:02:09 → 寅   04:03:00 → 寅
+04:01:00 鈫?涓?  04:02:00 鈫?涓戯紙淇鐐癸級   04:02:07 鈫?涓?
+04:02:08 鈫?瀵咃紙浜よ妭鐬棿锛屽惈锛?  04:02:09 鈫?瀵?  04:03:00 鈫?瀵?
 ```
 
-### 验证
-`flutter test` 259 / 259；scoped analyze 0 issue；
-全仓 analyze 27 = 基线（new 0 / removed 0）。
+### 楠岃瘉
+`flutter test` 259 / 259锛泂coped analyze 0 issue锛?
+鍏ㄤ粨 analyze 27 = 鍩虹嚎锛坣ew 0 / removed 0锛夈€?
 
 ---
 
-## Gate A 专业排盘人工对照验收 — GUAYAN-2.0-GATE-A（2026-09-11，未发布）
+## Gate A 涓撲笟鎺掔洏浜哄伐瀵圭収楠屾敹 鈥?GUAYAN-2.0-GATE-A锛?026-09-11锛屾湭鍙戝竷锛?
 
-> 本轮**不写产品功能**，只做 R3-A + R3-B 的业务真值验收：
-> 把「起卦时间 + 卦象输入」交给专业排盘软件逐项对照，
-> 确认月建 / 日辰 / 旬空 / 六神 / 本卦 / 变卦 / 纳甲 / 五行 / 六亲 / 世应
-> 与专业软件一致。**人工对照是唯一真值来源，Agent 不做自动判定。**
+> 鏈疆**涓嶅啓浜у搧鍔熻兘**锛屽彧鍋?R3-A + R3-B 鐨勪笟鍔＄湡鍊奸獙鏀讹細
+> 鎶娿€岃捣鍗︽椂闂?+ 鍗﹁薄杈撳叆銆嶄氦缁欎笓涓氭帓鐩樿蒋浠堕€愰」瀵圭収锛?
+> 纭鏈堝缓 / 鏃ヨ景 / 鏃┖ / 鍏 / 鏈崷 / 鍙樺崷 / 绾崇敳 / 浜旇 / 鍏翰 / 涓栧簲
+> 涓庝笓涓氳蒋浠朵竴鑷淬€?*浜哄伐瀵圭収鏄敮涓€鐪熷€兼潵婧愶紝Agent 涓嶅仛鑷姩鍒ゅ畾銆?*
 
-### 新增（tool/gate_a/ — 验收案例生成器，不参与 App 运行时）
-- `gate_a_main.dart` — 入口：装载真实数据包 → 结构自检 → 生成 6 份验收表单
-- `gate_a_context.dart` — 与产品完全同路径的引擎装配（JSON→校验→导入→仓储→Provider→Engine）
-- `gate_a_cases.dart` — 案例矩阵：普通 13 例 / 经典 6 例 / 节气 12 节全量 / 日界 3 日
-- `gate_a_hexagram_facts.dart` — 卦例事实计算 + **案例锁定**（本卦/变卦与声明不符即报错）
-- `gate_a_case_report.dart` — 卦例对照表渲染（逐爻对照 + 专业软件填写位）
-- `gate_a_solar_term_report.dart` — 节气**差异窗口**测量与探测矩阵（窗口起点 ±1s）
-- `gate_a_day_report.dart` — 日界跨子时连续时间轴 × 两种规则
-- `gate_a_hexagram_audit.dart` — 八宫表完整性 / 纳甲组装顺序 独立复核
-- `gate_a_pillars.dart` — 四柱旁证（年柱以立春换年 / 五虎遁 / 五鼠遁）
-- `gate_a_sun_longitude.dart` — 自建天文尺子（Meeus 太阳视黄经）→ **已证伪，降为 diagnostic**
-- `gate_a_naoj_source.dart` — NAOJ「暦要項」Shift_JIS 字节级解析（**官方第二真值源**）
-- `gate_a_cross_source.dart` — HKO vs NAOJ 双源交叉核验（24 项逐条）
-- `gate_a_oracle_residual.dart` — 自建尺子的**时间残差**评估（对官方发布时刻）
-- `gate_a_diag_rate.dart` / `gate_a_diag_sun.dart` — 尺子根因定位（变率 + 中间量）
-- `gate_a_solve.dart` — 卦名 → 位串 → 动爻位（防手写位串出错）
+### 鏂板锛坱ool/gate_a/ 鈥?楠屾敹妗堜緥鐢熸垚鍣紝涓嶅弬涓?App 杩愯鏃讹級
+- `gate_a_main.dart` 鈥?鍏ュ彛锛氳杞界湡瀹炴暟鎹寘 鈫?缁撴瀯鑷 鈫?鐢熸垚 6 浠介獙鏀惰〃鍗?
+- `gate_a_context.dart` 鈥?涓庝骇鍝佸畬鍏ㄥ悓璺緞鐨勫紩鎿庤閰嶏紙JSON鈫掓牎楠屸啋瀵煎叆鈫掍粨鍌ㄢ啋Provider鈫扙ngine锛?
+- `gate_a_cases.dart` 鈥?妗堜緥鐭╅樀锛氭櫘閫?13 渚?/ 缁忓吀 6 渚?/ 鑺傛皵 12 鑺傚叏閲?/ 鏃ョ晫 3 鏃?
+- `gate_a_hexagram_facts.dart` 鈥?鍗︿緥浜嬪疄璁＄畻 + **妗堜緥閿佸畾**锛堟湰鍗?鍙樺崷涓庡０鏄庝笉绗﹀嵆鎶ラ敊锛?
+- `gate_a_case_report.dart` 鈥?鍗︿緥瀵圭収琛ㄦ覆鏌擄紙閫愮埢瀵圭収 + 涓撲笟杞欢濉啓浣嶏級
+- `gate_a_solar_term_report.dart` 鈥?鑺傛皵**宸紓绐楀彛**娴嬮噺涓庢帰娴嬬煩闃碉紙绐楀彛璧风偣 卤1s锛?
+- `gate_a_day_report.dart` 鈥?鏃ョ晫璺ㄥ瓙鏃惰繛缁椂闂磋酱 脳 涓ょ瑙勫垯
+- `gate_a_hexagram_audit.dart` 鈥?鍏琛ㄥ畬鏁存€?/ 绾崇敳缁勮椤哄簭 鐙珛澶嶆牳
+- `gate_a_pillars.dart` 鈥?鍥涙煴鏃佽瘉锛堝勾鏌变互绔嬫槬鎹㈠勾 / 浜旇檸閬?/ 浜旈紶閬侊級
+- `gate_a_sun_longitude.dart` 鈥?鑷缓澶╂枃灏哄瓙锛圡eeus 澶槼瑙嗛粍缁忥級鈫?**宸茶瘉浼紝闄嶄负 diagnostic**
+- `gate_a_naoj_source.dart` 鈥?NAOJ銆屾殾瑕侀爡銆峉hift_JIS 瀛楄妭绾цВ鏋愶紙**瀹樻柟绗簩鐪熷€兼簮**锛?
+- `gate_a_cross_source.dart` 鈥?HKO vs NAOJ 鍙屾簮浜ゅ弶鏍搁獙锛?4 椤归€愭潯锛?
+- `gate_a_oracle_residual.dart` 鈥?鑷缓灏哄瓙鐨?*鏃堕棿娈嬪樊**璇勪及锛堝瀹樻柟鍙戝竷鏃跺埢锛?
+- `gate_a_diag_rate.dart` / `gate_a_diag_sun.dart` 鈥?灏哄瓙鏍瑰洜瀹氫綅锛堝彉鐜?+ 涓棿閲忥級
+- `gate_a_solve.dart` 鈥?鍗﹀悕 鈫?浣嶄覆 鈫?鍔ㄧ埢浣嶏紙闃叉墜鍐欎綅涓插嚭閿欙級
 - `gate_a_format.dart` / `gate_a_selftest.dart` / `gate_a_enumerate.dart`
-- `naoj/rekiyou262.2026.html` — NAOJ 2026 页面字节夹具（离线可重复）
-- `gate_a_runner.ps1` — 本机 PATH 包装（**纯 ASCII**：PowerShell 5.1 对无 BOM 的 .ps1 按 ANSI 解析，
-  中文注释会变成语法错误；中文文档一律放在 Dart 源里）
+- `naoj/rekiyou262.2026.html` 鈥?NAOJ 2026 椤甸潰瀛楄妭澶瑰叿锛堢绾垮彲閲嶅锛?
+- `gate_a_runner.ps1` 鈥?鏈満 PATH 鍖呰锛?*绾?ASCII**锛歅owerShell 5.1 瀵规棤 BOM 鐨?.ps1 鎸?ANSI 瑙ｆ瀽锛?
+  涓枃娉ㄩ噴浼氬彉鎴愯娉曢敊璇紱涓枃鏂囨。涓€寰嬫斁鍦?Dart 婧愰噷锛?
 
-### GATE-A-PREP-FIX1（同日补正，仅改验收矩阵，未动产品代码）
-- 原 GA-3 用 `-1min / -30s` 作「分钟精度是否足够」的判据 —— **该判据无效**：
-  它隐含假设「数据包分钟值 = 真实交节四舍五入到分钟（误差 ≤ 30 秒）」，
-  而当时用自建天文尺测得十二「节」差异窗口 16s ～ 729s。
-- 改为在「差异窗口起点」放测试点。
-- ⚠️ **该轮结论已被 FIX2 推翻**（见下）：差异窗口本身是未验证尺子的产物。
+### GATE-A-PREP-FIX1锛堝悓鏃ヨˉ姝ｏ紝浠呮敼楠屾敹鐭╅樀锛屾湭鍔ㄤ骇鍝佷唬鐮侊級
+- 鍘?GA-3 鐢?`-1min / -30s` 浣溿€屽垎閽熺簿搴︽槸鍚﹁冻澶熴€嶇殑鍒ゆ嵁 鈥斺€?**璇ュ垽鎹棤鏁?*锛?
+  瀹冮殣鍚亣璁俱€屾暟鎹寘鍒嗛挓鍊?= 鐪熷疄浜よ妭鍥涜垗浜斿叆鍒板垎閽燂紙璇樊 鈮?30 绉掞級銆嶏紝
+  鑰屽綋鏃剁敤鑷缓澶╂枃灏烘祴寰楀崄浜屻€岃妭銆嶅樊寮傜獥鍙?16s 锝?729s銆?
+- 鏀逛负鍦ㄣ€屽樊寮傜獥鍙ｈ捣鐐广€嶆斁娴嬭瘯鐐广€?
+- 鈿狅笍 **璇ヨ疆缁撹宸茶 FIX2 鎺ㄧ炕**锛堣涓嬶級锛氬樊寮傜獥鍙ｆ湰韬槸鏈獙璇佸昂瀛愮殑浜х墿銆?
 
-### GATE-A-PREP-FIX2（同日二次补正，仅改验收工具与文档，未动产品代码）
-- **撤回 FIX1 的结论**：自建尺子 `gate_a_sun_longitude.dart` 被证伪，不得作 Gate 真值。
-  - 证据：对官方发布时刻的时间残差最大约 **729 秒**（立夏）；
-    对 2026 立春秒级公开值残差约 **−343 秒**。
-  - 根因（已定位）：视黄经**日变率正确**（1.0187 vs 官方 1.0187 °/日），
-    但在官方交节瞬间本尺子已越过目标角 9～30 角秒，且偏差随季节变化（与中心差 C 同相）
-    —— 属**绝对项偏差**；「求根反代 = 0.000000°」的自洽性不能证明绝对正确。
-  - 处置：`REJECTED AS GATE ORACLE`，降为 diagnostic tool，不用于建窗、不作真值。
-  - 旧自检 `<0.01°` 降级为 coarse sanity check（0.01° ≈ 14.6 分钟时间，
-    通过它不足以证明分钟级/秒级精度）。
-- **新增官方双源真值**：HKO（HKT）vs NAOJ「暦要項」（JST→HKT 减 1 小时），
-  2026 年 **24 / 24 日期一致、分钟一致** → 官方分钟级真值成立。
-- **GA-3 重建**：测试点只以官方发布值为准 ——
-  全部十二「节」给 `边界 −1min / 边界 / 边界 +1min`；
-  有可追溯秒级公开值者（当前仅立春 2026：紫金山天文台科普部 04:02:08 +08:00）
-  追加 `exact −1s / exact / exact +1s`。
-  **已删除**所有由未验证尺子推导的差异窗口测试点。
-  来源无法确认的 `04:01:51` 不予收录。
-- **Gate A2 状态**：当时为 `UNRESOLVED — ASTRONOMICAL ORACLE NOT YET VALIDATED`，
-  既不 PASS 也不 FAIL 数据源、不得据此升级 CalendarDataPack。
-  > ⚠️ **该状态已被同日后续的 R3-B-DATA-PRECISION-FIX 取代**：
-  > 立春取得可信秒级真值并写入数据包，Gate A2 现为 `PARTIALLY VERIFIED`。
-  > 本节保留为历史教训（不得删除）。
+### GATE-A-PREP-FIX2锛堝悓鏃ヤ簩娆¤ˉ姝ｏ紝浠呮敼楠屾敹宸ュ叿涓庢枃妗ｏ紝鏈姩浜у搧浠ｇ爜锛?
+- **鎾ゅ洖 FIX1 鐨勭粨璁?*锛氳嚜寤哄昂瀛?`gate_a_sun_longitude.dart` 琚瘉浼紝涓嶅緱浣?Gate 鐪熷€笺€?
+  - 璇佹嵁锛氬瀹樻柟鍙戝竷鏃跺埢鐨勬椂闂存畫宸渶澶х害 **729 绉?*锛堢珛澶忥級锛?
+    瀵?2026 绔嬫槬绉掔骇鍏紑鍊兼畫宸害 **鈭?43 绉?*銆?
+  - 鏍瑰洜锛堝凡瀹氫綅锛夛細瑙嗛粍缁?*鏃ュ彉鐜囨纭?*锛?.0187 vs 瀹樻柟 1.0187 掳/鏃ワ級锛?
+    浣嗗湪瀹樻柟浜よ妭鐬棿鏈昂瀛愬凡瓒婅繃鐩爣瑙?9锝?0 瑙掔锛屼笖鍋忓樊闅忓鑺傚彉鍖栵紙涓庝腑蹇冨樊 C 鍚岀浉锛?
+    鈥斺€?灞?*缁濆椤瑰亸宸?*锛涖€屾眰鏍瑰弽浠?= 0.000000掳銆嶇殑鑷唇鎬т笉鑳借瘉鏄庣粷瀵规纭€?
+  - 澶勭疆锛歚REJECTED AS GATE ORACLE`锛岄檷涓?diagnostic tool锛屼笉鐢ㄤ簬寤虹獥銆佷笉浣滅湡鍊笺€?
+  - 鏃ц嚜妫€ `<0.01掳` 闄嶇骇涓?coarse sanity check锛?.01掳 鈮?14.6 鍒嗛挓鏃堕棿锛?
+    閫氳繃瀹冧笉瓒充互璇佹槑鍒嗛挓绾?绉掔骇绮惧害锛夈€?
+- **鏂板瀹樻柟鍙屾簮鐪熷€?*锛欻KO锛圚KT锛塿s NAOJ銆屾殾瑕侀爡銆嶏紙JST鈫扝KT 鍑?1 灏忔椂锛夛紝
+  2026 骞?**24 / 24 鏃ユ湡涓€鑷淬€佸垎閽熶竴鑷?* 鈫?瀹樻柟鍒嗛挓绾х湡鍊兼垚绔嬨€?
+- **GA-3 閲嶅缓**锛氭祴璇曠偣鍙互瀹樻柟鍙戝竷鍊间负鍑?鈥斺€?
+  鍏ㄩ儴鍗佷簩銆岃妭銆嶇粰 `杈圭晫 鈭?min / 杈圭晫 / 杈圭晫 +1min`锛?
+  鏈夊彲杩芥函绉掔骇鍏紑鍊艰€咃紙褰撳墠浠呯珛鏄?2026锛氱传閲戝北澶╂枃鍙扮鏅儴 04:02:08 +08:00锛?
+  杩藉姞 `exact 鈭?s / exact / exact +1s`銆?
+  **宸插垹闄?*鎵€鏈夌敱鏈獙璇佸昂瀛愭帹瀵肩殑宸紓绐楀彛娴嬭瘯鐐广€?
+  鏉ユ簮鏃犳硶纭鐨?`04:01:51` 涓嶄簣鏀跺綍銆?
+- **Gate A2 鐘舵€?*锛氬綋鏃朵负 `UNRESOLVED 鈥?ASTRONOMICAL ORACLE NOT YET VALIDATED`锛?
+  鏃笉 PASS 涔熶笉 FAIL 鏁版嵁婧愩€佷笉寰楁嵁姝ゅ崌绾?CalendarDataPack銆?
+  > 鈿狅笍 **璇ョ姸鎬佸凡琚悓鏃ュ悗缁殑 R3-B-DATA-PRECISION-FIX 鍙栦唬**锛?
+  > 绔嬫槬鍙栧緱鍙俊绉掔骇鐪熷€煎苟鍐欏叆鏁版嵁鍖咃紝Gate A2 鐜颁负 `PARTIALLY VERIFIED`銆?
+  > 鏈妭淇濈暀涓哄巻鍙叉暀璁紙涓嶅緱鍒犻櫎锛夈€?
 
-### 新增（gate-a/ — 生成的验收表单，待用户回填）
+### 鏂板锛坓ate-a/ 鈥?鐢熸垚鐨勯獙鏀惰〃鍗曪紝寰呯敤鎴峰洖濉級
 - `README.md` / `01-normal-cases.md` / `02-classic-cases.md` /
   `03-solar-term-boundaries.md` / `04-day-boundary.md` / `05-master-table.md`
 
-### 结构与真值自检结论
-- 八宫表：64 组合一一对应、每宫 8 卦、世应相隔三位 → PASS；
-- 案例锁定：19 例本卦/变卦与声明一致、纳甲组装顺序正确 → PASS；
-- 官方双源：HKO vs NAOJ 2026 年 24 / 24 日期一致、分钟一致 → PASS；
-- 日柱锚点 1949-10-01 = 甲子（外部黄历源核），2026-02-04 = 己酉（跨 76 年独立源核）；
-- 自检已捕获并修正的错误：动爻下标 0/1 基混用、节气误取相邻年份、
-  六冲/六合 手感分类（水地比与地风升均非六冲）、六爻位串写错 6 处、手算日柱 3 处、
-  自建尺子 JD↔Unix 纪元多加 0.5 天（全体偏移 12 小时）与章动缺项。
+### 缁撴瀯涓庣湡鍊艰嚜妫€缁撹
+- 鍏琛細64 缁勫悎涓€涓€瀵瑰簲銆佹瘡瀹?8 鍗︺€佷笘搴旂浉闅斾笁浣?鈫?PASS锛?
+- 妗堜緥閿佸畾锛?9 渚嬫湰鍗?鍙樺崷涓庡０鏄庝竴鑷淬€佺撼鐢茬粍瑁呴『搴忔纭?鈫?PASS锛?
+- 瀹樻柟鍙屾簮锛欻KO vs NAOJ 2026 骞?24 / 24 鏃ユ湡涓€鑷淬€佸垎閽熶竴鑷?鈫?PASS锛?
+- 鏃ユ煴閿氱偣 1949-10-01 = 鐢插瓙锛堝閮ㄩ粍鍘嗘簮鏍革級锛?026-02-04 = 宸遍厜锛堣法 76 骞寸嫭绔嬫簮鏍革級锛?
+- 鑷宸叉崟鑾峰苟淇鐨勯敊璇細鍔ㄧ埢涓嬫爣 0/1 鍩烘贩鐢ㄣ€佽妭姘旇鍙栫浉閭诲勾浠姐€?
+  鍏啿/鍏悎 鎵嬫劅鍒嗙被锛堟按鍦版瘮涓庡湴椋庡崌鍧囬潪鍏啿锛夈€佸叚鐖讳綅涓插啓閿?6 澶勩€佹墜绠楁棩鏌?3 澶勩€?
+  鑷缓灏哄瓙 JD鈫擴nix 绾厓澶氬姞 0.5 澶╋紙鍏ㄤ綋鍋忕Щ 12 灏忔椂锛変笌绔犲姩缂洪」銆?
 
-### 未做
-产品代码未改动（`lib/`、`test/` diff = 0）；Gate A 未 PASS；
-日界默认值未冻结；**节气数据源不升级**（Gate A2 未定论）。
+### 鏈仛
+浜у搧浠ｇ爜鏈敼鍔紙`lib/`銆乣test/` diff = 0锛夛紱Gate A 鏈?PASS锛?
+鏃ョ晫榛樿鍊兼湭鍐荤粨锛?*鑺傛皵鏁版嵁婧愪笉鍗囩骇**锛圙ate A2 鏈畾璁猴級銆?
 
 ---
 
-## 离线历法基础层 — GUAYAN-2.0-R3-B-CALENDAR（2026-09-11，未发布）
+## 绂荤嚎鍘嗘硶鍩虹灞?鈥?GUAYAN-2.0-R3-B-CALENDAR锛?026-09-11锛屾湭鍙戝竷锛?
 
-> **路线变更**：不再把 1900–2100 的 4824 条节气硬编码进源码，
-> 改为 **年度数据包 + 本地仓储 + 完全离线计算**。
-> 已导入年份离线排盘；未导入年份**明确拒绝**，绝不近似补算。
-> 纯 Dart，零 Flutter / 零运行时网络 / 零天文库 / 零近似 fallback。
+> **璺嚎鍙樻洿**锛氫笉鍐嶆妸 1900鈥?100 鐨?4824 鏉¤妭姘旂‖缂栫爜杩涙簮鐮侊紝
+> 鏀逛负 **骞村害鏁版嵁鍖?+ 鏈湴浠撳偍 + 瀹屽叏绂荤嚎璁＄畻**銆?
+> 宸插鍏ュ勾浠界绾挎帓鐩橈紱鏈鍏ュ勾浠?*鏄庣‘鎷掔粷**锛岀粷涓嶈繎浼艰ˉ绠椼€?
+> 绾?Dart锛岄浂 Flutter / 闆惰繍琛屾椂缃戠粶 / 闆跺ぉ鏂囧簱 / 闆惰繎浼?fallback銆?
 
-### 新增（lib/domain/calendar/）
-- 根：`calendar_engine.dart`（聚合）/ `calendar_request.dart` / `calendar_context.dart` /
-  `calendar_error.dart`（类型化失败）/ `day_boundary_rule.dart`（两种规则，无默认值）
-- `day/`：`ganzhi_day.dart`（JDN → 六十甲子）/ `xun_kong.dart`（旬空由旬首推导）
-- `solar_term/`：`solar_term_id.dart` / `solar_term.dart` / `solar_term_provider.dart` /
-  `calendar_year_data.dart` / `month_branch_resolver.dart`（十二「节」切月建）
-- `import/`：`calendar_data_pack.dart` / `calendar_data_pack_parser.dart` /
+### 鏂板锛坙ib/domain/calendar/锛?
+- 鏍癸細`calendar_engine.dart`锛堣仛鍚堬級/ `calendar_request.dart` / `calendar_context.dart` /
+  `calendar_error.dart`锛堢被鍨嬪寲澶辫触锛? `day_boundary_rule.dart`锛堜袱绉嶈鍒欙紝鏃犻粯璁ゅ€硷級
+- `day/`锛歚ganzhi_day.dart`锛圝DN 鈫?鍏崄鐢插瓙锛? `xun_kong.dart`锛堟棳绌虹敱鏃鎺ㄥ锛?
+- `solar_term/`锛歚solar_term_id.dart` / `solar_term.dart` / `solar_term_provider.dart` /
+  `calendar_year_data.dart` / `month_branch_resolver.dart`锛堝崄浜屻€岃妭銆嶅垏鏈堝缓锛?
+- `import/`锛歚calendar_data_pack.dart` / `calendar_data_pack_parser.dart` /
   `calendar_data_pack_terms.dart` / `calendar_data_pack_validator.dart` /
-  `calendar_data_pack_importer.dart`（解析→校验→修订→**原子提交**）
-- `store/`：`calendar_data_store.dart`（仓储边界 + 内存实现）/
-  `stored_solar_term_provider.dart`（仓储→Provider，装载快照后引擎保持同步）
+  `calendar_data_pack_importer.dart`锛堣В鏋愨啋鏍￠獙鈫掍慨璁⑩啋**鍘熷瓙鎻愪氦**锛?
+- `store/`锛歚calendar_data_store.dart`锛堜粨鍌ㄨ竟鐣?+ 鍐呭瓨瀹炵幇锛?
+  `stored_solar_term_provider.dart`锛堜粨鍌ㄢ啋Provider锛岃杞藉揩鐓у悗寮曟搸淇濇寔鍚屾锛?
 
-### 新增（数据与工具）
-- `assets/calendar/2019..2028.calendar.json` — 种子数据包 10 年，
-  与用户导入**同一种格式**（不存在「内置走 Dart 常量」的第二套体系）
-- `tool/calendar_pack_gen/generate_calendar_packs.dart` — 开发阶段生成器，
-  **不参与 App 运行时**；权威源缓存 `.cache/` 已 gitignore
+### 鏂板锛堟暟鎹笌宸ュ叿锛?
+- `assets/calendar/2019..2028.calendar.json` 鈥?绉嶅瓙鏁版嵁鍖?10 骞达紝
+  涓庣敤鎴峰鍏?*鍚屼竴绉嶆牸寮?*锛堜笉瀛樺湪銆屽唴缃蛋 Dart 甯搁噺銆嶇殑绗簩濂椾綋绯伙級
+- `tool/calendar_pack_gen/generate_calendar_packs.dart` 鈥?寮€鍙戦樁娈电敓鎴愬櫒锛?
+  **涓嶅弬涓?App 杩愯鏃?*锛涙潈濞佹簮缂撳瓨 `.cache/` 宸?gitignore
 
-### 数据来源（可复核）
-- 香港天文台 HKO「二十四節氣的日期及時間資料」；HKO 注明其天文数据来自
-  英国 HM Nautical Almanac Office 与美国 United States Naval Observatory；
-- 原始基准 HKT（UTC+8）→ 统一折算 UTC；
-- **来源为分钟级，秒位恒为 `:00`**（如实记录，不虚构秒级精度）；
-- 覆盖 2019–2028（HKO 公开范围）；与 NAOJ 在重叠年份逐项一致。
+### 鏁版嵁鏉ユ簮锛堝彲澶嶆牳锛?
+- 棣欐腐澶╂枃鍙?HKO銆屼簩鍗佸洓绡€姘ｇ殑鏃ユ湡鍙婃檪闁撹硣鏂欍€嶏紱HKO 娉ㄦ槑鍏跺ぉ鏂囨暟鎹潵鑷?
+  鑻卞浗 HM Nautical Almanac Office 涓庣編鍥?United States Naval Observatory锛?
+- 鍘熷鍩哄噯 HKT锛圲TC+8锛夆啋 缁熶竴鎶樼畻 UTC锛?
+- **鏉ユ簮涓哄垎閽熺骇锛岀浣嶆亽涓?`:00`**锛堝瀹炶褰曪紝涓嶈櫄鏋勭绾х簿搴︼級锛?
+- 瑕嗙洊 2019鈥?028锛圚KO 鍏紑鑼冨洿锛夛紱涓?NAOJ 鍦ㄩ噸鍙犲勾浠介€愰」涓€鑷淬€?
 
-### 关键契约
-- 月建边界：`instant < 交节 → 旧月建`，`instant >= 交节 → 新月建`（三态断言）；
-- 缺年份抛 `CalendarDataMissing`；导入原子性（校验通过前不写仓储）；
-- 修订四态 NEW / UPDATE / SAME / DOWNGRADE，降级拒绝且旧数据不变；
-- 日界：仓库既有代码未冻结规则 → 核心层实现两种并要求显式传入。
+### 鍏抽敭濂戠害
+- 鏈堝缓杈圭晫锛歚instant < 浜よ妭 鈫?鏃ф湀寤篳锛宍instant >= 浜よ妭 鈫?鏂版湀寤篳锛堜笁鎬佹柇瑷€锛夛紱
+- 缂哄勾浠芥姏 `CalendarDataMissing`锛涘鍏ュ師瀛愭€э紙鏍￠獙閫氳繃鍓嶄笉鍐欎粨鍌級锛?
+- 淇鍥涙€?NEW / UPDATE / SAME / DOWNGRADE锛岄檷绾ф嫆缁濅笖鏃ф暟鎹笉鍙橈紱
+- 鏃ョ晫锛氫粨搴撴棦鏈変唬鐮佹湭鍐荤粨瑙勫垯 鈫?鏍稿績灞傚疄鐜颁袱绉嶅苟瑕佹眰鏄惧紡浼犲叆銆?
 
-### 测试（+103，共 232/232 通过；analyze 0 issue）
-`test/domain/calendar/`：ganzhi_day / xun_kong / day_boundary /
+### 娴嬭瘯锛?103锛屽叡 232/232 閫氳繃锛沘nalyze 0 issue锛?
+`test/domain/calendar/`锛歡anzhi_day / xun_kong / day_boundary /
 month_branch_resolver / calendar_data_pack_parser / calendar_data_pack_validator /
-calendar_pack_import / calendar_engine / offline_gate（+ 夹具 fixtures）
+calendar_pack_import / calendar_engine / offline_gate锛? 澶瑰叿 fixtures锛?
 
-### 未做
-历法管理 UI、导入按钮、文件选择器、覆盖确认弹窗；完整天文算法；
-旺衰 / 月破 / 日冲 / 神煞 / 四柱完整系统。
-
----
-
-## 排盘引擎 R3 卦体层 — GUAYAN-2.0-R3-ENGINE-A（2026-09-11，未发布）
-
-> **排盘从演示档案变成真实计算。** 纯 Dart 领域层，零 Flutter 依赖；
-> Widget 一律不得自行排卦（总计划 §10）。本轮覆盖 R3 清单 12 项中的 9 项。
-
-### 新增（lib/domain/ — 基础坐标）
-- `wu_xing.dart` — 五行 + 生克；`relationTo(self)` 是六亲判定唯一入口
-- `di_zhi.dart` — 十二地支：五行 / 阴阳 / 六冲 / 六合
-- `tian_gan.dart` — 十天干：五行 / 阴阳 / 六十甲子取干
-
-### 新增（lib/domain/casting/ — 排盘引擎）
-- `bagua.dart` — 八卦（三爻自下而上）+ 卦符 + 五行 + 先天序
-- `najia.dart` — 纳甲表（干支）：乾纳甲壬、坤纳乙癸；内外卦分别装卦
-- `palace.dart` — 京房八宫卦序 + 世应（算法生成，非硬编码 64 条）
-- `hexagram_names.dart` — 六十四卦名表（上卦 × 下卦）
-- `hexagram64.dart` — 六爻阴阳 → 卦名 / 宫位 / 世应
-- `six_relative.dart` — 六亲（以宫位五行为「我」）
-- `six_spirit.dart` — 六神（按日干起例，自初爻向上顺排）
-- `cast_chart.dart` — 排盘结果模型（CastLine / CastChart）
-- `casting_engine.dart` — 引擎组装：本卦 / 变卦 / 动变 / 纳甲 / 世应 / 六亲 / 六神
-
-### 关键契约
-- 世应由「本宫卦逐爻翻转 → 游魂回翻四爻 → 归魂还原内卦」推导，
-  世爻序列恒为 6/1/2/3/4/5/4/3，不维护 64 条硬编码表；
-- **变卦六亲仍取本卦之宫**为「我」（传统固定规则）；
-- 静卦不生成变卦；无日干时六神为 null；非法输入抛异常。
-
-### 测试（+23，共 129/129 通过；analyze 0 issue）
-- `test/domain/casting/hexagram_tables_test.dart` — 表完整性与规则测试
-- `test/domain/casting/casting_engine_test.dart` — 经典排盘对照
-  （乾为天 / 坤为地 / 泽山咸 全爻纳甲·六亲·世应）
-
-### 未做（R3-B）
-- 四柱 / 月建 / 日辰 / 旬空（需干支历法 + 节气推算）；
-- 引擎接入审卦页，替换 `ReviewTraditionalProfile` 占位字段。
+### 鏈仛
+鍘嗘硶绠＄悊 UI銆佸鍏ユ寜閽€佹枃浠堕€夋嫨鍣ㄣ€佽鐩栫‘璁ゅ脊绐楋紱瀹屾暣澶╂枃绠楁硶锛?
+鏃鸿“ / 鏈堢牬 / 鏃ュ啿 / 绁炵厼 / 鍥涙煴瀹屾暣绯荤粺銆?
 
 ---
 
-## 基线收口 — GUAYAN-2.0-R5-BASELINE-CLOSEOUT（2026-09-10，未发布）
+## 鎺掔洏寮曟搸 R3 鍗︿綋灞?鈥?GUAYAN-2.0-R3-ENGINE-A锛?026-09-11锛屾湭鍙戝竷锛?
 
-> 收口 `3c00187` 遗留基线：排卦 lines 顺序 Bug 独立落库（`7266332`）；
-> 审卦 4 个红测逐项契约审计（3 项 TEST STALE、1 项混合），恢复全量测试绿色。
+> **鎺掔洏浠庢紨绀烘。妗堝彉鎴愮湡瀹炶绠椼€?* 绾?Dart 棰嗗煙灞傦紝闆?Flutter 渚濊禆锛?
+> Widget 涓€寰嬩笉寰楄嚜琛屾帓鍗︼紙鎬昏鍒?搂10锛夈€傛湰杞鐩?R3 娓呭崟 12 椤逛腑鐨?9 椤广€?
 
-- `lib/services/draft/casting_draft.dart` — demo().lines 改升序，锁死
-  `index = position - 1` 契约；`casting_page_test.dart` 补逐爻位回归
-- `lib/presentation/review/widgets/review_hexagram_line_row.dart` —
-  主/变卦文本列宽封顶（74/88 设计 px，列缘裁剪不压爻槽）；
-  类文档对齐实际基线 18/24/34 与 FittedBox(contain)
-- `lib/presentation/review/widgets/review_shensha_card.dart` — 类文档改为
-  「数据驱动固定 4 列（按实际数据渲染，无强制空占位）」；移除未使用 import
-- `test/presentation/review/review_page_test.dart` — F1 基线（六行共享基线 +
-  恰 3 条基线带，不绑绝对坐标）/ F2 神煞（按数据渲染无占位）/ F3 基本信息
-  （合并行信息在场）/ F4 超长纳音（缩放无关列契约 + 主变卦双侧不压爻槽）
-  四测重写
-- 验证：flutter test 106/106 通过；analyze 本轮文件 0 issue；无依赖浮动。
+### 鏂板锛坙ib/domain/ 鈥?鍩虹鍧愭爣锛?
+- `wu_xing.dart` 鈥?浜旇 + 鐢熷厠锛沗relationTo(self)` 鏄叚浜插垽瀹氬敮涓€鍏ュ彛
+- `di_zhi.dart` 鈥?鍗佷簩鍦版敮锛氫簲琛?/ 闃撮槼 / 鍏啿 / 鍏悎
+- `tian_gan.dart` 鈥?鍗佸ぉ骞诧細浜旇 / 闃撮槼 / 鍏崄鐢插瓙鍙栧共
+
+### 鏂板锛坙ib/domain/casting/ 鈥?鎺掔洏寮曟搸锛?
+- `bagua.dart` 鈥?鍏崷锛堜笁鐖昏嚜涓嬭€屼笂锛? 鍗︾ + 浜旇 + 鍏堝ぉ搴?
+- `najia.dart` 鈥?绾崇敳琛紙骞叉敮锛夛細涔剧撼鐢插，銆佸潳绾充箼鐧革紱鍐呭鍗﹀垎鍒鍗?
+- `palace.dart` 鈥?浜埧鍏鍗﹀簭 + 涓栧簲锛堢畻娉曠敓鎴愶紝闈炵‖缂栫爜 64 鏉★級
+- `hexagram_names.dart` 鈥?鍏崄鍥涘崷鍚嶈〃锛堜笂鍗?脳 涓嬪崷锛?
+- `hexagram64.dart` 鈥?鍏埢闃撮槼 鈫?鍗﹀悕 / 瀹綅 / 涓栧簲
+- `six_relative.dart` 鈥?鍏翰锛堜互瀹綅浜旇涓恒€屾垜銆嶏級
+- `six_spirit.dart` 鈥?鍏锛堟寜鏃ュ共璧蜂緥锛岃嚜鍒濈埢鍚戜笂椤烘帓锛?
+- `cast_chart.dart` 鈥?鎺掔洏缁撴灉妯″瀷锛圕astLine / CastChart锛?
+- `casting_engine.dart` 鈥?寮曟搸缁勮锛氭湰鍗?/ 鍙樺崷 / 鍔ㄥ彉 / 绾崇敳 / 涓栧簲 / 鍏翰 / 鍏
+
+### 鍏抽敭濂戠害
+- 涓栧簲鐢便€屾湰瀹崷閫愮埢缈昏浆 鈫?娓搁瓊鍥炵炕鍥涚埢 鈫?褰掗瓊杩樺師鍐呭崷銆嶆帹瀵硷紝
+  涓栫埢搴忓垪鎭掍负 6/1/2/3/4/5/4/3锛屼笉缁存姢 64 鏉＄‖缂栫爜琛紱
+- **鍙樺崷鍏翰浠嶅彇鏈崷涔嬪**涓恒€屾垜銆嶏紙浼犵粺鍥哄畾瑙勫垯锛夛紱
+- 闈欏崷涓嶇敓鎴愬彉鍗︼紱鏃犳棩骞叉椂鍏涓?null锛涢潪娉曡緭鍏ユ姏寮傚父銆?
+
+### 娴嬭瘯锛?23锛屽叡 129/129 閫氳繃锛沘nalyze 0 issue锛?
+- `test/domain/casting/hexagram_tables_test.dart` 鈥?琛ㄥ畬鏁存€т笌瑙勫垯娴嬭瘯
+- `test/domain/casting/casting_engine_test.dart` 鈥?缁忓吀鎺掔洏瀵圭収
+  锛堜咕涓哄ぉ / 鍧や负鍦?/ 娉藉北鍜?鍏ㄧ埢绾崇敳路鍏翰路涓栧簲锛?
+
+### 鏈仛锛圧3-B锛?
+- 鍥涙煴 / 鏈堝缓 / 鏃ヨ景 / 鏃┖锛堥渶骞叉敮鍘嗘硶 + 鑺傛皵鎺ㄧ畻锛夛紱
+- 寮曟搸鎺ュ叆瀹″崷椤碉紝鏇挎崲 `ReviewTraditionalProfile` 鍗犱綅瀛楁銆?
 
 ---
 
-## 审卦首屏 R4 · Baseline Alignment 定稿 — GUAYAN-2.0-REVIEW-BASELINE-R4（2026-08-31，未发布）
+## 鍩虹嚎鏀跺彛 鈥?GUAYAN-2.0-R5-BASELINE-CLOSEOUT锛?026-09-10锛屾湭鍙戝竷锛?
 
-> 只动两个组件（六爻卦盘 + 神煞），其余已定稿 UI 一律不动。
-> 目标：真正建立"行基线"与"列中心线"，消灭视觉参差。
+> 鏀跺彛 `3c00187` 閬楃暀鍩虹嚎锛氭帓鍗?lines 椤哄簭 Bug 鐙珛钀藉簱锛坄7266332`锛夛紱
+> 瀹″崷 4 涓孩娴嬮€愰」濂戠害瀹¤锛? 椤?TEST STALE銆? 椤规贩鍚堬級锛屾仮澶嶅叏閲忔祴璇曠豢鑹层€?
 
-### 六爻卦盘（review_hexagram_line_row.dart 重写）
-- **Primary Baseline = RowTop + 19**：六神 / 伏神1 / 伏神2 / 主卦正文 /
-  主卦世应 / 变卦正文 / 变卦世应 全部用 Flutter `Baseline` 数学锁定同一条基线；
-- **NaYin Baseline = RowTop + 35**：主卦/变卦纳音各自居中于正文列；
-- 行高 48；列中心冻结（六神22 伏神1·62 伏神2·100 主卦正文174 主卦爻222
-  世应250 动爻268 箭头280 变卦正文318 变卦爻358 变卦世应388）；
-- 字号层级按定稿：六神 9.4 常规 / 伏神 9 常规 / 世应 8.8 常规 /
-  正文 10.5 加粗（linePrimary #314D59）/ 纳音 9 常规；
-- 整行 400 设计坐标空间 + FittedBox(scaleDown) 自适应（行内无边框，
-  分割线由表格层独立绘制，保证 FittedBox 父高恰 48、不做纵向缩放）；
-- 爻槽 24×6 / 动爻 12×12 / 箭头 6 固定，文本不侵占。
+- `lib/services/draft/casting_draft.dart` 鈥?demo().lines 鏀瑰崌搴忥紝閿佹
+  `index = position - 1` 濂戠害锛沗casting_page_test.dart` 琛ラ€愮埢浣嶅洖褰?
+- `lib/presentation/review/widgets/review_hexagram_line_row.dart` 鈥?
+  涓?鍙樺崷鏂囨湰鍒楀灏侀《锛?4/88 璁捐 px锛屽垪缂樿鍓笉鍘嬬埢妲斤級锛?
+  绫绘枃妗ｅ榻愬疄闄呭熀绾?18/24/34 涓?FittedBox(contain)
+- `lib/presentation/review/widgets/review_shensha_card.dart` 鈥?绫绘枃妗ｆ敼涓?
+  銆屾暟鎹┍鍔ㄥ浐瀹?4 鍒楋紙鎸夊疄闄呮暟鎹覆鏌擄紝鏃犲己鍒剁┖鍗犱綅锛夈€嶏紱绉婚櫎鏈娇鐢?import
+- `test/presentation/review/review_page_test.dart` 鈥?F1 鍩虹嚎锛堝叚琛屽叡浜熀绾?+
+  鎭?3 鏉″熀绾垮甫锛屼笉缁戠粷瀵瑰潗鏍囷級/ F2 绁炵厼锛堟寜鏁版嵁娓叉煋鏃犲崰浣嶏級/ F3 鍩烘湰淇℃伅
+  锛堝悎骞惰淇℃伅鍦ㄥ満锛? F4 瓒呴暱绾抽煶锛堢缉鏀炬棤鍏冲垪濂戠害 + 涓诲彉鍗﹀弻渚т笉鍘嬬埢妲斤級
+  鍥涙祴閲嶅啓
+- 楠岃瘉锛歠lutter test 106/106 閫氳繃锛沘nalyze 鏈疆鏂囦欢 0 issue锛涙棤渚濊禆娴姩銆?
 
-### 神煞（review_shensha_card.dart）
-- **FIXED 4×4 Grid**：格宽 89、格高 18、列距 6、行距 4（数据驱动，
-  <16 项留空占位保持 4×4，>16 才加第 5 行）；禁止自由 Wrap；
-- 字号 9.4 / w600 / #5C7078；第 4 行永远在 Card 内。
+---
 
-### 表头
-- guaTitle 13 / guaName 10.8（review_hexagram_result_table.dart）
+## 瀹″崷棣栧睆 R4 路 Baseline Alignment 瀹氱 鈥?GUAYAN-2.0-REVIEW-BASELINE-R4锛?026-08-31锛屾湭鍙戝竷锛?
+
+> 鍙姩涓や釜缁勪欢锛堝叚鐖诲崷鐩?+ 绁炵厼锛夛紝鍏朵綑宸插畾绋?UI 涓€寰嬩笉鍔ㄣ€?
+> 鐩爣锛氱湡姝ｅ缓绔?琛屽熀绾?涓?鍒椾腑蹇冪嚎"锛屾秷鐏瑙夊弬宸€?
+
+### 鍏埢鍗︾洏锛坮eview_hexagram_line_row.dart 閲嶅啓锛?
+- **Primary Baseline = RowTop + 19**锛氬叚绁?/ 浼忕1 / 浼忕2 / 涓诲崷姝ｆ枃 /
+  涓诲崷涓栧簲 / 鍙樺崷姝ｆ枃 / 鍙樺崷涓栧簲 鍏ㄩ儴鐢?Flutter `Baseline` 鏁板閿佸畾鍚屼竴鏉″熀绾匡紱
+- **NaYin Baseline = RowTop + 35**锛氫富鍗?鍙樺崷绾抽煶鍚勮嚜灞呬腑浜庢鏂囧垪锛?
+- 琛岄珮 48锛涘垪涓績鍐荤粨锛堝叚绁?2 浼忕1路62 浼忕2路100 涓诲崷姝ｆ枃174 涓诲崷鐖?22
+  涓栧簲250 鍔ㄧ埢268 绠ご280 鍙樺崷姝ｆ枃318 鍙樺崷鐖?58 鍙樺崷涓栧簲388锛夛紱
+- 瀛楀彿灞傜骇鎸夊畾绋匡細鍏 9.4 甯歌 / 浼忕 9 甯歌 / 涓栧簲 8.8 甯歌 /
+  姝ｆ枃 10.5 鍔犵矖锛坙inePrimary #314D59锛? 绾抽煶 9 甯歌锛?
+- 鏁磋 400 璁捐鍧愭爣绌洪棿 + FittedBox(scaleDown) 鑷€傚簲锛堣鍐呮棤杈规锛?
+  鍒嗗壊绾跨敱琛ㄦ牸灞傜嫭绔嬬粯鍒讹紝淇濊瘉 FittedBox 鐖堕珮鎭?48銆佷笉鍋氱旱鍚戠缉鏀撅級锛?
+- 鐖绘Ы 24脳6 / 鍔ㄧ埢 12脳12 / 绠ご 6 鍥哄畾锛屾枃鏈笉渚靛崰銆?
+
+### 绁炵厼锛坮eview_shensha_card.dart锛?
+- **FIXED 4脳4 Grid**锛氭牸瀹?89銆佹牸楂?18銆佸垪璺?6銆佽璺?4锛堟暟鎹┍鍔紝
+  <16 椤圭暀绌哄崰浣嶄繚鎸?4脳4锛?16 鎵嶅姞绗?5 琛岋級锛涚姝㈣嚜鐢?Wrap锛?
+- 瀛楀彿 9.4 / w600 / #5C7078锛涚 4 琛屾案杩滃湪 Card 鍐呫€?
+
+### 琛ㄥご
+- guaTitle 13 / guaName 10.8锛坮eview_hexagram_result_table.dart锛?
 
 ### Token
-- 新增 `linePrimary #314D59`、`shenShaItem #5C7078`
+- 鏂板 `linePrimary #314D59`銆乣shenShaItem #5C7078`
 
-### 测试（+3）
-- R4 基线数学锁定：行内全部 Baseline ∈ {19, 35}，主基线 6 条 / 纳音 2 条；
-- R4 神煞固定 4×4：16 格无溢出、同列对齐、第 4 行在卡内；
-- R4 神煞 <16 项：12 空位占位仍保持 4×4。
-- 验证：flutter test 106/106 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
+### 娴嬭瘯锛?3锛?
+- R4 鍩虹嚎鏁板閿佸畾锛氳鍐呭叏閮?Baseline 鈭?{19, 35}锛屼富鍩虹嚎 6 鏉?/ 绾抽煶 2 鏉★紱
+- R4 绁炵厼鍥哄畾 4脳4锛?6 鏍兼棤婧㈠嚭銆佸悓鍒楀榻愩€佺 4 琛屽湪鍗″唴锛?
+- R4 绁炵厼 <16 椤癸細12 绌轰綅鍗犱綅浠嶄繚鎸?4脳4銆?
+- 楠岃瘉锛歠lutter test 106/106 閫氳繃锛沘nalyze 鏈疆鏂囦欢 0 issue锛沝ebug APK 鏋勫缓閫氳繃銆?
 
 ---
 
-## 审卦首屏 R3 舒适紧凑版 — GUAYAN-2.0-REVIEW-ONSCREEN-R3（2026-08-31，未发布）
+## 瀹″崷棣栧睆 R3 鑸掗€傜揣鍑戠増 鈥?GUAYAN-2.0-REVIEW-ONSCREEN-R3锛?026-08-31锛屾湭鍙戝竷锛?
 
-> 目标：**六爻六行必须在审卦首屏完整露出**（硬门禁，不接受下滑才能看到朱雀/初爻）。
+> 鐩爣锛?*鍏埢鍏蹇呴』鍦ㄥ鍗﹂灞忓畬鏁撮湶鍑?*锛堢‖闂ㄧ锛屼笉鎺ュ彈涓嬫粦鎵嶈兘鐪嬪埌鏈遍泙/鍒濈埢锛夈€?
 
-### 本轮布局规则（R3 总 SVG）
-- **卦名 Header 66 → 54 DIP**：主卦/变卦标题 + 卦名各一行（h2 12 / gua 10）
-- **伏神改 3 字短格式**：六亲简称 + 地支 + 五行（`财寅木 / 父未土`），
-  替换被宽度裁切的 `财丙… / 父丁…`；演示数据 12 项全部转换
-- **六爻行高 56 → 48 DIP**：主/变卦正文仍两行完整显示（六亲地支 10px +
-  纳音 8.8px），**无省略号**；列宽重算（六神 24 / 伏神 28 / 世应 12 / 动爻 12 /
-  箭头 6 / 爻槽 24），360 DIP 不横向溢出
-- 紧凑化：四柱 44→40、神煞 chip 24→19（rx9.5、字号 8.8）、BasicInfo 84（h2 12）、
-  页面间距 8→6
-- 表尾文案：`点击任一爻查看关系、规则依据与关系备注`
+### 鏈疆甯冨眬瑙勫垯锛圧3 鎬?SVG锛?
+- **鍗﹀悕 Header 66 鈫?54 DIP**锛氫富鍗?鍙樺崷鏍囬 + 鍗﹀悕鍚勪竴琛岋紙h2 12 / gua 10锛?
+- **浼忕鏀?3 瀛楃煭鏍煎紡**锛氬叚浜茬畝绉?+ 鍦版敮 + 浜旇锛坄璐㈠瘏鏈?/ 鐖舵湭鍦焋锛夛紝
+  鏇挎崲琚搴﹁鍒囩殑 `璐笝鈥?/ 鐖朵竵鈥锛涙紨绀烘暟鎹?12 椤瑰叏閮ㄨ浆鎹?
+- **鍏埢琛岄珮 56 鈫?48 DIP**锛氫富/鍙樺崷姝ｆ枃浠嶄袱琛屽畬鏁存樉绀猴紙鍏翰鍦版敮 10px +
+  绾抽煶 8.8px锛夛紝**鏃犵渷鐣ュ彿**锛涘垪瀹介噸绠楋紙鍏 24 / 浼忕 28 / 涓栧簲 12 / 鍔ㄧ埢 12 /
+  绠ご 6 / 鐖绘Ы 24锛夛紝360 DIP 涓嶆í鍚戞孩鍑?
+- 绱у噾鍖栵細鍥涙煴 44鈫?0銆佺鐓?chip 24鈫?9锛坮x9.5銆佸瓧鍙?8.8锛夈€丅asicInfo 84锛坔2 12锛夈€?
+  椤甸潰闂磋窛 8鈫?
+- 琛ㄥ熬鏂囨锛歚鐐瑰嚮浠讳竴鐖绘煡鐪嬪叧绯汇€佽鍒欎緷鎹笌鍏崇郴澶囨敞`
 
-### 文件
-- `review_demo_data.dart` — 伏神 3 字短格式（财寅木/父未土/孙子水/兄酉金…）
-- `review_hexagram_line_row.dart` — 行高 48、列宽重算、字号按 R3 SVG
-- `review_hexagram_result_table.dart` — Header 54、表尾文案
+### 鏂囦欢
+- `review_demo_data.dart` 鈥?浼忕 3 瀛楃煭鏍煎紡锛堣储瀵呮湪/鐖舵湭鍦?瀛欏瓙姘?鍏勯厜閲戔€︼級
+- `review_hexagram_line_row.dart` 鈥?琛岄珮 48銆佸垪瀹介噸绠椼€佸瓧鍙锋寜 R3 SVG
+- `review_hexagram_result_table.dart` 鈥?Header 54銆佽〃灏炬枃妗?
 - `review_basic_info_card.dart` / `review_four_pillars_strip.dart` /
-  `review_shensha_card.dart` / `review_page.dart` — 紧凑化
-- `test/presentation/review/review_page_test.dart` — 新增硬门禁测试：
-  430×932 下六爻六行 + 表尾在导航区之上完整可见；伏神断言更新
-- 验证：flutter test 103/103 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
+  `review_shensha_card.dart` / `review_page.dart` 鈥?绱у噾鍖?
+- `test/presentation/review/review_page_test.dart` 鈥?鏂板纭棬绂佹祴璇曪細
+  430脳932 涓嬪叚鐖诲叚琛?+ 琛ㄥ熬鍦ㄥ鑸尯涔嬩笂瀹屾暣鍙锛涗紡绁炴柇瑷€鏇存柊
+- 楠岃瘉锛歠lutter test 103/103 閫氳繃锛沘nalyze 鏈疆鏂囦欢 0 issue锛沝ebug APK 鏋勫缓閫氳繃銆?
 
 ---
 
-## 审卦一屏版收口 — GUAYAN-2.0-REVIEW-ONSCREEN（2026-08-31，未发布）
+## 瀹″崷涓€灞忕増鏀跺彛 鈥?GUAYAN-2.0-REVIEW-ONSCREEN锛?026-08-31锛屾湭鍙戝竷锛?
 
-> 整体收口：一屏先看完整基本信息 + 神煞 + 四柱 + 完整卦盘；
-> 点某一爻后再弹关系焦点（Bottom Sheet）。彻底解决"为塞关系焦点把卦盘挤小"。
+> 鏁翠綋鏀跺彛锛氫竴灞忓厛鐪嬪畬鏁村熀鏈俊鎭?+ 绁炵厼 + 鍥涙煴 + 瀹屾暣鍗︾洏锛?
+> 鐐规煇涓€鐖诲悗鍐嶅脊鍏崇郴鐒︾偣锛圔ottom Sheet锛夈€傚交搴曡В鍐?涓哄鍏崇郴鐒︾偣鎶婂崷鐩樻尋灏?銆?
 
-### 审卦页
-- `review_page.dart` — 一屏布局：AppBar → BasicInfo → 四柱 → 神煞 4×4 → 完整卦盘；
-  「关系焦点」不再常驻（删除 RelationFocusCard）；点爻高亮 + 弹层；
-  新增 `onOpenRelations` 回调（App Shell 切到关系 Tab）
-- `widgets/review_basic_info_card.dart` — 紧凑单卡：问事 + 方式 chip + 公历/农历两栏 +
-  meta（规则包 v1 · 手动起卦 · 排盘已生成）
-- `widgets/review_four_pillars_strip.dart` — soft 底 44 高，teal/warm 双色，旬空右对齐
-- `widgets/review_shensha_card.dart` — chip 20 高、间距 4 的紧凑 4×4 网格
-- `widgets/review_hexagram_result_table.dart` — 表头 66 高（【主卦】/【变卦】）+ 行点击透传 +
-  表尾「完整排盘 · 点击任一爻查看关系与规则依据」
-- `widgets/review_hexagram_line_row.dart` — **彻底取消省略号**：六亲地支与纳音拆上下两行；
-  11 列固定槽位，文本不侵占爻槽/世应槽；行可点（高亮）
-- `widgets/review_line_detail_sheet.dart`（新增）— 点爻 Bottom Sheet：当前爻信息 +
-  关系列表（来自 RelationInstance）+ 查看规则依据 + 关系备注（GAP）+ 进入关系页
-- 删除 `review_relation_focus_card.dart`
-- `review_page_state.dart` / `review_case_adapter.dart` — 新增 `allRelations` +
-  `relationsInvolving(position)` + `relationLabel`（点爻弹层按爻过滤，仍来自 Domain）
-- `review_demo_data.dart` — 演示数据对齐一屏版 SVG（问事/公历 09:30/农历 七月十八 · 巳时/
-  旬空 申酉空）
+### 瀹″崷椤?
+- `review_page.dart` 鈥?涓€灞忓竷灞€锛欰ppBar 鈫?BasicInfo 鈫?鍥涙煴 鈫?绁炵厼 4脳4 鈫?瀹屾暣鍗︾洏锛?
+  銆屽叧绯荤劍鐐广€嶄笉鍐嶅父椹伙紙鍒犻櫎 RelationFocusCard锛夛紱鐐圭埢楂樹寒 + 寮瑰眰锛?
+  鏂板 `onOpenRelations` 鍥炶皟锛圓pp Shell 鍒囧埌鍏崇郴 Tab锛?
+- `widgets/review_basic_info_card.dart` 鈥?绱у噾鍗曞崱锛氶棶浜?+ 鏂瑰紡 chip + 鍏巻/鍐滃巻涓ゆ爮 +
+  meta锛堣鍒欏寘 v1 路 鎵嬪姩璧峰崷 路 鎺掔洏宸茬敓鎴愶級
+- `widgets/review_four_pillars_strip.dart` 鈥?soft 搴?44 楂橈紝teal/warm 鍙岃壊锛屾棳绌哄彸瀵归綈
+- `widgets/review_shensha_card.dart` 鈥?chip 20 楂樸€侀棿璺?4 鐨勭揣鍑?4脳4 缃戞牸
+- `widgets/review_hexagram_result_table.dart` 鈥?琛ㄥご 66 楂橈紙銆愪富鍗︺€?銆愬彉鍗︺€戯級+ 琛岀偣鍑婚€忎紶 +
+  琛ㄥ熬銆屽畬鏁存帓鐩?路 鐐瑰嚮浠讳竴鐖绘煡鐪嬪叧绯讳笌瑙勫垯渚濇嵁銆?
+- `widgets/review_hexagram_line_row.dart` 鈥?**褰诲簳鍙栨秷鐪佺暐鍙?*锛氬叚浜插湴鏀笌绾抽煶鎷嗕笂涓嬩袱琛岋紱
+  11 鍒楀浐瀹氭Ы浣嶏紝鏂囨湰涓嶄镜鍗犵埢妲?涓栧簲妲斤紱琛屽彲鐐癸紙楂樹寒锛?
+- `widgets/review_line_detail_sheet.dart`锛堟柊澧烇級鈥?鐐圭埢 Bottom Sheet锛氬綋鍓嶇埢淇℃伅 +
+  鍏崇郴鍒楄〃锛堟潵鑷?RelationInstance锛? 鏌ョ湅瑙勫垯渚濇嵁 + 鍏崇郴澶囨敞锛圙AP锛? 杩涘叆鍏崇郴椤?
+- 鍒犻櫎 `review_relation_focus_card.dart`
+- `review_page_state.dart` / `review_case_adapter.dart` 鈥?鏂板 `allRelations` +
+  `relationsInvolving(position)` + `relationLabel`锛堢偣鐖诲脊灞傛寜鐖昏繃婊わ紝浠嶆潵鑷?Domain锛?
+- `review_demo_data.dart` 鈥?婕旂ず鏁版嵁瀵归綈涓€灞忕増 SVG锛堥棶浜?鍏巻 09:30/鍐滃巻 涓冩湀鍗佸叓 路 宸虫椂/
+  鏃┖ 鐢抽厜绌猴級
 
-### 排卦页
-- `line_editor_sheet.dart` — 爻象选项卡固定 `mainAxisExtent: 58`（≥58 DIP 硬门禁），
-  内容垂直居中，任何屏幕 RenderFlex 溢出 = 0（修复 BOTTOM OVERFLOWED 1.2px）
+### 鎺掑崷椤?
+- `line_editor_sheet.dart` 鈥?鐖昏薄閫夐」鍗″浐瀹?`mainAxisExtent: 58`锛堚墺58 DIP 纭棬绂侊級锛?
+  鍐呭鍨傜洿灞呬腑锛屼换浣曞睆骞?RenderFlex 婧㈠嚭 = 0锛堜慨澶?BOTTOM OVERFLOWED 1.2px锛?
 
-### 共享 / Token
-- `casting_tokens.dart` — gua #927848、pillarTeal #4F8685、新增 pillarWarm #A8605C
-- `shared/yao_glyph.dart` / `shared/moving_marker.dart` — 描边宽度按一屏版 SVG 微调
-  （空亡 1.4 / ○× 1.6）
+### 鍏变韩 / Token
+- `casting_tokens.dart` 鈥?gua #927848銆乸illarTeal #4F8685銆佹柊澧?pillarWarm #A8605C
+- `shared/yao_glyph.dart` / `shared/moving_marker.dart` 鈥?鎻忚竟瀹藉害鎸変竴灞忕増 SVG 寰皟
+  锛堢┖浜?1.4 / 鈼嬅?1.6锛?
 
-### 测试
-- `review_page_test.dart` — 一屏版适配 + 点爻弹层（关系列表/进入关系页回调）+
-  窄屏 360 无溢出；UI-04~08 保留
-- `casting_page_test.dart` — 新增「爻象弹层窄屏 360×640 无 RenderFlex 溢出」测试
-- `foundation_test.dart` — 审卦分支断言改为 神煞
-- 验证：flutter test 102/102 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
-
----
-
-## 排卦页 + 审卦页增量修正 — GUAYAN-2.0-UI-CORRECTION-R2（2026-08-30，未发布）
-
-> 在 R1 已定稿基础上做增量修正，禁止重新设计。本轮冻结：统一爻槽 24×6
-> （阳/阴/空亡仅内部填充不同）、动爻标记 12×12、文本不得压爻。
-
-### 新增（lib/presentation/shared/ — 排卦/审卦强制复用）
-- `yao_glyph.dart` — 统一爻槽组件：YaoGlyph（24×6，yang/yin/voidYao）+ YaoKind；
-  `YaoGlyph.fromMovement` 便捷工厂；空亡爻空心描边 rx1 #7E9098 w1.5
-- `moving_marker.dart` — 动爻标记组件：MovingMarker（12×12，老阴 ○ #A17F45 /
-  老阳 × #567866）+ `MovingMarker.of` 便捷工厂
-
-### 排卦页修正
-- `casting_page.dart` — 删除顶部 CastingDraftContext（§1.1）；正文顺序：
-  AppBar → 起卦时间 → 问事信息 → 六爻录入 → 规则包 → 生成排盘
-- `casting_time_row.dart` — 重写为 88 高卡片：标题 + 右上「已完成/待完善」chip +
-  公历 + 农历（§2 SVG；农历为 lunarPlaceholder presentation mock，GAP 标注）
-- `casting_page_state.dart` — 新增 `lunarPlaceholder(DateTime)`（GAP：真实农历换算待接入）
-- `six_yao_input_row.dart` — 普通行 = 编辑行 = 52 DIP（§3：编辑态只变背景/边框/字重/徽标）；
-  爻象迁移共享 YaoGlyph
-- `line_editor_sheet.dart` — 迁移共享 YaoGlyph + 动爻补 MovingMarker
-- 删除 `casting_draft_context.dart`、旧 `casting/widgets/yao_glyph.dart`
-
-### 审卦页修正
-- `review_page_state.dart` — ReviewLineView：hiddenSpirit 拆为 hiddenSpirit1/2（伏神两列）；
-  新增 isVoid（主卦/变卦，UI 表现专用，Widget 不计算旬空）；纳音括号改半角 `(纳音)`
-- `review_case_adapter.dart` / `review_demo_data.dart` — 伏神两列 + isVoid 透传；
-  演示数据按 R2 SVG #12：五爻丁酉、三爻丙申空亡（旬空申酉）
-- `review_shensha_card.dart` — 神煞固定 4 列 × N 行数据驱动网格（§5 SVG 402×178，
-  >16 项继续加行）
-- `review_hexagram_result_table.dart` — 最终卦盘组件（§6/§12 SVG 402×404）：
-  内嵌【主卦】/【变卦】标题（浅底 #F8FBF9）+ 六行排盘 + 表尾说明
-- `review_hexagram_line_row.dart` — 11 列冻结：六神 | 伏神1 | 伏神2 | 主卦文字 |
-  主卦爻槽(24×6) | 主卦世/应 | 动爻(12×12) | 箭头 | 变卦文字 | 变卦爻槽 | 变卦世/应；
-  文字列 Ellipsis 裁剪，爻槽/世应槽固定不被侵占（§11 硬门禁）
-- `review_page.dart` — 移除 HexagramResultHeader（表内已含标题，避免重复）
-- 删除 `review_hexagram_result_header.dart`
-
-### 测试
-- `test/presentation/casting/casting_page_test.dart` — UI-01（无 DraftContext）/
-  UI-02（公历+农历）/ UI-03（普通行高==编辑行高==52）
-- `test/presentation/review/review_page_test.dart` — UI-04（神煞首屏 4 列）/
-  UI-05（爻槽统一 24×6）/ UI-06（动爻 12×12）/ UI-07（超长文本不压爻）/
-  UI-08（变卦爻槽+变卦世应同显）+ R1 测试适配（YaoGlyph.kind、MovingMarker）
-- `test/presentation/shared/yao_glyph_test.dart`（新增）— 共享组件尺寸冻结测试
-- `test/foundation_test.dart` — 审卦分支断言改为【主卦】
-
-### 说明
-- 演示 pos2（老阳）主卦按语义渲染阳槽 + X；SVG #12 画作阴+X，属有意修正
-  （保持阴阳语义一致，已注释记录）。
-- 验证：flutter test 100/100 通过；analyze 本轮文件 0 issue；debug APK 构建通过。
+### 娴嬭瘯
+- `review_page_test.dart` 鈥?涓€灞忕増閫傞厤 + 鐐圭埢寮瑰眰锛堝叧绯诲垪琛?杩涘叆鍏崇郴椤靛洖璋冿級+
+  绐勫睆 360 鏃犳孩鍑猴紱UI-04~08 淇濈暀
+- `casting_page_test.dart` 鈥?鏂板銆岀埢璞″脊灞傜獎灞?360脳640 鏃?RenderFlex 婧㈠嚭銆嶆祴璇?
+- `foundation_test.dart` 鈥?瀹″崷鍒嗘敮鏂█鏀逛负 绁炵厼
+- 楠岃瘉锛歠lutter test 102/102 閫氳繃锛沘nalyze 鏈疆鏂囦欢 0 issue锛沝ebug APK 鏋勫缓閫氳繃銆?
 
 ---
 
-## 审卦页 XYUI 工作台 — GUAYAN-2.0-REVIEW-UI-R1（2026-08-30，未发布）
+## 鎺掑崷椤?+ 瀹″崷椤靛閲忎慨姝?鈥?GUAYAN-2.0-UI-CORRECTION-R2锛?026-08-30锛屾湭鍙戝竷锛?
 
-> 目标：把「审卦」占位页实现为人工定稿的 XYUI 长页排盘工作台。
-> 视觉以任务书总 SVG 为最高优先级；传统排盘字段（六神/伏神/六亲/神煞/四柱/卦名）
-> 由演示档案提供，真实计算属后续排盘引擎（R3）—— 本轮不做假六爻算法。
+> 鍦?R1 宸插畾绋垮熀纭€涓婂仛澧為噺淇锛岀姝㈤噸鏂拌璁°€傛湰杞喕缁擄細缁熶竴鐖绘Ы 24脳6
+> 锛堥槼/闃?绌轰骸浠呭唴閮ㄥ～鍏呬笉鍚岋級銆佸姩鐖绘爣璁?12脳12銆佹枃鏈笉寰楀帇鐖汇€?
 
-### 新增（lib/presentation/review/）
-- `review_page.dart`（重写占位页）— 审卦工作台：SafeArea → ReviewAppBar → Expanded
-  SingleChildScrollView（BasicInfo → ShenSha → FourPillars → HexagramHeader →
-  HexagramTable → RelationFocus）；MainTabBar 固定在 App Shell
-- `review_page_state.dart` — 纯 Dart 状态模型：ReviewPageState（§7 全部字段）/
+### 鏂板锛坙ib/presentation/shared/ 鈥?鎺掑崷/瀹″崷寮哄埗澶嶇敤锛?
+- `yao_glyph.dart` 鈥?缁熶竴鐖绘Ы缁勪欢锛歒aoGlyph锛?4脳6锛寉ang/yin/voidYao锛? YaoKind锛?
+  `YaoGlyph.fromMovement` 渚挎嵎宸ュ巶锛涚┖浜＄埢绌哄績鎻忚竟 rx1 #7E9098 w1.5
+- `moving_marker.dart` 鈥?鍔ㄧ埢鏍囪缁勪欢锛歁ovingMarker锛?2脳12锛岃€侀槾 鈼?#A17F45 /
+  鑰侀槼 脳 #567866锛? `MovingMarker.of` 渚挎嵎宸ュ巶
+
+### 鎺掑崷椤典慨姝?
+- `casting_page.dart` 鈥?鍒犻櫎椤堕儴 CastingDraftContext锛埪?.1锛夛紱姝ｆ枃椤哄簭锛?
+  AppBar 鈫?璧峰崷鏃堕棿 鈫?闂簨淇℃伅 鈫?鍏埢褰曞叆 鈫?瑙勫垯鍖?鈫?鐢熸垚鎺掔洏
+- `casting_time_row.dart` 鈥?閲嶅啓涓?88 楂樺崱鐗囷細鏍囬 + 鍙充笂銆屽凡瀹屾垚/寰呭畬鍠勩€峜hip +
+  鍏巻 + 鍐滃巻锛埪? SVG锛涘啘鍘嗕负 lunarPlaceholder presentation mock锛孏AP 鏍囨敞锛?
+- `casting_page_state.dart` 鈥?鏂板 `lunarPlaceholder(DateTime)`锛圙AP锛氱湡瀹炲啘鍘嗘崲绠楀緟鎺ュ叆锛?
+- `six_yao_input_row.dart` 鈥?鏅€氳 = 缂栬緫琛?= 52 DIP锛埪?锛氱紪杈戞€佸彧鍙樿儗鏅?杈规/瀛楅噸/寰芥爣锛夛紱
+  鐖昏薄杩佺Щ鍏变韩 YaoGlyph
+- `line_editor_sheet.dart` 鈥?杩佺Щ鍏变韩 YaoGlyph + 鍔ㄧ埢琛?MovingMarker
+- 鍒犻櫎 `casting_draft_context.dart`銆佹棫 `casting/widgets/yao_glyph.dart`
+
+### 瀹″崷椤典慨姝?
+- `review_page_state.dart` 鈥?ReviewLineView锛歨iddenSpirit 鎷嗕负 hiddenSpirit1/2锛堜紡绁炰袱鍒楋級锛?
+  鏂板 isVoid锛堜富鍗?鍙樺崷锛孶I 琛ㄧ幇涓撶敤锛學idget 涓嶈绠楁棳绌猴級锛涚撼闊虫嫭鍙锋敼鍗婅 `(绾抽煶)`
+- `review_case_adapter.dart` / `review_demo_data.dart` 鈥?浼忕涓ゅ垪 + isVoid 閫忎紶锛?
+  婕旂ず鏁版嵁鎸?R2 SVG #12锛氫簲鐖讳竵閰夈€佷笁鐖讳笝鐢崇┖浜★紙鏃┖鐢抽厜锛?
+- `review_shensha_card.dart` 鈥?绁炵厼鍥哄畾 4 鍒?脳 N 琛屾暟鎹┍鍔ㄧ綉鏍硷紙搂5 SVG 402脳178锛?
+  >16 椤圭户缁姞琛岋級
+- `review_hexagram_result_table.dart` 鈥?鏈€缁堝崷鐩樼粍浠讹紙搂6/搂12 SVG 402脳404锛夛細
+  鍐呭祵銆愪富鍗︺€?銆愬彉鍗︺€戞爣棰橈紙娴呭簳 #F8FBF9锛? 鍏鎺掔洏 + 琛ㄥ熬璇存槑
+- `review_hexagram_line_row.dart` 鈥?11 鍒楀喕缁擄細鍏 | 浼忕1 | 浼忕2 | 涓诲崷鏂囧瓧 |
+  涓诲崷鐖绘Ы(24脳6) | 涓诲崷涓?搴?| 鍔ㄧ埢(12脳12) | 绠ご | 鍙樺崷鏂囧瓧 | 鍙樺崷鐖绘Ы | 鍙樺崷涓?搴旓紱
+  鏂囧瓧鍒?Ellipsis 瑁佸壀锛岀埢妲?涓栧簲妲藉浐瀹氫笉琚镜鍗狅紙搂11 纭棬绂侊級
+- `review_page.dart` 鈥?绉婚櫎 HexagramResultHeader锛堣〃鍐呭凡鍚爣棰橈紝閬垮厤閲嶅锛?
+- 鍒犻櫎 `review_hexagram_result_header.dart`
+
+### 娴嬭瘯
+- `test/presentation/casting/casting_page_test.dart` 鈥?UI-01锛堟棤 DraftContext锛?
+  UI-02锛堝叕鍘?鍐滃巻锛? UI-03锛堟櫘閫氳楂?=缂栬緫琛岄珮==52锛?
+- `test/presentation/review/review_page_test.dart` 鈥?UI-04锛堢鐓為灞?4 鍒楋級/
+  UI-05锛堢埢妲界粺涓€ 24脳6锛? UI-06锛堝姩鐖?12脳12锛? UI-07锛堣秴闀挎枃鏈笉鍘嬬埢锛?
+  UI-08锛堝彉鍗︾埢妲?鍙樺崷涓栧簲鍚屾樉锛? R1 娴嬭瘯閫傞厤锛圷aoGlyph.kind銆丮ovingMarker锛?
+- `test/presentation/shared/yao_glyph_test.dart`锛堟柊澧烇級鈥?鍏变韩缁勪欢灏哄鍐荤粨娴嬭瘯
+- `test/foundation_test.dart` 鈥?瀹″崷鍒嗘敮鏂█鏀逛负銆愪富鍗︺€?
+
+### 璇存槑
+- 婕旂ず pos2锛堣€侀槼锛変富鍗︽寜璇箟娓叉煋闃虫Ы + X锛汼VG #12 鐢讳綔闃?X锛屽睘鏈夋剰淇
+  锛堜繚鎸侀槾闃宠涔変竴鑷达紝宸叉敞閲婅褰曪級銆?
+- 楠岃瘉锛歠lutter test 100/100 閫氳繃锛沘nalyze 鏈疆鏂囦欢 0 issue锛沝ebug APK 鏋勫缓閫氳繃銆?
+
+---
+
+## 瀹″崷椤?XYUI 宸ヤ綔鍙?鈥?GUAYAN-2.0-REVIEW-UI-R1锛?026-08-30锛屾湭鍙戝竷锛?
+
+> 鐩爣锛氭妸銆屽鍗︺€嶅崰浣嶉〉瀹炵幇涓轰汉宸ュ畾绋跨殑 XYUI 闀块〉鎺掔洏宸ヤ綔鍙般€?
+> 瑙嗚浠ヤ换鍔′功鎬?SVG 涓烘渶楂樹紭鍏堢骇锛涗紶缁熸帓鐩樺瓧娈碉紙鍏/浼忕/鍏翰/绁炵厼/鍥涙煴/鍗﹀悕锛?
+> 鐢辨紨绀烘。妗堟彁渚涳紝鐪熷疄璁＄畻灞炲悗缁帓鐩樺紩鎿庯紙R3锛夆€斺€?鏈疆涓嶅仛鍋囧叚鐖荤畻娉曘€?
+
+### 鏂板锛坙ib/presentation/review/锛?
+- `review_page.dart`锛堥噸鍐欏崰浣嶉〉锛夆€?瀹″崷宸ヤ綔鍙帮細SafeArea 鈫?ReviewAppBar 鈫?Expanded
+  SingleChildScrollView锛圔asicInfo 鈫?ShenSha 鈫?FourPillars 鈫?HexagramHeader 鈫?
+  HexagramTable 鈫?RelationFocus锛夛紱MainTabBar 鍥哄畾鍦?App Shell
+- `review_page_state.dart` 鈥?绾?Dart 鐘舵€佹ā鍨嬶細ReviewPageState锛埪? 鍏ㄩ儴瀛楁锛?
   ReviewLineView / ReviewChangedLine / ReviewShenShaItem + formatSolar
-- `review_case_adapter.dart` — HexagramCase + ReviewTraditionalProfile → ReviewPageState；
-  焦点关系一律来自 calculateRelations（Stable Relation Identity），禁止 UI 重算
-- `review_demo_data.dart` — 视觉定稿演示数据（SVG 逐项转录：泽山咸→泽水困、16 神煞、
-  丙午年丙申月丙子日丁酉时、六神/伏神/六亲/纳音/世应、两动爻）
-- `widgets/review_app_bar.dart` — 顶栏（返回 chevron + 审卦 + 排盘结果，§1）
-- `widgets/review_basic_info_card.dart` — 方式/事项/阳历/阴历 + 已生成 chip（§2）
-- `widgets/review_shensha_card.dart` — 神煞独立卡片 + 自适应 Wrap 标签网格（§3/§8）
-- `widgets/review_four_pillars_strip.dart` — 年/月/日/时/旬空 横向紧凑 Strip（§4）
-- `widgets/review_hexagram_result_header.dart` — 排盘结果 + 主/变卦标题（§5）
-- `widgets/review_hexagram_result_table.dart` — 六爻排盘主体表（§6，上爻在上初爻在下）
-- `widgets/review_hexagram_line_row.dart` — 单行：六神 | 主卦（含伏神）| 变卦；
-  爻象复用 YaoGlyph 矢量绘制，世应/动爻箭头矢量
-- `widgets/review_relation_focus_card.dart` — 关系焦点卡（§7：世应/生克/回头生回头克
-  入口 + 查看规则依据 › 跳转规则库）
+- `review_case_adapter.dart` 鈥?HexagramCase + ReviewTraditionalProfile 鈫?ReviewPageState锛?
+  鐒︾偣鍏崇郴涓€寰嬫潵鑷?calculateRelations锛圫table Relation Identity锛夛紝绂佹 UI 閲嶇畻
+- `review_demo_data.dart` 鈥?瑙嗚瀹氱婕旂ず鏁版嵁锛圫VG 閫愰」杞綍锛氭辰灞卞捀鈫掓辰姘村洶銆?6 绁炵厼銆?
+  涓欏崍骞翠笝鐢虫湀涓欏瓙鏃ヤ竵閰夋椂銆佸叚绁?浼忕/鍏翰/绾抽煶/涓栧簲銆佷袱鍔ㄧ埢锛?
+- `widgets/review_app_bar.dart` 鈥?椤舵爮锛堣繑鍥?chevron + 瀹″崷 + 鎺掔洏缁撴灉锛屄?锛?
+- `widgets/review_basic_info_card.dart` 鈥?鏂瑰紡/浜嬮」/闃冲巻/闃村巻 + 宸茬敓鎴?chip锛埪?锛?
+- `widgets/review_shensha_card.dart` 鈥?绁炵厼鐙珛鍗＄墖 + 鑷€傚簲 Wrap 鏍囩缃戞牸锛埪?/搂8锛?
+- `widgets/review_four_pillars_strip.dart` 鈥?骞?鏈?鏃?鏃?鏃┖ 妯悜绱у噾 Strip锛埪?锛?
+- `widgets/review_hexagram_result_header.dart` 鈥?鎺掔洏缁撴灉 + 涓?鍙樺崷鏍囬锛埪?锛?
+- `widgets/review_hexagram_result_table.dart` 鈥?鍏埢鎺掔洏涓讳綋琛紙搂6锛屼笂鐖诲湪涓婂垵鐖诲湪涓嬶級
+- `widgets/review_hexagram_line_row.dart` 鈥?鍗曡锛氬叚绁?| 涓诲崷锛堝惈浼忕锛墊 鍙樺崷锛?
+  鐖昏薄澶嶇敤 YaoGlyph 鐭㈤噺缁樺埗锛屼笘搴?鍔ㄧ埢绠ご鐭㈤噺
+- `widgets/review_relation_focus_card.dart` 鈥?鍏崇郴鐒︾偣鍗★紙搂7锛氫笘搴?鐢熷厠/鍥炲ご鐢熷洖澶村厠
+  鍏ュ彛 + 鏌ョ湅瑙勫垯渚濇嵁 鈥?璺宠浆瑙勫垯搴擄級
 
-### 修改
-- `lib/presentation/casting/casting_tokens.dart` — 补充 §4 Token：relationRed 系 /
-  relationBlue 系 / traditionalGold / pillarTeal（movingCircle 别名到 traditionalGold）
-- `lib/presentation/casting/casting_page.dart` — 新增可选 `onGenerated` 回调（生成后通知 Shell）
-- `lib/app/app_shell.dart` — 审卦页同样隐藏全局 AppBar（自带 XYUI TopBar）；
-  `_latestCase` 桥接排卦生成结果 → 审卦页（T12 数据接入）
-- `test/foundation_test.dart` — 审卦分支断言改为无全局 AppBar + 完整排盘/关系焦点
-- `test/presentation/review/review_page_test.dart`（新增）— §22 Test A–H + 适配器单测
+### 淇敼
+- `lib/presentation/casting/casting_tokens.dart` 鈥?琛ュ厖 搂4 Token锛歳elationRed 绯?/
+  relationBlue 绯?/ traditionalGold / pillarTeal锛坢ovingCircle 鍒悕鍒?traditionalGold锛?
+- `lib/presentation/casting/casting_page.dart` 鈥?鏂板鍙€?`onGenerated` 鍥炶皟锛堢敓鎴愬悗閫氱煡 Shell锛?
+- `lib/app/app_shell.dart` 鈥?瀹″崷椤靛悓鏍烽殣钘忓叏灞€ AppBar锛堣嚜甯?XYUI TopBar锛夛紱
+  `_latestCase` 妗ユ帴鎺掑崷鐢熸垚缁撴灉 鈫?瀹″崷椤碉紙T12 鏁版嵁鎺ュ叆锛?
+- `test/foundation_test.dart` 鈥?瀹″崷鍒嗘敮鏂█鏀逛负鏃犲叏灞€ AppBar + 瀹屾暣鎺掔洏/鍏崇郴鐒︾偣
+- `test/presentation/review/review_page_test.dart`锛堟柊澧烇級鈥?搂22 Test A鈥揌 + 閫傞厤鍣ㄥ崟娴?
 
-### 数据接入（T12/T13）
-- 排卦页生成后经 `onGenerated` 把 HexagramCase 交给 App Shell，审卦页渲染真实卦例：
-  六爻/地支/时间/规则版本来自 Domain，关系焦点由 calculateRelations 计算；
-  六神/伏神/六亲/神煞/四柱/卦名等传统字段真实卦例下显式置空（GAP：排盘引擎 R3）。
-- 未生成过卦例时审卦页渲染视觉定稿演示排盘（含完整传统档案），供人工视觉验收。
+### 鏁版嵁鎺ュ叆锛圱12/T13锛?
+- 鎺掑崷椤电敓鎴愬悗缁?`onGenerated` 鎶?HexagramCase 浜ょ粰 App Shell锛屽鍗﹂〉娓叉煋鐪熷疄鍗︿緥锛?
+  鍏埢/鍦版敮/鏃堕棿/瑙勫垯鐗堟湰鏉ヨ嚜 Domain锛屽叧绯荤劍鐐圭敱 calculateRelations 璁＄畻锛?
+  鍏/浼忕/鍏翰/绁炵厼/鍥涙煴/鍗﹀悕绛変紶缁熷瓧娈电湡瀹炲崷渚嬩笅鏄惧紡缃┖锛圙AP锛氭帓鐩樺紩鎿?R3锛夈€?
+- 鏈敓鎴愯繃鍗︿緥鏃跺鍗﹂〉娓叉煋瑙嗚瀹氱婕旂ず鎺掔洏锛堝惈瀹屾暣浼犵粺妗ｆ锛夛紝渚涗汉宸ヨ瑙夐獙鏀躲€?
 
-### 说明
-- 演示爻序与 Domain 契约一致（1 初爻 .. 6 上爻升序）；动爻标记遵循 §22 D/E 语义
-  （老阳=阳爻实线 + X），与 SVG 个别爻线画法存在一处有意修正（Row5），已记录。
-- 验证：flutter test 84/84 通过；analyze 本轮文件 0 issue（21 条旧代码告警未动）；
-  debug APK 构建通过。
-
----
-
-## 卦眼 2.0 Foundation — feat/guayan-2.0
-
-> 分支：`feat/guayan-2.0`（继承 GitHub 历史，2.0 App 架构重新开发，旧功能未来收编进「训练」入口）
-
-### 新增 2.0 骨架
-- **入口极简化**：`lib/main.dart` 只做 `runApp(const GuayanApp())`，不再跳旧 HomePage、不再初始化旧 MistakeStore。
-- **`lib/app/`**：2.0 应用壳
-  - `app.dart` — `GuayanApp`：MaterialApp 组装 + 全局主题（浅色、紧凑）
-  - `app_shell.dart` — `AppShell`：IndexedStack 状态保持 + GuayanMainTabBar 五主导航（XYUI），`selectedIndex` 单一权威来源，默认 Index 0（排卦）；排卦页自带 XYUI TopBar（无全局 AppBar）
-  - `navigation/main_tabs.dart` — 正式产品 IA：排卦/审卦/关系/卦例/训练（顺序固定）；MainTab 含 title / iconBuilder / builder
-  - `navigation/guayan_main_tab_bar.dart` — XYUI 化底部导航（任务书 §15）：活动底色 + 矢量图标（GuayanTabIcons）+ 标签
-  - `more_menu.dart` — 「更多」菜单：规则库 / 设置 / 关于（支持自定义 icon，排卦页用三点样式）
-- **`lib/core/constants/app_info.dart`**：应用名「卦眼」、内部版本、主题种子色常量
-- **`lib/domain/`（预留）**：GUAYAN-2.0-DOMAIN 阶段在此建立 HexagramCase / LineState / RelationInstance / RelationNote 等
-- **`lib/application/`（预留）**：后续用例层；Foundation 阶段仅 AppShell 用 StatefulWidget，不引入状态管理框架
-- **`lib/presentation/`**：五个主页面 + 规则库/设置/关于
-  - `casting/casting_page.dart` — 排卦页：XYUI 排卦工作台（R1 定稿布局：起卦时间 → 问事信息 → 六爻录入 → 规则包 → 生成排盘）
-  - `casting/casting_tokens.dart` — XYUI 视觉 Token（任务书 §3 定稿值，排卦页 + 底部导航共用）
-  - `casting/casting_page_state.dart` — GenerationState / DraftState / CastingPageState（§7 全部字段）
-  - `casting/widgets/` — casting_app_bar / draft_context / time_row / question_row / six_yao_input_panel / six_yao_input_row / yao_glyph / rule_pack_row / generate_row / chip / 四个编辑弹层（line/time/question/rule_pack sheet）
-  - `review/review_page.dart` — 审卦工作台
-  - `relations/relations_page.dart` — 关系工作台
-  - `cases/cases_page.dart` — 卦例工作台
-  - `training/training_page.dart` — 训练（旧功能未来统一收编，本阶段仅 Skeleton）
-  - `rules/rule_library_page.dart` — 规则库 Skeleton（自定义规则/规则包/系统规则，无 CRUD）
-  - `settings/settings_page.dart`、`about/about_page.dart` — 占位页
-  - `shared/module_placeholder.dart` — 模块占位共用组件
-- **`lib/services/draft/`**：草稿自动保存边界（§15）
-  - `casting_draft.dart` — 草稿模型（含视觉定稿演示草稿 CastingDraft.demo）
-  - `draft_repository.dart` — DraftRepository 接口 + 内存实现（后续可换本地存储）
-- **`test/foundation_test.dart`**：App Shell 五导航 / 艮卦图标 / 状态保持 / 更多菜单验收
-- **`test/presentation/casting/casting_page_test.dart`**：排卦工作台测试（Test A–D / 行顺序 / 草稿仓库 / 纯逻辑）
-
-### 修改
-- `android/app/src/main/AndroidManifest.xml` — Activity 增加 `android:screenOrientation="portrait"` 锁定竖屏；label 确认「卦眼」
-- `lib/main.dart` — 替换为 2.0 极简入口
-- `file-tree.md` — 记录 2.0 骨架
-
-### 说明
-- 旧训练资产（`lib/pages/`、`lib/data/`、`lib/services/`、`lib/models/`、`lib/widgets/effects/`、`五行相克特效/`、`五行相生特效/` 等）一律保留未迁移，后续进入「训练」阶段统一处理。
-- 旧 `lib/app.dart`（`GuayanTrainerApp`）保留供旧测试引用，与 `lib/app/` 目录共存。
-- 分支创建前已将未发布 hotfix 提交至 master（`610e81f`）并合并远端学习模块提交（`5c4bdb6`）。
+### 璇存槑
+- 婕旂ず鐖诲簭涓?Domain 濂戠害涓€鑷达紙1 鍒濈埢 .. 6 涓婄埢鍗囧簭锛夛紱鍔ㄧ埢鏍囪閬靛惊 搂22 D/E 璇箟
+  锛堣€侀槼=闃崇埢瀹炵嚎 + X锛夛紝涓?SVG 涓埆鐖荤嚎鐢绘硶瀛樺湪涓€澶勬湁鎰忎慨姝ｏ紙Row5锛夛紝宸茶褰曘€?
+- 楠岃瘉锛歠lutter test 84/84 閫氳繃锛沘nalyze 鏈疆鏂囦欢 0 issue锛?1 鏉℃棫浠ｇ爜鍛婅鏈姩锛夛紱
+  debug APK 鏋勫缓閫氳繃銆?
 
 ---
 
-## 成果归档提交 — 2026-08-27（未发布）
+## 鍗︾溂 2.0 Foundation 鈥?feat/guayan-2.0
 
-> 背景：开发机内存耗尽崩溃重启（Gradle 提交内存 errno 1455），判定本机暂不具备继续开发条件，全部工作成果一次性归档提交并推送 GitHub（`feat/guayan-2.0`），防止成果丢失。详见 `CHANGELOG.md`。
+> 鍒嗘敮锛歚feat/guayan-2.0`锛堢户鎵?GitHub 鍘嗗彶锛?.0 App 鏋舵瀯閲嶆柊寮€鍙戯紝鏃у姛鑳芥湭鏉ユ敹缂栬繘銆岃缁冦€嶅叆鍙ｏ級
 
-### 新增
-- `AGENTS.md` — 项目代码规则（文件组织 / 架构分层 / 命名规范 / 文档纪律 / 版本与构建），AI 自动遵守
-- `lib/data/training_question.dart` — 2.0 训练数据模型：`TrainingModule` / `RelationType` / `TrainingQuestion`
-- `lib/data/wuxing_questions.dart` — 五行生克题库：相生 5 题 + 相克 5 题（10 题）
-- `uploads/` — 参考资料：`XYUI1ComponentDocumentView.axaml`、`卦眼 2.0 总开发计划.md`
-- `五行相克特效/` — 5 个相克 HTML 动画原型（金克木/木克土/土克水/水克火/火克金）
-- `五行相生特效/` — 5 个相生 HTML 动画原型（金生水/水生木/木生火/火生土/土生金）
-- `CHANGELOG.md` — 文件审计与变更日志
+### 鏂板 2.0 楠ㄦ灦
+- **鍏ュ彛鏋佺畝鍖?*锛歚lib/main.dart` 鍙仛 `runApp(const GuayanApp())`锛屼笉鍐嶈烦鏃?HomePage銆佷笉鍐嶅垵濮嬪寲鏃?MistakeStore銆?
+- **`lib/app/`**锛?.0 搴旂敤澹?
+  - `app.dart` 鈥?`GuayanApp`锛歁aterialApp 缁勮 + 鍏ㄥ眬涓婚锛堟祬鑹层€佺揣鍑戯級
+  - `app_shell.dart` 鈥?`AppShell`锛欼ndexedStack 鐘舵€佷繚鎸?+ GuayanMainTabBar 浜斾富瀵艰埅锛圶YUI锛夛紝`selectedIndex` 鍗曚竴鏉冨▉鏉ユ簮锛岄粯璁?Index 0锛堟帓鍗︼級锛涙帓鍗﹂〉鑷甫 XYUI TopBar锛堟棤鍏ㄥ眬 AppBar锛?
+  - `navigation/main_tabs.dart` 鈥?姝ｅ紡浜у搧 IA锛氭帓鍗?瀹″崷/鍏崇郴/鍗︿緥/璁粌锛堥『搴忓浐瀹氾級锛汳ainTab 鍚?title / iconBuilder / builder
+  - `navigation/guayan_main_tab_bar.dart` 鈥?XYUI 鍖栧簳閮ㄥ鑸紙浠诲姟涔?搂15锛夛細娲诲姩搴曡壊 + 鐭㈤噺鍥炬爣锛圙uayanTabIcons锛? 鏍囩
+  - `more_menu.dart` 鈥?銆屾洿澶氥€嶈彍鍗曪細瑙勫垯搴?/ 璁剧疆 / 鍏充簬锛堟敮鎸佽嚜瀹氫箟 icon锛屾帓鍗﹂〉鐢ㄤ笁鐐规牱寮忥級
+- **`lib/core/constants/app_info.dart`**锛氬簲鐢ㄥ悕銆屽崷鐪笺€嶃€佸唴閮ㄧ増鏈€佷富棰樼瀛愯壊甯搁噺
+- **`lib/domain/`锛堥鐣欙級**锛欸UAYAN-2.0-DOMAIN 闃舵鍦ㄦ寤虹珛 HexagramCase / LineState / RelationInstance / RelationNote 绛?
+- **`lib/application/`锛堥鐣欙級**锛氬悗缁敤渚嬪眰锛汧oundation 闃舵浠?AppShell 鐢?StatefulWidget锛屼笉寮曞叆鐘舵€佺鐞嗘鏋?
+- **`lib/presentation/`**锛氫簲涓富椤甸潰 + 瑙勫垯搴?璁剧疆/鍏充簬
+  - `casting/casting_page.dart` 鈥?鎺掑崷椤碉細XYUI 鎺掑崷宸ヤ綔鍙帮紙R1 瀹氱甯冨眬锛氳捣鍗︽椂闂?鈫?闂簨淇℃伅 鈫?鍏埢褰曞叆 鈫?瑙勫垯鍖?鈫?鐢熸垚鎺掔洏锛?
+  - `casting/casting_tokens.dart` 鈥?XYUI 瑙嗚 Token锛堜换鍔′功 搂3 瀹氱鍊硷紝鎺掑崷椤?+ 搴曢儴瀵艰埅鍏辩敤锛?
+  - `casting/casting_page_state.dart` 鈥?GenerationState / DraftState / CastingPageState锛埪? 鍏ㄩ儴瀛楁锛?
+  - `casting/widgets/` 鈥?casting_app_bar / draft_context / time_row / question_row / six_yao_input_panel / six_yao_input_row / yao_glyph / rule_pack_row / generate_row / chip / 鍥涗釜缂栬緫寮瑰眰锛坙ine/time/question/rule_pack sheet锛?
+  - `review/review_page.dart` 鈥?瀹″崷宸ヤ綔鍙?
+  - `relations/relations_page.dart` 鈥?鍏崇郴宸ヤ綔鍙?
+  - `cases/cases_page.dart` 鈥?鍗︿緥宸ヤ綔鍙?
+  - `training/training_page.dart` 鈥?璁粌锛堟棫鍔熻兘鏈潵缁熶竴鏀剁紪锛屾湰闃舵浠?Skeleton锛?
+  - `rules/rule_library_page.dart` 鈥?瑙勫垯搴?Skeleton锛堣嚜瀹氫箟瑙勫垯/瑙勫垯鍖?绯荤粺瑙勫垯锛屾棤 CRUD锛?
+  - `settings/settings_page.dart`銆乣about/about_page.dart` 鈥?鍗犱綅椤?
+  - `shared/module_placeholder.dart` 鈥?妯″潡鍗犱綅鍏辩敤缁勪欢
+- **`lib/services/draft/`**锛氳崏绋胯嚜鍔ㄤ繚瀛樿竟鐣岋紙搂15锛?
+  - `casting_draft.dart` 鈥?鑽夌妯″瀷锛堝惈瑙嗚瀹氱婕旂ず鑽夌 CastingDraft.demo锛?
+  - `draft_repository.dart` 鈥?DraftRepository 鎺ュ彛 + 鍐呭瓨瀹炵幇锛堝悗缁彲鎹㈡湰鍦板瓨鍌級
+- **`test/foundation_test.dart`**锛欰pp Shell 浜斿鑸?/ 鑹崷鍥炬爣 / 鐘舵€佷繚鎸?/ 鏇村鑿滃崟楠屾敹
+- **`test/presentation/casting/casting_page_test.dart`**锛氭帓鍗﹀伐浣滃彴娴嬭瘯锛圱est A鈥揇 / 琛岄『搴?/ 鑽夌浠撳簱 / 绾€昏緫锛?
 
-### 修改
-- `android/gradle.properties` — 低内存开发机约束：JVM 堆 1G、Kotlin daemon 256m、`org.gradle.workers.max=1`，避免构建提交内存耗尽
-- `file-tree.md` — 记录归档提交、新增文件与最后编辑时间
+### 淇敼
+- `android/app/src/main/AndroidManifest.xml` 鈥?Activity 澧炲姞 `android:screenOrientation="portrait"` 閿佸畾绔栧睆锛沴abel 纭銆屽崷鐪笺€?
+- `lib/main.dart` 鈥?鏇挎崲涓?2.0 鏋佺畝鍏ュ彛
+- `file-tree.md` 鈥?璁板綍 2.0 楠ㄦ灦
 
----
-
-## GUAYAN-2.0-DOMAIN — Stable Relation Identity（2026-08-30，未发布）
-
-> 阶段目标：**RelationInstance 可以重建，RelationNote 不能失忆。**
-> 只做四个核心 Domain + 稳定关系身份，不扩范围；完整设计见 `lib/domain/README.md`。
-
-### 新增（lib/domain/ — 纯 Dart 领域层，零 Flutter/外部依赖）
-- `hexagram_case.dart` — 卦例持久化根对象（最小骨架）
-- `line_state.dart` — 一爻状态：稳定爻位 + 动静 + 所值地支
-- `line_endpoint.dart` — 关系端点稳定身份（卦侧 + 爻位）
-- `relation_type.dart` — 关系类型枚举 + 系统规则 RuleId 常量
-- `relation_key.dart` — **Stable Relation Identity 核心**（单一构造入口）
-- `relation_instance.dart` — 一条具体关系（重算可重建）
-- `relation_calculator.dart` — 最小确定性关系计算（动变/六冲/六合）
-- `relation_note.dart` — 关系笔记（caseId + RelationKey 重新绑定）
-- `relation_note_store.dart` — 笔记绑定存储（纯内存 + JSON 导入导出）
-
-### 新增（test/domain/）
-- `domain_test_utils.dart` — 共享演示卦例（动变 + 六冲）
-- `relation_key_test.dart` — Test A 确定性 / Test B 差异性 / 方向处理
-- `relation_key_serialization_test.dart` — RelationKey JSON round-trip 与展示名解耦
-- `relation_rebinding_test.dart` — Test C 重算恢复笔记 / Test D 不串笔记 / Test E 顺序无关
-- `relation_serialization_test.dart` — T8 序列化 → 反序列化 → 重算 → 重新绑定全链
-
-### 新增（scripts/）
-- `flutter.ps1` → 已删除：本机 Flutter 包装脚本移出版本控制（HARDENING T4）。
-  本机工作区保留 `scripts/flutter.local.ps1`（含机器路径与代理端口，已 .gitignore，不入库）
-
-### 修改
-- `lib/domain/README.md` — 占位说明替换为 Stable Relation Identity 设计文档
-- `test/domain/`（新建目录）、`scripts/`（新建目录）
-- `file-tree.md` — 记录 DOMAIN 阶段新增与职责
-
-### 说明
-- RelationKey = 语义坐标（类型机器名 + RuleId + RuleVersion + subtype + 端点），
-  与运行时对象 / UI 顺序 / 数据库 row id 解耦；方向显式处理（有向保序、对称排序）。
+### 璇存槑
+- 鏃ц缁冭祫浜э紙`lib/pages/`銆乣lib/data/`銆乣lib/services/`銆乣lib/models/`銆乣lib/widgets/effects/`銆乣浜旇鐩稿厠鐗规晥/`銆乣浜旇鐩哥敓鐗规晥/` 绛夛級涓€寰嬩繚鐣欐湭杩佺Щ锛屽悗缁繘鍏ャ€岃缁冦€嶉樁娈电粺涓€澶勭悊銆?
+- 鏃?`lib/app.dart`锛坄GuayanTrainerApp`锛変繚鐣欎緵鏃ф祴璇曞紩鐢紝涓?`lib/app/` 鐩綍鍏卞瓨銆?
+- 鍒嗘敮鍒涘缓鍓嶅凡灏嗘湭鍙戝竷 hotfix 鎻愪氦鑷?master锛坄610e81f`锛夊苟鍚堝苟杩滅瀛︿範妯″潡鎻愪氦锛坄5c4bdb6`锛夈€?
 
 ---
 
-## GUAYAN-2.0-DOMAIN-HARDENING — 身份收口（2026-08-30，未发布）
+## 鎴愭灉褰掓。鎻愪氦 鈥?2026-08-27锛堟湭鍙戝竷锛?
 
-> 人工核验后封死 4 个数据兼容问题；不重构、不进入 R3。
-> 验收句：RelationInstance 可重建；RelationNote 不失忆；
-> RuleVersion 变化不能让历史卦例失忆；任意合法 RuleId/Subtype 不能制造身份碰撞；
-> 坏 Case 数据不能制造重复身份。
+> 鑳屾櫙锛氬紑鍙戞満鍐呭瓨鑰楀敖宕╂簝閲嶅惎锛圙radle 鎻愪氦鍐呭瓨 errno 1455锛夛紝鍒ゅ畾鏈満鏆備笉鍏峰缁х画寮€鍙戞潯浠讹紝鍏ㄩ儴宸ヤ綔鎴愭灉涓€娆℃€у綊妗ｆ彁浜ゅ苟鎺ㄩ€?GitHub锛坄feat/guayan-2.0`锛夛紝闃叉鎴愭灉涓㈠け銆傝瑙?`CHANGELOG.md`銆?
 
-### 新增
-- `lib/domain/rule_execution_context.dart` — 规则版本 replay 上下文（RuleVersionRef / RuleExecutionContext）
-- `test/domain/relation_key_collision_test.dart` — T1 canonical 无歧义性（含 `|`/`->`/`<->`/`\` 碰撞回归）
-- `test/domain/rule_version_replay_test.dart` — T2 旧卦例 v1 → 升级 v2 → reload → replay v1 → 笔记恢复
-- `test/domain/domain_invariants_test.dart` — T3 爻位/六爻不变量 + 坏 JSON 拒绝
+### 鏂板
+- `AGENTS.md` 鈥?椤圭洰浠ｇ爜瑙勫垯锛堟枃浠剁粍缁?/ 鏋舵瀯鍒嗗眰 / 鍛藉悕瑙勮寖 / 鏂囨。绾緥 / 鐗堟湰涓庢瀯寤猴級锛孉I 鑷姩閬靛畧
+- `lib/data/training_question.dart` 鈥?2.0 璁粌鏁版嵁妯″瀷锛歚TrainingModule` / `RelationType` / `TrainingQuestion`
+- `lib/data/wuxing_questions.dart` 鈥?浜旇鐢熷厠棰樺簱锛氱浉鐢?5 棰?+ 鐩稿厠 5 棰橈紙10 棰橈級
+- `uploads/` 鈥?鍙傝€冭祫鏂欙細`XYUI1ComponentDocumentView.axaml`銆乣鍗︾溂 2.0 鎬诲紑鍙戣鍒?md`
+- `浜旇鐩稿厠鐗规晥/` 鈥?5 涓浉鍏?HTML 鍔ㄧ敾鍘熷瀷锛堥噾鍏嬫湪/鏈ㄥ厠鍦?鍦熷厠姘?姘村厠鐏?鐏厠閲戯級
+- `浜旇鐩哥敓鐗规晥/` 鈥?5 涓浉鐢?HTML 鍔ㄧ敾鍘熷瀷锛堥噾鐢熸按/姘寸敓鏈?鏈ㄧ敓鐏?鐏敓鍦?鍦熺敓閲戯級
+- `CHANGELOG.md` 鈥?鏂囦欢瀹¤涓庡彉鏇存棩蹇?
 
-### 修改
-- `lib/domain/relation_key.dart` — canonical 无歧义化：字符串字段稳定转义（`\`→`\\`，`|`→`\|`），单射编码
-- `lib/domain/hexagram_case.dart` — 新增 `ruleContext` 字段；runtime 校验恰好 6 爻、position 恰为 1..6、无重复
-- `lib/domain/line_endpoint.dart` / `line_state.dart` — 构造与 JSON 反序列化 runtime 校验爻位（1..6）
-- `lib/domain/relation_calculator.dart` — 规则版本优先取 `case.ruleContext.versionForOrDefault(ruleId)`，无记录回退 v1
-- `.gitignore` — `scripts/flutter.local.ps1` 不入库；`*.apk` 忽略
-- `lib/domain/README.md` — 补充 escaping / replay 契约 / runtime 不变量设计
-- `scripts/flutter.ps1` — 删除（移出版本控制）
-
-### 验证
-- `flutter test` 53/53 通过（原 Test A–E + T8 无回归；新增 23 项）
-- `flutter analyze` 本轮文件 0 issue；Android debug 构建成功；未启动模拟器
+### 淇敼
+- `android/gradle.properties` 鈥?浣庡唴瀛樺紑鍙戞満绾︽潫锛欽VM 鍫?1G銆並otlin daemon 256m銆乣org.gradle.workers.max=1`锛岄伩鍏嶆瀯寤烘彁浜ゅ唴瀛樿€楀敖
+- `file-tree.md` 鈥?璁板綍褰掓。鎻愪氦銆佹柊澧炴枃浠朵笌鏈€鍚庣紪杈戞椂闂?
 
 ---
 
-## 排卦页 XYUI 改造 — Vertical Casting Workflow（2026-08-30，未发布）
+## GUAYAN-2.0-DOMAIN 鈥?Stable Relation Identity锛?026-08-30锛屾湭鍙戝竷锛?
 
-> 方案 2 · 纵向排卦流程轨：起卦时间 → 问事信息 → 六爻输入 → 规则包 → 生成排盘。
-> 视觉以任务书 SVG 为唯一基准；本轮为视觉阶段，步骤摘要为演示占位值，
-> 完整表单与排盘算法属后续阶段。
+> 闃舵鐩爣锛?*RelationInstance 鍙互閲嶅缓锛孯elationNote 涓嶈兘澶卞繂銆?*
+> 鍙仛鍥涗釜鏍稿績 Domain + 绋冲畾鍏崇郴韬唤锛屼笉鎵╄寖鍥达紱瀹屾暣璁捐瑙?`lib/domain/README.md`銆?
 
-### 新增（lib/presentation/casting/）
-- `casting_tokens.dart` — XYUI 视觉 Token 集中（页面/面板/边框/文字/警示/徽标/生成步骤）
-- `casting_page_state.dart` — `CastingStepState`（current/pending/completed/warning/locked）+ `CastingStepData` + `CastingFlowState`
-- `widgets/casting_top_bar.dart` — XYUI 顶栏（标题/副标题/三点更多）
-- `widgets/casting_flow_header.dart` — CASTING FLOW 头部（当前步骤 x/5）
-- `widgets/casting_workflow.dart` — 流程轨组装（rail + 步骤行）
-- `widgets/casting_flow_rail.dart` — 纵向竖线
-- `widgets/casting_step_node.dart` — 节点状态全集（数字/对勾/!/锁，矢量绘制）
-- `widgets/casting_step_card.dart` — 步骤卡（current/pending/completed/warning）
-- `widgets/casting_step_status.dart` — 状态徽标 + chevron
-- `widgets/casting_generate_step.dart` — 生成步骤（locked/ready/completed/warning）
-- `widgets/casting_context_strip.dart` — 流程上下文条（规则包/探针/已完成 x/5）
+### 鏂板锛坙ib/domain/ 鈥?绾?Dart 棰嗗煙灞傦紝闆?Flutter/澶栭儴渚濊禆锛?
+- `hexagram_case.dart` 鈥?鍗︿緥鎸佷箙鍖栨牴瀵硅薄锛堟渶灏忛鏋讹級
+- `line_state.dart` 鈥?涓€鐖荤姸鎬侊細绋冲畾鐖讳綅 + 鍔ㄩ潤 + 鎵€鍊煎湴鏀?
+- `line_endpoint.dart` 鈥?鍏崇郴绔偣绋冲畾韬唤锛堝崷渚?+ 鐖讳綅锛?
+- `relation_type.dart` 鈥?鍏崇郴绫诲瀷鏋氫妇 + 绯荤粺瑙勫垯 RuleId 甯搁噺
+- `relation_key.dart` 鈥?**Stable Relation Identity 鏍稿績**锛堝崟涓€鏋勯€犲叆鍙ｏ級
+- `relation_instance.dart` 鈥?涓€鏉″叿浣撳叧绯伙紙閲嶇畻鍙噸寤猴級
+- `relation_calculator.dart` 鈥?鏈€灏忕‘瀹氭€у叧绯昏绠楋紙鍔ㄥ彉/鍏啿/鍏悎锛?
+- `relation_note.dart` 鈥?鍏崇郴绗旇锛坈aseId + RelationKey 閲嶆柊缁戝畾锛?
+- `relation_note_store.dart` 鈥?绗旇缁戝畾瀛樺偍锛堢函鍐呭瓨 + JSON 瀵煎叆瀵煎嚭锛?
 
-### 新增 / 修改
-- `lib/app/navigation/guayan_main_tab_bar.dart`（新增）— XYUI 底部导航 + 五图标 CustomPainter
-- `lib/app/navigation/main_tabs.dart` — MainTab 增加 iconBuilder（XYUI 图标）
-- `lib/app/app_shell.dart` — NavigationBar → GuayanMainTabBar；排卦页无全局 AppBar
-- `lib/app/more_menu.dart` — 支持自定义 icon
-- `lib/presentation/casting/casting_page.dart` — 重写为流程轨页面（状态机：推进/生成/需重新生成/探针）
-- `test/foundation_test.dart` — 适配新 UI（XYUI 导航/排卦流程轨/探针 Key/三点更多）
-- `test/presentation/casting/casting_page_test.dart`（新增）— 工作流状态测试
+### 鏂板锛坱est/domain/锛?
+- `domain_test_utils.dart` 鈥?鍏变韩婕旂ず鍗︿緥锛堝姩鍙?+ 鍏啿锛?
+- `relation_key_test.dart` 鈥?Test A 纭畾鎬?/ Test B 宸紓鎬?/ 鏂瑰悜澶勭悊
+- `relation_key_serialization_test.dart` 鈥?RelationKey JSON round-trip 涓庡睍绀哄悕瑙ｈ€?
+- `relation_rebinding_test.dart` 鈥?Test C 閲嶇畻鎭㈠绗旇 / Test D 涓嶄覆绗旇 / Test E 椤哄簭鏃犲叧
+- `relation_serialization_test.dart` 鈥?T8 搴忓垪鍖?鈫?鍙嶅簭鍒楀寲 鈫?閲嶇畻 鈫?閲嶆柊缁戝畾鍏ㄩ摼
 
-### 说明
-- 状态进入真实 State（CastingStepState），不从颜色反推；已完成步骤可重新进入，
-  生成后修改关键数据 → 生成步骤标记「需重新生成」（不清空已填内容）。
-- 原「状态探针：0」孤立文本移除，探针语义保留在 Context Strip（可点击递增）。
-- 验证：flutter test 63/63 通过；analyze 本轮文件 0 issue；debug 构建通过。
+### 鏂板锛坰cripts/锛?
+- `flutter.ps1` 鈫?宸插垹闄わ細鏈満 Flutter 鍖呰鑴氭湰绉诲嚭鐗堟湰鎺у埗锛圚ARDENING T4锛夈€?
+  鏈満宸ヤ綔鍖轰繚鐣?`scripts/flutter.local.ps1`锛堝惈鏈哄櫒璺緞涓庝唬鐞嗙鍙ｏ紝宸?.gitignore锛屼笉鍏ュ簱锛?
 
----
+### 淇敼
+- `lib/domain/README.md` 鈥?鍗犱綅璇存槑鏇挎崲涓?Stable Relation Identity 璁捐鏂囨。
+- `test/domain/`锛堟柊寤虹洰褰曪級銆乣scripts/`锛堟柊寤虹洰褰曪級
+- `file-tree.md` 鈥?璁板綍 DOMAIN 闃舵鏂板涓庤亴璐?
 
-## 未发布变更 — 2026-05-26
-
-### 修复
-- **错题回炉初始化**：`MistakeStore` 新增显式 `init()`，应用启动时真正等待 SharedPreferences 数据加载，避免首页/练习/回炉首次读取错题数量为空。
-- **连连看构建错误**：修复 `LinkMatchGamePage` HUD 中动态错误数使用 `const TextStyle` 导致的编译失败。
-
-### 修改文件
-- `lib/main.dart` — 启动时调用 `MistakeStore.instance.init()`。
-- `lib/services/mistake_store.dart` — 暴露初始化入口，保留同步 `all` 读取缓存。
-- `lib/pages/practice/games/link_match_game_page.dart` — 修复动态 HUD 样式的 const 使用。
-- `file-tree.md` — 更新最后编辑时间、未发布变更和相关职责说明。
+### 璇存槑
+- RelationKey = 璇箟鍧愭爣锛堢被鍨嬫満鍣ㄥ悕 + RuleId + RuleVersion + subtype + 绔偣锛夛紝
+  涓庤繍琛屾椂瀵硅薄 / UI 椤哄簭 / 鏁版嵁搴?row id 瑙ｈ€︼紱鏂瑰悜鏄惧紡澶勭悊锛堟湁鍚戜繚搴忋€佸绉版帓搴忥級銆?
 
 ---
 
-## 未发布更新日志（远端合并）
+## GUAYAN-2.0-DOMAIN-HARDENING 鈥?韬唤鏀跺彛锛?026-08-30锛屾湭鍙戝竷锛?
 
-### 新增
-- **五行意象学习页**：`WuxingImageryPage` — 五行知识总卡 + 颜色、五味、脏腑、方位、品质、数字、四季、地支五行分板块意象
-- **八卦学习页**：`BaguaStudyPage` — 八卦产生、歌诀、知识总卡、八卦分卡、病象折叠与文王卦使用提示
+> 浜哄伐鏍搁獙鍚庡皝姝?4 涓暟鎹吋瀹归棶棰橈紱涓嶉噸鏋勩€佷笉杩涘叆 R3銆?
+> 楠屾敹鍙ワ細RelationInstance 鍙噸寤猴紱RelationNote 涓嶅け蹇嗭紱
+> RuleVersion 鍙樺寲涓嶈兘璁╁巻鍙插崷渚嬪け蹇嗭紱浠绘剰鍚堟硶 RuleId/Subtype 涓嶈兘鍒堕€犺韩浠界鎾烇紱
+> 鍧?Case 鏁版嵁涓嶈兘鍒堕€犻噸澶嶈韩浠姐€?
 
-### 修改
-- **学习入口命名**：`五行生克` 改为 `五行模块`
-- **学习入口扩展**：新增 `八卦模块`，位于五行模块之后、十二地支之前
-- **五行模块目录**：拆分 `五行颜色` 与 `五行意象`，后续相生、相克、以我为中心顺延
-- **五行颜色页**：下一步跳转改为进入 `五行意象`
+### 鏂板
+- `lib/domain/rule_execution_context.dart` 鈥?瑙勫垯鐗堟湰 replay 涓婁笅鏂囷紙RuleVersionRef / RuleExecutionContext锛?
+- `test/domain/relation_key_collision_test.dart` 鈥?T1 canonical 鏃犳涔夋€э紙鍚?`|`/`->`/`<->`/`\` 纰版挒鍥炲綊锛?
+- `test/domain/rule_version_replay_test.dart` 鈥?T2 鏃у崷渚?v1 鈫?鍗囩骇 v2 鈫?reload 鈫?replay v1 鈫?绗旇鎭㈠
+- `test/domain/domain_invariants_test.dart` 鈥?T3 鐖讳綅/鍏埢涓嶅彉閲?+ 鍧?JSON 鎷掔粷
 
----
+### 淇敼
+- `lib/domain/relation_key.dart` 鈥?canonical 鏃犳涔夊寲锛氬瓧绗︿覆瀛楁绋冲畾杞箟锛坄\`鈫抈\\`锛宍|`鈫抈\|`锛夛紝鍗曞皠缂栫爜
+- `lib/domain/hexagram_case.dart` 鈥?鏂板 `ruleContext` 瀛楁锛況untime 鏍￠獙鎭板ソ 6 鐖汇€乸osition 鎭颁负 1..6銆佹棤閲嶅
+- `lib/domain/line_endpoint.dart` / `line_state.dart` 鈥?鏋勯€犱笌 JSON 鍙嶅簭鍒楀寲 runtime 鏍￠獙鐖讳綅锛?..6锛?
+- `lib/domain/relation_calculator.dart` 鈥?瑙勫垯鐗堟湰浼樺厛鍙?`case.ruleContext.versionForOrDefault(ruleId)`锛屾棤璁板綍鍥為€€ v1
+- `.gitignore` 鈥?`scripts/flutter.local.ps1` 涓嶅叆搴擄紱`*.apk` 蹇界暐
+- `lib/domain/README.md` 鈥?琛ュ厖 escaping / replay 濂戠害 / runtime 涓嶅彉閲忚璁?
+- `scripts/flutter.ps1` 鈥?鍒犻櫎锛堢Щ鍑虹増鏈帶鍒讹級
 
-## 当前版本更新日志 — v0.1.10
-
-> 发布日期：2026-05-22 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.10)
-
-### 新增
-- **关系连连看游戏**：`LinkMatchGamePage` — 25 组配对 / 50 张卡牌消除模板
-- **`PracticeMode.linkMatch`**：第三种练习模式
-- **`HitEffectKind` / `FallingRuleKind`** 枚举：为后续地支合/冲预留
-
-### 游戏规则
-- 上方源牌 25 张 + 下方目标牌 25 张，各自打乱
-- 点击源牌 → 高亮 → 点击目标牌完成配对
-- 正确：❤️/⚡ 反馈 + 两张牌消除消失 + 加分连击
-- 错误：扣命 + 显示正确答案 + 写入回炉
-- 默认 5 条命，全部配完或命用完 → 结果页
-
-### 新增文件
-- `lib/pages/practice/games/link_match_game_page.dart` — 连连看游戏主页面
-
-### 修改文件
-- `lib/models/practice/practice_enums.dart` — PracticeMode.linkMatch + HitEffectKind + FallingRuleKind
-- `lib/pages/practice/practice_setup_page.dart` — 新增连连看模式选择与跳转
-- `lib/pages/practice/practice_result_page.dart` — 新增 matchedCount/totalPairs 参数
-- `lib/pages/practice/practice_page.dart` — 趣味游戏区增加连连看入口
-- `lib/utils/practice_labels.dart` — PracticeStage 增加 linkMatch
-- `lib/theme/wuxing_colors.dart` — 金颜色优化
+### 楠岃瘉
+- `flutter test` 53/53 閫氳繃锛堝師 Test A鈥揈 + T8 鏃犲洖褰掞紱鏂板 23 椤癸級
+- `flutter analyze` 鏈疆鏂囦欢 0 issue锛汚ndroid debug 鏋勫缓鎴愬姛锛涙湭鍚姩妯℃嫙鍣?
 
 ---
 
-## 前版更新日志 — v0.1.9
+## 鎺掑崷椤?XYUI 鏀归€?鈥?Vertical Casting Workflow锛?026-08-30锛屾湭鍙戝竷锛?
 
-> 发布日期：2026-05-22 · [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.9)
+> 鏂规 2 路 绾靛悜鎺掑崷娴佺▼杞細璧峰崷鏃堕棿 鈫?闂簨淇℃伅 鈫?鍏埢杈撳叆 鈫?瑙勫垯鍖?鈫?鐢熸垚鎺掔洏銆?
+> 瑙嗚浠ヤ换鍔′功 SVG 涓哄敮涓€鍩哄噯锛涙湰杞负瑙嗚闃舵锛屾楠ゆ憳瑕佷负婕旂ず鍗犱綅鍊硷紝
+> 瀹屾暣琛ㄥ崟涓庢帓鐩樼畻娉曞睘鍚庣画闃舵銆?
 
-### 新增
-- **方块速答游戏**：通用单方块下落模板 `FallingBlockGamePage`
-- **`PracticeMode.fallingBlock`**：正式启用方块速答模式
-- **`PracticeSetupPage` 模式选择**：普通练习 / 方块速答 二选一切换
-- **`PracticeResultPage` 游戏统计**：新增 `score` / `maxCombo` / `remainingLives` 可选显示
-- **错题写入**：答错/漏掉统一走 `MistakeStore.addOrUpdateMistake`，漏掉显示"未作答"
+### 鏂板锛坙ib/presentation/casting/锛?
+- `casting_tokens.dart` 鈥?XYUI 瑙嗚 Token 闆嗕腑锛堥〉闈?闈㈡澘/杈规/鏂囧瓧/璀︾ず/寰芥爣/鐢熸垚姝ラ锛?
+- `casting_page_state.dart` 鈥?`CastingStepState`锛坈urrent/pending/completed/warning/locked锛? `CastingStepData` + `CastingFlowState`
+- `widgets/casting_top_bar.dart` 鈥?XYUI 椤舵爮锛堟爣棰?鍓爣棰?涓夌偣鏇村锛?
+- `widgets/casting_flow_header.dart` 鈥?CASTING FLOW 澶撮儴锛堝綋鍓嶆楠?x/5锛?
+- `widgets/casting_workflow.dart` 鈥?娴佺▼杞ㄧ粍瑁咃紙rail + 姝ラ琛岋級
+- `widgets/casting_flow_rail.dart` 鈥?绾靛悜绔栫嚎
+- `widgets/casting_step_node.dart` 鈥?鑺傜偣鐘舵€佸叏闆嗭紙鏁板瓧/瀵瑰嬀/!/閿侊紝鐭㈤噺缁樺埗锛?
+- `widgets/casting_step_card.dart` 鈥?姝ラ鍗★紙current/pending/completed/warning锛?
+- `widgets/casting_step_status.dart` 鈥?鐘舵€佸窘鏍?+ chevron
+- `widgets/casting_generate_step.dart` 鈥?鐢熸垚姝ラ锛坙ocked/ready/completed/warning锛?
+- `widgets/casting_context_strip.dart` 鈥?娴佺▼涓婁笅鏂囨潯锛堣鍒欏寘/鎺㈤拡/宸插畬鎴?x/5锛?
 
-### 游戏规则
-- 题目方块从上往下掉，点击底部正确答案
-- 答对：得分 +10+连击，连击递增
-- 答错：生命 -1，连击清零，写入回炉
-- 漏掉：生命 -1，标记超时，写入回炉
-- 基础下落 4500ms，每 5 连击加速 250ms，最低 2200ms
-- 题目用完或生命归零 → 结果页
+### 鏂板 / 淇敼
+- `lib/app/navigation/guayan_main_tab_bar.dart`锛堟柊澧烇級鈥?XYUI 搴曢儴瀵艰埅 + 浜斿浘鏍?CustomPainter
+- `lib/app/navigation/main_tabs.dart` 鈥?MainTab 澧炲姞 iconBuilder锛圶YUI 鍥炬爣锛?
+- `lib/app/app_shell.dart` 鈥?NavigationBar 鈫?GuayanMainTabBar锛涙帓鍗﹂〉鏃犲叏灞€ AppBar
+- `lib/app/more_menu.dart` 鈥?鏀寔鑷畾涔?icon
+- `lib/presentation/casting/casting_page.dart` 鈥?閲嶅啓涓烘祦绋嬭建椤甸潰锛堢姸鎬佹満锛氭帹杩?鐢熸垚/闇€閲嶆柊鐢熸垚/鎺㈤拡锛?
+- `test/foundation_test.dart` 鈥?閫傞厤鏂?UI锛圶YUI 瀵艰埅/鎺掑崷娴佺▼杞?鎺㈤拡 Key/涓夌偣鏇村锛?
+- `test/presentation/casting/casting_page_test.dart`锛堟柊澧烇級鈥?宸ヤ綔娴佺姸鎬佹祴璇?
 
-### 新增文件
-- `lib/pages/practice/games/falling_block_game_page.dart` — 打方块游戏主页面
-
-### 修改文件
-- `lib/models/practice/practice_enums.dart` — PracticeMode 增加 fallingBlock
-- `lib/pages/practice/practice_setup_page.dart` — 增加模式选择与跳转
-- `lib/pages/practice/practice_result_page.dart` — 增加游戏统计字段
+### 璇存槑
+- 鐘舵€佽繘鍏ョ湡瀹?State锛圕astingStepState锛夛紝涓嶄粠棰滆壊鍙嶆帹锛涘凡瀹屾垚姝ラ鍙噸鏂拌繘鍏ワ紝
+  鐢熸垚鍚庝慨鏀瑰叧閿暟鎹?鈫?鐢熸垚姝ラ鏍囪銆岄渶閲嶆柊鐢熸垚銆嶏紙涓嶆竻绌哄凡濉唴瀹癸級銆?
+- 鍘熴€岀姸鎬佹帰閽堬細0銆嶅绔嬫枃鏈Щ闄わ紝鎺㈤拡璇箟淇濈暀鍦?Context Strip锛堝彲鐐瑰嚮閫掑锛夈€?
+- 楠岃瘉锛歠lutter test 63/63 閫氳繃锛沘nalyze 鏈疆鏂囦欢 0 issue锛沝ebug 鏋勫缓閫氳繃銆?
 
 ---
 
-**卦眼训练器** 是断卦基本功训练 App，用于训练五行生克、地支、六冲六合等基础知识。
+## 鏈彂甯冨彉鏇?鈥?2026-05-26
 
-当前技术栈：
+### 淇
+- **閿欓鍥炵倝鍒濆鍖?*锛歚MistakeStore` 鏂板鏄惧紡 `init()`锛屽簲鐢ㄥ惎鍔ㄦ椂鐪熸绛夊緟 SharedPreferences 鏁版嵁鍔犺浇锛岄伩鍏嶉椤?缁冧範/鍥炵倝棣栨璇诲彇閿欓鏁伴噺涓虹┖銆?
+- **杩炶繛鐪嬫瀯寤洪敊璇?*锛氫慨澶?`LinkMatchGamePage` HUD 涓姩鎬侀敊璇暟浣跨敤 `const TextStyle` 瀵艰嚧鐨勭紪璇戝け璐ャ€?
 
-| 类型 | 技术 |
+### 淇敼鏂囦欢
+- `lib/main.dart` 鈥?鍚姩鏃惰皟鐢?`MistakeStore.instance.init()`銆?
+- `lib/services/mistake_store.dart` 鈥?鏆撮湶鍒濆鍖栧叆鍙ｏ紝淇濈暀鍚屾 `all` 璇诲彇缂撳瓨銆?
+- `lib/pages/practice/games/link_match_game_page.dart` 鈥?淇鍔ㄦ€?HUD 鏍峰紡鐨?const 浣跨敤銆?
+- `file-tree.md` 鈥?鏇存柊鏈€鍚庣紪杈戞椂闂淬€佹湭鍙戝竷鍙樻洿鍜岀浉鍏宠亴璐ｈ鏄庛€?
+
+---
+
+## 鏈彂甯冩洿鏂版棩蹇楋紙杩滅鍚堝苟锛?
+
+### 鏂板
+- **浜旇鎰忚薄瀛︿範椤?*锛歚WuxingImageryPage` 鈥?浜旇鐭ヨ瘑鎬诲崱 + 棰滆壊銆佷簲鍛炽€佽剰鑵戙€佹柟浣嶃€佸搧璐ㄣ€佹暟瀛椼€佸洓瀛ｃ€佸湴鏀簲琛屽垎鏉垮潡鎰忚薄
+- **鍏崷瀛︿範椤?*锛歚BaguaStudyPage` 鈥?鍏崷浜х敓銆佹瓕璇€銆佺煡璇嗘€诲崱銆佸叓鍗﹀垎鍗°€佺梾璞℃姌鍙犱笌鏂囩帇鍗︿娇鐢ㄦ彁绀?
+
+### 淇敼
+- **瀛︿範鍏ュ彛鍛藉悕**锛歚浜旇鐢熷厠` 鏀逛负 `浜旇妯″潡`
+- **瀛︿範鍏ュ彛鎵╁睍**锛氭柊澧?`鍏崷妯″潡`锛屼綅浜庝簲琛屾ā鍧椾箣鍚庛€佸崄浜屽湴鏀箣鍓?
+- **浜旇妯″潡鐩綍**锛氭媶鍒?`浜旇棰滆壊` 涓?`浜旇鎰忚薄`锛屽悗缁浉鐢熴€佺浉鍏嬨€佷互鎴戜负涓績椤哄欢
+- **浜旇棰滆壊椤?*锛氫笅涓€姝ヨ烦杞敼涓鸿繘鍏?`浜旇鎰忚薄`
+
+---
+
+## 褰撳墠鐗堟湰鏇存柊鏃ュ織 鈥?v0.1.10
+
+> 鍙戝竷鏃ユ湡锛?026-05-22 路 [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.10)
+
+### 鏂板
+- **鍏崇郴杩炶繛鐪嬫父鎴?*锛歚LinkMatchGamePage` 鈥?25 缁勯厤瀵?/ 50 寮犲崱鐗屾秷闄ゆā鏉?
+- **`PracticeMode.linkMatch`**锛氱涓夌缁冧範妯″紡
+- **`HitEffectKind` / `FallingRuleKind`** 鏋氫妇锛氫负鍚庣画鍦版敮鍚?鍐查鐣?
+
+### 娓告垙瑙勫垯
+- 涓婃柟婧愮墝 25 寮?+ 涓嬫柟鐩爣鐗?25 寮狅紝鍚勮嚜鎵撲贡
+- 鐐瑰嚮婧愮墝 鈫?楂樹寒 鈫?鐐瑰嚮鐩爣鐗屽畬鎴愰厤瀵?
+- 姝ｇ‘锛氣潳锔?鈿?鍙嶉 + 涓ゅ紶鐗屾秷闄ゆ秷澶?+ 鍔犲垎杩炲嚮
+- 閿欒锛氭墸鍛?+ 鏄剧ず姝ｇ‘绛旀 + 鍐欏叆鍥炵倝
+- 榛樿 5 鏉″懡锛屽叏閮ㄩ厤瀹屾垨鍛界敤瀹?鈫?缁撴灉椤?
+
+### 鏂板鏂囦欢
+- `lib/pages/practice/games/link_match_game_page.dart` 鈥?杩炶繛鐪嬫父鎴忎富椤甸潰
+
+### 淇敼鏂囦欢
+- `lib/models/practice/practice_enums.dart` 鈥?PracticeMode.linkMatch + HitEffectKind + FallingRuleKind
+- `lib/pages/practice/practice_setup_page.dart` 鈥?鏂板杩炶繛鐪嬫ā寮忛€夋嫨涓庤烦杞?
+- `lib/pages/practice/practice_result_page.dart` 鈥?鏂板 matchedCount/totalPairs 鍙傛暟
+- `lib/pages/practice/practice_page.dart` 鈥?瓒ｅ懗娓告垙鍖哄鍔犺繛杩炵湅鍏ュ彛
+- `lib/utils/practice_labels.dart` 鈥?PracticeStage 澧炲姞 linkMatch
+- `lib/theme/wuxing_colors.dart` 鈥?閲戦鑹蹭紭鍖?
+
+---
+
+## 鍓嶇増鏇存柊鏃ュ織 鈥?v0.1.9
+
+> 鍙戝竷鏃ユ湡锛?026-05-22 路 [GitHub Release](https://github.com/Heaifan/guayan_trainer/releases/tag/v0.1.9)
+
+### 鏂板
+- **鏂瑰潡閫熺瓟娓告垙**锛氶€氱敤鍗曟柟鍧椾笅钀芥ā鏉?`FallingBlockGamePage`
+- **`PracticeMode.fallingBlock`**锛氭寮忓惎鐢ㄦ柟鍧楅€熺瓟妯″紡
+- **`PracticeSetupPage` 妯″紡閫夋嫨**锛氭櫘閫氱粌涔?/ 鏂瑰潡閫熺瓟 浜岄€変竴鍒囨崲
+- **`PracticeResultPage` 娓告垙缁熻**锛氭柊澧?`score` / `maxCombo` / `remainingLives` 鍙€夋樉绀?
+- **閿欓鍐欏叆**锛氱瓟閿?婕忔帀缁熶竴璧?`MistakeStore.addOrUpdateMistake`锛屾紡鎺夋樉绀?鏈綔绛?
+
+### 娓告垙瑙勫垯
+- 棰樼洰鏂瑰潡浠庝笂寰€涓嬫帀锛岀偣鍑诲簳閮ㄦ纭瓟妗?
+- 绛斿锛氬緱鍒?+10+杩炲嚮锛岃繛鍑婚€掑
+- 绛旈敊锛氱敓鍛?-1锛岃繛鍑绘竻闆讹紝鍐欏叆鍥炵倝
+- 婕忔帀锛氱敓鍛?-1锛屾爣璁拌秴鏃讹紝鍐欏叆鍥炵倝
+- 鍩虹涓嬭惤 4500ms锛屾瘡 5 杩炲嚮鍔犻€?250ms锛屾渶浣?2200ms
+- 棰樼洰鐢ㄥ畬鎴栫敓鍛藉綊闆?鈫?缁撴灉椤?
+
+### 鏂板鏂囦欢
+- `lib/pages/practice/games/falling_block_game_page.dart` 鈥?鎵撴柟鍧楁父鎴忎富椤甸潰
+
+### 淇敼鏂囦欢
+- `lib/models/practice/practice_enums.dart` 鈥?PracticeMode 澧炲姞 fallingBlock
+- `lib/pages/practice/practice_setup_page.dart` 鈥?澧炲姞妯″紡閫夋嫨涓庤烦杞?
+- `lib/pages/practice/practice_result_page.dart` 鈥?澧炲姞娓告垙缁熻瀛楁
+
+---
+
+**鍗︾溂璁粌鍣?* 鏄柇鍗﹀熀鏈姛璁粌 App锛岀敤浜庤缁冧簲琛岀敓鍏嬨€佸湴鏀€佸叚鍐插叚鍚堢瓑鍩虹鐭ヨ瘑銆?
+
+褰撳墠鎶€鏈爤锛?
+
+| 绫诲瀷 | 鎶€鏈?|
 | --- | --- |
-| 前端框架 | Flutter 3.x |
-| 语言 | Dart 3.x |
-| 目标平台 | Android |
+| 鍓嶇妗嗘灦 | Flutter 3.x |
+| 璇█ | Dart 3.x |
+| 鐩爣骞冲彴 | Android |
 
-核心训练闭环：学习 → 练习 → 出错/迟疑 → 回炉 → 再练习。
+鏍稿績璁粌闂幆锛氬涔?鈫?缁冧範 鈫?鍑洪敊/杩熺枒 鈫?鍥炵倝 鈫?鍐嶇粌涔犮€?
 
 ---
 
-## 2. 顶层目录结构
+## 2. 椤跺眰鐩綍缁撴瀯
 
 ```text
 guayan_trainer/
-├── .claude/                # AI 协作规则
-├── android/                # Android 原生壳
-├── assets/                 # 随包资源（assets/calendar/ = 年度历法数据包）
-├── lib/                    # 主程序源码
-├── memory/                 # 记忆与反馈记录
-├── scripts/                # 开发辅助脚本（本机 flutter 包装）
-├── test/                   # 测试
-├── tool/                   # 开发阶段工具（不参与 App 运行时）
-├── uploads/                # 参考资料（开发计划、组件文档）
-├── 五行相克特效/            # 相克 HTML 动画原型（5 个）
-├── 五行相生特效/            # 相生 HTML 动画原型（5 个）
-├── AGENTS.md               # 项目代码规则（AI 自动遵守）
-├── CHANGELOG.md            # 文件审计与变更日志
-├── file-tree.md            # 项目结构说明文档
-└── pubspec.yaml            # Flutter 依赖配置
+鈹溾攢鈹€ .claude/                # AI 鍗忎綔瑙勫垯
+鈹溾攢鈹€ android/                # Android 鍘熺敓澹?
+鈹溾攢鈹€ assets/                 # 闅忓寘璧勬簮锛坅ssets/calendar/ = 骞村害鍘嗘硶鏁版嵁鍖咃級
+鈹溾攢鈹€ lib/                    # 涓荤▼搴忔簮鐮?
+鈹溾攢鈹€ memory/                 # 璁板繂涓庡弽棣堣褰?
+鈹溾攢鈹€ scripts/                # 寮€鍙戣緟鍔╄剼鏈紙鏈満 flutter 鍖呰锛?
+鈹溾攢鈹€ test/                   # 娴嬭瘯
+鈹溾攢鈹€ tool/                   # 寮€鍙戦樁娈靛伐鍏凤紙涓嶅弬涓?App 杩愯鏃讹級
+鈹溾攢鈹€ uploads/                # 鍙傝€冭祫鏂欙紙寮€鍙戣鍒掋€佺粍浠舵枃妗ｏ級
+鈹溾攢鈹€ 浜旇鐩稿厠鐗规晥/            # 鐩稿厠 HTML 鍔ㄧ敾鍘熷瀷锛? 涓級
+鈹溾攢鈹€ 浜旇鐩哥敓鐗规晥/            # 鐩哥敓 HTML 鍔ㄧ敾鍘熷瀷锛? 涓級
+鈹溾攢鈹€ AGENTS.md               # 椤圭洰浠ｇ爜瑙勫垯锛圓I 鑷姩閬靛畧锛?
+鈹溾攢鈹€ CHANGELOG.md            # 鏂囦欢瀹¤涓庡彉鏇存棩蹇?
+鈹溾攢鈹€ file-tree.md            # 椤圭洰缁撴瀯璇存槑鏂囨。
+鈹斺攢鈹€ pubspec.yaml            # Flutter 渚濊禆閰嶇疆
 ```
 
 ---
 
-## 3. lib 目录结构
+## 3. lib 鐩綍缁撴瀯
 
 ```text
 lib/
-├── main.dart               # 应用入口
-├── app.dart                # MaterialApp 主题配置
-├── app/                    # 2.0 应用壳（GuayanApp / AppShell / 导航）
-├── core/                   # 2.0 常量
-├── domain/                 # 2.0 领域层（DOMAIN + R3 排盘引擎 + R3-B 历法层）
-├── application/            # 2.0 用例层（预留）
-├── presentation/           # 2.0 五个主页面 + 规则库/设置/关于
-├── shell/                  # 旧导航壳（1.0 遗留）
-├── theme/                  # 颜色系统
-├── data/                   # 数据层：纯数据映射与常量
-├── models/                 # 模型层：类型定义
-├── services/               # 服务层：业务逻辑
-├── pages/                  # 页面层：按功能分子目录（1.0 遗留）
-└── widgets/                # 组件层：可复用组件（1.0 遗留）
+鈹溾攢鈹€ main.dart               # 搴旂敤鍏ュ彛
+鈹溾攢鈹€ app.dart                # MaterialApp 涓婚閰嶇疆
+鈹溾攢鈹€ app/                    # 2.0 搴旂敤澹筹紙GuayanApp / AppShell / 瀵艰埅锛?
+鈹溾攢鈹€ core/                   # 2.0 甯搁噺
+鈹溾攢鈹€ domain/                 # 2.0 棰嗗煙灞傦紙DOMAIN + R3 鎺掔洏寮曟搸 + R3-B 鍘嗘硶灞傦級
+鈹溾攢鈹€ application/            # 2.0 鐢ㄤ緥灞傦紙棰勭暀锛?
+鈹溾攢鈹€ presentation/           # 2.0 浜斾釜涓婚〉闈?+ 瑙勫垯搴?璁剧疆/鍏充簬
+鈹溾攢鈹€ shell/                  # 鏃у鑸３锛?.0 閬楃暀锛?
+鈹溾攢鈹€ theme/                  # 棰滆壊绯荤粺
+鈹溾攢鈹€ data/                   # 鏁版嵁灞傦細绾暟鎹槧灏勪笌甯搁噺
+鈹溾攢鈹€ models/                 # 妯″瀷灞傦細绫诲瀷瀹氫箟
+鈹溾攢鈹€ services/               # 鏈嶅姟灞傦細涓氬姟閫昏緫
+鈹溾攢鈹€ pages/                  # 椤甸潰灞傦細鎸夊姛鑳藉垎瀛愮洰褰曪紙1.0 閬楃暀锛?
+鈹斺攢鈹€ widgets/                # 缁勪欢灞傦細鍙鐢ㄧ粍浠讹紙1.0 閬楃暀锛?
 ```
 
 ---
 
-## 4. 模块职责说明
+## 4. 妯″潡鑱岃矗璇存槑
 
-| 模块 | 职责 | 是否依赖 Flutter/Widget |
+| 妯″潡 | 鑱岃矗 | 鏄惁渚濊禆 Flutter/Widget |
 | --- | --- | --- |
-| `theme/` | 五行颜色系统、主题色常量 | 是（Color） |
-| `shell/` | 底部导航壳、页面切换 | 是 |
-| `data/` | 数据表、常量、纯映射（五行/地支/冲合） | 否 |
-| `models/` | 类型定义、数据结构 | 否 |
-| `services/` | 出题引擎、错题存储 | 否 |
-| `pages/` | 页面组件与用户交互 | 是 |
-| `widgets/` | 可复用 UI 组件 | 是 |
+| `theme/` | 浜旇棰滆壊绯荤粺銆佷富棰樿壊甯搁噺 | 鏄紙Color锛?|
+| `shell/` | 搴曢儴瀵艰埅澹炽€侀〉闈㈠垏鎹?| 鏄?|
+| `data/` | 鏁版嵁琛ㄣ€佸父閲忋€佺函鏄犲皠锛堜簲琛?鍦版敮/鍐插悎锛?| 鍚?|
+| `models/` | 绫诲瀷瀹氫箟銆佹暟鎹粨鏋?| 鍚?|
+| `services/` | 鍑洪寮曟搸銆侀敊棰樺瓨鍌?| 鍚?|
+| `pages/` | 椤甸潰缁勪欢涓庣敤鎴蜂氦浜?| 鏄?|
+| `widgets/` | 鍙鐢?UI 缁勪欢 | 鏄?|
 
 ---
 
-## 5. 关键文件职责
+## 5. 鍏抽敭鏂囦欢鑱岃矗
 
-### 5.1 根目录
+### 5.1 鏍圭洰褰?
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `pubspec.yaml` | 项目元信息、依赖声明与 flutter 配置 |
-| `file-tree.md` | 项目文件树与模块说明文档 |
+| `pubspec.yaml` | 椤圭洰鍏冧俊鎭€佷緷璧栧０鏄庝笌 flutter 閰嶇疆 |
+| `file-tree.md` | 椤圭洰鏂囦欢鏍戜笌妯″潡璇存槑鏂囨。 |
 
 ### 5.2 .claude/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `CLAUDE.md` | AI 协作规则：文件组织、架构分层、命名规范、文档纪律 |
+| `CLAUDE.md` | AI 鍗忎綔瑙勫垯锛氭枃浠剁粍缁囥€佹灦鏋勫垎灞傘€佸懡鍚嶈鑼冦€佹枃妗ｇ邯寰?|
 
 ### 5.3 lib/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `main.dart` | 应用入口，初始化错题缓存后调用 `runApp` 启动 `GuayanTrainerApp` |
-| `app.dart` | MaterialApp 组装，配置古风主题色系，home 指向 `MainShell` |
+| `main.dart` | 搴旂敤鍏ュ彛锛屽垵濮嬪寲閿欓缂撳瓨鍚庤皟鐢?`runApp` 鍚姩 `GuayanTrainerApp` |
+| `app.dart` | MaterialApp 缁勮锛岄厤缃彜椋庝富棰樿壊绯伙紝home 鎸囧悜 `MainShell` |
 
-### 5.3.1 lib/domain/（2.0 领域层）
+### 5.3.1 lib/domain/锛?.0 棰嗗煙灞傦級
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `hexagram_case.dart` | 卦例持久化根对象：id / question / createdAt / lines[6] |
-| `line_state.dart` | 一爻状态：爻位 / 动静（老阴老阳发动）/ 所值地支 |
-| `line_endpoint.dart` | 关系端点稳定身份：卦侧（original/changed）+ 爻位（1..6） |
-| `relation_type.dart` | 关系类型枚举 + 方向类别 + 展示名 + 系统 RuleId 常量 |
-| `relation_key.dart` | 关系稳定语义 key（Stable Relation Identity 核心） |
-| `relation_instance.dart` | 一条具体关系实例（身份以 key 为准，可重算重建） |
-| `relation_calculator.dart` | 最小确定性关系计算：动变 / 六冲 / 六合 |
-| `relation_note.dart` | 关系笔记实体（caseId + RelationKey 绑定） |
-| `relation_note_store.dart` | 笔记绑定存储：纯内存 + JSON 导入导出 |
-| `README.md` | 领域设计与 Stable Relation Identity 说明 |
-| `wu_xing.dart` | 五行 + 生克；`relationTo(self)` 为六亲判定唯一入口（R3） |
-| `di_zhi.dart` | 十二地支：五行 / 阴阳 / 六冲 / 六合（R3） |
-| `tian_gan.dart` | 十天干：五行 / 阴阳 / 六十甲子取干（R3） |
+| `hexagram_case.dart` | 鍗︿緥鎸佷箙鍖栨牴瀵硅薄锛歩d / question / createdAt / lines[6] |
+| `line_state.dart` | 涓€鐖荤姸鎬侊細鐖讳綅 / 鍔ㄩ潤锛堣€侀槾鑰侀槼鍙戝姩锛? 鎵€鍊煎湴鏀?|
+| `line_endpoint.dart` | 鍏崇郴绔偣绋冲畾韬唤锛氬崷渚э紙original/changed锛? 鐖讳綅锛?..6锛?|
+| `relation_type.dart` | 鍏崇郴绫诲瀷鏋氫妇 + 鏂瑰悜绫诲埆 + 灞曠ず鍚?+ 绯荤粺 RuleId 甯搁噺 |
+| `relation_key.dart` | 鍏崇郴绋冲畾璇箟 key锛圫table Relation Identity 鏍稿績锛?|
+| `relation_instance.dart` | 涓€鏉″叿浣撳叧绯诲疄渚嬶紙韬唤浠?key 涓哄噯锛屽彲閲嶇畻閲嶅缓锛?|
+| `relation_calculator.dart` | 鏈€灏忕‘瀹氭€у叧绯昏绠楋細鍔ㄥ彉 / 鍏啿 / 鍏悎 |
+| `relation_note.dart` | 鍏崇郴绗旇瀹炰綋锛坈aseId + RelationKey 缁戝畾锛?|
+| `relation_note_store.dart` | 绗旇缁戝畾瀛樺偍锛氱函鍐呭瓨 + JSON 瀵煎叆瀵煎嚭 |
+| `README.md` | 棰嗗煙璁捐涓?Stable Relation Identity 璇存槑 |
+| `wu_xing.dart` | 浜旇 + 鐢熷厠锛沗relationTo(self)` 涓哄叚浜插垽瀹氬敮涓€鍏ュ彛锛圧3锛?|
+| `di_zhi.dart` | 鍗佷簩鍦版敮锛氫簲琛?/ 闃撮槼 / 鍏啿 / 鍏悎锛圧3锛?|
+| `tian_gan.dart` | 鍗佸ぉ骞诧細浜旇 / 闃撮槼 / 鍏崄鐢插瓙鍙栧共锛圧3锛?|
 
-### 5.3.2 lib/domain/casting/（R3 排盘引擎）
+### 5.3.2 lib/domain/casting/锛圧3 鎺掔洏寮曟搸锛?
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `bagua.dart` | 八卦（三爻自下而上）+ 卦符 + 五行 + 先天序 |
-| `najia.dart` | 纳甲表（干支）：乾纳甲壬、坤纳乙癸；内外卦分别装卦 |
-| `palace.dart` | 京房八宫卦序 + 世应（算法生成，非硬编码 64 条） |
-| `hexagram_names.dart` | 六十四卦名表（上卦 × 下卦） |
-| `hexagram64.dart` | 六爻阴阳 → 卦名 / 宫位 / 世应 |
-| `six_relative.dart` | 六亲（以宫位五行为「我」） |
-| `six_spirit.dart` | 六神（按日干起例，自初爻向上顺排） |
-| `cast_chart.dart` | 排盘结果模型（CastLine / CastChart） |
-| `casting_engine.dart` | 引擎组装：本卦 / 变卦 / 动变 / 纳甲 / 世应 / 六亲 / 六神 |
+| `bagua.dart` | 鍏崷锛堜笁鐖昏嚜涓嬭€屼笂锛? 鍗︾ + 浜旇 + 鍏堝ぉ搴?|
+| `najia.dart` | 绾崇敳琛紙骞叉敮锛夛細涔剧撼鐢插，銆佸潳绾充箼鐧革紱鍐呭鍗﹀垎鍒鍗?|
+| `palace.dart` | 浜埧鍏鍗﹀簭 + 涓栧簲锛堢畻娉曠敓鎴愶紝闈炵‖缂栫爜 64 鏉★級 |
+| `hexagram_names.dart` | 鍏崄鍥涘崷鍚嶈〃锛堜笂鍗?脳 涓嬪崷锛?|
+| `hexagram64.dart` | 鍏埢闃撮槼 鈫?鍗﹀悕 / 瀹綅 / 涓栧簲 |
+| `six_relative.dart` | 鍏翰锛堜互瀹綅浜旇涓恒€屾垜銆嶏級 |
+| `six_spirit.dart` | 鍏锛堟寜鏃ュ共璧蜂緥锛岃嚜鍒濈埢鍚戜笂椤烘帓锛?|
+| `cast_chart.dart` | 鎺掔洏缁撴灉妯″瀷锛圕astLine / CastChart锛?|
+| `casting_engine.dart` | 寮曟搸缁勮锛氭湰鍗?/ 鍙樺崷 / 鍔ㄥ彉 / 绾崇敳 / 涓栧簲 / 鍏翰 / 鍏 |
 
-### 5.3.3 lib/domain/calendar/（R3-B 离线历法层）
+### 5.3.3 lib/domain/calendar/锛圧3-B 绂荤嚎鍘嗘硶灞傦級
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `calendar_engine.dart` | 历法引擎：聚合月建 / 日辰 / 旬空 |
-| `calendar_request.dart` | 输入契约：localDateTime + utcOffset + dayBoundaryRule |
-| `calendar_context.dart` | 输出契约：完整历法上下文（不允许半成品） |
-| `calendar_error.dart` | 类型化失败：InvalidCalendarDate / CalendarDataMissing / PackInvalid / RevisionRejected |
-| `day_boundary_rule.dart` | 日界规则：midnight / ziHourStart，无隐式默认值 |
-| `day/ganzhi_day.dart` | 日柱：儒略日序 → 六十甲子（锚点 1949-10-01 甲子日） |
-| `day/xun_kong.dart` | 旬空：由旬首推导，不维护手抄表 |
-| `solar_term/solar_term_id.dart` | 二十四节气 + 太阳黄经 + 节/气区分 |
-| `solar_term/solar_term.dart` | 节气记录（真源为「瞬间」而非日期） |
-| `solar_term/solar_term_provider.dart` | 节气来源抽象（可替换边界） |
-| `solar_term/calendar_year_data.dart` | 已校验的单年历法数据 |
-| `solar_term/month_branch_resolver.dart` | 月建：十二「节」区间判断（与公历月无关） |
-| `import/calendar_data_pack.dart` | 数据包原始形态（字段可空，交由校验器汇总） |
-| `import/calendar_data_pack_parser.dart` | JSON → 数据包（只负责语法与结构） |
-| `import/calendar_data_pack_terms.dart` | 节气列表规则：数量 / 唯一 / 递增 / 年份合理性 |
-| `import/calendar_data_pack_validator.dart` | 元数据校验 + 一次性汇总全部失败原因 |
-| `import/calendar_data_pack_importer.dart` | 解析→校验→修订判定→**原子提交** |
-| `store/calendar_data_store.dart` | 本地仓储边界 + 内存实现 |
-| `store/stored_solar_term_provider.dart` | 仓储 → Provider（异步装载快照，引擎保持同步） |
+| `calendar_engine.dart` | 鍘嗘硶寮曟搸锛氳仛鍚堟湀寤?/ 鏃ヨ景 / 鏃┖ |
+| `calendar_request.dart` | 杈撳叆濂戠害锛歭ocalDateTime + utcOffset + dayBoundaryRule |
+| `calendar_context.dart` | 杈撳嚭濂戠害锛氬畬鏁村巻娉曚笂涓嬫枃锛堜笉鍏佽鍗婃垚鍝侊級 |
+| `calendar_error.dart` | 绫诲瀷鍖栧け璐ワ細InvalidCalendarDate / CalendarDataMissing / PackInvalid / RevisionRejected |
+| `day_boundary_rule.dart` | 鏃ョ晫瑙勫垯锛歮idnight / ziHourStart锛屾棤闅愬紡榛樿鍊?|
+| `day/ganzhi_day.dart` | 鏃ユ煴锛氬剴鐣ユ棩搴?鈫?鍏崄鐢插瓙锛堥敋鐐?1949-10-01 鐢插瓙鏃ワ級 |
+| `day/xun_kong.dart` | 鏃┖锛氱敱鏃鎺ㄥ锛屼笉缁存姢鎵嬫妱琛?|
+| `solar_term/solar_term_id.dart` | 浜屽崄鍥涜妭姘?+ 澶槼榛勭粡 + 鑺?姘斿尯鍒?|
+| `solar_term/solar_term.dart` | 鑺傛皵璁板綍锛堢湡婧愪负銆岀灛闂淬€嶈€岄潪鏃ユ湡锛?|
+| `solar_term/solar_term_provider.dart` | 鑺傛皵鏉ユ簮鎶借薄锛堝彲鏇挎崲杈圭晫锛?|
+| `solar_term/calendar_year_data.dart` | 宸叉牎楠岀殑鍗曞勾鍘嗘硶鏁版嵁 |
+| `solar_term/month_branch_resolver.dart` | 鏈堝缓锛氬崄浜屻€岃妭銆嶅尯闂村垽鏂紙涓庡叕鍘嗘湀鏃犲叧锛?|
+| `import/calendar_data_pack.dart` | 鏁版嵁鍖呭師濮嬪舰鎬侊紙瀛楁鍙┖锛屼氦鐢辨牎楠屽櫒姹囨€伙級 |
+| `import/calendar_data_pack_parser.dart` | JSON 鈫?鏁版嵁鍖咃紙鍙礋璐ｈ娉曚笌缁撴瀯锛?|
+| `import/calendar_data_pack_terms.dart` | 鑺傛皵鍒楄〃瑙勫垯锛氭暟閲?/ 鍞竴 / 閫掑 / 骞翠唤鍚堢悊鎬?|
+| `import/calendar_data_pack_validator.dart` | 鍏冩暟鎹牎楠?+ 涓€娆℃€ф眹鎬诲叏閮ㄥけ璐ュ師鍥?|
+| `import/calendar_data_pack_importer.dart` | 瑙ｆ瀽鈫掓牎楠屸啋淇鍒ゅ畾鈫?*鍘熷瓙鎻愪氦** |
+| `store/calendar_data_store.dart` | 鏈湴浠撳偍杈圭晫 + 鍐呭瓨瀹炵幇 |
+| `store/stored_solar_term_provider.dart` | 浠撳偍 鈫?Provider锛堝紓姝ヨ杞藉揩鐓э紝寮曟搸淇濇寔鍚屾锛?|
 
-### 5.3.4 lib/presentation/review/（2.0 审卦工作台）
+### 5.3.4 lib/presentation/review/锛?.0 瀹″崷宸ヤ綔鍙帮級
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `review_page.dart` | 审卦工作台组装（§3 布局：BasicInfo → ShenSha → FourPillars → Header → Table → Focus） |
-| `review_page_state.dart` | 纯 Dart 状态模型（§7 全部字段，未接入字段显式 nullable） |
-| `review_case_adapter.dart` | HexagramCase + 传统档案 → ReviewPageState；焦点关系来自 Domain 计算 |
-| `review_demo_data.dart` | 视觉定稿演示数据（SVG 逐项转录） |
-| `widgets/review_app_bar.dart` | 顶栏（返回 chevron + 审卦 + 排盘结果） |
-| `widgets/review_basic_info_card.dart` | 基本信息卡（方式/事项/阳历/阴历 + 已生成） |
-| `widgets/review_shensha_card.dart` | 神煞卡（Wrap 标签网格，数据驱动） |
-| `widgets/review_four_pillars_strip.dart` | 四柱条（年/月/日/时/旬空，soft 底 44 高） |
-| `widgets/review_hexagram_result_table.dart` | 完整卦盘组件（内嵌主/变卦标题 + 六行排盘 + 表尾） |
-| `widgets/review_hexagram_line_row.dart` | 六爻单行（11 列冻结，六亲地支/纳音拆两行无省略号，可点高亮） |
-| `widgets/review_line_detail_sheet.dart` | 点爻 Bottom Sheet（关系列表/规则依据/备注/进入关系页） |
+| `review_page.dart` | 瀹″崷宸ヤ綔鍙扮粍瑁咃紙搂3 甯冨眬锛欱asicInfo 鈫?ShenSha 鈫?FourPillars 鈫?Header 鈫?Table 鈫?Focus锛?|
+| `review_page_state.dart` | 绾?Dart 鐘舵€佹ā鍨嬶紙搂7 鍏ㄩ儴瀛楁锛屾湭鎺ュ叆瀛楁鏄惧紡 nullable锛?|
+| `review_case_adapter.dart` | HexagramCase + 浼犵粺妗ｆ 鈫?ReviewPageState锛涚劍鐐瑰叧绯绘潵鑷?Domain 璁＄畻 |
+| `review_demo_data.dart` | 瑙嗚瀹氱婕旂ず鏁版嵁锛圫VG 閫愰」杞綍锛?|
+| `widgets/review_app_bar.dart` | 椤舵爮锛堣繑鍥?chevron + 瀹″崷 + 鎺掔洏缁撴灉锛?|
+| `widgets/review_basic_info_card.dart` | 鍩烘湰淇℃伅鍗★紙鏂瑰紡/浜嬮」/闃冲巻/闃村巻 + 宸茬敓鎴愶級 |
+| `widgets/review_shensha_card.dart` | 绁炵厼鍗★紙Wrap 鏍囩缃戞牸锛屾暟鎹┍鍔級 |
+| `widgets/review_four_pillars_strip.dart` | 鍥涙煴鏉★紙骞?鏈?鏃?鏃?鏃┖锛宻oft 搴?44 楂橈級 |
+| `widgets/review_hexagram_result_table.dart` | 瀹屾暣鍗︾洏缁勪欢锛堝唴宓屼富/鍙樺崷鏍囬 + 鍏鎺掔洏 + 琛ㄥ熬锛?|
+| `widgets/review_hexagram_line_row.dart` | 鍏埢鍗曡锛?1 鍒楀喕缁擄紝鍏翰鍦版敮/绾抽煶鎷嗕袱琛屾棤鐪佺暐鍙凤紝鍙偣楂樹寒锛?|
+| `widgets/review_line_detail_sheet.dart` | 鐐圭埢 Bottom Sheet锛堝叧绯诲垪琛?瑙勫垯渚濇嵁/澶囨敞/杩涘叆鍏崇郴椤碉級 |
 
-### 5.3.5 lib/presentation/shared/（2.0 共享爻组件，排卦/审卦强制复用）
+### 5.3.5 lib/presentation/shared/锛?.0 鍏变韩鐖荤粍浠讹紝鎺掑崷/瀹″崷寮哄埗澶嶇敤锛?
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `yao_glyph.dart` | 统一爻槽 24×6（yang/yin/voidYao，仅内部填充不同） |
-| `moving_marker.dart` | 动爻标记 12×12（老阴 ○ / 老阳 ×，Bounding Box 一致） |
+| `yao_glyph.dart` | 缁熶竴鐖绘Ы 24脳6锛坹ang/yin/voidYao锛屼粎鍐呴儴濉厖涓嶅悓锛?|
+| `moving_marker.dart` | 鍔ㄧ埢鏍囪 12脳12锛堣€侀槾 鈼?/ 鑰侀槼 脳锛孊ounding Box 涓€鑷达級 |
 
 ### 5.4 lib/shell/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `main_shell.dart` | 底部四栏导航（首页/学习/练习/回炉），`IndexedStack` 页面保持 |
+| `main_shell.dart` | 搴曢儴鍥涙爮瀵艰埅锛堥椤?瀛︿範/缁冧範/鍥炵倝锛夛紝`IndexedStack` 椤甸潰淇濇寔 |
 
 ### 5.5 lib/theme/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `wuxing_colors.dart` | 五行主色 + 浅底色映射，地支→五行→颜色查询，文字对比色计算 |
+| `wuxing_colors.dart` | 浜旇涓昏壊 + 娴呭簳鑹叉槧灏勶紝鍦版敮鈫掍簲琛屸啋棰滆壊鏌ヨ锛屾枃瀛楀姣旇壊璁＄畻 |
 
 ### 5.6 lib/data/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `wuxing_data.dart` | 五行列表 + 相生相克映射表 + 反向查询 |
-| `wuxing_self_center_data.dart` | 以我为中心关系映射 + 旺相休囚死 |
-| `dizhi_data.dart` | 十二地支结构化数据：五行、阴阳、方位、月份 |
-| `relation_data.dart` | 六冲六合映射 + 双端查询 + 关系判定 |
-| `training_question.dart` | 2.0 训练数据模型：TrainingModule / RelationType / TrainingQuestion |
-| `wuxing_questions.dart` | 五行生克题库：相生 5 题 + 相克 5 题 |
-| `practice/wuxing_practice_question_generator.dart` | 通用题库生成器：四类五行题库混合出题 |
+| `wuxing_data.dart` | 浜旇鍒楄〃 + 鐩哥敓鐩稿厠鏄犲皠琛?+ 鍙嶅悜鏌ヨ |
+| `wuxing_self_center_data.dart` | 浠ユ垜涓轰腑蹇冨叧绯绘槧灏?+ 鏃虹浉浼戝洑姝?|
+| `dizhi_data.dart` | 鍗佷簩鍦版敮缁撴瀯鍖栨暟鎹細浜旇銆侀槾闃炽€佹柟浣嶃€佹湀浠?|
+| `relation_data.dart` | 鍏啿鍏悎鏄犲皠 + 鍙岀鏌ヨ + 鍏崇郴鍒ゅ畾 |
+| `training_question.dart` | 2.0 璁粌鏁版嵁妯″瀷锛歍rainingModule / RelationType / TrainingQuestion |
+| `wuxing_questions.dart` | 浜旇鐢熷厠棰樺簱锛氱浉鐢?5 棰?+ 鐩稿厠 5 棰?|
+| `practice/wuxing_practice_question_generator.dart` | 閫氱敤棰樺簱鐢熸垚鍣細鍥涚被浜旇棰樺簱娣峰悎鍑洪 |
 
 ### 5.7 lib/models/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `mistake_item.dart` | 错题记录模型，持久化 JSON 序列化 |
-| `training_question.dart` | 题目类型枚举（8 种）+ 题目数据类 |
-| `training_result.dart` | 单题作答记录 + 训练会话统计（正确率/回炉/迟疑） |
-| `practice/practice_enums.dart` | 通用练习枚举，Domain / Topic / AnswerKind / Stage |
-| `practice/practice_question.dart` | 通用题目模型 |
-| `practice/practice_answer_record.dart` | 答题记录 + 会话统计 + 分项统计 |
+| `mistake_item.dart` | 閿欓璁板綍妯″瀷锛屾寔涔呭寲 JSON 搴忓垪鍖?|
+| `training_question.dart` | 棰樼洰绫诲瀷鏋氫妇锛? 绉嶏級+ 棰樼洰鏁版嵁绫?|
+| `training_result.dart` | 鍗曢浣滅瓟璁板綍 + 璁粌浼氳瘽缁熻锛堟纭巼/鍥炵倝/杩熺枒锛?|
+| `practice/practice_enums.dart` | 閫氱敤缁冧範鏋氫妇锛孌omain / Topic / AnswerKind / Stage |
+| `practice/practice_question.dart` | 閫氱敤棰樼洰妯″瀷 |
+| `practice/practice_answer_record.dart` | 绛旈璁板綍 + 浼氳瘽缁熻 + 鍒嗛」缁熻 |
 
 ### 5.8 lib/services/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `question_generator.dart` | 出题引擎：5 种训练模式 × 8 种题型随机生成 |
-| `mistake_store.dart` | 错题回炉存储器：启动初始化、收录答错/迟疑，标记已会后移除 |
+| `question_generator.dart` | 鍑洪寮曟搸锛? 绉嶈缁冩ā寮?脳 8 绉嶉鍨嬮殢鏈虹敓鎴?|
+| `mistake_store.dart` | 閿欓鍥炵倝瀛樺偍鍣細鍚姩鍒濆鍖栥€佹敹褰曠瓟閿?杩熺枒锛屾爣璁板凡浼氬悗绉婚櫎 |
 
 ### 5.9 lib/utils/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `practice_labels.dart` | 通用练习中文标签、题库容量、时间格式化函数 |
+| `practice_labels.dart` | 閫氱敤缁冧範涓枃鏍囩銆侀搴撳閲忋€佹椂闂存牸寮忓寲鍑芥暟 |
 
 ### 5.10 lib/pages/home/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `home_page.dart` | 学习仪表盘：标题说明 + 学习状态卡 + 回炉提醒 + 快捷入口 |
+| `home_page.dart` | 瀛︿範浠〃鐩橈細鏍囬璇存槑 + 瀛︿範鐘舵€佸崱 + 鍥炵倝鎻愰啋 + 蹇嵎鍏ュ彛 |
 
 ### 5.11 lib/pages/study/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `study_page.dart` | 学习页入口：五行模块/八卦模块/十二地支/六冲六合四张学习卡片 |
-| `bagua_study_page.dart` | 八卦模块详情页：八卦产生、歌诀、知识总卡、分卡、病象与文王卦提示 |
-| `wuxing_study_menu_page.dart` | 五行模块目录页：颜色、意象、生克、以我为中心导航卡片 + 综合练习 + 学习建议 |
-| `wuxing_color_page.dart` | 五行颜色详情页：颜色卡片、对照表、记忆提示，下一步进入五行意象 |
-| `wuxing_imagery_page.dart` | 五行意象详情页：五行知识总卡 + 颜色/五味/脏腑/方位/品质/数字/四季/地支五行分板块 |
-| `wuxing_generate_page.dart` | 五行相生（占位：即将开放） |
-| `wuxing_control_page.dart` | 五行相克学习页：五角星图、关系解释、断卦提示 |
-| `wuxing_center_page.dart` | 以我为中心学习页：五行选择 + 关系图 + 旺相休囚死 |
-| `dizhi_study_page.dart` | 地支学习详情：地支彩色网格、五行归类、地支分类 |
-| `relation_study_page.dart` | 六冲六合学习详情：冲合对展示、跳转练习 |
+| `study_page.dart` | 瀛︿範椤靛叆鍙ｏ細浜旇妯″潡/鍏崷妯″潡/鍗佷簩鍦版敮/鍏啿鍏悎鍥涘紶瀛︿範鍗＄墖 |
+| `bagua_study_page.dart` | 鍏崷妯″潡璇︽儏椤碉細鍏崷浜х敓銆佹瓕璇€銆佺煡璇嗘€诲崱銆佸垎鍗°€佺梾璞′笌鏂囩帇鍗︽彁绀?|
+| `wuxing_study_menu_page.dart` | 浜旇妯″潡鐩綍椤碉細棰滆壊銆佹剰璞°€佺敓鍏嬨€佷互鎴戜负涓績瀵艰埅鍗＄墖 + 缁煎悎缁冧範 + 瀛︿範寤鸿 |
+| `wuxing_color_page.dart` | 浜旇棰滆壊璇︽儏椤碉細棰滆壊鍗＄墖銆佸鐓ц〃銆佽蹇嗘彁绀猴紝涓嬩竴姝ヨ繘鍏ヤ簲琛屾剰璞?|
+| `wuxing_imagery_page.dart` | 浜旇鎰忚薄璇︽儏椤碉細浜旇鐭ヨ瘑鎬诲崱 + 棰滆壊/浜斿懗/鑴忚厬/鏂逛綅/鍝佽川/鏁板瓧/鍥涘/鍦版敮浜旇鍒嗘澘鍧?|
+| `wuxing_generate_page.dart` | 浜旇鐩哥敓锛堝崰浣嶏細鍗冲皢寮€鏀撅級 |
+| `wuxing_control_page.dart` | 浜旇鐩稿厠瀛︿範椤碉細浜旇鏄熷浘銆佸叧绯昏В閲娿€佹柇鍗︽彁绀?|
+| `wuxing_center_page.dart` | 浠ユ垜涓轰腑蹇冨涔犻〉锛氫簲琛岄€夋嫨 + 鍏崇郴鍥?+ 鏃虹浉浼戝洑姝?|
+| `dizhi_study_page.dart` | 鍦版敮瀛︿範璇︽儏锛氬湴鏀僵鑹茬綉鏍笺€佷簲琛屽綊绫汇€佸湴鏀垎绫?|
+| `relation_study_page.dart` | 鍏啿鍏悎瀛︿範璇︽儏锛氬啿鍚堝灞曠ず銆佽烦杞粌涔?|
 
 ### 5.12 lib/pages/practice/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `practice_page.dart` | 练习页入口：按基础/关系/综合分组展示训练卡片 |
-| `training_page.dart` | 训练页：题目展示 + 彩色选项 + 即时反馈 + 进度条 |
-| `result_page.dart` | 结果页：正确率 + 回炉/迟疑汇总 + 错题列表 + 继续操作 |
-| `practice_setup_page.dart` | 综合练习设置页：选择板块 + 题数 + 练习方式 |
-| `practice_session_page.dart` | 通用练习页：计时 + 反馈 + 回炉写入 |
-| `practice_result_page.dart` | 通用结果页：分项表现 + 平均反应 + 迟疑统计 |
-| `games/falling_block_game_page.dart` | 方块速答游戏：单题下落 + 生命/分数/连击 + 回炉 |
-| `games/link_match_game_page.dart` | 关系连连看：25组配对 + 50张卡牌消除 + 回炉 |
+| `practice_page.dart` | 缁冧範椤靛叆鍙ｏ細鎸夊熀纭€/鍏崇郴/缁煎悎鍒嗙粍灞曠ず璁粌鍗＄墖 |
+| `training_page.dart` | 璁粌椤碉細棰樼洰灞曠ず + 褰╄壊閫夐」 + 鍗虫椂鍙嶉 + 杩涘害鏉?|
+| `result_page.dart` | 缁撴灉椤碉細姝ｇ‘鐜?+ 鍥炵倝/杩熺枒姹囨€?+ 閿欓鍒楄〃 + 缁х画鎿嶄綔 |
+| `practice_setup_page.dart` | 缁煎悎缁冧範璁剧疆椤碉細閫夋嫨鏉垮潡 + 棰樻暟 + 缁冧範鏂瑰紡 |
+| `practice_session_page.dart` | 閫氱敤缁冧範椤碉細璁℃椂 + 鍙嶉 + 鍥炵倝鍐欏叆 |
+| `practice_result_page.dart` | 閫氱敤缁撴灉椤碉細鍒嗛」琛ㄧ幇 + 骞冲潎鍙嶅簲 + 杩熺枒缁熻 |
+| `games/falling_block_game_page.dart` | 鏂瑰潡閫熺瓟娓告垙锛氬崟棰樹笅钀?+ 鐢熷懡/鍒嗘暟/杩炲嚮 + 鍥炵倝 |
+| `games/link_match_game_page.dart` | 鍏崇郴杩炶繛鐪嬶細25缁勯厤瀵?+ 50寮犲崱鐗屾秷闄?+ 鍥炵倝 |
 
 ### 5.13 lib/pages/review/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `review_page.dart` | 回炉页：错题列表 + 单题重做 + 重做全部错题 |
-| `review_training_page.dart` | 回炉练习页：无色单选重做，答对移除答错保留 |
+| `review_page.dart` | 鍥炵倝椤碉細閿欓鍒楄〃 + 鍗曢閲嶅仛 + 閲嶅仛鍏ㄩ儴閿欓 |
+| `review_training_page.dart` | 鍥炵倝缁冧範椤碉細鏃犺壊鍗曢€夐噸鍋氾紝绛斿绉婚櫎绛旈敊淇濈暀 |
 
 ### 5.14 lib/widgets/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `wuxing_wheel.dart` | 五行轮盘组件：累计箭头动画、自动循环、节点高亮、中央特效 |
-| `wuxing_arrow_painter.dart` | 圆弧箭头 CustomPainter：沿轮盘圆周绘制相生弧线 |
-| `wuxing_control_wheel.dart` | 五行相克轮盘：五角星累计箭头 + 五槽位特效自播 |
-| `wuxing_control_arrow_painter.dart` | 五角星直线箭头 CustomPainter：跨节点红色克制线 |
-| `wuxing_control_painter.dart` | 静态相克五角星 CustomPainter |
-| `wuxing_self_center_wheel.dart` | 以我为中心圆盘：中心+四向外圈节点 |
-| `wuxing_self_center_painter.dart` | 四向箭头 + 中心双环 CustomPainter |
-| `effects/control/earth_water_control_html.dart` | 土克水 HTML/SVG 动画，土堤束水 |
-| `effects/control/fire_metal_control_html.dart` | 火克金 HTML/SVG 动画，烈火熔金 |
-| `effects/control/metal_wood_control_html.dart` | 金克木 HTML/SVG 动画，金刃断木 |
-| `effects/control/water_fire_control_html.dart` | 水克火 HTML/SVG 动画，水幕压火 |
-| `effects/control/wood_earth_control_html.dart` | 木克土 HTML/SVG 动画，木根破土 |
-| `effects/control/control_relation_effect.dart` | 相克 HTML WebView 封装 |
-| `effects/control/control_relation_effects_layer.dart` | 五相克槽位关系动画层 |
-| `effects/earth_metal_html.dart` | 土生金 HTML/SVG 动画，金石破土而出 |
-| `effects/fire_earth_html.dart` | 火生土 HTML/SVG 动画，灰烬掩埋火苗循环 |
-| `effects/generate_relation_effects_layer.dart` | 五槽位关系动画层：固定坐标渲染多条关系动画 |
-| `effects/html_relation_effect.dart` | WebView 封装组件，IgnorePointer 防拦截，支持全部五条相生 |
-| `effects/metal_water_html.dart` | 金生水 HTML/SVG 动画，寒风凝水珠滴落 |
-| `effects/water_wood_html.dart` | 水生木 HTML/SVG 动画，春雨润木发芽繁茂 |
-| `effects/wood_fire_html.dart` | 木生火钻木取火 HTML/SVG 动画 |
+| `wuxing_wheel.dart` | 浜旇杞洏缁勪欢锛氱疮璁＄澶村姩鐢汇€佽嚜鍔ㄥ惊鐜€佽妭鐐归珮浜€佷腑澶壒鏁?|
+| `wuxing_arrow_painter.dart` | 鍦嗗姬绠ご CustomPainter锛氭部杞洏鍦嗗懆缁樺埗鐩哥敓寮х嚎 |
+| `wuxing_control_wheel.dart` | 浜旇鐩稿厠杞洏锛氫簲瑙掓槦绱绠ご + 浜旀Ы浣嶇壒鏁堣嚜鎾?|
+| `wuxing_control_arrow_painter.dart` | 浜旇鏄熺洿绾跨澶?CustomPainter锛氳法鑺傜偣绾㈣壊鍏嬪埗绾?|
+| `wuxing_control_painter.dart` | 闈欐€佺浉鍏嬩簲瑙掓槦 CustomPainter |
+| `wuxing_self_center_wheel.dart` | 浠ユ垜涓轰腑蹇冨渾鐩橈細涓績+鍥涘悜澶栧湀鑺傜偣 |
+| `wuxing_self_center_painter.dart` | 鍥涘悜绠ご + 涓績鍙岀幆 CustomPainter |
+| `effects/control/earth_water_control_html.dart` | 鍦熷厠姘?HTML/SVG 鍔ㄧ敾锛屽湡鍫ゆ潫姘?|
+| `effects/control/fire_metal_control_html.dart` | 鐏厠閲?HTML/SVG 鍔ㄧ敾锛岀儓鐏啍閲?|
+| `effects/control/metal_wood_control_html.dart` | 閲戝厠鏈?HTML/SVG 鍔ㄧ敾锛岄噾鍒冩柇鏈?|
+| `effects/control/water_fire_control_html.dart` | 姘村厠鐏?HTML/SVG 鍔ㄧ敾锛屾按骞曞帇鐏?|
+| `effects/control/wood_earth_control_html.dart` | 鏈ㄥ厠鍦?HTML/SVG 鍔ㄧ敾锛屾湪鏍圭牬鍦?|
+| `effects/control/control_relation_effect.dart` | 鐩稿厠 HTML WebView 灏佽 |
+| `effects/control/control_relation_effects_layer.dart` | 浜旂浉鍏嬫Ы浣嶅叧绯诲姩鐢诲眰 |
+| `effects/earth_metal_html.dart` | 鍦熺敓閲?HTML/SVG 鍔ㄧ敾锛岄噾鐭崇牬鍦熻€屽嚭 |
+| `effects/fire_earth_html.dart` | 鐏敓鍦?HTML/SVG 鍔ㄧ敾锛岀伆鐑帺鍩嬬伀鑻楀惊鐜?|
+| `effects/generate_relation_effects_layer.dart` | 浜旀Ы浣嶅叧绯诲姩鐢诲眰锛氬浐瀹氬潗鏍囨覆鏌撳鏉″叧绯诲姩鐢?|
+| `effects/html_relation_effect.dart` | WebView 灏佽缁勪欢锛孖gnorePointer 闃叉嫤鎴紝鏀寔鍏ㄩ儴浜旀潯鐩哥敓 |
+| `effects/metal_water_html.dart` | 閲戠敓姘?HTML/SVG 鍔ㄧ敾锛屽瘨椋庡嚌姘寸彔婊磋惤 |
+| `effects/water_wood_html.dart` | 姘寸敓鏈?HTML/SVG 鍔ㄧ敾锛屾槬闆ㄦ鼎鏈ㄥ彂鑺界箒鑼?|
+| `effects/wood_fire_html.dart` | 鏈ㄧ敓鐏捇鏈ㄥ彇鐏?HTML/SVG 鍔ㄧ敾 |
 
 ### 5.15 test/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `widget_test.dart` | Widget 冒烟测试：首页正确渲染 |
-| `foundation_test.dart` | App Shell 五导航 / 艮卦图标 / 状态保持 / 更多菜单验收 |
-| `presentation/casting/casting_page_test.dart` | 排卦工作台测试（Test A–D / 行顺序 / 草稿仓库 / 纯逻辑 / UI-01~03） |
-| `presentation/review/review_page_test.dart` | 审卦工作台测试（§22 A–H / UI-04~08 / 适配器 / 双数据路径） |
-| `presentation/shared/yao_glyph_test.dart` | 共享爻组件尺寸冻结测试（24×6 / 12×12） |
-| `domain/casting/hexagram_tables_test.dart` | R3 表与规则：八卦/64 卦唯一性/八宫世应/纳甲/六亲/六神 |
-| `domain/casting/casting_engine_test.dart` | R3 引擎：经典排盘对照（乾为天/坤为地/泽山咸）+ 动变 |
-| `domain/calendar/ganzhi_day_test.dart` | R3-B 日柱：13 个跨年代基准（双独立源校验） |
-| `domain/calendar/xun_kong_test.dart` | R3-B 旬空：六旬 + 60 日循环 + 独立性质验证 |
-| `domain/calendar/day_boundary_test.dart` | R3-B 日界：两种规则 × 四个关键时刻 |
-| `domain/calendar/month_branch_resolver_test.dart` | R3-B 月建：十二「节」× 三时点边界 |
-| `domain/calendar/calendar_data_pack_parser_test.dart` | R3-B 数据包解析 |
-| `domain/calendar/calendar_data_pack_validator_test.dart` | R3-B 数据包校验（数量/唯一/时间/来源/年份） |
-| `domain/calendar/calendar_pack_import_test.dart` | R3-B 导入原子性 Golden + 修订四态 |
-| `domain/calendar/calendar_engine_test.dart` | R3-B 引擎综合 Golden + 缺年份拒绝 |
-| `domain/calendar/offline_gate_test.dart` | R3-B 离线门禁（无网络 / 无 Flutter / 无 DateTime.now） |
-| `domain/calendar/calendar_pack_fixtures.dart` | R3-B 测试夹具（构造数据包 + 读取种子包） |
-| `domain/gate_b/gate_b_runner.dart` | R4-GATE-B 验证测试 / Markdown 报表生成入口 |
+| `widget_test.dart` | Widget 鍐掔儫娴嬭瘯锛氶椤垫纭覆鏌?|
+| `foundation_test.dart` | App Shell 浜斿鑸?/ 鑹崷鍥炬爣 / 鐘舵€佷繚鎸?/ 鏇村鑿滃崟楠屾敹 |
+| `presentation/casting/casting_page_test.dart` | 鎺掑崷宸ヤ綔鍙版祴璇曪紙Test A鈥揇 / 琛岄『搴?/ 鑽夌浠撳簱 / 绾€昏緫 / UI-01~03锛?|
+| `presentation/review/review_page_test.dart` | 瀹″崷宸ヤ綔鍙版祴璇曪紙搂22 A鈥揌 / UI-04~08 / 閫傞厤鍣?/ 鍙屾暟鎹矾寰勶級 |
+| `presentation/shared/yao_glyph_test.dart` | 鍏变韩鐖荤粍浠跺昂瀵稿喕缁撴祴璇曪紙24脳6 / 12脳12锛?|
+| `domain/casting/hexagram_tables_test.dart` | R3 琛ㄤ笌瑙勫垯锛氬叓鍗?64 鍗﹀敮涓€鎬?鍏涓栧簲/绾崇敳/鍏翰/鍏 |
+| `domain/casting/casting_engine_test.dart` | R3 寮曟搸锛氱粡鍏告帓鐩樺鐓э紙涔句负澶?鍧や负鍦?娉藉北鍜革級+ 鍔ㄥ彉 |
+| `domain/calendar/ganzhi_day_test.dart` | R3-B 鏃ユ煴锛?3 涓法骞翠唬鍩哄噯锛堝弻鐙珛婧愭牎楠岋級 |
+| `domain/calendar/xun_kong_test.dart` | R3-B 鏃┖锛氬叚鏃?+ 60 鏃ュ惊鐜?+ 鐙珛鎬ц川楠岃瘉 |
+| `domain/calendar/day_boundary_test.dart` | R3-B 鏃ョ晫锛氫袱绉嶈鍒?脳 鍥涗釜鍏抽敭鏃跺埢 |
+| `domain/calendar/month_branch_resolver_test.dart` | R3-B 鏈堝缓锛氬崄浜屻€岃妭銆嵜?涓夋椂鐐硅竟鐣?|
+| `domain/calendar/calendar_data_pack_parser_test.dart` | R3-B 鏁版嵁鍖呰В鏋?|
+| `domain/calendar/calendar_data_pack_validator_test.dart` | R3-B 鏁版嵁鍖呮牎楠岋紙鏁伴噺/鍞竴/鏃堕棿/鏉ユ簮/骞翠唤锛?|
+| `domain/calendar/calendar_pack_import_test.dart` | R3-B 瀵煎叆鍘熷瓙鎬?Golden + 淇鍥涙€?|
+| `domain/calendar/calendar_engine_test.dart` | R3-B 寮曟搸缁煎悎 Golden + 缂哄勾浠芥嫆缁?|
+| `domain/calendar/offline_gate_test.dart` | R3-B 绂荤嚎闂ㄧ锛堟棤缃戠粶 / 鏃?Flutter / 鏃?DateTime.now锛?|
+| `domain/calendar/calendar_pack_fixtures.dart` | R3-B 娴嬭瘯澶瑰叿锛堟瀯閫犳暟鎹寘 + 璇诲彇绉嶅瓙鍖咃級 |
+| `domain/gate_b/gate_b_runner.dart` | R4-GATE-B 楠岃瘉娴嬭瘯 / Markdown 鎶ヨ〃鐢熸垚鍏ュ彛 |
 
 ### 5.16 gate-b/
 
-| 文件 | 职责 |
+| 鏂囦欢 | 鑱岃矗 |
 | --- | --- |
-| `README.md` | Gate B 验证说明 |
-| `01-gb-01.md` | Gate B 单动爻测试报告 |
-| `02-gb-02.md` | Gate B 多动爻测试报告 |
-| `03-gb-03.md` | Gate B 静爻事实测试报告 |
-| `04-master-table.md` | 九类关系核对总表 |
+| `README.md` | Gate B 楠岃瘉璇存槑 |
+| `01-gb-01.md` | Gate B 鍗曞姩鐖绘祴璇曟姤鍛?|
+| `02-gb-02.md` | Gate B 澶氬姩鐖绘祴璇曟姤鍛?|
+| `03-gb-03.md` | Gate B 闈欑埢浜嬪疄娴嬭瘯鎶ュ憡 |
+| `04-master-table.md` | 涔濈被鍏崇郴鏍稿鎬昏〃 |
 
 ---
 
-## 6. 模块依赖方向
+## 6. 妯″潡渚濊禆鏂瑰悜
 
 ```text
-theme/  data/  ←  models/  ←  services/  ←  pages/  +  widgets/
-                                                    ←  shell/
+theme/  data/  鈫? models/  鈫? services/  鈫? pages/  +  widgets/
+                                                    鈫? shell/
 ```
 
-依赖约束：
+渚濊禆绾︽潫锛?
 
-1. `data/`、`theme/` 不依赖任何上层模块。
-2. `models/` 不依赖任何上层模块。
-3. `services/` 可以依赖 `data/` 与 `models/`，但不能依赖 Flutter Widget。
-4. `pages/` 可以依赖 `services/`、`models/`、`data/`、`theme/`。
-5. `shell/` 可以依赖所有页面模块。
-6. `widgets/` 只依赖 `models/`。
-7. 禁止循环依赖。
-8. 禁止在页面组件中写复杂业务逻辑（出题、计分、错题管理）。
+1. `data/`銆乣theme/` 涓嶄緷璧栦换浣曚笂灞傛ā鍧椼€?
+2. `models/` 涓嶄緷璧栦换浣曚笂灞傛ā鍧椼€?
+3. `services/` 鍙互渚濊禆 `data/` 涓?`models/`锛屼絾涓嶈兘渚濊禆 Flutter Widget銆?
+4. `pages/` 鍙互渚濊禆 `services/`銆乣models/`銆乣data/`銆乣theme/`銆?
+5. `shell/` 鍙互渚濊禆鎵€鏈夐〉闈㈡ā鍧椼€?
+6. `widgets/` 鍙緷璧?`models/`銆?
+7. 绂佹寰幆渚濊禆銆?
+8. 绂佹鍦ㄩ〉闈㈢粍浠朵腑鍐欏鏉備笟鍔￠€昏緫锛堝嚭棰樸€佽鍒嗐€侀敊棰樼鐞嗭級銆?
 
 ---
 
-## 7. 当前架构原则
+## 7. 褰撳墠鏋舵瀯鍘熷垯
 
-### 7.1 分层原则
+### 7.1 鍒嗗眰鍘熷垯
 
 ```text
-数据定义 → 主题系统 → 业务逻辑 → 状态管理 → UI 页面
+鏁版嵁瀹氫箟 鈫?涓婚绯荤粺 鈫?涓氬姟閫昏緫 鈫?鐘舵€佺鐞?鈫?UI 椤甸潰
 ```
 
-| 层级 | 说明 |
+| 灞傜骇 | 璇存槑 |
 | --- | --- |
-| 数据定义 | 五行生克映射、地支信息、冲合关系 |
-| 主题系统 | `WuxingColors` 颜色体系 |
-| 业务逻辑 | 出题算法、计时判定、错题收录 |
-| 状态管理 | `MistakeStore` 单例管理错题状态 |
-| UI 页面 | 四栏导航 + 5 个子页面区 |
+| 鏁版嵁瀹氫箟 | 浜旇鐢熷厠鏄犲皠銆佸湴鏀俊鎭€佸啿鍚堝叧绯?|
+| 涓婚绯荤粺 | `WuxingColors` 棰滆壊浣撶郴 |
+| 涓氬姟閫昏緫 | 鍑洪绠楁硶銆佽鏃跺垽瀹氥€侀敊棰樻敹褰?|
+| 鐘舵€佺鐞?| `MistakeStore` 鍗曚緥绠＄悊閿欓鐘舵€?|
+| UI 椤甸潰 | 鍥涙爮瀵艰埅 + 5 涓瓙椤甸潰鍖?|
 
-### 7.2 当前不做的内容
+### 7.2 褰撳墠涓嶅仛鐨勫唴瀹?
 
-当前版本暂不开发：
+褰撳墠鐗堟湰鏆備笉寮€鍙戯細
 
-- 地支圆盘可视化组件；
-- 三合三会数据与训练；
-- 天干数据与训练；
-- 纳音五行；
-- 六十四卦；
-- 统计图表与学习曲线；
-- 多用户/多设备同步。
+- 鍦版敮鍦嗙洏鍙鍖栫粍浠讹紱
+- 涓夊悎涓変細鏁版嵁涓庤缁冿紱
+- 澶╁共鏁版嵁涓庤缁冿紱
+- 绾抽煶浜旇锛?
+- 鍏崄鍥涘崷锛?
+- 缁熻鍥捐〃涓庡涔犳洸绾匡紱
+- 澶氱敤鎴?澶氳澶囧悓姝ャ€?
 
 ---
 
-## 8. 版本历史
+## 8. 鐗堟湰鍘嗗彶
 
-| 版本 | 日期 | 类型 | 说明 |
+| 鐗堟湰 | 鏃ユ湡 | 绫诲瀷 | 璇存槑 |
 | --- | --- | --- | --- |
-| `v0.1.10` | 2026-05-22 | 新增 | 关系连连看：25组配对+50张卡消除+回炉 |
-| `v0.1.9` | 2026-05-22 | 新增 | 方块速答游戏模板，单题下落 + 计时 + 回炉 |
-| `v0.1.8.3` | 2026-05-18 | 重构 | 旧入口迁移到通用练习框架，经典按钮备份 |
-| `v0.1.7.2` | 2026-05-18 | 优化 | 圆盘排版精修，箭头避让，胶囊节点 |
-| `v0.1.7.1` | 2026-05-18 | 重构 | 以我为中心升级圆盘结构，四色箭头 |
-| `v0.1.7` | 2026-05-18 | 新增 | 以我为中心学习页，旺相休囚死 |
-| `v0.1.6.2` | 2026-05-18 | 优化 | 轮盘尺寸稳定，结果页三阶段统计，回炉来源标签 |
-| `v0.1.6.1` | 2026-05-16 | 修复 | 答题前隐藏提示，答题后显示特效 |
-| `v0.1.5` | 2026-05-16 | 新增 | 五行相克学习页，wrongCount 修复，回炉弹窗，阶段标签 |
-| `v0.1.4.2` | 2026-05-16 | 修复 | 金元素灰色文字，答题反馈色通用化 |
-| `v0.1.4.1` | 2026-05-16 | 新增 | 回炉错题重做系统，持久化存储 |
-| `v0.1.4` | 2026-05-16 | 新增 | 相生练习三阶段：轮盘→彩色单选→无色单选 |
-| `v0.1.3.13` | 2026-05-16 | 优化 | 箭头 3500ms 对齐 5s 特效，一轮 25 秒 |
-| `v0.1.3.12` | 2026-05-16 | 优化 | 箭头 1800ms、火生土纯 CSS 版修复 viewBox |
-| `v0.1.3.11` | 2026-05-16 | 新增 | 全部五条相生 HTML 动画接入，轮盘还原慢速 |
-| `v0.1.3.10` | 2026-05-16 | 优化 | 轮盘加速至 5 秒一轮 |
-| `v0.1.3.9` | 2026-05-16 | 变更 | 木生火替换为钻木取火动画 |
-| `v0.1.3.8` | 2026-05-16 | 新增 | 火生土 HTML 动画，HtmlRelationEffect 泛化 |
+| `v0.1.11` | 2026-09-14 | ?? | R5-B Rule Engine ?????????? 5+100 ?? |
+| `v0.1.10` | 2026-05-22 | 鏂板 | 鍏崇郴杩炶繛鐪嬶細25缁勯厤瀵?50寮犲崱娑堥櫎+鍥炵倝 |
+| `v0.1.9` | 2026-05-22 | 鏂板 | 鏂瑰潡閫熺瓟娓告垙妯℃澘锛屽崟棰樹笅钀?+ 璁℃椂 + 鍥炵倝 |
+| `v0.1.8.3` | 2026-05-18 | 閲嶆瀯 | 鏃у叆鍙ｈ縼绉诲埌閫氱敤缁冧範妗嗘灦锛岀粡鍏告寜閽浠?|
+| `v0.1.7.2` | 2026-05-18 | 浼樺寲 | 鍦嗙洏鎺掔増绮句慨锛岀澶撮伩璁╋紝鑳跺泭鑺傜偣 |
+| `v0.1.7.1` | 2026-05-18 | 閲嶆瀯 | 浠ユ垜涓轰腑蹇冨崌绾у渾鐩樼粨鏋勶紝鍥涜壊绠ご |
+| `v0.1.7` | 2026-05-18 | 鏂板 | 浠ユ垜涓轰腑蹇冨涔犻〉锛屾椇鐩镐紤鍥氭 |
+| `v0.1.6.2` | 2026-05-18 | 浼樺寲 | 杞洏灏哄绋冲畾锛岀粨鏋滈〉涓夐樁娈电粺璁★紝鍥炵倝鏉ユ簮鏍囩 |
+| `v0.1.6.1` | 2026-05-16 | 淇 | 绛旈鍓嶉殣钘忔彁绀猴紝绛旈鍚庢樉绀虹壒鏁?|
+| `v0.1.5` | 2026-05-16 | 鏂板 | 浜旇鐩稿厠瀛︿範椤碉紝wrongCount 淇锛屽洖鐐夊脊绐楋紝闃舵鏍囩 |
+| `v0.1.4.2` | 2026-05-16 | 淇 | 閲戝厓绱犵伆鑹叉枃瀛楋紝绛旈鍙嶉鑹查€氱敤鍖?|
+| `v0.1.4.1` | 2026-05-16 | 鏂板 | 鍥炵倝閿欓閲嶅仛绯荤粺锛屾寔涔呭寲瀛樺偍 |
+| `v0.1.4` | 2026-05-16 | 鏂板 | 鐩哥敓缁冧範涓夐樁娈碉細杞洏鈫掑僵鑹插崟閫夆啋鏃犺壊鍗曢€?|
+| `v0.1.3.13` | 2026-05-16 | 浼樺寲 | 绠ご 3500ms 瀵归綈 5s 鐗规晥锛屼竴杞?25 绉?|
+| `v0.1.3.12` | 2026-05-16 | 浼樺寲 | 绠ご 1800ms銆佺伀鐢熷湡绾?CSS 鐗堜慨澶?viewBox |
+| `v0.1.3.11` | 2026-05-16 | 鏂板 | 鍏ㄩ儴浜旀潯鐩哥敓 HTML 鍔ㄧ敾鎺ュ叆锛岃疆鐩樿繕鍘熸參閫?|
+| `v0.1.3.10` | 2026-05-16 | 浼樺寲 | 杞洏鍔犻€熻嚦 5 绉掍竴杞?|
+| `v0.1.3.9` | 2026-05-16 | 鍙樻洿 | 鏈ㄧ敓鐏浛鎹负閽绘湪鍙栫伀鍔ㄧ敾 |
+| `v0.1.3.8` | 2026-05-16 | 鏂板 | 鐏敓鍦?HTML 鍔ㄧ敾锛孒tmlRelationEffect 娉涘寲 |
+

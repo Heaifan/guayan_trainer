@@ -64,5 +64,5 @@ class FactRecord {
 enum FactOrigin {
   original,
   baseRelation,
-  // derived 阶段将保留在 R5-B 添加，按照要求本 Gate 暂不生成 Derived Fact。
+  derived,
 }
