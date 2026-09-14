@@ -1,5 +1,7 @@
 library;
 
+import '../../../domain/rules/core/rule_version.dart';
+
 /// JSON Schema 验证器。
 /// 确保外部注入的 JSON 符合 Canonical Rule Schema。
 class RuleSchemaValidator {
@@ -17,20 +19,28 @@ class RuleSchemaValidator {
     }
 
     final version = json['version'];
-    if (version == null || version is! String || version.trim().isEmpty) {
+    if (version == null || version is! String) {
       throw FormatException('无效的RuleVersion');
+    }
+    try {
+      RuleVersion(version);
+    } catch (e) {
+      throw FormatException('无效的RuleVersion: ');
     }
 
     final bindings = json['bindings'] as List?;
     final declaredBindings = <String>{};
     if (bindings != null) {
+      // Pass 1: Collect and deduplicate
       for (final b in bindings) {
         final name = b['name'];
         if (name == null) throw FormatException('Binding必须有name');
         if (!declaredBindings.add(name)) {
           throw FormatException('Duplicate Binding name: ');
         }
-
+      }
+      // Pass 2: Validate selectors
+      for (final b in bindings) {
         final selector = b['selector'];
         if (selector == null || selector is! Map) throw FormatException('Binding missing selector');
         final type = selector['type'];
@@ -84,7 +94,13 @@ class RuleSchemaValidator {
       } else if (type == 'record') {
         final recordType = act['recordType'];
         if (recordType == null || (recordType as String).trim().isEmpty) throw FormatException('Record without recordType');
-        if (act['content'] == null || act['content'] is! Map) throw FormatException('Record missing content');
+        final content = act['content'];
+        if (content == null || content is! Map) throw FormatException('Record missing content');
+        for (final v in content.values) {
+          if (v != null && v is! String && v is! int && v is! double && v is! bool) {
+            throw FormatException('Record content values must be scalar (null, String, int, double, bool), found: ');
+          }
+        }
       } else {
         throw FormatException('unknown action type: ');
       }
@@ -96,7 +112,7 @@ class RuleSchemaValidator {
     final type = expr['type'];
     if (type == 'ALL' || type == 'ANY') {
       final nodes = expr['nodes'] as List?;
-      if (nodes == null || nodes.isEmpty) throw FormatException('\ empty');
+      if (nodes == null || nodes.isEmpty) throw FormatException(' empty');
       for (final n in nodes) {
         _validateExpr(n, bindingNames);
       }

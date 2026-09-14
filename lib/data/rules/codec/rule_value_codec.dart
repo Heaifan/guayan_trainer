@@ -4,9 +4,8 @@ library;
 import '../../../domain/rules/facts/rule_value.dart';
 
 class RuleValueCodec {
-  static Object? encode(Object? value) {
-    if (value is RuleValue) return value.toJson();
-    return value;
+  static Object? encode(RuleValue value) {
+    return value.toJson();
   }
 
   static RuleValue decode(dynamic json) {
