@@ -1,6 +1,10 @@
 library;
 
 import '../../../domain/rules/core/rule_version.dart';
+import '../../../domain/rules/vocabulary/condition_registry.dart';
+import '../../../domain/rules/vocabulary/condition_id.dart';
+import '../../../domain/rules/vocabulary/nayin_id.dart';
+import '../../../domain/rules/vocabulary/tag_category_ids.dart';
 
 /// JSON Schema 验证器。
 /// 确保外部注入的 JSON 符合 Canonical Rule Schema。
@@ -107,6 +111,13 @@ class RuleSchemaValidator {
     }
   }
 
+  static dynamic _getLiteralValue(Map op) {
+    if (op['type'] == 'literal') {
+       return op['value'];
+    }
+    return null;
+  }
+
   static void _validateExpr(dynamic expr, Set<String> bindingNames) {
     if (expr is! Map) throw FormatException('AST 节点必须是对象');
     final type = expr['type'];
@@ -122,19 +133,49 @@ class RuleSchemaValidator {
       if (node == null) throw FormatException('NOT invalid child count');
       _validateExpr(node, bindingNames);
     } else if (type == 'PREDICATE') {
+      final operatorId = expr['operatorId'];
+      if (operatorId == null) throw FormatException('operatorId missing');
+      final def = CanonicalConditionRegistry.getDefinition(operatorId as String);
+      if (def == null) throw FormatException('unknown canonical operator: ');
+
       final operands = expr['operands'] as List?;
+      if (operands == null) throw FormatException('operands missing');
+      if (operands.length != def.operandCount) throw FormatException('operand count mismatch: expected , got ');
+
       if (operands != null) {
         for (final op in operands) {
           if (op is! Map) throw FormatException('Operand must be object');
           final opType = op['type'];
           if (opType == 'bindingRef') {
             final name = op['name'];
+            if (name == null || name is! String) throw FormatException('binding operand malformed: missing name');
             if (!bindingNames.contains(name)) throw FormatException('unbound BindingRef: ');
           } else if (opType == 'literal') {
              // valid
           } else {
              throw FormatException('unknown operand type: ');
           }
+        }
+      }
+
+      // Semantic checks for specific operators
+      if (operatorId == ConditionId.nayinIs) {
+        final literal = _getLiteralValue(operands[1] as Map);
+        if (literal == null || literal is! String || !NaYinId.isValid(literal)) {
+          throw FormatException('invalid NaYinId: ');
+        }
+      } else if (operatorId == ConditionId.hasTag) {
+        final categoryLiteral = _getLiteralValue(operands[1] as Map);
+        if (categoryLiteral != CanonicalTagCategoryId.shensha) {
+          throw FormatException('invalid Tag category: ');
+        }
+        final tagIdLiteral = _getLiteralValue(operands[2] as Map);
+        if (tagIdLiteral == null || tagIdLiteral is! String) {
+          throw FormatException('invalid ShenSha stable-id format: ');
+        }
+        final shenshaRegex = RegExp(r'^shensha\.(sys|custom)\.[a-zA-Z0-9_]+$');
+        if (!shenshaRegex.hasMatch(tagIdLiteral)) {
+          throw FormatException('invalid ShenSha stable-id format: ');
         }
       }
     } else {
