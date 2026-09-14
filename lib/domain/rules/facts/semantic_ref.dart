@@ -39,7 +39,7 @@ class SemanticRef {
       SemanticRef('changed_line', index.toString());
   factory SemanticRef.hiddenSpirit(int index) =>
       SemanticRef('hidden_spirit', index.toString());
-  
+
   static const month = SemanticRef('calendar', 'month');
   static const day = SemanticRef('calendar', 'day');
   static const hexagramBase = SemanticRef('hexagram', 'base');

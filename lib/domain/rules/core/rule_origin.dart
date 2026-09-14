@@ -5,12 +5,12 @@ library;
 enum RuleOrigin {
   /// 系统预置内置规则
   SYSTEM,
-  
+
   /// 用户自定义规则
   CUSTOM;
-  
+
   Map<String, Object?> toJson() => {'name': name};
 
-  static RuleOrigin fromJson(Map<String, Object?> json) => 
+  static RuleOrigin fromJson(Map<String, Object?> json) =>
       RuleOrigin.values.byName(json['name'] as String);
 }

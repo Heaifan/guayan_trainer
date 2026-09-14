@@ -7,7 +7,7 @@ class RuleSchemaValidator {
     if (json.containsKey('script') || json.containsKey('dart') || json.containsKey('javascript') || json.containsKey('executable') || json.containsKey('evaluator') || json.containsKey('eval')) {
       throw FormatException('规则不允许包含可执行代码字段');
     }
-    
+
     final ruleId = json['ruleId'];
     if (ruleId == null || ruleId is! String || ruleId.trim().isEmpty) {
       throw FormatException('ruleId不能为空');

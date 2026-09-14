@@ -11,7 +11,7 @@ class EvidenceNode {
   });
 
   final EvidenceId id;
-  
+
   /// 节点的展示标签，例如 "【考试】文书"
   final String label;
 

@@ -31,5 +31,3 @@ class PredicateExpr extends RuleExpr {
   final String operatorId;
   final List<RuleOperand> operands;
 }
-
-

@@ -7,7 +7,7 @@ abstract class BindingSelector {
 
 class DirectSelector extends BindingSelector {
   const DirectSelector(this.target);
-  
+
   /// SemanticRef 的字符串表达或其它标志
   final String target;
 }
@@ -17,10 +17,10 @@ class RelativeSelector extends BindingSelector {
     required this.baseBinding,
     required this.path,
   });
-  
+
   /// 基于哪个 binding 的名字
   final String baseBinding;
-  
+
   /// 关系路径，例如 "changedLine"
   final String path;
 }

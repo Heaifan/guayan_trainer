@@ -15,7 +15,7 @@ class EvidenceId {
   int get hashCode => id.hashCode;
 
   String toJson() => id;
-  
+
   factory EvidenceId.fromJson(String json) => EvidenceId(json);
 
   /// 生成基于内容的 Canonical Identity
@@ -29,7 +29,7 @@ class EvidenceId {
     // 强制顺序
     final bindingKeys = bindings.keys.toList()..sort();
     final bindingStr = bindingKeys.map((k) => '$k=${bindings[k]}').join(',');
-    
+
     final supportIds = supports.map((s) => s.id).toList()..sort();
     final supportStr = supportIds.join(',');
 

@@ -18,7 +18,7 @@ void main() {
       // 取 A 为二爻，M 为月建
       // 若 A之六亲为父母 且 A临青龙 且 M生A 且 A非旬空
       // 则 A得「父母有力」, A取象「文书」
-      
+
       final bindings = [
         RuleBinding(name: 'A', selector: DirectSelector('line/2')),
         RuleBinding(name: 'M', selector: DirectSelector('calendar/month')),

@@ -10,7 +10,7 @@ class DeriveAction extends RuleAction {
     required this.targetBinding,
     required this.factKey,
   });
-  
+
   final String targetBinding;
   final String factKey;
 }
@@ -21,7 +21,7 @@ class TagAction extends RuleAction {
     required this.tagId,
     this.subjectBinding,
   });
-  
+
   final String categoryId;
   final String tagId;
   final String? subjectBinding;
@@ -32,7 +32,7 @@ class StructureAction extends RuleAction {
     required this.structureId,
     required this.memberBindings,
   });
-  
+
   final String structureId;
   final List<String> memberBindings;
 }
@@ -42,7 +42,7 @@ class RecordAction extends RuleAction {
     required this.recordType,
     required this.content,
   });
-  
+
   final String recordType;
   final Map<String, dynamic> content;
 }

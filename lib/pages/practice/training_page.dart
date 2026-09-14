@@ -132,7 +132,7 @@ class _TrainingPageState extends State<TrainingPage> {
           MistakeItem(
             id: id,
             module: 'wuxing',
-            topic: topic,
+            topic: topic!,
             questionText: _current.prompt,
             sourceElement: _current.sourceElement ?? '',
             correctAnswer: _current.correctAnswer,
@@ -206,6 +206,7 @@ class _TrainingPageState extends State<TrainingPage> {
     final isGenerate = widget.mode == TrainingMode.wuxingGenerate;
     final isControl = widget.mode == TrainingMode.wuxingControl;
     final isSelfCenter = widget.mode == TrainingMode.wuxingSelfCenter;
+    final showArrow = (isGenerate || isControl) && _currentStyle == PracticeStyle.wheel;
 
     return Scaffold(
       appBar: AppBar(

@@ -157,7 +157,7 @@ class PracticeResultPage extends StatelessWidget {
           _statRow('最高连击', '${maxCombo ?? 0}'),
           _statRow('剩余生命', '${remainingLives ?? 0}'),
           _statRow('漏掉', '$missed 次'),
-          if (emptyHits != null && emptyHits! > 0) _statRow('误击', '$emptyHits 次'),
+          if (emptyHits != null && emptyHits! > 0) _statRow('误击', '${emptyHits} 次'),
           if (speedLevel > 0) _statRow('速度等级', 'Lv$speedLevel'),
         ],
       ),

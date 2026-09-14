@@ -1,5 +1,4 @@
 /// 以我为中心：五行关系与旺相休囚死映射数据。
-library;
 
 /// 以某个五行为「我」的五种关系映射。
 const wuxingSelfCenterRelations = {

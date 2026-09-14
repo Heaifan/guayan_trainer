@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+import '../../../data/wuxing_data.dart';
 import '../../../models/mistake_item.dart';
 import '../../../models/practice/practice_answer_record.dart';
 import '../../../models/practice/practice_enums.dart';
@@ -69,7 +70,7 @@ class _LinkMatchGamePageState extends State<LinkMatchGamePage>
   late final DateTime _sessionStartedAt;
   String _timeStr = '00:00';
   Timer? _timer;
-  final bool _gameOver = false;
+  bool _gameOver = false;
   bool _showResult = false;
 
   @override
@@ -79,9 +80,7 @@ class _LinkMatchGamePageState extends State<LinkMatchGamePage>
 
     // Expand 5 questions → 25 pairs
     final expanded = <PracticeQuestion>[];
-    for (int i = 0; i < 5; i++) {
-      expanded.addAll(widget.questions);
-    }
+    for (int i = 0; i < 5; i++) expanded.addAll(widget.questions);
 
     _sources = expanded.asMap().entries
         .map((e) => _SourceCard(e.key, e.value)).toList()
@@ -238,9 +237,9 @@ class _LinkMatchGamePageState extends State<LinkMatchGamePage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text('❤️$_lives', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
-          Text(_timeStr, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF6B4E2E))),
+          Text('$_timeStr', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF6B4E2E))),
           Text('✗$_errorCount', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: _errorCount > 0 ? const Color(0xFFC0392B) : null)),
-          Text('$_matchedCount/$_totalPairs', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF2F6F5E))),
+          Text('$_matchedCount/$_totalPairs', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: const Color(0xFF2F6F5E))),
         ],
       ),
     );

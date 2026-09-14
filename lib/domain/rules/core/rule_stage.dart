@@ -10,6 +10,6 @@ enum RuleStage {
 
   Map<String, Object?> toJson() => {'name': name};
 
-  static RuleStage fromJson(Map<String, Object?> json) => 
+  static RuleStage fromJson(Map<String, Object?> json) =>
       RuleStage.values.byName(json['name'] as String);
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 /// 错题记录，持久化到本地存储。
 class MistakeItem {

@@ -71,8 +71,8 @@ class WuxingPracticeQuestionGenerator {
           correctAnswer: WuxingData.generates[el]!,
           sourceElement: el,
           targetElement: WuxingData.generates[el]!,
-          relationText: '$el生${WuxingData.generates[el]!}',
-          explanation: '$el 生 ${WuxingData.generates[el]!}。',
+          relationText: '${el}生${WuxingData.generates[el]!}',
+          explanation: '${el} 生 ${WuxingData.generates[el]!}。',
         ),
     ];
   }
@@ -92,8 +92,8 @@ class WuxingPracticeQuestionGenerator {
           correctAnswer: WuxingData.controls[el]!,
           sourceElement: el,
           targetElement: WuxingData.controls[el]!,
-          relationText: '$el克${WuxingData.controls[el]!}',
-          explanation: '$el 克 ${WuxingData.controls[el]!}。',
+          relationText: '${el}克${WuxingData.controls[el]!}',
+          explanation: '${el} 克 ${WuxingData.controls[el]!}。',
         ),
     ];
   }

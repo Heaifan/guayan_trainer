@@ -12,7 +12,7 @@ class EvidenceEdge {
 
   final EvidenceId sourceId;
   final EvidenceId targetId;
-  
+
   /// 关系的类型，例如 "derives_to", "supports"
   final String relationType;
 }

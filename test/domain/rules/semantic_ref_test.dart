@@ -54,7 +54,7 @@ void main() {
         )
       ];
       final snapshot = FactSnapshot.build(facts);
-      
+
       // 验证无法 cast 强行 add
       expect(() {
         (snapshot.facts as dynamic).add(
@@ -68,7 +68,7 @@ void main() {
         );
       }, throwsA(isA<NoSuchMethodError>()));
     });
-    
+
     test('构建 FactSnapshot 不修改 HexagramCase (Contract verification)', () {
       // 本测试只需表明 FactSnapshot 是数据容器，完全分离于 HexagramCase 业务实体
       // 外部只需传递 Iterable<FactRecord> 即可构建，无 HexagramCase 依赖

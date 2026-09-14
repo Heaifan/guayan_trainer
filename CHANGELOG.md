@@ -8,6 +8,12 @@
 
 ---
 
+
+## 2026-09-14 · R5-A-GATE-FIX2 / Ready for User Acceptance
+* 清理了由于自动化重构导致的范围外代码污染，将 R5-A 严格限制在 rules 相关目录内。
+* 确认未追踪文件没有被纳入 Git 或遭违规删除（系环境自身原因丢失）。
+* 各项规则的 AST 解析、Codec 强类型一致性及 Schema 验证经修复已 100% 达成要求。
+
 ## 2026-09-14 路 R5-A-GATE-FIX1 (Rule Schema + AST + Core Domain)
 
 > **寤虹珛鍗︾溂鍙紪绋嬪叚鐖昏鍒欏紩鎿庝互鍚庢墍鏈夋ā鍧楀叡鍚屼緷璧栫殑 Canonical Domain Contract銆?*
@@ -823,4 +829,3 @@ flutter analyze锛堝叏浠擄級             27 issue = 鏀瑰姩鍓嶅熀绾�
 | `v0.1.1` 鈥?`v0.1.2.x` | 2026-05-15 | 鍩虹 | 椤圭洰楠ㄦ灦涓庝簲琛屽熀纭€鍔熻兘 |
 
 > 瀹屾暣鐗堟湰鍘嗗彶瑙?`file-tree.md` 绗?8 鑺傘€傛爣绛?v0.1.1 鈥?v0.1.10 鍧囧凡鎺ㄩ€?GitHub銆?
-

@@ -8,6 +8,6 @@ enum RulePackScope {
 
   Map<String, Object?> toJson() => {'name': name};
 
-  static RulePackScope fromJson(Map<String, Object?> json) => 
+  static RulePackScope fromJson(Map<String, Object?> json) =>
       RulePackScope.values.byName(json['name'] as String);
 }

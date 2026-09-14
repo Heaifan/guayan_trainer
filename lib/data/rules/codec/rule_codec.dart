@@ -10,7 +10,7 @@ import 'rule_ast_codec.dart';
 
 class RuleCodec {
   const RuleCodec();
-  
+
   Map<String, dynamic> encode(RuleDefinition rule) {
     return {
       'ruleId': rule.ruleId.toJson(),
@@ -37,7 +37,7 @@ class RuleCodec {
     if (schemaVersion == 'guayan-rule@0.1' || schemaVersion != 1) {
       throw FormatException('不支持的 schemaVersion: $schemaVersion');
     }
-    
+
     return RuleDefinition(
       ruleId: RuleId.fromJson(json['ruleId'] as String),
       version: RuleVersion.fromJson(json['version'] as String),

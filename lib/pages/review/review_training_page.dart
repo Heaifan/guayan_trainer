@@ -95,7 +95,6 @@ class _ReviewTrainingPageState extends State<ReviewTrainingPage> {
       ),
     );
     if (ok == true) {
-      if (!mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }

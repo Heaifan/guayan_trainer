@@ -13,7 +13,7 @@ class RuleHit {
 
   /// 命中的规则
   final RuleId ruleId;
-  
+
   /// 命中的版本
   final RuleVersion version;
 

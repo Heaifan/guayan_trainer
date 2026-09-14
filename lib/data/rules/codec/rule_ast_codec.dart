@@ -13,7 +13,7 @@ class RuleAstCodec {
     final selector = binding.selector;
     return {
       'name': binding.name,
-      'selector': selector is DirectSelector 
+      'selector': selector is DirectSelector
           ? {'type': 'direct', 'target': selector.target}
           : {'type': 'relative', 'base': (selector as RelativeSelector).baseBinding, 'path': selector.path},
     };
