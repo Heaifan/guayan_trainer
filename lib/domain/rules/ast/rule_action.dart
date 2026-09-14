@@ -1,5 +1,7 @@
 library;
 
+import '../facts/rule_value.dart';
+
 /// Rule AST 支持的四类动作：derive, tag, structure, record。
 abstract class RuleAction {
   const RuleAction();
@@ -44,5 +46,5 @@ class RecordAction extends RuleAction {
   });
 
   final String recordType;
-  final Map<String, dynamic> content;
+  final Map<String, RuleValue> content;
 }

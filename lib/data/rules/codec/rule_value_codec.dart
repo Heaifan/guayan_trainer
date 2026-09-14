@@ -9,7 +9,7 @@ class RuleValueCodec {
     return value;
   }
 
-  static Object decode(dynamic json) {
+  static RuleValue decode(dynamic json) {
     if (json == null) return RuleValue.nullValue();
     if (json is String) return RuleValue.string(json);
     if (json is int) return RuleValue.integer(json);

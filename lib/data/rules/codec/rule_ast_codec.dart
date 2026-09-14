@@ -76,7 +76,7 @@ class RuleAstCodec {
     if (action is DeriveAction) return {'type': 'derive', 'target': action.targetBinding, 'factKey': action.factKey};
     if (action is TagAction) return {'type': 'tag', 'categoryId': action.categoryId, 'tagId': action.tagId, if (action.subjectBinding != null) 'subject': action.subjectBinding};
     if (action is StructureAction) return {'type': 'structure', 'structureId': action.structureId, 'members': action.memberBindings};
-    if (action is RecordAction) return {'type': 'record', 'recordType': action.recordType, 'content': action.content};
+    if (action is RecordAction) return {'type': 'record', 'recordType': action.recordType, 'content': action.content.map((k, v) => MapEntry(k, RuleValueCodec.encode(v)))};
     throw ArgumentError('Unknown RuleAction');
   }
 
@@ -86,7 +86,7 @@ class RuleAstCodec {
     if (type == 'derive') return DeriveAction(targetBinding: map['target'] as String, factKey: map['factKey'] as String);
     if (type == 'tag') return TagAction(categoryId: map['categoryId'] as String, tagId: map['tagId'] as String, subjectBinding: map['subject'] as String?);
     if (type == 'structure') return StructureAction(structureId: map['structureId'] as String, memberBindings: (map['members'] as List).cast<String>());
-    if (type == 'record') return RecordAction(recordType: map['recordType'] as String, content: map['content'] as Map<String, dynamic>);
+    if (type == 'record') return RecordAction(recordType: map['recordType'] as String, content: (map['content'] as Map<String, dynamic>).map((k, v) => MapEntry(k, RuleValueCodec.decode(v))));
     throw ArgumentError('Unknown RuleAction type');
   }
 }
