@@ -1,5 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:guayan_trainer/domain/dsl/dsl_parser.dart';
+import 'package:guayan_trainer/domain/rules/ast/binding_selector.dart';
+import 'package:guayan_trainer/domain/rules/ast/rule_action.dart';
+import 'package:guayan_trainer/domain/rules/ast/rule_binding.dart';
+import 'package:guayan_trainer/domain/rules/ast/rule_expr.dart';
+import 'package:guayan_trainer/domain/rules/ast/rule_operand.dart';
 import 'package:guayan_trainer/domain/rules/core/rule_definition.dart';
 import 'package:guayan_trainer/domain/rules/core/rule_id.dart';
 import 'package:guayan_trainer/domain/rules/core/rule_origin.dart';
@@ -8,14 +12,14 @@ import 'package:guayan_trainer/domain/rules/core/rule_version.dart';
 import 'package:guayan_trainer/domain/rules/engine/rule_engine.dart';
 import 'package:guayan_trainer/domain/rules/governance/rule_resolver.dart';
 import '../engine/rule_engine_test_fixture.dart';
+import 'package:guayan_trainer/domain/rules/facts/rule_value.dart';
 
 RuleDefinition _makeRule(
   String id,
   RuleOrigin origin,
-  String sourceCode, {
+  String resultKey, {
   String? overrideTarget,
 }) {
-  final parsed = GuayanDslParser.parse(sourceCode);
   return RuleDefinition(
     ruleId: RuleId(id),
     version: RuleVersion('1.0.0'),
@@ -26,9 +30,15 @@ RuleDefinition _makeRule(
     title: 'test title',
     description: 'test desc',
     provenance: 'test prov',
-    bindings: parsed.bindings,
-    condition: parsed.condition!,
-    actions: parsed.actions,
+    bindings: [RuleBinding(name: 'A', selector: DirectSelector('line/2'))],
+    condition: PredicateExpr(
+      operatorId: 'relative',
+      operands: [
+        BindingRefOperand('A'),
+        LiteralOperand(RuleValue.string('fuMu')),
+      ],
+    ),
+    actions: [DeriveAction(targetBinding: 'A', factKey: resultKey)],
     overrideTarget: overrideTarget != null ? RuleId(overrideTarget) : null,
   );
 }
@@ -38,25 +48,15 @@ void main() {
     test(
       'CUSTOM rule overrides SYSTEM rule and Engine executes only CUSTOM',
       () {
-        final sysSource =
-            '''
-鍙?A = @line/2
-鑻?A 鍏翰涓虹埗姣?鍒?    寰?A state.sys_derived
-'''
-                .trim();
-
-        final cusSource =
-            '''
-鍙?A = @line/2
-鑻?A 鍏翰涓虹埗姣?鍒?    寰?A state.cus_derived
-'''
-                .trim();
-
-        final sysRule = _makeRule('sys.rule', RuleOrigin.SYSTEM, sysSource);
+        final sysRule = _makeRule(
+          'sys.rule',
+          RuleOrigin.SYSTEM,
+          'state.sys_derived',
+        );
         final cusRule = _makeRule(
           'cus.rule',
           RuleOrigin.CUSTOM,
-          cusSource,
+          'state.cus_derived',
           overrideTarget: 'sys.rule',
         );
 
@@ -70,7 +70,6 @@ void main() {
 
         final result = engine.execute(resolved.activeRules, snapshot);
 
-        // Verification: sys_derived should not exist, cus_derived should exist.
         bool hasCus = result.derivedFacts.any(
           (f) => f.value.value == 'state.cus_derived',
         );

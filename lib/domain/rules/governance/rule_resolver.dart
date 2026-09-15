@@ -2,8 +2,8 @@ library;
 
 import '../core/rule_definition.dart';
 import '../core/rule_id.dart';
-import '../core/rule_origin.dart';
 import 'resolved_rule_set.dart';
+import 'rule_override_resolver.dart';
 import 'rule_resolution_diagnostic.dart';
 
 class RuleResolver {
@@ -56,62 +56,12 @@ class RuleResolver {
 
     // 4. apply CUSTOM override
     final activeCandidates = Map.of(versionResolved);
-    for (var rule in versionResolved.values) {
-      if (rule.overrideTarget != null) {
-        final targetId = rule.overrideTarget!;
-        if (rule.origin != RuleOrigin.CUSTOM) {
-          diagnostics.add(
-            RuleResolutionDiagnostic(
-              severity: DiagnosticSeverity.error,
-              message: 'Only CUSTOM rules can override',
-              rule: rule,
-            ),
-          );
-          activeCandidates.remove(rule.ruleId);
-          suppressed.add(rule);
-          continue;
-        }
-        final targetRule = versionResolved[targetId];
-        if (targetRule == null) {
-          diagnostics.add(
-            RuleResolutionDiagnostic(
-              severity: DiagnosticSeverity.error,
-              message: 'Invalid overrideTarget',
-              rule: rule,
-            ),
-          );
-          activeCandidates.remove(rule.ruleId);
-          suppressed.add(rule);
-          continue;
-        }
-        if (targetRule.origin == RuleOrigin.CUSTOM) {
-          diagnostics.add(
-            RuleResolutionDiagnostic(
-              severity: DiagnosticSeverity.error,
-              message: 'CUSTOM override CUSTOM disallowed',
-              rule: rule,
-            ),
-          );
-          activeCandidates.remove(rule.ruleId);
-          suppressed.add(rule);
-          continue;
-        }
-        if (targetRule.overrideTarget != null) {
-          diagnostics.add(
-            RuleResolutionDiagnostic(
-              severity: DiagnosticSeverity.error,
-              message: 'Override chain detected',
-              rule: rule,
-            ),
-          );
-          activeCandidates.remove(rule.ruleId);
-          suppressed.add(rule);
-          continue;
-        }
-        activeCandidates.remove(targetId);
-        if (!suppressed.contains(targetRule)) suppressed.add(targetRule);
-      }
-    }
+    RuleOverrideResolver.applyOverrides(
+      versionResolved: versionResolved,
+      activeCandidates: activeCandidates,
+      suppressed: suppressed,
+      diagnostics: diagnostics,
+    );
 
     // 5. stable deterministic sort
     final finalRules = activeCandidates.values.toList();
