@@ -18,7 +18,10 @@ class DslActionParser {
       final tagParts = parts[1].split(':');
       if (tagParts.length != 2) throw _err(line, '取象目标格式应为 category:tag');
       return TagAction(
-          categoryId: tagParts[0], tagId: tagParts[1], subjectBinding: parts[0]);
+        categoryId: tagParts[0],
+        tagId: tagParts[1],
+        subjectBinding: parts[0],
+      );
     } else if (text.startsWith('记 ')) {
       final parts = text.substring(2).trim().split(' ');
       if (parts.length < 2) throw _err(line, '记动作格式: 记 type key=value');
@@ -34,13 +37,18 @@ class DslActionParser {
       if (parts.length < 2) throw _err(line, '成局动作格式: 成局 id A,B,C');
       final structureId = parts[0];
       final memberBindings = parts[1].split(',');
-      return StructureAction(structureId: structureId, memberBindings: memberBindings);
+      return StructureAction(
+        structureId: structureId,
+        memberBindings: memberBindings,
+      );
     } else {
       throw _err(line, '无法识别动作: $text');
     }
   }
 
   static DslException _err(DslLine line, String msg) {
-    return DslException(DslDiagnostic(line: line.lineNumber, column: 1, message: msg));
+    return DslException(
+      DslDiagnostic(line: line.lineNumber, column: 1, message: msg),
+    );
   }
 }

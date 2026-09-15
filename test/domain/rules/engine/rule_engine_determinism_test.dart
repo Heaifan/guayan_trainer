@@ -1,4 +1,4 @@
-﻿import 'package:guayan_trainer/domain/rules/engine/engine_types.dart';
+import 'package:guayan_trainer/domain/rules/engine/engine_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_action.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_binding.dart';
@@ -24,7 +24,7 @@ void main() {
           operatorId: ConditionId.relative,
           operands: [
             BindingRefOperand('A'),
-            LiteralOperand(RuleValue.string('parent')),
+            LiteralOperand(RuleValue.string('fuMu')),
           ],
         ),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],

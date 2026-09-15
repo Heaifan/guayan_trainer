@@ -15,7 +15,7 @@ void main() {
     test('relative', () {
       final res = evalOp(registry, createOperatorTestSnapshot(), ConditionId.relative, [
         ResolvedOperand.ref(refA),
-        ResolvedOperand.literal(RuleValue.string('parent')),
+        ResolvedOperand.literal(RuleValue.string('fuMu')),
       ]);
       expect(res.matched, true);
     });
@@ -23,7 +23,7 @@ void main() {
     test('spirit', () {
       final res = evalOp(registry, createOperatorTestSnapshot(), ConditionId.spirit, [
         ResolvedOperand.ref(refA),
-        ResolvedOperand.literal(RuleValue.string('azureDragon')),
+        ResolvedOperand.literal(RuleValue.string('qingLong')),
       ]);
       expect(res.matched, true);
     });

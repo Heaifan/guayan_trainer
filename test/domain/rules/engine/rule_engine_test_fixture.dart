@@ -1,4 +1,4 @@
-﻿import 'package:guayan_trainer/domain/rules/ast/rule_action.dart';
+import 'package:guayan_trainer/domain/rules/ast/rule_action.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_binding.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_expr.dart';
 import 'package:guayan_trainer/domain/rules/core/rule_definition.dart';
@@ -22,7 +22,7 @@ RuleDefinition buildRule(String id, RuleStage stage, List<RuleBinding> bindings,
 
 FactSnapshot createInitialSnapshot() {
   return FactSnapshot.build([
-    FactRecord(factId: 'f1', subject: const SemanticRef('line', '2'), predicateId: 'relative', value: RuleValue.string('parent'), origin: FactOrigin.baseRelation),
+    FactRecord(factId: 'f1', subject: const SemanticRef('line', '2'), predicateId: 'relative', value: RuleValue.string('fuMu'), origin: FactOrigin.baseRelation),
     FactRecord(factId: 'f3', subject: const SemanticRef('line', '2'), predicateId: 'nayin', value: RuleValue.string('nayin.tian_he_shui'), origin: FactOrigin.baseRelation),
   ], [RuntimeRelation(relationId: 'generate', subjects: const ['month/M', 'line/2'], evidenceId: 'e2')]);
 }

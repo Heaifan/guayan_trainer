@@ -1,4 +1,4 @@
-﻿import 'package:guayan_trainer/domain/rules/engine/engine_types.dart';
+import 'package:guayan_trainer/domain/rules/engine/engine_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_action.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_binding.dart';
@@ -18,7 +18,7 @@ void main() {
     test('T11 - Convergent Cycle', () {
       final rX = buildRule('rX', RuleStage.derivedState, [const RuleBinding(name: 'A', selector: DirectSelector('line/2'))],
         AnyExpr([
-          PredicateExpr(operatorId: ConditionId.relative, operands: [BindingRefOperand('A'), LiteralOperand(RuleValue.string('parent'))]),
+          PredicateExpr(operatorId: ConditionId.relative, operands: [BindingRefOperand('A'), LiteralOperand(RuleValue.string('fuMu'))]),
           PredicateExpr(operatorId: 'derive_is', operands: [BindingRefOperand('A'), LiteralOperand(RuleValue.string('stateY'))]),
         ]),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateX')],
@@ -35,7 +35,7 @@ void main() {
 
     test('T12 - Non-Convergence Guard', () {
       final r1 = buildRule('r1', RuleStage.derivedState, [const RuleBinding(name: 'A', selector: DirectSelector('line/2'))],
-        PredicateExpr(operatorId: ConditionId.relative, operands: [BindingRefOperand('A'), LiteralOperand(RuleValue.string('parent'))]),
+        PredicateExpr(operatorId: ConditionId.relative, operands: [BindingRefOperand('A'), LiteralOperand(RuleValue.string('fuMu'))]),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],
       );
       final engine = RuleEngine(maxIterationsPerStage: 1);

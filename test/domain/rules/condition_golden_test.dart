@@ -29,7 +29,7 @@ void main() {
         'condition': {
           'type': 'ALL',
           'nodes': [
-            {'type': 'PREDICATE', 'operatorId': 'relative', 'operands': [{'type': 'bindingRef', 'name': 'A'}, {'type': 'literal', 'value': 'parent'}]},
+            {'type': 'PREDICATE', 'operatorId': 'relative', 'operands': [{'type': 'bindingRef', 'name': 'A'}, {'type': 'literal', 'value': 'fuMu'}]},
             {'type': 'PREDICATE', 'operatorId': 'spirit', 'operands': [{'type': 'bindingRef', 'name': 'A'}, {'type': 'literal', 'value': 'azureDragon'}]},
             {'type': 'PREDICATE', 'operatorId': 'generate', 'operands': [{'type': 'bindingRef', 'name': 'M'}, {'type': 'bindingRef', 'name': 'A'}]},
             {'type': 'NOT', 'node': {'type': 'PREDICATE', 'operatorId': 'empty', 'operands': [{'type': 'bindingRef', 'name': 'A'}]}},

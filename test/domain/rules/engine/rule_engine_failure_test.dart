@@ -20,7 +20,7 @@ void main() {
           operatorId: 'unknown_operator',
           operands: [
             BindingRefOperand('A'),
-            LiteralOperand(RuleValue.string('parent')),
+            LiteralOperand(RuleValue.string('fuMu')),
           ],
         ),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],

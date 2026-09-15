@@ -14,7 +14,7 @@ class GuayanDslParser {
     final lines = _splitLines(source);
     final bindings = <RuleBinding>[];
     final actions = <RuleAction>[];
-    
+
     int i = 0;
     while (i < lines.length && lines[i].text.startsWith('取 ')) {
       bindings.add(_parseBinding(lines[i]));
@@ -63,16 +63,34 @@ class GuayanDslParser {
     final regex = RegExp(r'^取\s+(\w+)\s*=\s*(.+)$');
     final match = regex.firstMatch(line.text);
     if (match == null) {
-      throw DslException(DslDiagnostic(line: line.lineNumber, column: 1, message: '无法识别绑定: ${line.text}'));
+      throw DslException(
+        DslDiagnostic(
+          line: line.lineNumber,
+          column: 1,
+          message: '无法识别绑定: ${line.text}',
+        ),
+      );
     }
     final name = match.group(1)!;
     final selectorStr = match.group(2)!;
-    
+
     BindingSelector selector;
     if (selectorStr.startsWith('@')) {
       selector = DirectSelector(selectorStr.substring(1));
+    } else if (selectorStr.contains('.')) {
+      final parts = selectorStr.split('.');
+      selector = RelativeSelector(
+        baseBinding: parts[0],
+        path: parts.sublist(1).join('.'),
+      );
     } else {
-      selector = DirectSelector(selectorStr);
+      throw DslException(
+        DslDiagnostic(
+          line: line.lineNumber,
+          column: 1,
+          message: '无法识别的 Selector 格式: $selectorStr',
+        ),
+      );
     }
     return RuleBinding(name: name, selector: selector);
   }

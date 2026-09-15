@@ -21,7 +21,7 @@ void main() {
           operatorId: ConditionId.relative,
           operands: [
             BindingRefOperand('A'),
-            LiteralOperand(RuleValue.string('parent')),
+            LiteralOperand(RuleValue.string('fuMu')),
           ],
         ),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],
@@ -45,7 +45,7 @@ void main() {
           operatorId: ConditionId.relative,
           operands: [
             BindingRefOperand('A'),
-            LiteralOperand(RuleValue.string('parent')),
+            LiteralOperand(RuleValue.string('fuMu')),
           ],
         ),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],

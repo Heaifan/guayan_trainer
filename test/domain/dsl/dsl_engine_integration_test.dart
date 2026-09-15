@@ -10,18 +10,20 @@ import '../rules/engine/rule_engine_test_fixture.dart';
 
 void main() {
   test('R5-C2 FAST-TRACK: Engine Integration Smoke', () {
-    final source = '''
+    final source =
+        '''
 取 A = @line/2
 取 M = @month/M
 
-若 A 六亲为parent
+若 A 六亲为父母
     且 M 生 A
 则
-    得 A state.parent_supported
-'''.trim();
+    得 A state.fuMu_supported
+'''
+            .trim();
 
     final parsed = GuayanDslParser.parse(source);
-    
+
     final ruleDef = RuleDefinition(
       ruleId: const RuleId('smoke_test'),
       version: RuleVersion('1.0.0'),
@@ -39,12 +41,12 @@ void main() {
 
     final engine = RuleEngine();
     final snapshot = createInitialSnapshot(); // from fixture
-    
+
     final result = engine.execute([ruleDef], snapshot);
-    
+
     expect(result.derivedFacts.length, 1);
     expect(result.derivedFacts.first.predicateId, 'derive');
-    expect(result.derivedFacts.first.value.value, 'state.parent_supported');
+    expect(result.derivedFacts.first.value.value, 'state.fuMu_supported');
     expect(result.derivedFacts.first.subject.kind, 'line');
     expect(result.derivedFacts.first.subject.key, '2');
   });

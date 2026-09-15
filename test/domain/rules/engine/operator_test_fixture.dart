@@ -15,8 +15,8 @@ const refT = SemanticRef('tomb', 'T');
 
 FactSnapshot createOperatorTestSnapshot() {
   return FactSnapshot.build([
-    FactRecord(factId: 'f1', subject: refA, predicateId: 'relative', value: RuleValue.string('parent'), origin: FactOrigin.baseRelation),
-    FactRecord(factId: 'f2', subject: refA, predicateId: 'spirit', value: RuleValue.string('azureDragon'), origin: FactOrigin.baseRelation),
+    FactRecord(factId: 'f1', subject: refA, predicateId: 'relative', value: RuleValue.string('fuMu'), origin: FactOrigin.baseRelation),
+    FactRecord(factId: 'f2', subject: refA, predicateId: 'spirit', value: RuleValue.string('qingLong'), origin: FactOrigin.baseRelation),
     FactRecord(factId: 'f3', subject: refA, predicateId: 'nayin', value: RuleValue.string('nayin.tian_he_shui'), origin: FactOrigin.baseRelation),
     FactRecord(factId: 'f4', subject: refA, predicateId: 'state', value: RuleValue.string('xun_kong'), origin: FactOrigin.baseRelation),
     FactRecord(factId: 'f5', subject: refA, predicateId: 'state', value: RuleValue.string('yue_po'), origin: FactOrigin.baseRelation),

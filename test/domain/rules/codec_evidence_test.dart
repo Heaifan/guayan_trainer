@@ -16,7 +16,6 @@ import 'package:guayan_trainer/domain/rules/packs/rule_pack_scope.dart';
 import 'package:guayan_trainer/domain/rules/evidence/evidence_id.dart';
 import 'package:guayan_trainer/domain/rules/evidence/evidence_node.dart';
 import 'package:guayan_trainer/domain/rules/facts/semantic_ref.dart';
-import 'package:guayan_trainer/domain/rules/facts/rule_value.dart';
 import 'package:guayan_trainer/data/rules/codec/rule_codec.dart';
 
 void main() {

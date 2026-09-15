@@ -27,7 +27,7 @@ void main() {
             operatorId: ConditionId.relative,
             operands: [
               BindingRefOperand('A'),
-              LiteralOperand(RuleValue.string('parent')),
+              LiteralOperand(RuleValue.string('fuMu')),
             ],
           ),
           PredicateExpr(
@@ -35,7 +35,7 @@ void main() {
             operands: [BindingRefOperand('M'), BindingRefOperand('A')],
           ),
         ]),
-        [const DeriveAction(targetBinding: 'A', factKey: 'parent_supported')],
+        [const DeriveAction(targetBinding: 'A', factKey: 'fuMu_supported')],
       );
       final rule2 = buildRule(
         'r2',
@@ -53,7 +53,7 @@ void main() {
             operatorId: 'derive_is',
             operands: [
               BindingRefOperand('A'),
-              LiteralOperand(RuleValue.string('parent_supported')),
+              LiteralOperand(RuleValue.string('fuMu_supported')),
             ],
           ),
         ]),
@@ -83,7 +83,7 @@ void main() {
       // Rule2 support contains Rule1 derived evidence
       final hit2Node = run.evidenceNodes.firstWhere((n) => n.id == hit2.hitId);
       final supportsHit2 = run.evidenceEdges.where((e) => e.targetId == hit2Node.id && e.relationType == 'supports').map((e) => e.sourceId).toList();
-      final derivedFactNode = run.evidenceNodes.firstWhere((n) => n.type == 'fact' && n.label.contains('parent_supported'));
+      final derivedFactNode = run.evidenceNodes.firstWhere((n) => n.type == 'fact' && n.label.contains('fuMu_supported'));
       expect(supportsHit2.contains(derivedFactNode.id), isTrue, reason: 'Rule2 support contains Rule1 derived evidence');
     });
   });
