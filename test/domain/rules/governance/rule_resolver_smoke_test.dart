@@ -90,5 +90,27 @@ void main() {
         'sys.C',
       ]);
     });
+    test('Smoke 4: Equal precedence fail closed', () {
+      final r1 = _makeRule('sys.A', '1.0.0+abc', RuleOrigin.SYSTEM);
+      final r2 = _makeRule('sys.A', '1.0.0+xyz', RuleOrigin.SYSTEM);
+
+      final res1 = RuleResolver.resolve([r1, r2]);
+      final res2 = RuleResolver.resolve([r2, r1]);
+
+      expect(res1.activeRules.isEmpty, true);
+      expect(res2.activeRules.isEmpty, true);
+      expect(
+        res1.diagnostics.any(
+          (d) => d.message.contains('Ambiguous equal precedence'),
+        ),
+        true,
+      );
+      expect(
+        res2.diagnostics.any(
+          (d) => d.message.contains('Ambiguous equal precedence'),
+        ),
+        true,
+      );
+    });
   });
 }

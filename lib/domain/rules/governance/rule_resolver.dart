@@ -30,21 +30,22 @@ class RuleResolver {
     final versionResolved = <RuleId, RuleDefinition>{};
     for (var entry in grouped.entries) {
       final rulesForId = entry.value;
-      final versions = <String>{};
-      bool hasDuplicates = false;
-      for (var r in rulesForId) {
-        if (!versions.add(r.version.version)) {
-          diagnostics.add(
-            RuleResolutionDiagnostic(
-              severity: DiagnosticSeverity.error,
-              message: 'Duplicate ruleId and version',
-              rule: r,
-            ),
-          );
-          hasDuplicates = true;
+      bool hasAmbiguity = false;
+      for (int i = 0; i < rulesForId.length; i++) {
+        for (int j = i + 1; j < rulesForId.length; j++) {
+          if (rulesForId[i].version.compareTo(rulesForId[j].version) == 0) {
+            diagnostics.add(
+              RuleResolutionDiagnostic(
+                severity: DiagnosticSeverity.error,
+                message: 'Ambiguous equal precedence versions',
+                rule: rulesForId[i],
+              ),
+            );
+            hasAmbiguity = true;
+          }
         }
       }
-      if (hasDuplicates) {
+      if (hasAmbiguity) {
         suppressed.addAll(rulesForId);
         continue;
       }
