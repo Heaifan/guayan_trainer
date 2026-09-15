@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../../lib/domain/dsl/dsl_parser.dart';
-import '../../../lib/domain/dsl/dsl_formatter.dart';
-import '../../../lib/domain/dsl/dsl_diagnostics.dart';
-import '../../../lib/domain/rules/ast/rule_expr.dart';
+import 'package:guayan_trainer/domain/dsl/dsl_parser.dart';
+import 'package:guayan_trainer/domain/dsl/dsl_formatter.dart';
+import 'package:guayan_trainer/domain/dsl/dsl_diagnostics.dart';
+import 'package:guayan_trainer/domain/rules/ast/rule_expr.dart';
 
 void main() {
   group('C1 FAST-TRACK Smoke Tests', () {

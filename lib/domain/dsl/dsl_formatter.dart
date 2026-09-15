@@ -1,10 +1,9 @@
-library;
-
 import '../rules/ast/binding_selector.dart';
 import '../rules/ast/rule_action.dart';
 import '../rules/ast/rule_binding.dart';
 import '../rules/ast/rule_expr.dart';
 import '../rules/ast/rule_operand.dart';
+import 'dsl_nayin_map.dart';
 
 class GuayanDslFormatter {
   static String format({
@@ -50,6 +49,11 @@ class GuayanDslFormatter {
           buffer.writeln('    得 ${a.targetBinding} ${a.factKey}');
         } else if (a is TagAction) {
           buffer.writeln('    取象 ${a.subjectBinding} ${a.categoryId}:${a.tagId}');
+        } else if (a is StructureAction) {
+          buffer.writeln('    成局 ${a.structureId} ${a.memberBindings.join(",")}');
+        } else if (a is RecordAction) {
+          final kvs = a.content.entries.map((e) => '${e.key}=${e.value.value}').join(' ');
+          buffer.writeln('    记 ${a.recordType}${kvs.isNotEmpty ? " $kvs" : ""}');
         }
       }
     }
@@ -58,28 +62,27 @@ class GuayanDslFormatter {
   }
 
   static String _formatExpr(RuleExpr expr) {
-    if (expr is NotExpr) {
-      return '非 ${_formatExpr(expr.node)}';
-    } else if (expr is PredicateExpr) {
-      if (expr.operatorId == 'relative') {
-        final b = (expr.operands[0] as BindingRefOperand).bindingName;
-        final val = (expr.operands[1] as LiteralOperand).value.value;
-        return '$b 六亲为$val';
-      } else if (expr.operatorId == 'generate') {
-        final a = (expr.operands[0] as BindingRefOperand).bindingName;
-        final b = (expr.operands[1] as BindingRefOperand).bindingName;
-        return '$a 生 $b';
-      } else if (expr.operatorId == 'yue_po') {
-        final a = (expr.operands[0] as BindingRefOperand).bindingName;
-        return '$a 月破';
-      } else if (expr.operatorId == 'ri_po') {
-        final a = (expr.operands[0] as BindingRefOperand).bindingName;
-        return '$a 日破';
-      } else if (expr.operatorId == 'xun_kong') {
-        final a = (expr.operands[0] as BindingRefOperand).bindingName;
-        return '$a 旬空';
-      }
+    if (expr is NotExpr) return '非 ${_formatExpr(expr.node)}';
+    if (expr is PredicateExpr) {
+      final opId = expr.operatorId;
+      final ops = expr.operands;
+      if (opId == 'relative') return '${_b(ops[0])} 六亲为${_l(ops[1])}';
+      if (opId == 'spirit') return '${_b(ops[0])} 六神为${_l(ops[1])}';
+      if (opId == 'generate') return '${_b(ops[0])} 生 ${_b(ops[1])}';
+      if (opId == 'nayin_is') return '${_b(ops[0])} 纳音为${dslIdToNaYin[_l(ops[1])] ?? _l(ops[1])}';
+      if (opId == 'has_tag') return '${_b(ops[0])} 有标签 ${_l(ops[1])}:${_l(ops[2])}';
+      if (opId == 'chu_mu') return '${_b(ops[0])} 出墓于 ${_b(ops[1])} 冲 ${_b(ops[2])}';
+      if (opId == 'ru_mu') return '${_b(ops[0])} 入墓于 ${_b(ops[1])}';
+      if (opId == 'chong_mu') return '${_b(ops[0])} 冲墓于 ${_b(ops[1])}';
+      if (opId == 'yue_po') return '${_b(ops[0])} 月破';
+      if (opId == 'ri_po') return '${_b(ops[0])} 日破';
+      if (opId == 'xun_kong') return '${_b(ops[0])} 旬空';
+      if (opId == 'empty') return '${_b(ops[0])} 为空';
+      if (opId == 'in_tomb') return '${_b(ops[0])} 在墓中';
     }
     return '';
   }
+
+  static String _b(RuleOperand op) => (op as BindingRefOperand).bindingName;
+  static String _l(RuleOperand op) => (op as LiteralOperand).value.value.toString();
 }

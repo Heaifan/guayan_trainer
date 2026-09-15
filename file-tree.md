@@ -1381,3 +1381,23 @@ theme/  data/  鈫? models/  鈫? services/  鈫? pages/  +  widgets/
 | `v0.1.3.10` | 2026-05-16 | 浼樺寲 | 杞洏鍔犻€熻嚦 5 绉掍竴杞?|
 | `v0.1.3.9` | 2026-05-16 | 鍙樻洿 | 鏈ㄧ敓鐏浛鎹负閽绘湪鍙栫伀鍔ㄧ敾 |
 | `v0.1.3.8` | 2026-05-16 | 鏂板 | 鐏敓鍦?HTML 鍔ㄧ敾锛孒tmlRelationEffect 娉涘寲 |
+
+### 5.3.4 lib/domain/dsl/ (R5-C FAST-TRACK DSL 解析)
+
+| 文件 | 职责 |
+| --- | --- |
+| dsl_models.dart | DSL 核心数据结构 (ParsedGuayan, DslLine) |
+| dsl_diagnostics.dart | 异常及行列位置提示模型 |
+| dsl_nayin_map.dart | 纳音中文字符到 Stable ID 映射表 |
+| dsl_parser.dart | 卦言语法主解析器入口 |
+| dsl_formatter.dart | 卦言语法反向格式化器 |
+| parser/dsl_action_parser.dart | 动作解析器 (支持得、取象、成局、记) |
+| parser/dsl_expr_parser.dart | 条件表达式解析器 (支持13种算子与逻辑嵌套) |
+
+### 5.17 test/domain/dsl/ (R5-C FAST-TRACK)
+
+| 文件 | 职责 |
+| --- | --- |
+| dsl_smoke_test.dart | C1 阶段 3 项语法树构造验证 |
+| dsl_round_trip_test.dart | C2 阶段 Parser/Formatter 幂等性与信息守恒验证 |
+| dsl_engine_integration_test.dart | C2 阶段 DSL 到 R5-B RuleEngine 执行能力验证 |
