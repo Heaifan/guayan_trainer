@@ -1,4 +1,3 @@
-﻿import 'package:guayan_trainer/domain/rules/engine/engine_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_action.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_binding.dart';
@@ -9,8 +8,6 @@ import 'package:guayan_trainer/domain/rules/core/rule_stage.dart';
 import 'package:guayan_trainer/domain/rules/engine/rule_engine.dart';
 import 'package:guayan_trainer/domain/rules/facts/rule_value.dart';
 import 'package:guayan_trainer/domain/rules/vocabulary/condition_id.dart';
-import 'package:guayan_trainer/domain/rules/engine/operators/structural_operators.dart';
-import 'package:guayan_trainer/domain/rules/engine/operators/fact_operators.dart';
 import 'rule_engine_test_fixture.dart';
 
 void main() {

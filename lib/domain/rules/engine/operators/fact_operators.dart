@@ -14,7 +14,7 @@ class RelativeOperator extends OperatorImpl {
     OperatorContext ctx,
   ) {
     if (operands.length != 2 || !operands[0].isRef || !operands[1].isLiteral)
-      return PredicateResult.fail;
+      { return PredicateResult.fail; }
     final f = ctx.snapshot.facts
         .where(
           (f) =>
@@ -40,7 +40,7 @@ class BinaryLiteralOperator extends OperatorImpl {
     OperatorContext ctx,
   ) {
     if (operands.length != 2 || !operands[0].isRef || !operands[1].isLiteral)
-      return PredicateResult.fail;
+      { return PredicateResult.fail; }
     final f = ctx.snapshot.facts
         .where(
           (f) =>

@@ -17,7 +17,7 @@ class HasTagOperator extends OperatorImpl {
         !operands[0].isRef ||
         !operands[1].isLiteral ||
         !operands[2].isLiteral)
-      return PredicateResult.fail;
+      { return PredicateResult.fail; }
     final category = operands[1].literal!.value as String;
     final tag = operands[2].literal!.value as String;
     final f = ctx.snapshot.facts

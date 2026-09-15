@@ -13,7 +13,7 @@ class GenerateOperator extends OperatorImpl {
     OperatorContext ctx,
   ) {
     if (operands.length != 2 || !operands[0].isRef || !operands[1].isRef)
-      return PredicateResult.fail;
+      { return PredicateResult.fail; }
     final r = ctx.snapshot.relations
         .where(
           (r) =>
@@ -40,7 +40,7 @@ class SimpleRelationOperator extends OperatorImpl {
     OperatorContext ctx,
   ) {
     if (operands.length != 2 || !operands[0].isRef || !operands[1].isRef)
-      return PredicateResult.fail;
+      { return PredicateResult.fail; }
     final r = ctx.snapshot.relations
         .where(
           (r) =>
@@ -69,7 +69,7 @@ class ChuMuOperator extends OperatorImpl {
         !operands[0].isRef ||
         !operands[1].isRef ||
         !operands[2].isRef)
-      return PredicateResult.fail;
+      { return PredicateResult.fail; }
     final r = ctx.snapshot.relations
         .where(
           (r) =>

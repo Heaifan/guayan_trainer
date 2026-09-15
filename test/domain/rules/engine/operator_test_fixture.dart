@@ -1,4 +1,3 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/domain/rules/engine/operators/operator_registry.dart';
 import 'package:guayan_trainer/domain/rules/engine/operators/operator_impl.dart';
 import 'package:guayan_trainer/domain/rules/facts/fact_snapshot.dart';
