@@ -15,7 +15,7 @@ class FactSnapshot {
 
   /// 暴露为不可变集合的 facts 迭代器
   Iterable<FactRecord> get facts => _facts.values;
-  
+
   List<RuntimeRelation> get relations => _relations;
 
   /// 根据 factId 获取对应的不可变事实

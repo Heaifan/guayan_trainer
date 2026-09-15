@@ -131,10 +131,10 @@ void main() {
 
       expect(run.derivedFacts.length, 1, reason: 'Rule1 output exists');
       expect(run.tags.length, 1, reason: 'Rule2 Tag exists');
-      
+
       final derivedFact = run.derivedFacts.first;
       expect(initialSnapshot.getFact(derivedFact.factId), isNull, reason: 'Rule1 output did not exist in original input');
-      
+
       final tag = run.tags.first;
       expect(initialSnapshot.getFact(tag.factId), isNull, reason: 'Rule2 Tag did not exist in original input');
 
@@ -146,8 +146,8 @@ void main() {
       // Rule2 support contains Rule1 derived evidence
       final hit2Node = run.evidenceNodes.firstWhere((n) => n.id == hit2.hitId);
       final supportsHit2 = run.evidenceEdges.where((e) => e.targetId == hit2Node.id && e.relationType == 'supports').map((e) => e.sourceId).toList();
-      final derivedFactNode = run.evidenceNodes.firstWhere((n) => n.type == 'fact' && n.label.contains('parent_supported')); 
-      
+      final derivedFactNode = run.evidenceNodes.firstWhere((n) => n.type == 'fact' && n.label.contains('parent_supported'));
+
       expect(supportsHit2.contains(derivedFactNode.id), isTrue, reason: 'Rule2 support contains Rule1 derived evidence');
     });
 
@@ -191,17 +191,17 @@ void main() {
       final run3 = engine.execute([rA, rB], initialSnapshot);
 
       void compareRuns(AnalysisRun a, AnalysisRun b) {
-        expect(a.derivedFacts.map((f) => '${f.predicateId}:${f.value}').toSet(), 
+        expect(a.derivedFacts.map((f) => '${f.predicateId}:${f.value}').toSet(),
                b.derivedFacts.map((f) => '${f.predicateId}:${f.value}').toSet());
-        expect(a.ruleHits.map((h) => h.ruleId).toSet(), 
+        expect(a.ruleHits.map((h) => h.ruleId).toSet(),
                b.ruleHits.map((h) => h.ruleId).toSet());
-        expect(a.evidenceNodes.map((n) => n.type).toSet(), 
+        expect(a.evidenceNodes.map((n) => n.type).toSet(),
                b.evidenceNodes.map((n) => n.type).toSet());
       }
 
       // T7 Order Invariance
       compareRuns(run1, run2);
-      
+
       // T8 Idempotence
       compareRuns(run1, run3);
     });
@@ -220,13 +220,13 @@ void main() {
         ),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],
       );
-      
+
       final preSnapshot = initialSnapshot.facts.map((f) => '${f.factId}|${f.subject.kind}/${f.subject.key}|${f.predicateId}|${f.value.toString()}|${f.origin}').toList();
-      
+
       RuleEngine().execute([rA], initialSnapshot);
-      
+
       final postSnapshot = initialSnapshot.facts.map((f) => '${f.factId}|${f.subject.kind}/${f.subject.key}|${f.predicateId}|${f.value.toString()}|${f.origin}').toList();
-      
+
       expect(postSnapshot, equals(preSnapshot));
     });
 
@@ -245,7 +245,7 @@ void main() {
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],
       );
       final run = RuleEngine().execute([rA], initialSnapshot);
-      
+
       expect(() => run.derivedFacts.add(initialSnapshot.facts.first), throwsUnsupportedError);
       expect(() => run.tags.clear(), throwsUnsupportedError);
       expect(() => run.ruleHits.removeLast(), throwsUnsupportedError);
@@ -310,7 +310,7 @@ void main() {
         ),
         [const DeriveAction(targetBinding: 'A', factKey: 'stateA')],
       );
-      
+
       expect(() => RuleEngine().execute([rA], initialSnapshot), throwsA(isA<Exception>()));
     });
 
