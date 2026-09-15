@@ -2,12 +2,34 @@
 
 > **褰撳墠鐗堟湰锛?* v0.1.11
 > **鍒涘缓鏃堕棿锛?* 2026-05-15
-> **鏈€鍚庣紪杈戯細** 2026-09-14 23:51
+> **鏈€鍚庣紪杈戯細** 2026-09-15 10:00
 
-> 鏈枃浠剁敤浜庤褰曢」鐩洰褰曠粨鏋勩€佹ā鍧楄亴璐ｄ笌鐗堟湰婕旇繘銆? 
+> 鏈枃浠剁敤浜庤褰曢」鐩洰褰曠粨鏋勩€佹ā鍧楄亴璐ｄ笌鐗堟湰婕旇繘銆?
 > 姣忔 AI 鎴栦汉宸ヤ慨鏀逛唬鐮佸悗锛屽娑夊強鏂板銆佸垹闄ゃ€侀噸鍛藉悕鏂囦欢锛屽繀椤诲悓姝ユ洿鏂版湰鏂囨。銆?
 
 ---
+
+## R5-B-FIX · Rule Engine SRP refactor (2026-09-15)
+
+> 解决 R5-B 期间产生的 5+100 行数限制报错，拆分了 rule_engine, stage_runner, action_executor, operators 等过大的文件。同时记录了 R5-B 中的治理事故：bulk replace, multiple restores/checkouts, broad adds, premature commits, amend 等等。
+
+### 规则执行引擎 (lib/domain/rules/engine/)
+
+| 文件/目录 | 职责 |
+| --- | --- |
+|
+ule_engine.dart | 外观模式，规则引擎入口 |
+| nalysis_stage_executor.dart | 负责遍历各个阶段执行 |
+| stage_runner.dart | 负责单个阶段(Stage)内的多次迭代(Fixpoint convergence) |
+| stage_iteration_runner.dart | 负责执行一次内部循环的求值和合并过程 |
+| ction_executor.dart | 根据规则的结果分发具体动作 |
+| ction_output_factory.dart | 分离 Action 的创建和执行 |
+| operators/structural_operators.dart | barrel 导出 |
+| operators/fact_operators.dart | 事实类算子(relative, spirit, nayin) |
+| operators/relation_operators.dart | 关系类算子(generate, ru_mu 等) |
+| operators/state_operators.dart | 状态类算子(xun_kong 等) |
+| operators/tag_operator.dart | 标记类算子(has_tag) |
+| ... | 其他执行器相关 |
 
 ## R5-A 路 Rule Schema + AST + Core Domain (2026-09-14)
 
@@ -1359,4 +1381,3 @@ theme/  data/  鈫? models/  鈫? services/  鈫? pages/  +  widgets/
 | `v0.1.3.10` | 2026-05-16 | 浼樺寲 | 杞洏鍔犻€熻嚦 5 绉掍竴杞?|
 | `v0.1.3.9` | 2026-05-16 | 鍙樻洿 | 鏈ㄧ敓鐏浛鎹负閽绘湪鍙栫伀鍔ㄧ敾 |
 | `v0.1.3.8` | 2026-05-16 | 鏂板 | 鐏敓鍦?HTML 鍔ㄧ敾锛孒tmlRelationEffect 娉涘寲 |
-
