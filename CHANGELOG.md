@@ -1,10 +1,36 @@
-﻿# 卦眼训练营 · 文件审计与变更日志
+# 卦眼训练营 · 文件审计与变更日志
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
 > **最近正式发布：** v0.1.10（2026-05-22）
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
+
+---
+
+| 版本 | 日期 | 类型 | 说明 |
+| --- | --- | --- | --- |
+| `v0.1.13` | 2026-09-15 | 新增 | R5-D Rule Governance (SYSTEM/CUSTOM, Version Resolution, Override, Resolver, Deterministic Resolution, Engine Integration) |
+| `v0.1.12` | 2026-09-15 | 新增 | R5-C DSL Parser & Formatter round trip (Fast-Track) |
+
+---
+
+## 2026-09-15 · R5-D Rule Governance (SYSTEM/CUSTOM, Version Resolution, Override, Resolver, Deterministic Resolution, Engine Integration)
+
+> **阶段目标**：实现 R5-D 规则治理（SYSTEM/CUSTOM、版本解析、覆写、解析器、确定性解析、引擎集成）。
+
+### 新增/修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/rules/governance/` | R5-D 规则治理核心模型与解析器实现 |
+| `test/domain/rules/governance/` | R5-D 规则治理测试套件 |
+
+### 验证
+
+- `flutter test`：通过
+- `dart analyze`：通过，0 issues
+- 文件 <= 100 行限制：严格符合。
 
 ---
 
