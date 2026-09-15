@@ -1,4 +1,4 @@
-﻿import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_action.dart';
 import 'package:guayan_trainer/domain/rules/ast/rule_expr.dart';
 import 'package:guayan_trainer/domain/rules/core/rule_definition.dart';
@@ -38,19 +38,19 @@ void main() {
     test('TagAction', () {
       final rule = buildRule(id: const RuleId('test_rule'), stage: RuleStage.tag, actions: [const TagAction(subjectBinding: 'A', categoryId: 'shensha', tagId: 'custom')]);
       final res = executor.execute(rule, context, []);
-      expect(res.derivedFacts[0].predicateId, 'has_tag_shensha');
+      expect(res.tags[0].predicateId, 'has_tag_shensha');
     });
 
     test('StructureAction', () {
       final rule = buildRule(id: const RuleId('test_rule'), stage: RuleStage.structure, actions: [const StructureAction(structureId: 'pair', memberBindings: ['A', 'B'])]);
       final res = executor.execute(rule, context, []);
-      expect(res.derivedFacts[0].subject.kind, 'structure');
+      expect(res.structures[0].subject.kind, 'structure');
     });
 
     test('RecordAction', () {
       final rule = buildRule(id: const RuleId('test_rule'), stage: RuleStage.tag, actions: [RecordAction(recordType: 'summary', content: {'k': RuleValue.string("v")})]);
       final res = executor.execute(rule, context, []);
-      expect(res.derivedFacts[0].subject.kind, 'record');
+      expect(res.records[0].subject.kind, 'record');
     });
 
     test('Multi-action Rule', () {

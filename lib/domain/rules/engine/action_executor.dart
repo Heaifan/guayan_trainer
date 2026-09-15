@@ -6,6 +6,8 @@ import '../facts/rule_value.dart';
 import '../facts/semantic_ref.dart';
 import '../evidence/evidence_id.dart';
 import '../evidence/rule_hit.dart';
+import '../evidence/evidence_node.dart';
+import '../evidence/evidence_edge.dart';
 import '../core/rule_definition.dart';
 import 'binding_resolver.dart';
 import 'evidence_emitter.dart';
@@ -23,17 +25,25 @@ class ActionExecutor {
     List<EvidenceId> supports,
   ) {
     final derivedFacts = <FactRecord>[];
+    final derivedStates = <FactRecord>[];
+    final tags = <FactRecord>[];
+    final structures = <FactRecord>[];
+    final records = <FactRecord>[];
     final ruleHits = <RuleHit>[];
+    final evidenceNodes = <EvidenceNode>[];
+    final evidenceEdges = <EvidenceEdge>[];
 
     for (final action in rule.actions) {
       FactRecord? newFact;
       String conclusion = '';
+      String outputType = 'fact';
 
       if (action is DeriveAction) {
         final ref = context.get(action.targetBinding);
         if (ref != null) {
           newFact = FactRecord(
-            factId: 'derived_${rule.ruleId.id}_${ref.kind}_${ref.key}_${action.factKey}',
+            factId:
+                'derived_${rule.ruleId.id}_${ref.kind}_${ref.key}_${action.factKey}',
             subject: ref,
             predicateId: 'derive',
             value: RuleValue.string(action.factKey),
@@ -42,27 +52,38 @@ class ActionExecutor {
           conclusion = 'derive ${action.factKey} on ${action.targetBinding}';
         }
       } else if (action is TagAction) {
-        final ref = action.subjectBinding != null ? context.get(action.subjectBinding!) : const SemanticRef('global', 'scope');
+        final ref = action.subjectBinding != null
+            ? context.get(action.subjectBinding!)
+            : const SemanticRef('global', 'scope');
         if (ref != null) {
           newFact = FactRecord(
-            factId: 'tag_${rule.ruleId.id}_${ref.kind}_${ref.key}_${action.categoryId}_${action.tagId}',
+            factId:
+                'tag_${rule.ruleId.id}_${ref.kind}_${ref.key}_${action.categoryId}_${action.tagId}',
             subject: ref,
             predicateId: 'has_tag_${action.categoryId}',
             value: RuleValue.string(action.tagId),
             origin: FactOrigin.derived,
           );
-          conclusion = 'tag ${action.categoryId}.${action.tagId} on ${action.subjectBinding ?? "global"}';
+          conclusion =
+              'tag ${action.categoryId}.${action.tagId} on ${action.subjectBinding ?? "global"}';
+          outputType = 'tag';
         }
       } else if (action is StructureAction) {
-        final refs = action.memberBindings.map((b) => context.get(b)).where((r) => r != null).toList();
+        final refs = action.memberBindings
+            .map((b) => context.get(b))
+            .where((r) => r != null)
+            .toList();
         newFact = FactRecord(
           factId: 'structure_${rule.ruleId.id}_${action.structureId}',
           subject: SemanticRef('structure', action.structureId),
           predicateId: 'contains',
-          value: RuleValue.string(refs.map((r) => '${r!.kind}/${r.key}').join(',')),
+          value: RuleValue.string(
+            refs.map((r) => '${r!.kind}/${r.key}').join(','),
+          ),
           origin: FactOrigin.derived,
         );
         conclusion = 'structure ${action.structureId}';
+        outputType = 'structure';
       } else if (action is RecordAction) {
         newFact = FactRecord(
           factId: 'record_${rule.ruleId.id}_${action.recordType}',
@@ -72,10 +93,19 @@ class ActionExecutor {
           origin: FactOrigin.derived,
         );
         conclusion = 'record ${action.recordType}';
+        outputType = 'record';
       }
 
       if (newFact != null) {
-        derivedFacts.add(newFact);
+        if (action is DeriveAction) {
+          derivedFacts.add(newFact);
+        } else if (action is TagAction) {
+          tags.add(newFact);
+        } else if (action is StructureAction) {
+          structures.add(newFact);
+        } else if (action is RecordAction) {
+          records.add(newFact);
+        }
 
         final hit = const EvidenceEmitter().emitHit(
           rule: rule,
@@ -84,9 +114,42 @@ class ActionExecutor {
           supports: supports,
         );
         ruleHits.add(hit);
+
+        evidenceNodes.add(
+          EvidenceNode(id: hit.hitId, label: conclusion, type: 'rule'),
+        );
+        final outId = EvidenceId(newFact.factId);
+        evidenceNodes.add(
+          EvidenceNode(id: outId, label: conclusion, type: outputType),
+        );
+        evidenceEdges.add(
+          EvidenceEdge(
+            sourceId: hit.hitId,
+            targetId: outId,
+            relationType: 'derives_to',
+          ),
+        );
+        for (final s in supports) {
+          evidenceEdges.add(
+            EvidenceEdge(
+              sourceId: s,
+              targetId: hit.hitId,
+              relationType: 'supports',
+            ),
+          );
+        }
       }
     }
 
-    return ActionExecutionResult(derivedFacts, ruleHits);
+    return ActionExecutionResult(
+      derivedFacts,
+      derivedStates,
+      tags,
+      structures,
+      records,
+      ruleHits,
+      evidenceNodes,
+      evidenceEdges,
+    );
   }
 }
