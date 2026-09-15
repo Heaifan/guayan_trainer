@@ -14,82 +14,55 @@ class DslPatternMatcher {
     if (text.contains(' 六亲为')) {
       final p = text.split(' 六亲为');
       final val = p[1].trim();
-      final stableId =
-          SixRelative.values.where((e) => e.label == val).firstOrNull?.name ??
-          val;
+      final stableId = SixRelative.values.where((e) => e.label == val).firstOrNull?.name ?? val;
       return PredicateExpr(
         operatorId: 'relative',
-        operands: [
-          BindingRefOperand(p[0].trim()),
-          LiteralOperand(RuleValue.string(stableId)),
-        ],
+        operands: [BindingRefOperand(p[0].trim()), LiteralOperand(RuleValue.string(stableId))]
       );
     }
     if (text.contains(' 六神为')) {
       final p = text.split(' 六神为');
       final val = p[1].trim();
-      final stableId =
-          SixSpirit.values.where((e) => e.label == val).firstOrNull?.name ??
-          val;
+      final stableId = SixSpirit.values.where((e) => e.label == val).firstOrNull?.name ?? val;
       return PredicateExpr(
         operatorId: 'spirit',
-        operands: [
-          BindingRefOperand(p[0].trim()),
-          LiteralOperand(RuleValue.string(stableId)),
-        ],
+        operands: [BindingRefOperand(p[0].trim()), LiteralOperand(RuleValue.string(stableId))]
       );
     }
     if (text.contains(' 生 ')) return _binRel(text, ' 生 ', 'generate');
     if (text.contains(' 有标签 ')) {
       final p = text.split(' 有标签 ');
       final tags = p[1].trim().split(':');
-      if (tags.length != 2)
-        throw DslException(
-          DslDiagnostic(
-            line: line.lineNumber,
-            column: 1,
-            message: '标签格式错误，应为 category:tag',
-          ),
-        );
+      if (tags.length != 2) {
+        throw DslException(DslDiagnostic(line: line.lineNumber, column: 1, message: '标签格式错误，应为 category:tag'));
+      }
       return PredicateExpr(
         operatorId: 'has_tag',
-        operands: [
-          BindingRefOperand(p[0].trim()),
-          LiteralOperand(RuleValue.string(tags[0])),
-          LiteralOperand(RuleValue.string(tags[1])),
-        ],
+        operands: [BindingRefOperand(p[0].trim()), LiteralOperand(RuleValue.string(tags[0])), LiteralOperand(RuleValue.string(tags[1]))]
       );
     }
     if (text.contains(' 纳音为')) {
       final p = text.split(' 纳音为');
       final nayinStr = p[1].trim();
       final stableId = dslNaYinToId[nayinStr];
-      if (stableId == null)
-        throw DslException(
-          DslDiagnostic(
-            line: line.lineNumber,
-            column: 1,
-            message: '无法识别纳音: $nayinStr',
-          ),
-        );
+      if (stableId == null) {
+        throw DslException(DslDiagnostic(line: line.lineNumber, column: 1, message: '无法识别纳音: $nayinStr'));
+      }
       return PredicateExpr(
         operatorId: 'nayin_is',
-        operands: [
-          BindingRefOperand(p[0].trim()),
-          LiteralOperand(RuleValue.string(stableId)),
-        ],
+        operands: [BindingRefOperand(p[0].trim()), LiteralOperand(RuleValue.string(stableId))]
       );
     }
+    return _matchTombAndUnary(text, line);
+  }
+
+  static RuleExpr? _matchTombAndUnary(String text, DslLine line) {
     if (text.contains(' 出墓于 ') && text.contains(' 冲 ')) {
       final p1 = text.split(' 出墓于 ');
       final p2 = p1[1].split(' 冲 ');
       return PredicateExpr(
         operatorId: 'chu_mu',
-        operands: [
-          BindingRefOperand(p1[0].trim()),
-          BindingRefOperand(p2[0].trim()),
-          BindingRefOperand(p2[1].trim()),
-        ],
+        operands: [BindingRefOperand(p1[0].trim()), BindingRefOperand(p2[0].trim()), BindingRefOperand(p2[1].trim())]
       );
     }
     if (text.contains(' 入墓于 ')) return _binRel(text, ' 入墓于 ', 'ru_mu');
@@ -104,19 +77,10 @@ class DslPatternMatcher {
 
   static RuleExpr _binRel(String text, String sep, String op) {
     final p = text.split(sep);
-    return PredicateExpr(
-      operatorId: op,
-      operands: [
-        BindingRefOperand(p[0].trim()),
-        BindingRefOperand(p[1].trim()),
-      ],
-    );
+    return PredicateExpr(operatorId: op, operands: [BindingRefOperand(p[0].trim()), BindingRefOperand(p[1].trim())]);
   }
 
   static RuleExpr _unary(String text, String suffix, String op) {
-    return PredicateExpr(
-      operatorId: op,
-      operands: [BindingRefOperand(text.replaceAll(suffix, '').trim())],
-    );
+    return PredicateExpr(operatorId: op, operands: [BindingRefOperand(text.replaceAll(suffix, '').trim())]);
   }
 }

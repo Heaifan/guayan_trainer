@@ -12,12 +12,11 @@ void main() {
 
 若 A 六亲为父母
     或 B 纳音为天河水
-    或
-        A 月破
-        且 A 日破
-        且 A 为空
-        且 A 有标签 shensha:shensha.custom.foo
-        且 M 生 A
+    或 A 月破
+    且 A 日破
+    且 A 为空
+    且 A 有标签 shensha:shensha.custom.foo
+    且 M 生 A
     或 A 在墓中
     或 非 B 旬空
     或 A 入墓于 B

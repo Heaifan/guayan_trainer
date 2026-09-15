@@ -2,10 +2,7 @@ import '../rules/ast/binding_selector.dart';
 import '../rules/ast/rule_action.dart';
 import '../rules/ast/rule_binding.dart';
 import '../rules/ast/rule_expr.dart';
-import '../rules/ast/rule_operand.dart';
-import 'dsl_nayin_map.dart';
-import '../casting/six_relative.dart';
-import '../casting/six_spirit.dart';
+import 'formatter/dsl_expr_formatter.dart';
 
 class GuayanDslFormatter {
   static String format({
@@ -17,8 +14,7 @@ class GuayanDslFormatter {
 
     for (var b in bindings) {
       if (b.selector is DirectSelector) {
-        final selector = (b.selector as DirectSelector).target;
-        buffer.writeln('取 ${b.name} = @$selector');
+        buffer.writeln('取 ${b.name} = @${(b.selector as DirectSelector).target}');
       } else if (b.selector is RelativeSelector) {
         final rel = b.selector as RelativeSelector;
         buffer.writeln('取 ${b.name} = ${rel.baseBinding}.${rel.path}');
@@ -29,35 +25,23 @@ class GuayanDslFormatter {
 
     if (condition != null) {
       if (condition is AllExpr && condition.nodes.isNotEmpty) {
-        buffer.writeln('若 ${_formatExpr(condition.nodes.first)}');
+        buffer.writeln('若 ${DslExprFormatter.formatExpr(condition.nodes.first)}');
         for (int i = 1; i < condition.nodes.length; i++) {
           final child = condition.nodes[i];
           if (child is AnyExpr) {
             buffer.writeln('    且');
             for (int j = 0; j < child.nodes.length; j++) {
               final prefix = j == 0 ? '        ' : '        或 ';
-              buffer.writeln('$prefix${_formatExpr(child.nodes[j])}');
+              buffer.writeln('$prefix${DslExprFormatter.formatExpr(child.nodes[j])}');
             }
           } else {
-            buffer.writeln('    且 ${_formatExpr(child)}');
+            buffer.writeln('    且 ${DslExprFormatter.formatExpr(child)}');
           }
         }
       } else if (condition is AnyExpr && condition.nodes.isNotEmpty) {
-        buffer.writeln('若 ${_formatExpr(condition.nodes.first)}');
-        for (int i = 1; i < condition.nodes.length; i++) {
-          final child = condition.nodes[i];
-          if (child is AllExpr) {
-            buffer.writeln('    或');
-            for (int j = 0; j < child.nodes.length; j++) {
-              final prefix = j == 0 ? '        ' : '        且 ';
-              buffer.writeln('$prefix${_formatExpr(child.nodes[j])}');
-            }
-          } else {
-            buffer.writeln('    或 ${_formatExpr(child)}');
-          }
-        }
+        _formatAnyExpr(buffer, condition);
       } else {
-        buffer.writeln('若 ${_formatExpr(condition)}');
+        buffer.writeln('若 ${DslExprFormatter.formatExpr(condition)}');
       }
     }
 
@@ -67,20 +51,12 @@ class GuayanDslFormatter {
         if (a is DeriveAction) {
           buffer.writeln('    得 ${a.targetBinding} ${a.factKey}');
         } else if (a is TagAction) {
-          buffer.writeln(
-            '    取象 ${a.subjectBinding} ${a.categoryId}:${a.tagId}',
-          );
+          buffer.writeln('    取象 ${a.subjectBinding} ${a.categoryId}:${a.tagId}');
         } else if (a is StructureAction) {
-          buffer.writeln(
-            '    成局 ${a.structureId} ${a.memberBindings.join(",")}',
-          );
+          buffer.writeln('    成局 ${a.structureId} ${a.memberBindings.join(",")}');
         } else if (a is RecordAction) {
-          final kvs = a.content.entries
-              .map((e) => '${e.key}=${e.value.value}')
-              .join(' ');
-          buffer.writeln(
-            '    记 ${a.recordType}${kvs.isNotEmpty ? " $kvs" : ""}',
-          );
+          final kvs = a.content.entries.map((e) => '${e.key}=${e.value.value}').join(' ');
+          buffer.writeln('    记 ${a.recordType}${kvs.isNotEmpty ? " $kvs" : ""}');
         }
       }
     }
@@ -88,44 +64,29 @@ class GuayanDslFormatter {
     return buffer.toString().trimRight();
   }
 
-  static String _formatExpr(RuleExpr expr) {
-    if (expr is NotExpr) return '非 ${_formatExpr(expr.node)}';
-    if (expr is PredicateExpr) {
-      final opId = expr.operatorId;
-      final ops = expr.operands;
-      if (opId == 'relative') {
-        final val = _l(ops[1]);
-        final label =
-            SixRelative.values.where((e) => e.name == val).firstOrNull?.label ??
-            val;
-        return '${_b(ops[0])} 六亲为$label';
+  static void _formatAnyExpr(StringBuffer buffer, AnyExpr condition) {
+    bool isFirst = true;
+    for (int i = 0; i < condition.nodes.length; i++) {
+      final child = condition.nodes[i];
+      if (child is AllExpr) {
+        for (int j = 0; j < child.nodes.length; j++) {
+          if (isFirst) {
+            buffer.writeln('若 ${DslExprFormatter.formatExpr(child.nodes[j])}');
+            isFirst = false;
+          } else if (j == 0) {
+            buffer.writeln('    或 ${DslExprFormatter.formatExpr(child.nodes[j])}');
+          } else {
+            buffer.writeln('    且 ${DslExprFormatter.formatExpr(child.nodes[j])}');
+          }
+        }
+      } else {
+        if (isFirst) {
+          buffer.writeln('若 ${DslExprFormatter.formatExpr(child)}');
+          isFirst = false;
+        } else {
+          buffer.writeln('    或 ${DslExprFormatter.formatExpr(child)}');
+        }
       }
-      if (opId == 'spirit') {
-        final val = _l(ops[1]);
-        final label =
-            SixSpirit.values.where((e) => e.name == val).firstOrNull?.label ??
-            val;
-        return '${_b(ops[0])} 六神为$label';
-      }
-      if (opId == 'generate') return '${_b(ops[0])} 生 ${_b(ops[1])}';
-      if (opId == 'nayin_is')
-        return '${_b(ops[0])} 纳音为${dslIdToNaYin[_l(ops[1])] ?? _l(ops[1])}';
-      if (opId == 'has_tag')
-        return '${_b(ops[0])} 有标签 ${_l(ops[1])}:${_l(ops[2])}';
-      if (opId == 'chu_mu')
-        return '${_b(ops[0])} 出墓于 ${_b(ops[1])} 冲 ${_b(ops[2])}';
-      if (opId == 'ru_mu') return '${_b(ops[0])} 入墓于 ${_b(ops[1])}';
-      if (opId == 'chong_mu') return '${_b(ops[0])} 冲墓于 ${_b(ops[1])}';
-      if (opId == 'yue_po') return '${_b(ops[0])} 月破';
-      if (opId == 'ri_po') return '${_b(ops[0])} 日破';
-      if (opId == 'xun_kong') return '${_b(ops[0])} 旬空';
-      if (opId == 'empty') return '${_b(ops[0])} 为空';
-      if (opId == 'in_tomb') return '${_b(ops[0])} 在墓中';
     }
-    return '';
   }
-
-  static String _b(RuleOperand op) => (op as BindingRefOperand).bindingName;
-  static String _l(RuleOperand op) =>
-      (op as LiteralOperand).value.value.toString();
 }

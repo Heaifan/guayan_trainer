@@ -1,107 +1,96 @@
-library;
+﻿library;
 
 import '../../rules/ast/rule_expr.dart';
 import '../dsl_diagnostics.dart';
 import '../dsl_models.dart';
 import 'dsl_pattern_matcher.dart';
 
+class _BlockItem {
+  final bool isOr;
+  final RuleExpr expr;
+  _BlockItem(this.isOr, this.expr);
+}
+
 class DslExprParser {
   static RuleExpr parseConditionBlock(List<DslLine> block) {
     final firstLine = block[0];
     final exprText = firstLine.text.substring(2).trim();
-    final firstExpr = parseExprLine(exprText, firstLine);
-    if (block.length == 1) return firstExpr;
+    final items = <_BlockItem>[
+      _BlockItem(false, parseExprLine(exprText, firstLine))
+    ];
 
-    final children = <RuleExpr>[firstExpr];
-    bool isAll = true;
     int i = 1;
     while (i < block.length) {
       final line = block[i];
-      if (line.text.startsWith('且 ') || line.text == '且') {
-        final subText = line.text.length > 1
-            ? line.text.substring(1).trim()
-            : '';
-        if (subText.isEmpty) {
-          i++;
-          final subBlock = <DslLine>[];
-          if (i < block.length) {
-            final baseIndent = block[i].indent;
-            while (i < block.length && block[i].indent >= baseIndent) {
-              subBlock.add(block[i]);
-              i++;
-            }
+      final isOr = line.text.startsWith('鎴?') || line.text == '鎴?;
+      final isAnd = line.text.startsWith('涓?') || line.text == '涓?;
+
+      if (!isOr && !isAnd) {
+        throw DslException(DslDiagnostic(line: line.lineNumber, column: 1, message: '鏃犳硶璇嗗埆鏉′欢鍧楃粨鏋? ${line.text}'));
+      }
+
+      final subText = line.text.length > 1 ? line.text.substring(1).trim() : '';
+      if (subText.isEmpty) {
+        i++;
+        final subBlock = <DslLine>[];
+        if (i < block.length) {
+          final baseIndent = block[i].indent;
+          while (i < block.length && block[i].indent >= baseIndent) {
+            subBlock.add(block[i]); i++;
           }
-          children.add(parseSubGroup(subBlock, true));
-          i--;
-        } else {
-          children.add(parseExprLine(subText, line));
         }
-      } else if (line.text.startsWith('或 ') || line.text == '或') {
-        isAll = false;
-        final subText = line.text.length > 1
-            ? line.text.substring(1).trim()
-            : '';
-        if (subText.isEmpty) {
-          i++;
-          final subBlock = <DslLine>[];
-          if (i < block.length) {
-            final baseIndent = block[i].indent;
-            while (i < block.length && block[i].indent >= baseIndent) {
-              subBlock.add(block[i]);
-              i++;
-            }
-          }
-          children.add(parseSubGroup(subBlock, true));
-          i--;
-        } else {
-          children.add(parseExprLine(subText, line));
-        }
+        items.add(_BlockItem(isOr, parseSubGroup(subBlock))); i--;
       } else {
-        throw DslException(
-          DslDiagnostic(
-            line: line.lineNumber,
-            column: 1,
-            message: '无法识别条件块结构: ${line.text}',
-          ),
-        );
+        items.add(_BlockItem(isOr, parseExprLine(subText, line)));
       }
       i++;
     }
-    return children.length > 1
-        ? (isAll ? AllExpr(children) : AnyExpr(children))
-        : children.first;
+    return _resolvePrecedence(items);
   }
 
-  static RuleExpr parseSubGroup(List<DslLine> lines, bool isAll) {
-    final children = <RuleExpr>[];
-    for (var line in lines) {
-      var text = line.text;
-      if (text.startsWith('且 ') || text == '且') {
+  static RuleExpr parseSubGroup(List<DslLine> lines) {
+    final items = <_BlockItem>[];
+    for (int i = 0; i < lines.length; i++) {
+      var text = lines[i].text;
+      bool isOr = false;
+      if (text.startsWith('鎴?') || text == '鎴?) {
         text = text.length > 1 ? text.substring(1).trim() : '';
-      } else if (text.startsWith('或 ') || text == '或') {
+        isOr = true;
+      } else if (text.startsWith('涓?') || text == '涓?) {
         text = text.length > 1 ? text.substring(1).trim() : '';
-        isAll = false;
+      } else {
+        isOr = i > 0 && items.last.isOr;
       }
-      children.add(parseExprLine(text, line));
+      items.add(_BlockItem(isOr, parseExprLine(text, lines[i])));
     }
-    return isAll ? AllExpr(children) : AnyExpr(children);
+    return _resolvePrecedence(items);
+  }
+
+  static RuleExpr _resolvePrecedence(List<_BlockItem> items) {
+    final orGroups = <List<RuleExpr>>[];
+    var currentAnd = <RuleExpr>[];
+    for (var item in items) {
+      if (item.isOr && currentAnd.isNotEmpty) {
+        orGroups.add(currentAnd);
+        currentAnd = [];
+      }
+      currentAnd.add(item.expr);
+    }
+    if (currentAnd.isNotEmpty) orGroups.add(currentAnd);
+
+    final resolved = orGroups.map((g) => g.length > 1 ? AllExpr(g) : g.first).toList();
+    return resolved.length > 1 ? AnyExpr(resolved) : resolved.first;
   }
 
   static RuleExpr parseExprLine(String text, DslLine line) {
     bool isNot = false;
-    if (text.startsWith('非 ')) {
+    if (text.startsWith('闈?')) {
       isNot = true;
       text = text.substring(2).trim();
     }
     final baseExpr = DslPatternMatcher.matchPattern(text, line);
     if (baseExpr == null) {
-      throw DslException(
-        DslDiagnostic(
-          line: line.lineNumber,
-          column: 1,
-          message: '无法识别条件: $text',
-        ),
-      );
+      throw DslException(DslDiagnostic(line: line.lineNumber, column: 1, message: '鏃犳硶璇嗗埆鏉′欢: $text'));
     }
     return isNot ? NotExpr(baseExpr) : baseExpr;
   }

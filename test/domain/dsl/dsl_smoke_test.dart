@@ -89,5 +89,43 @@ void main() {
         expect(e.diagnostic.message, contains('无法识别条件'));
       }
     });
+    test('Case 4: 优先级混合 且/或', () {
+      final source = '''
+取 A = @line/2
+取 B = @line/3
+取 C = @line/4
+取 D = @line/5
+
+若 A 月破
+    且 B 日破
+    或 C 旬空
+    且 D 为空
+则
+    记 test k=v
+'''.trim();
+
+      final parsed = GuayanDslParser.parse(source);
+
+      final root = parsed.condition as AnyExpr;
+      expect(root.nodes.length, 2);
+
+      // Node 0: ALL(A, B)
+      final allNode1 = root.nodes[0] as AllExpr;
+      expect((allNode1.nodes[0] as PredicateExpr).operatorId, 'yue_po');
+      expect((allNode1.nodes[1] as PredicateExpr).operatorId, 'ri_po');
+
+      // Node 1: ALL(C, D)
+      final allNode2 = root.nodes[1] as AllExpr;
+      expect((allNode2.nodes[0] as PredicateExpr).operatorId, 'xun_kong');
+      expect((allNode2.nodes[1] as PredicateExpr).operatorId, 'empty');
+
+      final formatted = GuayanDslFormatter.format(
+        bindings: parsed.bindings,
+        condition: parsed.condition,
+        actions: parsed.actions,
+      );
+
+      expect(formatted, source);
+    });
   });
 }
