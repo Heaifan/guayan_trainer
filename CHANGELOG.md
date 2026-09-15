@@ -10,8 +10,28 @@
 
 | 版本 | 日期 | 类型 | 说明 |
 | --- | --- | --- | --- |
+| `v0.1.14` | 2026-09-15 | 新增 | R5-E Common v1 (36 SYSTEM Rules, 6 Rule Families, Resolver Integration, Engine Integration) |
 | `v0.1.13` | 2026-09-15 | 新增 | R5-D Rule Governance (SYSTEM/CUSTOM, Version Resolution, Override, Resolver, Deterministic Resolution, Engine Integration) |
 | `v0.1.12` | 2026-09-15 | 新增 | R5-C DSL Parser & Formatter round trip (Fast-Track) |
+
+---
+
+## 2026-09-15 · R5-E Common v1
+
+> **阶段目标**：实现 R5-E Common v1 (36 SYSTEM Rules, 6 Rule Families, Resolver Integration, Engine Integration)。
+
+### 新增/修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/rules/corpus/common_rule_corpus.dart` | R5-E Common v1 36 个 SYSTEM Rules 工厂 |
+| `test/domain/rules/corpus/` | R5-E Common v1 冒烟与集成测试 |
+
+### 验证
+
+- `flutter test`：通过
+- `dart analyze`：通过，0 issues
+- 文件 <= 100 行限制：严格符合。
 
 ---
 

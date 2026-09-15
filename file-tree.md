@@ -1,15 +1,37 @@
-﻿# 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
+# 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
-> **瑜版挸澧犻悧鍫熸拱閿?* v0.1.11
-> **閸掓稑缂撻弮鍫曟？閿?* 2026-05-15
-> **閺堚偓閸氬海绱潏鎴窗** 2026-09-15 10:00
+> **版本号：** v0.1.14
+> **发版日期：** 2026-09-15
+> **最后编辑时间：** 2026-09-15 22:25
 
-> 閺堫剚鏋冩禒鍓佹暏娴滃氦顔囪ぐ鏇€嶉惄顔炬窗瑜版洜绮ㄩ弸鍕┾偓浣鼓侀崸妤勪捍鐠愶絼绗岄悧鍫熸拱濠曟棁绻橀妴?
-> 濮ｅ繑顐?AI 閹存牔姹夊銉ゆ叏閺€閫涘敩閻礁鎮楅敍灞筋洤濞戝寮烽弬鏉款杻閵嗕礁鍨归梽銈冣偓渚€鍣搁崨钘夋倳閺傚洣娆㈤敍灞界箑妞よ鎮撳銉︽纯閺傜増婀伴弬鍥ㄣ€傞妴?
+> 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
+> 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
 
-## R5-B-FIX 路 Rule Engine SRP refactor (2026-09-15)
+## R5-E Common v1 (2026-09-15)
+
+> 记录 COMMON v1, 36 SYSTEM Rules, 6 Rule Families, Resolver Integration, Engine Integration
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/rules/corpus/common_rule_corpus.dart` | R5-E Common v1 36 个 SYSTEM Rules 工厂 |
+| `test/domain/rules/corpus/common_rule_corpus_test.dart` | Common v1 冒烟与集成测试 |
+
+---
+
+## R5-D Rule Governance (2026-09-15)
+
+> SYSTEM/CUSTOM 规则治理、版本冲突处理、解析与覆写、引擎集成。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/rules/governance/rule_resolver.dart` | 规则系统统一解析入口 |
+| `lib/domain/rules/governance/rule_override_resolver.dart` | 规则覆写(CUSTOM -> SYSTEM)和有效性过滤逻辑 |
+| `lib/domain/rules/core/rule_version.dart` | 规则版本控制，严格 SemVer 比较 |
+| `test/domain/rules/governance/` | 治理逻辑测试 |
+
+---
 
 > 瑙ｅ喅 R5-B 鏈熼棿浜х敓鐨?5+100 琛屾暟闄愬埗鎶ラ敊锛屾媶鍒嗕簡 rule_engine, stage_runner, action_executor, operators 绛夎繃澶х殑鏂囦欢銆傚悓鏃惰褰曚簡 R5-B 涓殑娌荤悊浜嬫晠锛歜ulk replace, multiple restores/checkouts, broad adds, premature commits, amend 绛夌瓑銆?
 
