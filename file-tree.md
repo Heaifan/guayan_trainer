@@ -1,8 +1,8 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
-> **版本号：** v0.1.15
+> **版本号：** v0.1.16
 > **发版日期：** 2026-09-15
-> **最后编辑时间：** 2026-09-16 09:05
+> **最后编辑时间：** 2026-09-16 10:55
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
@@ -10,6 +10,17 @@
 ---
 
 
+
+
+
+## R5-G CUSTOM Rule CRUD + VISUAL EDITOR V1 (2026-09-16)
+
+> CUSTOM CRUD, Rule Center, Visual Editor, Formatter Preview, Runtime Integration
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/editor/ | 编辑器状态与持久化 |
+| lib/presentation/rules/ | 可视化规则编辑器 UI |
 
 ## R5-F Topic Pack Mechanism (2026-09-16)
 
