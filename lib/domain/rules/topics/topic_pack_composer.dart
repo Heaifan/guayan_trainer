@@ -3,6 +3,7 @@ library;
 import '../core/rule_definition.dart';
 import '../packs/rule_pack.dart';
 import '../packs/rule_pack_id.dart';
+import 'topic_rule_boundary_validator.dart';
 
 class CompositionResult {
   final List<RulePack> selectedPacks;
@@ -23,12 +24,19 @@ class RulePackComposer {
     final uniqueSelected = selectedTopicIds.toSet();
 
     for (final topicId in uniqueSelected) {
-      final pack = availableTopics.where((p) => p.topicId == topicId).firstOrNull;
+      final pack = availableTopics
+          .where((p) => p.topicId == topicId)
+          .firstOrNull;
       if (pack == null) {
         throw StateError('Unknown packId: $topicId');
       }
       selectedPacks.add(pack);
       final rules = topicRules[pack.packId] ?? [];
+
+      for (final rule in rules) {
+        TopicRuleBoundaryValidator.validate(rule, pack.topicId!);
+      }
+
       composedRules.addAll(rules);
     }
 

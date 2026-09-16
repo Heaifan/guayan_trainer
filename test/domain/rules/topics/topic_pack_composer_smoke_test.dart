@@ -11,7 +11,6 @@ import 'package:guayan_trainer/domain/rules/corpus/common_rule_corpus.dart';
 import 'package:guayan_trainer/domain/rules/facts/rule_value.dart';
 import 'package:guayan_trainer/domain/rules/topics/exam/exam_rule_corpus.dart';
 import 'package:guayan_trainer/domain/rules/topics/topic_pack_composer.dart';
-import 'package:guayan_trainer/domain/rules/topics/topic_rule_boundary_validator.dart';
 
 void main() {
   group('R5-F Round 1: Composer & Boundary Validator', () {
@@ -44,9 +43,6 @@ void main() {
       expect(res.selectedPacks.length, 2);
       expect(res.composedRules.length, 36 + 24);
       expect(res.composedRules.where((r) => r.categoryId == 'exam').length, 24);
-      for (final r in res.composedRules) {
-        TopicRuleBoundaryValidator.validate(r);
-      }
     });
 
     test('Smoke C: Namespace Isolation', () {
@@ -69,10 +65,21 @@ void main() {
             LiteralOperand(RuleValue.string('tag')),
           ],
         ),
-        actions: [TagAction(categoryId: 'exam', tagId: 'bad', subjectBinding: 'A')],
+        actions: [
+          TagAction(categoryId: 'exam', tagId: 'bad', subjectBinding: 'A'),
+        ],
       );
+
       expect(
-        () => TopicRuleBoundaryValidator.validate(badRule),
+        () => RulePackComposer.compose(
+          commonPack: commonPack,
+          commonRules: commonRules,
+          availableTopics: [examPack],
+          selectedTopicIds: ['exam'],
+          topicRules: {
+            examPack.packId: [badRule],
+          },
+        ),
         throwsA(isA<StateError>()),
       );
     });
