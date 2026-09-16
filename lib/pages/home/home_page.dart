@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/mistake_store.dart';
+import '../../presentation/rules/rule_center_page_loader.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -20,7 +21,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('卦眼训练器'),
-        centerTitle: true,
+        centerTitle: true, actions: [IconButton(icon: const Icon(Icons.rule), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RuleCenterPageLoader())))],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

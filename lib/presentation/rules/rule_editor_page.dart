@@ -8,7 +8,8 @@ import '../../domain/rules/core/rule_stage.dart';
 import '../../domain/rules/editor/custom_rule_service.dart';
 import '../../domain/rules/editor/rule_editor_draft.dart';
 import '../../domain/rules/editor/rule_version_bumper.dart';
-import '../../domain/rules/topics/topic_rule_boundary_validator.dart';
+import '../../domain/rules/corpus/common_rule_corpus.dart';
+import '../../domain/rules/topics/exam/exam_rule_corpus.dart';
 import '../../domain/rules/ast/rule_expr.dart';
 import 'rule_editor_form.dart';
 
@@ -61,19 +62,31 @@ class _State extends State<RuleEditorPage> {
 
   void _save() async {
     try {
+      final oldVersion = _draft.version;
       if (widget.initialRule != null && !widget.isCopy)
         _draft.version = RuleVersionBumper.bumpPatch(_draft.version);
+
       final def = _draft.toDefinition();
-      final expectedId = def.namespace.startsWith('topic.')
-          ? def.namespace.substring(6)
-          : 'common';
-      TopicRuleBoundaryValidator.validate(def, expectedId);
-      await widget.service.store.addOrUpdate(def);
-      if (mounted) Navigator.pop(context);
+      final currentSystemRules = [
+        ...CommonRuleCorpus.v1(),
+        ...ExamRuleCorpus.v1(),
+      ];
+
+      try {
+        await widget.service.save(def, currentSystemRules);
+        if (mounted) Navigator.pop(context);
+      } catch (e) {
+        _draft.version = oldVersion;
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 

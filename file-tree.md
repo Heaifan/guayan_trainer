@@ -1,8 +1,8 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
-> **版本号：** v0.1.16
+> **版本号：** v0.1.17
 > **发版日期：** 2026-09-15
-> **最后编辑时间：** 2026-09-16 10:55
+> **最后编辑时间：** 2026-09-16 11:15
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
@@ -12,6 +12,17 @@
 
 
 
+
+
+
+## R5-G Final Correction (2026-09-16)
+
+> App Entry & Runtime Assembly
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/engine/runtime_rule_set_assembler.dart | 正式运行环境下的规则集成枢纽 |
+| lib/presentation/rules/rule_center_page_loader.dart | 隔离的异步数据加载包裹层 |
 
 ## R5-G CUSTOM Rule CRUD + VISUAL EDITOR V1 (2026-09-16)
 

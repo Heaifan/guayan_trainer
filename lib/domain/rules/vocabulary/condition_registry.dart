@@ -90,6 +90,8 @@ class CanonicalConditionRegistry {
     ),
   ];
 
+  static List<CanonicalConditionDefinition> get allConditions => _conditions;
+
   static CanonicalConditionDefinition? getDefinition(String operatorId) {
     for (final def in _conditions) {
       if (def.operatorId == operatorId) return def;
