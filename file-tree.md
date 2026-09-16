@@ -1,13 +1,28 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
-> **版本号：** v0.1.14
+> **版本号：** v0.1.15
 > **发版日期：** 2026-09-15
-> **最后编辑时间：** 2026-09-15 22:25
+> **最后编辑时间：** 2026-09-16 09:05
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
+
+
+
+## R5-F Topic Pack Mechanism (2026-09-16)
+
+> Topic Pack Mechanism, Exam Demo, Composer
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/topics/topic_pack_composer.dart | Composer |
+| lib/domain/rules/topics/topic_rule_boundary_validator.dart | Boundary Validator |
+| lib/domain/rules/topics/exam/exam_rule_corpus.dart | Exam rule corpus |
+| lib/domain/rules/topics/exam/exam_rule_factory.dart | Exam rule factory |
+| 	est/domain/rules/topics/topic_pack_composer_smoke_test.dart | Composer test |
+| 	est/domain/rules/topics/exam/exam_integration_smoke_test.dart | Integration test |
 
 ## R5-E Common v1 (2026-09-15)
 
