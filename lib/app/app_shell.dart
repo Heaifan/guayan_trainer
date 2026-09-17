@@ -42,7 +42,10 @@ class AppShellState extends State<AppShell> {
         children: [
           CastingPage(
             onGenerated: (case_) {
-              setState(() => _latestCase = case_);
+              setState(() {
+                _latestCase = case_;
+                selectedIndex = 1;
+              });
             },
           ),
           ReviewPage(

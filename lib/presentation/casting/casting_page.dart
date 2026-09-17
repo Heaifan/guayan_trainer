@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../domain/hexagram_case.dart';
 import '../../domain/line_state.dart';
 import '../../domain/rule_execution_context.dart';
+import '../../domain/casting/casting_engine.dart';
+import '../../domain/calendar/day/ganzhi_day.dart';
 import '../../services/draft/casting_draft.dart';
 import '../../services/draft/draft_repository.dart';
 import 'casting_page_state.dart';
@@ -87,14 +89,14 @@ class _CastingPageState extends State<CastingPage> {
   }
 
   CastingDraft get _draft => CastingDraft(
-        questionTitle: _questionTitle,
-        questionBody: _questionBody,
-        questionObject: _questionObject,
-        questionNote: _questionNote,
-        castingTime: _castingTime,
-        lines: List<LineState?>.unmodifiable(_lines),
-        ruleRef: _ruleRef,
-      );
+    questionTitle: _questionTitle,
+    questionBody: _questionBody,
+    questionObject: _questionObject,
+    questionNote: _questionNote,
+    castingTime: _castingTime,
+    lines: List<LineState?>.unmodifiable(_lines),
+    ruleRef: _ruleRef,
+  );
 
   /// 统一变更入口：更新状态 + 草稿自动保存（任务书 §15）。
   void _update(VoidCallback mutate) {
@@ -147,12 +149,30 @@ class _CastingPageState extends State<CastingPage> {
 
   void _generate() {
     if (!_lines.every((l) => l != null)) return;
-    final caseLines = List<LineState>.generate(6, (i) => _lines[i]!);
+    final input = List<LineState>.generate(6, (i) => _lines[i]!);
+    final castingAt = _castingTime ?? DateTime.now();
+    final dayGan = ganzhiDayOfDate(
+      castingAt.year,
+      castingAt.month,
+      castingAt.day,
+    ).gan;
+    final chart = CastingEngine.cast([
+      for (final line in input) line.movementType,
+    ], dayGan: dayGan);
+    final caseLines = [
+      for (final line in chart.lines)
+        LineState(
+          position: line.position,
+          movementType: input[line.position - 1].movementType,
+          branch: line.branch.label,
+          changedBranch: line.changedBranch?.label,
+        ),
+    ];
     final generated = HexagramCase(
       id: 'draft-${DateTime.now().millisecondsSinceEpoch}',
       question: _questionTitle.isEmpty ? _questionBody : _questionTitle,
       lines: caseLines,
-      createdAt: _castingTime ?? DateTime.now(),
+      createdAt: castingAt,
       ruleContext: RuleExecutionContext([_ruleRef]),
     );
     _update(() {
@@ -254,7 +274,12 @@ class _CastingPageState extends State<CastingPage> {
             const CastingAppBar(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
+                padding: EdgeInsets.fromLTRB(
+                  14,
+                  12,
+                  14,
+                  MediaQuery.of(context).padding.bottom + 88,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -268,7 +293,7 @@ class _CastingPageState extends State<CastingPage> {
                       body: state.questionBody,
                       hasDetail:
                           state.questionObject.isNotEmpty ||
-                              state.questionNote.isNotEmpty,
+                          state.questionNote.isNotEmpty,
                       onTap: _openQuestionEditor,
                     ),
                     const SizedBox(height: 12),

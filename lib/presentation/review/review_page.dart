@@ -94,7 +94,12 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
             const ReviewAppBar(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+                padding: EdgeInsets.fromLTRB(
+                  14,
+                  8,
+                  14,
+                  MediaQuery.of(context).padding.bottom + 88,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -110,7 +115,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                       onLineTap: _onLineTap,
                     ),
                     const SizedBox(height: 6),
-                    const ReviewRelationToolbar(),
+                    ReviewRelationToolbar(state: widget.state),
                   ],
                 ),
               ),

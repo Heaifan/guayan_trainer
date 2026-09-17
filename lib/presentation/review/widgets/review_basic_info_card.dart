@@ -20,13 +20,13 @@ class ReviewBasicInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final solar =
-        state.solarDateTime == null ? '—' : formatSolar(state.solarDateTime!);
+    final solar = state.solarDateTime == null
+        ? '—'
+        : formatSolar(state.solarDateTime!);
     final lunar = state.lunarDateTime ?? '—';
 
     return Container(
       width: double.infinity,
-      height: 72,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
@@ -35,6 +35,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,7 +83,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
               ),
             ],
           ),
-          const Spacer(),
+          const SizedBox(height: 8),
           Text(
             '公历 $solar　农历 $lunar',
             maxLines: 1,

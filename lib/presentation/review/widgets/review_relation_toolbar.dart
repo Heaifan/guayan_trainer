@@ -1,14 +1,70 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/relation_endpoint.dart';
+import '../../../domain/relation_instance.dart';
+import '../../../domain/relation_type.dart';
+import '../review_page_state.dart';
 
 /// 关系工具栏（审卦一屏版总 SVG：关系、全部/重点/生克等）。
 ///
 /// 包含标题、副标题、＋连线按钮，以及可滚动的 Chip 列表。
 class ReviewRelationToolbar extends StatelessWidget {
-  const ReviewRelationToolbar({super.key});
+  const ReviewRelationToolbar({super.key, required this.state});
+
+  final ReviewPageState state;
 
   @override
   Widget build(BuildContext context) {
+    return _RelationFilterPanel(state: state);
+  }
+}
+
+class _RelationFilterPanel extends StatefulWidget {
+  const _RelationFilterPanel({required this.state});
+
+  final ReviewPageState state;
+
+  @override
+  State<_RelationFilterPanel> createState() => _RelationFilterPanelState();
+}
+
+class _RelationFilterPanelState extends State<_RelationFilterPanel> {
+  String _selected = '全部';
+
+  List<RelationInstance> get _relations {
+    if (_selected == '全部') return widget.state.allRelations;
+    if (_selected == '重点') return widget.state.focusedRelations;
+    return [
+      for (final relation in widget.state.allRelations)
+        if (_matches(relation)) relation,
+    ];
+  }
+
+  bool _matches(RelationInstance relation) => switch (_selected) {
+    '生克' =>
+      relation.type == RelationType.sheng ||
+          relation.type == RelationType.ke ||
+          relation.type == RelationType.huiTouSheng ||
+          relation.type == RelationType.huiTouKe,
+    '冲合' =>
+      relation.type == RelationType.liuChong ||
+          relation.type == RelationType.liuHe,
+    '月日' =>
+      relation.source is MonthEndpoint ||
+          relation.source is DayEndpoint ||
+          relation.target is MonthEndpoint ||
+          relation.target is DayEndpoint,
+    '动变' =>
+      relation.type == RelationType.dongBian ||
+          relation.type == RelationType.huiTouSheng ||
+          relation.type == RelationType.huiTouKe,
+    '墓库' => false,
+    _ => true,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final filters = ['全部', '重点', '生克', '冲合', '墓库', '月日', '动变'];
     return Container(
       width: double.infinity,
       height: 80,
@@ -43,6 +99,11 @@ class ReviewRelationToolbar extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              Text(
+                '${_relations.length} 条',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF71838B)),
+              ),
+              const SizedBox(width: 8),
               Container(
                 width: 68,
                 height: 28,
@@ -69,19 +130,16 @@ class ReviewRelationToolbar extends StatelessWidget {
             clipBehavior: Clip.none,
             child: Row(
               children: [
-                const _FilterChip(label: '全部', isActive: true),
-                const SizedBox(width: 8),
-                const _FilterChip(label: '重点', isActive: false),
-                const SizedBox(width: 8),
-                const _FilterChip(label: '生克', isActive: false),
-                const SizedBox(width: 8),
-                const _FilterChip(label: '冲合', isActive: false),
-                const SizedBox(width: 8),
-                const _FilterChip(label: '墓库', isActive: false),
-                const SizedBox(width: 8),
-                const _FilterChip(label: '月日', isActive: false),
-                const SizedBox(width: 8),
-                const _FilterChip(label: '动变', isActive: false),
+                for (var i = 0; i < filters.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => setState(() => _selected = filters[i]),
+                    child: _FilterChip(
+                      label: filters[i],
+                      isActive: _selected == filters[i],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

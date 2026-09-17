@@ -39,7 +39,7 @@ class ReviewShenShaCard extends StatelessWidget {
           const SizedBox(height: 12),
           if (items.isEmpty)
             const Text(
-              '暂无神煞数据（排盘引擎接入后展示）',
+              '暂无神煞',
               style: TextStyle(
                 fontSize: 10,
                 color: Color(0xFF71838B),

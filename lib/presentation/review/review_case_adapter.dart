@@ -13,6 +13,10 @@ import '../../domain/relation_calculator.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
 import '../../domain/relation_type.dart';
+import '../../domain/casting/cast_chart.dart';
+import '../../domain/casting/casting_engine.dart';
+import '../../domain/calendar/day/ganzhi_day.dart';
+import '../../domain/calendar/day/xun_kong.dart';
 import 'review_page_state.dart';
 
 /// 单爻传统排盘附加档案（六神/伏神/六亲/世应/空亡等）。
@@ -101,9 +105,21 @@ class ReviewCaseAdapter {
     HexagramCase hexagramCase, {
     ReviewTraditionalProfile? profile,
   }) {
+    final day = ganzhiDayOfDate(
+      hexagramCase.createdAt.year,
+      hexagramCase.createdAt.month,
+      hexagramCase.createdAt.day,
+    );
+    final chart = CastingEngine.cast([
+      for (final line in hexagramCase.lines) line.movementType,
+    ], dayGan: day.gan);
     final lines = <ReviewLineView>[
       for (final line in hexagramCase.lines)
-        _toLineView(line, profile?.lineTraditional[line.position]),
+        _toLineView(
+          line,
+          chart.lineAt(line.position),
+          profile?.lineTraditional[line.position],
+        ),
     ];
 
     // 关系一律来自 Domain 计算（Stable Relation Identity），禁止 UI 重算。
@@ -136,18 +152,20 @@ class ReviewCaseAdapter {
       dayNaYin: profile?.dayNaYin,
       hourPillar: profile?.hourPillar,
       hourNaYin: profile?.hourNaYin,
-      xunKong: profile?.xunKong,
-      originalHexagramName: profile?.originalHexagramName,
-      changedHexagramName: profile?.changedHexagramName,
-      originalPalaceInfo: profile?.originalPalaceInfo,
-      changedPalaceInfo: profile?.changedPalaceInfo,
+      xunKong: profile?.xunKong ?? _xunKong(hexagramCase),
+      originalHexagramName:
+          profile?.originalHexagramName ?? chart.original.name,
+      changedHexagramName: profile?.changedHexagramName ?? chart.changed?.name,
+      originalPalaceInfo:
+          profile?.originalPalaceInfo ?? chart.original.palace.label,
+      changedPalaceInfo:
+          profile?.changedPalaceInfo ?? chart.changed?.palace.label,
       changedHexagramExtra: profile?.changedHexagramExtra,
       lines: lines,
       focusedLine: focusLine,
       focusedRelations: focused,
       allRelations: relations,
-      focusSummary:
-          profile?.focusSummaryOverride ?? buildFocusSummary(focused),
+      focusSummary: profile?.focusSummaryOverride ?? buildFocusSummary(focused),
       rulePackId: ref?.ruleId,
       ruleVersion: ref?.version,
     );
@@ -171,22 +189,45 @@ class ReviewCaseAdapter {
 
   static ReviewLineView _toLineView(
     LineState line,
+    CastLine castLine,
     ReviewLineTraditional? t,
   ) {
     return ReviewLineView(
       position: line.position,
       movementType: line.movementType,
-      branch: line.branch,
-      sixSpirit: t?.sixSpirit,
+      branch: t == null ? castLine.branch.label : line.branch,
+      sixSpirit: t == null ? castLine.spirit?.label : t.sixSpirit,
       hiddenSpirit1: t?.hiddenSpirit1,
       hiddenSpirit2: t?.hiddenSpirit2,
-      sixRelative: t?.sixRelative,
-      displayExtra: t?.displayExtra,
-      shiYing: t?.shiYing,
+      sixRelative: t == null ? castLine.relative.label : t.sixRelative,
+      displayExtra: t == null ? castLine.branch.wuXing.label : t.displayExtra,
+      shiYing: t == null
+          ? (castLine.shiYingLabel.isEmpty ? null : castLine.shiYingLabel)
+          : t.shiYing,
       changedShiYing: t?.changedShiYing,
-      changed: t?.changed,
+      changed: t == null ? _changedLine(castLine) : t.changed,
       isVoid: t?.isVoid ?? false,
     );
+  }
+
+  static ReviewChangedLine? _changedLine(CastLine line) {
+    if (line.changedIsYang == null || line.changedBranch == null) return null;
+    return ReviewChangedLine(
+      sixRelative: line.changedRelative?.label,
+      earthlyBranch: line.changedBranch!.label,
+      displayExtra: line.changedBranch!.wuXing.label,
+      movementType: line.isMoving
+          ? (line.changedIsYang! ? MovementType.laoYang : MovementType.laoYin)
+          : (line.changedIsYang!
+                ? MovementType.shaoYang
+                : MovementType.shaoYin),
+    );
+  }
+
+  static String? _xunKong(HexagramCase hexagramCase) {
+    if (hexagramCase.calendar == null) return null;
+    final date = hexagramCase.createdAt;
+    return xunKongOf(ganzhiDayOfDate(date.year, date.month, date.day)).label;
   }
 
   static int? _firstMoving(HexagramCase hexagramCase) {
@@ -200,13 +241,12 @@ class ReviewCaseAdapter {
   static bool _touchesLine(RelationEndpoint endpoint, int position) =>
       endpoint is YaoEndpoint && endpoint.position == position;
 
-  static String _endpointLabel(RelationEndpoint endpoint) =>
-      switch (endpoint) {
-        YaoEndpoint(:final position, :final scope) => scope ==
-                LineScope.changed
-            ? '变${reviewLinePositionName(position)}'
-            : reviewLinePositionName(position),
-        MonthEndpoint() => '月建',
-        DayEndpoint() => '日辰',
-      };
+  static String _endpointLabel(RelationEndpoint endpoint) => switch (endpoint) {
+    YaoEndpoint(:final position, :final scope) =>
+      scope == LineScope.changed
+          ? '变${reviewLinePositionName(position)}'
+          : reviewLinePositionName(position),
+    MonthEndpoint() => '月建',
+    DayEndpoint() => '日辰',
+  };
 }

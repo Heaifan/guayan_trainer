@@ -23,24 +23,25 @@ import 'package:guayan_trainer/presentation/shared/yao_glyph.dart';
 
 /// 真实卦例（无传统档案）：两组合（辰酉 / 午未）、一老阴动爻（三爻）。
 HexagramCase realCase() => HexagramCase(
-      id: 'real-1',
-      question: '项目是否顺利？',
-      lines: [
-        LineState(position: 6, movementType: MovementType.shaoYin, branch: '未'),
-        LineState(position: 5, movementType: MovementType.shaoYang, branch: '酉'),
-        LineState(position: 4, movementType: MovementType.shaoYin, branch: '亥'),
-        LineState(position: 3, movementType: MovementType.laoYin, branch: '申'),
-        LineState(position: 2, movementType: MovementType.shaoYang, branch: '午'),
-        LineState(position: 1, movementType: MovementType.shaoYin, branch: '辰'),
-      ],
-      createdAt: DateTime(2026, 1, 1, 9, 30),
-      ruleContext: RuleExecutionContext(const [
-        RuleVersionRef('sys.default', 3),
-      ]),
-    );
+  id: 'real-1',
+  question: '项目是否顺利？',
+  lines: [
+    LineState(position: 6, movementType: MovementType.shaoYin, branch: '未'),
+    LineState(position: 5, movementType: MovementType.shaoYang, branch: '酉'),
+    LineState(position: 4, movementType: MovementType.shaoYin, branch: '亥'),
+    LineState(position: 3, movementType: MovementType.laoYin, branch: '申'),
+    LineState(position: 2, movementType: MovementType.shaoYang, branch: '午'),
+    LineState(position: 1, movementType: MovementType.shaoYin, branch: '辰'),
+  ],
+  createdAt: DateTime(2026, 1, 1, 9, 30),
+  ruleContext: RuleExecutionContext(const [RuleVersionRef('sys.default', 3)]),
+);
 
 void main() {
-  Future<void> pumpDemo(WidgetTester tester, {VoidCallback? onOpenRelations}) async {
+  Future<void> pumpDemo(
+    WidgetTester tester, {
+    VoidCallback? onOpenRelations,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
         home: ReviewPage(
@@ -65,10 +66,22 @@ void main() {
       await pumpDemo(tester);
 
       for (final label in [
-        '卦身：申', '香闺：寅卯', '床帐：子亥', '驿马：寅',
-        '桃花：酉', '华盖：辰', '贵人：酉亥', '天喜：酉',
-        '天医：未', '文昌：申', '劫煞：巳', '灾煞：午',
-        '金舆：未', '亡神：亥', '将星：子', '羊刃：午',
+        '卦身：申',
+        '香闺：寅卯',
+        '床帐：子亥',
+        '驿马：寅',
+        '桃花：酉',
+        '华盖：辰',
+        '贵人：酉亥',
+        '天喜：酉',
+        '天医：未',
+        '文昌：申',
+        '劫煞：巳',
+        '灾煞：午',
+        '金舆：未',
+        '亡神：亥',
+        '将星：子',
+        '羊刃：午',
       ]) {
         expect(find.text(label), findsOneWidget, reason: label);
       }
@@ -93,7 +106,7 @@ void main() {
 
     testWidgets('真实卦例无神煞数据 → 空态提示（不伪造）', (tester) async {
       await pumpReal(tester);
-      expect(find.text('暂无神煞数据（排盘引擎接入后展示）'), findsOneWidget);
+      expect(find.text('暂无神煞'), findsOneWidget);
     });
   });
 
@@ -131,8 +144,7 @@ void main() {
         ys.add(tester.getTopLeft(find.byKey(Key('review_line_$p'))).dy);
       }
       for (var i = 0; i < ys.length - 1; i++) {
-        expect(ys[i] < ys[i + 1], isTrue,
-            reason: '第 $i 行必须在其下一行之上');
+        expect(ys[i] < ys[i + 1], isTrue, reason: '第 $i 行必须在其下一行之上');
       }
     });
   });
@@ -192,6 +204,20 @@ void main() {
   });
 
   group('Test G · 关系（状态层，来自 Domain）', () {
+    test('真实卦例：现有 CastingEngine 结果投影到审卦状态', () {
+      final state = ReviewCaseAdapter.adapt(realCase());
+
+      expect(state.originalHexagramName, isNotNull);
+      expect(state.changedHexagramName, isNotNull);
+      expect(state.lines, hasLength(6));
+      expect(state.lines.every((line) => line.sixSpirit != null), isTrue);
+      expect(state.lines.every((line) => line.sixRelative != null), isTrue);
+      expect(state.lines.every((line) => line.branch != null), isTrue);
+      expect(state.lineAt(3).changed, isNotNull);
+      expect(state.rulePackId, 'sys.default');
+      expect(state.ruleVersion, 3);
+    });
+
     test('适配器：焦点关系来自 Domain 计算（RelationInstance），非字符串重算', () {
       final state = ReviewCaseAdapter.adapt(realCase());
 
@@ -199,8 +225,9 @@ void main() {
       // R4 之后「焦点关系」不再只有 1 条（五行事实关系也会触及三爻），
       // 因此按契约断言：非空、且焦点关系里的动变仍是那条本体→变体。
       expect(state.focusedRelations, isNotEmpty);
-      final rel = state.focusedRelations
-          .firstWhere((r) => r.type == RelationType.dongBian);
+      final rel = state.focusedRelations.firstWhere(
+        (r) => r.type == RelationType.dongBian,
+      );
       expect(
         rel.key.canonical,
         'dong_bian|sys.dong_bian|v1|-|yao:original:3->yao:changed:3',
@@ -234,7 +261,8 @@ void main() {
       // 关系标签由实例生成。
       expect(
         ReviewCaseAdapter.relationLabel(
-          state.relationsInvolving(3)
+          state
+              .relationsInvolving(3)
               .firstWhere((r) => r.type == RelationType.dongBian),
         ),
         '动变：三爻→变三爻',
@@ -294,8 +322,7 @@ void main() {
       expect(yangSize.height, 12);
     });
 
-    testWidgets('UI-07 · 超长纳音不侵占爻槽、无省略号（任意缩放）',
-        (tester) async {
+    testWidgets('UI-07 · 超长纳音不侵占爻槽、无省略号（任意缩放）', (tester) async {
       const longExtra = '超长纳音文本超长纳音文本超长纳音文本超长纳音文本';
       const profile = ReviewTraditionalProfile(
         lineTraditional: {
@@ -333,17 +360,19 @@ void main() {
       // 主卦文本列（正文与纳音）右缘 ≤ 主卦爻槽左缘。
       final mainYaoRect = tester.getRect(find.byKey(const Key('yao_glyph_6')));
       final mainPrimary = tester.getRect(find.text('父母丁未土').first);
-      expect(mainPrimary.right <= mainYaoRect.left, isTrue,
-          reason: '主卦正文压爻槽');
+      expect(mainPrimary.right <= mainYaoRect.left, isTrue, reason: '主卦正文压爻槽');
       final mainNaYin = tester.getRect(find.text(longExtra).first);
-      expect(mainNaYin.right <= mainYaoRect.left, isTrue,
-          reason: '主卦纳音压爻槽');
+      expect(mainNaYin.right <= mainYaoRect.left, isTrue, reason: '主卦纳音压爻槽');
       // 变卦纳音列右缘 ≤ 变卦爻槽左缘。
-      final changedYaoRect =
-          tester.getRect(find.byKey(const Key('changed_yao_glyph_6')));
+      final changedYaoRect = tester.getRect(
+        find.byKey(const Key('changed_yao_glyph_6')),
+      );
       final changedNaYin = tester.getRect(find.text(longExtra).at(1));
-      expect(changedNaYin.right <= changedYaoRect.left, isTrue,
-          reason: '变卦纳音压变卦爻槽');
+      expect(
+        changedNaYin.right <= changedYaoRect.left,
+        isTrue,
+        reason: '变卦纳音压变卦爻槽',
+      );
       // 超长文本在列缘裁剪，不出现省略号。
       for (final t in tester.widgetList<Text>(find.text(longExtra))) {
         expect(t.overflow, isNot(TextOverflow.ellipsis));
@@ -353,25 +382,28 @@ void main() {
     testWidgets('UI-08 · 变卦爻槽与变卦世应同时可见、顺序正确', (tester) async {
       await pumpDemo(tester);
 
-      final changedYao1 =
-          tester.getRect(find.byKey(const Key('changed_yao_glyph_1')));
-      final changedShi1 =
-          tester.getRect(find.byKey(const Key('changed_shi_ying_1')));
+      final changedYao1 = tester.getRect(
+        find.byKey(const Key('changed_yao_glyph_1')),
+      );
+      final changedShi1 = tester.getRect(
+        find.byKey(const Key('changed_shi_ying_1')),
+      );
       expect(changedShi1.width, greaterThan(0));
       expect(changedYao1.right <= changedShi1.left, isTrue);
 
-      final changedYao4 =
-          tester.getRect(find.byKey(const Key('changed_yao_glyph_4')));
-      final changedShi4 =
-          tester.getRect(find.byKey(const Key('changed_shi_ying_4')));
+      final changedYao4 = tester.getRect(
+        find.byKey(const Key('changed_yao_glyph_4')),
+      );
+      final changedShi4 = tester.getRect(
+        find.byKey(const Key('changed_shi_ying_4')),
+      );
       expect(changedShi4.width, greaterThan(0));
       expect(changedYao4.right <= changedShi4.left, isTrue);
     });
   });
 
   group('基本信息（一屏版）', () {
-    testWidgets('问事 / 公历 / 农历 / meta / 方式 chip（合并行，信息不丢）',
-        (tester) async {
+    testWidgets('问事 / 公历 / 农历 / meta / 方式 chip（合并行，信息不丢）', (tester) async {
       await pumpDemo(tester);
 
       expect(find.text('问事'), findsOneWidget);
@@ -437,10 +469,12 @@ void main() {
       // 3) 基线值都在行高 48 内。
       final signatureToBaselines = <String, Set<double>>{};
       for (var p = 1; p <= 6; p++) {
-        final rowBaselines = tester.widgetList<Baseline>(find.descendant(
-          of: find.byKey(Key('review_line_$p')),
-          matching: find.byType(Baseline),
-        ));
+        final rowBaselines = tester.widgetList<Baseline>(
+          find.descendant(
+            of: find.byKey(Key('review_line_$p')),
+            matching: find.byType(Baseline),
+          ),
+        );
         expect(rowBaselines, isNotEmpty, reason: 'review_line_$p 无 Baseline');
         for (final b in rowBaselines) {
           final text = b.child as Text;
@@ -452,23 +486,33 @@ void main() {
         }
       }
       for (final e in signatureToBaselines.entries) {
-        expect(e.value, hasLength(1),
-            reason: '样式 ${e.key} 的基线在六行间不一致：${e.value}');
-        expect(e.value.single, allOf(greaterThan(0), lessThan(48)),
-            reason: '样式 ${e.key} 基线超出行高 48');
+        expect(
+          e.value,
+          hasLength(1),
+          reason: '样式 ${e.key} 的基线在六行间不一致：${e.value}',
+        );
+        expect(
+          e.value.single,
+          allOf(greaterThan(0), lessThan(48)),
+          reason: '样式 ${e.key} 基线超出行高 48',
+        );
       }
-      expect(signatureToBaselines.values.map((v) => v.single).toSet(),
-          hasLength(3),
-          reason: '应恰有 3 条基线带（正文/神系/纳音）');
+      expect(
+        signatureToBaselines.values.map((v) => v.single).toSet(),
+        hasLength(3),
+        reason: '应恰有 3 条基线带（正文/神系/纳音）',
+      );
     });
 
     testWidgets('R4 · 神煞固定 4×4：16 格无溢出、第 4 行在卡内', (tester) async {
       await pumpDemo(tester);
 
-      final chips = tester.widgetList<Container>(find.descendant(
-        of: find.byType(GridView),
-        matching: find.byType(Container),
-      ));
+      final chips = tester.widgetList<Container>(
+        find.descendant(
+          of: find.byType(GridView),
+          matching: find.byType(Container),
+        ),
+      );
       expect(chips.length, 16);
       // 第 1 列（卦身 / 金舆）同列；第 4 行（羊刃）与第 1 行同列间距为 3 列。
       expect(
@@ -506,23 +550,30 @@ void main() {
       await tester.pumpAndSettle();
 
       // 3c00187 定稿：按实际数据渲染，恰好 4 格（无 12 个强制空占位）。
-      final cells = tester.widgetList<Container>(find.descendant(
-        of: find.byType(GridView),
-        matching: find.byType(Container),
-      ));
+      final cells = tester.widgetList<Container>(
+        find.descendant(
+          of: find.byType(GridView),
+          matching: find.byType(Container),
+        ),
+      );
       expect(cells.length, 4);
       expect(
-        tester.widgetList<SizedBox>(find.descendant(
-          of: find.byType(GridView),
-          matching: find.byType(SizedBox),
-        )),
+        tester.widgetList<SizedBox>(
+          find.descendant(
+            of: find.byType(GridView),
+            matching: find.byType(SizedBox),
+          ),
+        ),
         isEmpty,
         reason: '不得保留空占位格',
       );
       // 4 项仍按 4 列几何占满一行。
-      final dys = ['卦身', '香闺', '驿马', '桃花']
-          .map((n) => tester.getTopLeft(find.byKey(Key('shensha_$n'))).dy)
-          .toSet();
+      final dys = [
+        '卦身',
+        '香闺',
+        '驿马',
+        '桃花',
+      ].map((n) => tester.getTopLeft(find.byKey(Key('shensha_$n'))).dy).toSet();
       expect(dys, hasLength(1), reason: '4 项必须在同一行');
       expect(tester.takeException(), isNull);
     });
@@ -559,21 +610,18 @@ void main() {
       // 六行（上爻 6 → 初爻 1）底缘必须在导航区之上完整可见。
       final navTop = 932 - 56;
       for (var p = 1; p <= 6; p++) {
-        final bottom =
-            tester.getBottomLeft(find.byKey(Key('review_line_$p'))).dy;
-        expect(bottom <= navTop, isTrue,
-            reason: 'review_line_$p 底缘 $bottom 超过导航区 $navTop');
+        final bottom = tester
+            .getBottomLeft(find.byKey(Key('review_line_$p')))
+            .dy;
+        expect(
+          bottom <= navTop,
+          isTrue,
+          reason: 'review_line_$p 底缘 $bottom 超过导航区 $navTop',
+        );
       }
       // 初爻（朱雀）与底部关系工具栏可见。
-      expect(
-        tester.getBottomLeft(find.text('朱雀')).dy <= navTop,
-        isTrue,
-      );
-      expect(
-        tester.getBottomLeft(find.text('关系').first).dy <=
-            navTop,
-        isTrue,
-      );
+      expect(tester.getBottomLeft(find.text('朱雀')).dy <= navTop, isTrue);
+      expect(tester.getBottomLeft(find.text('关系').first).dy <= navTop, isTrue);
     });
 
     test('阳历格式化', () {
