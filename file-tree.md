@@ -1,19 +1,42 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
-> **版本号：** v0.1.17
-> **发版日期：** 2026-09-15
-> **最后编辑时间：** 2026-09-16 11:15
+> **当前应用版本：** 2.0.0+41（pubspec.yaml）
+> **R5 开发基线：** R5-G BASELINE RECOVERY
+> **最后编辑时间：** 2026-09-17
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
 
+## R5-G BASELINE RECOVERY (2026-09-17)
+
+> 收口排卦领域模型、DSL Runtime、COMMON 保存边界与 Gate A 基线；不新增业务功能。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/paipan/ | 六十四卦身份、八卦、八宫与干支领域模型 |
+| lib/domain/rules/dsl/ | 中文 DSL Lexer、Parser、Formatter 与 Runtime 规则体 |
+| test/domain/paipan/ | 排卦领域模型契约测试 |
+| test/domain/rules/dsl/ | DSL 解析、往返与引擎连通测试 |
+| test/domain/rules/editor/custom_rule_save_boundary_test.dart | COMMON/TOPIC/未知 namespace 保存边界测试 |
+| tool/gate_a/gate_a_runner.ps1 | 按环境变量或 PATH 解析 Flutter SDK，不依赖固定盘符 |
 
 
 
 
 
+
+
+## R5-FIX-01 COMMON Custom Rule Save Boundary (2026-09-16)
+
+> COMMON 自定义规则走正式 save 链；TOPIC 仍走 Topic 边界校验；未知 namespace 拒绝。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/editor/custom_rule_save_boundary.dart | save 路径按 namespace 分发 COMMON / Topic 边界校验 |
+| lib/domain/rules/editor/custom_rule_service.dart | 保存前调用分发器，不再无条件走 Topic 校验 |
+| test/domain/rules/editor/custom_rule_save_boundary_test.dart | 必须经 CustomRuleService.save 的四条边界测试 |
 
 ## R5-G Final Correction (2026-09-16)
 
@@ -42,9 +65,8 @@
 | lib/domain/rules/topics/topic_pack_composer.dart | Composer |
 | lib/domain/rules/topics/topic_rule_boundary_validator.dart | Boundary Validator |
 | lib/domain/rules/topics/exam/exam_rule_corpus.dart | Exam rule corpus |
-| lib/domain/rules/topics/exam/exam_rule_factory.dart | Exam rule factory |
-| 	est/domain/rules/topics/topic_pack_composer_smoke_test.dart | Composer test |
-| 	est/domain/rules/topics/exam/exam_integration_smoke_test.dart | Integration test |
+| test/domain/rules/topics/topic_pack_composer_smoke_test.dart | Composer test |
+| test/domain/rules/topics/exam/exam_integration_smoke_test.dart | Integration test |
 
 ## R5-E Common v1 (2026-09-15)
 

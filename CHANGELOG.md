@@ -2,7 +2,9 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **最近正式发布：** v0.1.10（2026-05-22）
+> **当前应用版本：** 2.0.0+41（pubspec.yaml）
+> **最近历史正式发布：** v0.1.14（2026-09-15）
+> **当前 R5 开发基线：** R5-G BASELINE RECOVERY
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
