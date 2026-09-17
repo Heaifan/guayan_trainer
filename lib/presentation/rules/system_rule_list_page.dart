@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../domain/rules/corpus/common_rule_corpus.dart';
 import '../../domain/rules/core/rule_definition.dart';
-import '../../domain/rules/core/rule_origin.dart';
 import '../../domain/rules/editor/custom_rule_service.dart';
-import 'presentation/rule_presentation_mapper.dart';
-import 'rule_detail_page.dart';
-import 'widgets/rule_category_filter.dart';
-import 'widgets/rule_list_card.dart';
+import '../../domain/rules/knowledge/knowledge_rule.dart';
+import '../../domain/rules/knowledge/system_knowledge_rule_catalog.dart';
+import 'knowledge_rule_detail_page.dart';
+import 'presentation/knowledge_rule_display_model.dart';
+import 'presentation/knowledge_rule_presentation_mapper.dart';
+import 'rule_center_page.dart';
 import 'widgets/rule_search_bar.dart';
 
 class SystemRuleListPage extends StatefulWidget {
@@ -13,10 +15,12 @@ class SystemRuleListPage extends StatefulWidget {
     super.key,
     required this.service,
     required this.systemRules,
+    this.knowledgeRules,
   });
 
   final CustomRuleService service;
   final List<RuleDefinition> systemRules;
+  final List<KnowledgeRule>? knowledgeRules;
 
   @override
   State<SystemRuleListPage> createState() => _SystemRuleListPageState();
@@ -24,30 +28,23 @@ class SystemRuleListPage extends StatefulWidget {
 
 class _SystemRuleListPageState extends State<SystemRuleListPage> {
   String _query = '';
-  String _category = '全部';
 
-  List<RuleDefinition> get _rules {
-    final query = _query.trim().toLowerCase();
-    return widget.systemRules.where((rule) {
-      if (rule.origin != RuleOrigin.SYSTEM) return false;
-      final display = RulePresentationMapper.map(rule);
-      final matchesCategory =
-          _category == '全部' ||
-          (_category == '常用'
-              ? rule.enabled && display.categoryLabel != '其他'
-              : display.categoryLabel == _category);
-      final matchesQuery =
-          query.isEmpty ||
-          display.title.toLowerCase().contains(query) ||
-          display.ruleId.toLowerCase().contains(query) ||
-          display.description.toLowerCase().contains(query);
-      return matchesCategory && matchesQuery;
-    }).toList();
-  }
+  List<KnowledgeRuleDisplayModel> get _models =>
+      KnowledgeRulePresentationMapper.search(
+        KnowledgeRulePresentationMapper.mapAll(
+          widget.knowledgeRules ?? SystemKnowledgeRuleCatalog.rules,
+        ),
+        _query,
+      );
 
-  Future<void> _toggle(RuleDefinition rule, bool enabled) async {
-    await widget.service.governance.setSystemRuleEnabled(rule.ruleId, enabled);
-    setState(() {});
+  Map<String, List<KnowledgeRuleDisplayModel>> get _groups {
+    final groups = <String, List<KnowledgeRuleDisplayModel>>{};
+    for (final model in _models) {
+      for (final variantName in model.variantNames) {
+        groups.putIfAbsent(variantName, () => []).add(model);
+      }
+    }
+    return groups;
   }
 
   @override
@@ -57,40 +54,105 @@ class _SystemRuleListPageState extends State<SystemRuleListPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('内置的基础规则，支持按分类浏览', style: Theme.of(context).textTheme.bodyLarge),
+          const Text('基于真实知识规则目录，按规则变体浏览'),
           const SizedBox(height: 16),
           RuleSearchBar(
-            hintText: '搜索规则名称或编号',
+            hintText: '搜索规则名称、变体或 ID',
             onChanged: (value) => setState(() => _query = value),
           ),
           const SizedBox(height: 12),
-          RuleCategoryFilter(
-            value: _category,
-            onChanged: (value) => setState(() => _category = value),
-          ),
+          _ScopeSwitcher(onCustomRules: _openCustomRules),
           const SizedBox(height: 16),
-          Text('共 ${_rules.length} 条规则'),
+          Text('共 ${_models.length} 个知识规则'),
           const SizedBox(height: 8),
-          ..._rules.map(
-            (rule) => RuleListCard(
-              rule: rule,
-              enabled: !widget.service.governance.isSystemRuleDisabled(
-                rule.ruleId,
+          ..._groups.entries.expand(
+            (entry) => [
+              _VariantHeading(name: entry.key),
+              ...entry.value.map(
+                (model) => _KnowledgeRuleCard(
+                  model: model,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => KnowledgeRuleDetailPage(rule: model.rule),
+                    ),
+                  ),
+                ),
               ),
-              onToggle: (value) => _toggle(rule, value),
-              onView: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => RuleDetailPage(rule: rule)),
-              ),
-            ),
+            ],
           ),
-          if (_rules.isEmpty)
+          if (_models.isEmpty)
             const Padding(
               padding: EdgeInsets.all(24),
-              child: Center(child: Text('没有匹配的规则')),
+              child: Center(child: Text('没有匹配的知识规则')),
             ),
         ],
       ),
     );
   }
+
+  void _openCustomRules() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RuleCenterPage(
+          service: widget.service,
+          systemRules: widget.systemRules.isEmpty
+              ? CommonRuleCorpus.v1()
+              : widget.systemRules,
+        ),
+      ),
+    );
+  }
+}
+
+class _ScopeSwitcher extends StatelessWidget {
+  const _ScopeSwitcher({required this.onCustomRules});
+
+  final VoidCallback onCustomRules;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: 8,
+    children: [
+      const ChoiceChip(label: Text('全部'), selected: true),
+      const ChoiceChip(label: Text('系统规则'), selected: false),
+      ChoiceChip(
+        label: const Text('自定义规则'),
+        selected: false,
+        onSelected: (_) => onCustomRules(),
+      ),
+    ],
+  );
+}
+
+class _VariantHeading extends StatelessWidget {
+  const _VariantHeading({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 12, bottom: 4),
+    child: Text(name, style: Theme.of(context).textTheme.titleMedium),
+  );
+}
+
+class _KnowledgeRuleCard extends StatelessWidget {
+  const _KnowledgeRuleCard({required this.model, required this.onTap});
+
+  final KnowledgeRuleDisplayModel model;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: ListTile(
+      title: Text(model.name),
+      subtitle: Text(
+        '${model.variantNames.join('、')} · 执行规则 ${model.executionRuleCount} 条',
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
+    ),
+  );
 }

@@ -1,13 +1,25 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
-> **R5 开发基线：** R5-G2-C1 SYSTEM KNOWLEDGE CATALOG AUDIT
-> **最后编辑时间：** 2026-09-17 18:29:41
+> **R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
+> **最后编辑时间：** 2026-09-17 19:05:35
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
+
+## R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP (2026-09-17)
+
+> 规则中心首页以 KnowledgeRule 为一级对象，按真实 RuleVariant 中文名动态分组；详情页展示 N 个 Variant 与 N 条 ExecutionRule；保留 Loader、自定义规则 CRUD 与 SYSTEM 数据层不变。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/presentation/rules/presentation/knowledge_rule_display_model.dart | KnowledgeRule 首页展示模型与搜索文本 |
+| lib/presentation/rules/presentation/knowledge_rule_presentation_mapper.dart | KnowledgeRule Catalog 到展示模型的适配与搜索 |
+| lib/presentation/rules/system_rule_list_page.dart | 10 个 KnowledgeRule 首页、动态 Variant 分组与入口 |
+| lib/presentation/rules/knowledge_rule_detail_page.dart | KnowledgeRule、Variant、ExecutionRule 分层详情 |
+| test/presentation/rules/knowledge_rule_*_test.dart | 展示适配、动态分组、搜索与详情 Widget 测试 |
 
 ## R5-G2-C1 SYSTEM KNOWLEDGE CATALOG AUDIT (2026-09-17)
 

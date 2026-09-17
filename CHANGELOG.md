@@ -4,9 +4,34 @@
 > **归档分支：** `feat/guayan-2.0`
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
-> **当前 R5 开发基线：** R5-G2-C1 SYSTEM KNOWLEDGE CATALOG AUDIT
+> **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
+
+---
+
+## 2026-09-17 · R5-G2-D0 SYSTEM Knowledge Rule Center MVP
+
+> 以真实 KnowledgeRule 为 SYSTEM 规则中心一级展示对象；动态按 RuleVariant 分组，详情页下沉展示 Variant 与 ExecutionRule 实例；不修改 Loader、自定义规则 CRUD 或 SYSTEM 数据层。
+
+### 新增/修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/presentation/rules/presentation/knowledge_rule_display_model.dart` | KnowledgeRule 展示适配模型 |
+| `lib/presentation/rules/presentation/knowledge_rule_presentation_mapper.dart` | 真实 Catalog 映射、动态搜索适配 |
+| `lib/presentation/rules/system_rule_list_page.dart` | 10 个 KnowledgeRule 首页与动态 Variant 分组 |
+| `lib/presentation/rules/knowledge_rule_detail_page.dart` | KnowledgeRule → N Variant → N ExecutionRule 详情 |
+| `test/presentation/rules/knowledge_rule_*_test.dart` | 展示适配、首页与详情 Widget 测试 |
+| `test/presentation/rules/system_rule_list_page_test.dart` | SYSTEM 首页验收断言更新 |
+
+### 验证
+
+- SYSTEM KnowledgeRule：10 条
+- SYSTEM RuleVariant：10 条
+- SYSTEM ExecutionRule：60 条
+- Orphan：0 条
+- 动态分组、旬空搜索、考试取象搜索、变体与执行实例详情：定向 Widget 测试通过
 
 ---
 
