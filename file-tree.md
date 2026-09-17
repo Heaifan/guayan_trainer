@@ -1,13 +1,24 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
-> **R5 开发基线：** R5-G1 RULE CENTER UI / SCHEME A
-> **最后编辑时间：** 2026-09-17
+> **R5 开发基线：** R5-G2-A/B KNOWLEDGE RULE DOMAIN MODEL
+> **最后编辑时间：** 2026-09-17 18:08:53
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
+
+## R5-G2-A/B KNOWLEDGE RULE DOMAIN MODEL (2026-09-17)
+
+> 建立排卦知识规则、规则变体、ExecutionRule 引用与 SYSTEM 显式 Catalog；不改变 Engine、DSL、AST 与 COMMON 保存边界。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/knowledge/ | KnowledgeRule、RuleVariant、ExecutionRuleRef、分类与 SYSTEM Catalog |
+| lib/domain/rules/knowledge/knowledge_rule_catalog_validator.dart | 知识规则身份、变体、引用与 SYSTEM 覆盖校验 |
+| lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart | 当前 60 条 SYSTEM ExecutionRule 的显式知识语义映射 |
+| test/domain/rules/knowledge/ | 领域模型、Catalog、覆盖、验证器与运行时不变性测试 |
 
 ## R5-G1 RULE CENTER UI / SCHEME A (2026-09-17)
 

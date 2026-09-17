@@ -4,9 +4,29 @@
 > **归档分支：** `feat/guayan-2.0`
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
-> **当前 R5 开发基线：** R5-G1 RULE CENTER UI / SCHEME A
+> **当前 R5 开发基线：** R5-G2-A/B KNOWLEDGE RULE DOMAIN MODEL
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
+
+---
+
+## 2026-09-17 · R5-G2-A/B Knowledge Rule Domain Model
+
+> 建立稳定的 KnowledgeRule / RuleVariant / ExecutionRuleRef 领域模型，使用显式 SYSTEM Catalog 映射当前 60 条 ExecutionRule；运行时规则语义保持不变。
+
+### 新增/修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/rules/knowledge/` | 知识规则模型、分类、校验器与 SYSTEM Catalog |
+| `test/domain/rules/knowledge/` | 模型、多变体、覆盖率、运行时不变性测试 |
+
+### 验证
+
+- 知识域定向测试：7/7 通过
+- SYSTEM Execution Rules：60 条
+- 已映射：60 条
+- 孤儿规则：0 条
 
 ---
 
