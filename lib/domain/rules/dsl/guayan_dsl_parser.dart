@@ -32,8 +32,9 @@ class GuayanDslParser {
         endPos++;
       }
       final bindingResult = BindingParser(tokens.sublist(pos, endPos)).parse();
-      if (bindingResult.hasErrors)
+      if (bindingResult.hasErrors) {
         return ParseResult(diagnostics: bindingResult.diagnostics);
+      }
       if (bindingResult.value != null) bindings.add(bindingResult.value!);
       pos = endPos;
     }
@@ -61,15 +62,18 @@ class GuayanDslParser {
     final conditionResult = ConditionParser(
       tokens.sublist(ruoPos, pos),
     ).parse();
-    if (conditionResult.hasErrors)
+    if (conditionResult.hasErrors) {
       return ParseResult(diagnostics: conditionResult.diagnostics);
+    }
     final condition = conditionResult.value;
-    if (condition == null)
+    if (condition == null) {
       return ParseResult(diagnostics: conditionResult.diagnostics);
+    }
 
     final actionResult = ActionParser(tokens.sublist(pos)).parse();
-    if (actionResult.hasErrors)
+    if (actionResult.hasErrors) {
       return ParseResult(diagnostics: actionResult.diagnostics);
+    }
     final actions = actionResult.value ?? [];
 
     return ParseResult(

@@ -27,8 +27,9 @@ class ConditionParser {
     List<RuleExpr> anyExprs = [];
 
     while (_pos < tokens.length) {
-      if (_peek().type == TokenType.dedent || _peek().type == TokenType.eof)
+      if (_peek().type == TokenType.dedent || _peek().type == TokenType.eof) {
         break;
+      }
 
       String logicOp = '且';
       if (_peek().type == TokenType.keywordQie) {
