@@ -29,10 +29,10 @@
 - Create: `lib/presentation/rules/presentation/rule_presentation_mapper.dart`
 - Create: `test/presentation/rules/rule_presentation_mapper_test.dart`
 
-- [ ] Write tests for Chinese title/category/description mapping, COMMON fallback, technical ID preservation, and DSL formatting.
-- [ ] Run the mapper test and verify it fails because the adapter does not exist.
-- [ ] Implement immutable display metadata and a mapper based on actual rule origin, category, actions, conditions, and existing formatter.
-- [ ] Run the mapper test until green.
+- [x] Write tests for Chinese title/category/description mapping, COMMON fallback, technical ID preservation, and DSL formatting.
+- [x] Run the mapper test and verify it fails because the adapter does not exist.
+- [x] Implement immutable display metadata and a mapper based on actual rule origin, category, actions, conditions, and existing formatter.
+- [x] Run the mapper test until green.
 
 ### Task 2: Rule library home and system rule list
 
@@ -45,11 +45,11 @@
 - Create: `lib/presentation/rules/widgets/rule_list_card.dart`
 - Create: `test/presentation/rules/rule_library_page_test.dart`
 
-- [ ] Add widget tests for the three ordered entry cards, search field, and recent session state.
-- [ ] Run the widget test and verify it fails against the old Skeleton.
-- [ ] Implement the Scheme A home page and route system rules to the new list page.
-- [ ] Implement list filtering by Chinese title, rule ID, and derived category; keep enable toggles working through the existing governance state.
-- [ ] Run the focused widget tests.
+- [x] Add widget tests for the three ordered entry cards, search field, and recent session state.
+- [x] Run the widget test and verify it fails against the old Skeleton.
+- [x] Implement the Scheme A home page and route system rules to the new list page.
+- [x] Implement list filtering by Chinese title, rule ID, and derived category; keep enable toggles working through the existing governance state.
+- [x] Run the focused widget tests.
 
 ### Task 3: Read-only rule details
 
@@ -58,11 +58,11 @@
 - Create: `lib/presentation/rules/widgets/rule_dsl_preview.dart`
 - Create: `test/presentation/rules/rule_detail_page_test.dart`
 
-- [ ] Add widget tests for title, Chinese description, technical metadata, binding/condition/action sections, and formatted DSL.
-- [ ] Verify the new test fails before implementation.
-- [ ] Implement a read-only details page and connect each system rule card's 查看 action to it.
-- [ ] Only expose copy-as-custom when the existing copy route is available; never show a fake edit button for SYSTEM rules.
-- [ ] Run the focused detail tests.
+- [x] Add widget tests for title, Chinese description, technical metadata, binding/condition/action sections, and formatted DSL.
+- [x] Verify the new test fails before implementation.
+- [x] Implement a read-only details page and connect each system rule card's 查看 action to it.
+- [x] Only expose copy-as-custom when the existing copy route is available; never show a fake edit button for SYSTEM rules.
+- [x] Run the focused detail tests.
 
 ### Task 4: Scheme A custom editor layout
 
@@ -72,11 +72,11 @@
 - Create: `lib/presentation/rules/widgets/rule_editor_action_card.dart`
 - Create: `test/presentation/rules/rule_editor_page_test.dart`
 
-- [ ] Add tests for CUSTOM default namespace, three editor entry cards, non-empty/empty DSL preview, and save boundary routing.
-- [ ] Verify the tests fail against the current debug-style editor.
-- [ ] Implement the reorganized basic-info fields, persistent DSL preview, three action cards, and fixed bottom action bar.
-- [ ] Preserve the existing draft/editor widgets and call `CustomRuleService.save` unchanged.
-- [ ] Run focused editor tests.
+- [x] Add tests for CUSTOM default namespace, three editor entry cards, non-empty/empty DSL preview, and save boundary routing.
+- [x] Verify the tests fail against the current debug-style editor.
+- [x] Implement the reorganized basic-info fields, persistent DSL preview, three action cards, and fixed bottom action bar.
+- [x] Preserve the existing draft/editor widgets and call `CustomRuleService.save` unchanged.
+- [x] Run focused editor tests.
 
 ### Task 5: Integrated verification and acceptance handoff
 
@@ -84,9 +84,9 @@
 - Modify: `file-tree.md`
 - Modify: `CHANGELOG.md`
 
-- [ ] Run `flutter analyze` and fix only R5-G1 presentation issues.
-- [ ] Run focused presentation and R5 DSL/Engine/CUSTOM tests.
-- [ ] Run `flutter test`.
-- [ ] Run Gate A verify and `git diff --check`.
-- [ ] Launch/reload the existing Android emulator app for the six-item human acceptance checklist.
-- [ ] Commit, push, and verify local/remote SHA equality after user-visible implementation is complete.
+- [x] Run `flutter analyze` and fix only R5-G1 presentation issues.
+- [x] Run focused presentation and R5 DSL/Engine/CUSTOM tests.
+- [x] Run `flutter test` (`414/414 PASS`).
+- [x] Run Gate A verify and `git diff --check`.
+- [ ] User performs the six-item human acceptance checklist on the launched Android emulator.
+- [x] Commit, push, and verify local/remote SHA equality after user-visible implementation is complete.
