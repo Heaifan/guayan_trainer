@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'rule_center_page_loader.dart';
+import 'rule_folder_tree_page.dart';
 import 'widgets/rule_entry_card.dart';
 import 'widgets/rule_search_bar.dart';
 
@@ -46,7 +47,10 @@ class _RuleLibraryPageState extends State<RuleLibraryPage> {
             icon: Icons.folder_copy_rounded,
             title: '规则包',
             description: '按主题组合规则',
-            onTap: () {},
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RuleFolderTreePage()),
+            ),
           ),
           RuleEntryCard(
             icon: Icons.add_rounded,
@@ -55,8 +59,7 @@ class _RuleLibraryPageState extends State<RuleLibraryPage> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) =>
-                    const RuleCenterPageLoader(openCustomRules: true),
+                builder: (_) => const RuleFolderTreePage(),
               ),
             ),
           ),

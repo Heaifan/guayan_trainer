@@ -29,4 +29,22 @@ void main() {
     await tester.pumpAndSettle();
     expect((await repository.read('case-ui'))!.isFavorite, isTrue);
   });
+
+  testWidgets('long press opens actions and confirms permanent delete', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final repository = await JsonCaseRepository.open();
+    final base = fixtures.recordFixture('case-long-press', DateTime(2026, 9, 18));
+    await repository.create(base);
+    await tester.pumpWidget(MaterialApp(home: CasesPage(repository: repository)));
+    await tester.pumpAndSettle();
+    await tester.longPress(find.text(base.subjectDisplay));
+    await tester.pumpAndSettle();
+    expect(find.text('永久删除'), findsOneWidget);
+    await tester.tap(find.text('永久删除').first);
+    await tester.pumpAndSettle();
+    expect(find.text('永久删除卦例？'), findsOneWidget);
+    await tester.tap(find.text('取消').last);
+    await tester.pumpAndSettle();
+    expect(await repository.read(base.id), isNotNull);
+  });
 }

@@ -26,6 +26,15 @@ void main() {
     expect(find.textContaining('执行规则 6 条'), findsOneWidget);
     expect(find.text('common.line.1.xun_kong'), findsNothing);
 
+    await tester.tap(find.text('通用判法'));
+    await tester.pumpAndSettle();
+    expect(find.text('初爻'), findsOneWidget);
+    expect(find.text('上爻'), findsOneWidget);
+    expect(find.byIcon(Icons.radio_button_unchecked), findsNothing);
+    expect(find.byType(Radio), findsNothing);
+    expect(find.byType(Checkbox), findsNothing);
+    expect(find.byType(Switch), findsNothing);
+
     await tester.tap(find.text('高级信息'));
     await tester.pumpAndSettle();
     expect(find.text('common.line.1.xun_kong'), findsOneWidget);

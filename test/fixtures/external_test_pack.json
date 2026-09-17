@@ -1,0 +1,95 @@
+{
+  "schema": "guayan.rulepack",
+  "schemaVersion": 1,
+  "pack": {
+    "id": "external.test.pack",
+    "name": "外部规则包 Golden",
+    "version": "1.0.0",
+    "origin": "CUSTOM"
+  },
+  "rules": [
+    {
+      "ruleId": "external.dynamic.quantified",
+      "version": "1.0.0",
+      "origin": "CUSTOM",
+      "namespace": "user.imported",
+      "categoryId": "common",
+      "stage": "tag",
+      "title": "至少两个发动之爻",
+      "description": "DynamicBinding + QuantifiedExpr",
+      "provenance": "external_test_pack",
+      "bindings": [{"name":"moving","type":"dyn","selectorId":"dynamic.line.moving","parameters":{}}],
+      "condition": {"type":"quantified","bindingName":"moving","selectorId":"dynamic.line.moving","parameters":{},"kind":"atLeast","count":2,"node":{"type":"predicate","operatorId":"structure_formed","operands":[{"kind":"lit","value":"sanHe.木"}]}},
+      "actions": [{"type":"tag","cat":"取象","tagId":"繁荣茂盛","subject":"moving"}],
+      "overrideTarget": null,
+      "enabled": true,
+      "reviewState": "APPROVED",
+      "schemaVersion": 1
+    },
+    {
+      "ruleId": "external.structure.sanhe",
+      "version": "1.0.0",
+      "origin": "CUSTOM",
+      "namespace": "user.imported",
+      "categoryId": "common",
+      "stage": "structure",
+      "title": "成三合木局",
+      "description": "Structure fact",
+      "provenance": "external_test_pack",
+      "bindings": [],
+      "condition": {"type":"predicate","operatorId":"structure_formed","operands":[{"kind":"lit","value":"sanHe.木"}]},
+      "actions": [{"type":"structure","id":"sanHe.木","members":[]}],
+      "overrideTarget": null,
+      "enabled": true,
+      "reviewState": "APPROVED",
+      "schemaVersion": 1
+    },
+    {
+      "ruleId": "external.shensha.reference",
+      "version": "1.0.0",
+      "origin": "CUSTOM",
+      "namespace": "user.imported",
+      "categoryId": "common",
+      "stage": "tag",
+      "title": "玄武所临之爻",
+      "description": "Custom ShenSha dependency",
+      "provenance": "external_test_pack",
+      "bindings": [{"name":"line","type":"dyn","selectorId":"dynamic.line.moving","parameters":{}}],
+      "condition": {"type":"predicate","operatorId":"has_tag","operands":[{"kind":"ref","bindingName":"line"},{"kind":"lit","value":"shensha"},{"kind":"lit","value":"shensha.custom.morning_star"}]},
+      "actions": [{"type":"tag","cat":"取象","tagId":"手术刀","subject":"line"}],
+      "overrideTarget": null,
+      "enabled": true,
+      "reviewState": "APPROVED",
+      "schemaVersion": 1
+    },
+    {
+      "ruleId": "external.mapping.branch",
+      "version": "1.0.0",
+      "origin": "CUSTOM",
+      "namespace": "user.imported",
+      "categoryId": "common",
+      "stage": "tag",
+      "title": "卯取象手脚",
+      "description": "Mapping dependency",
+      "provenance": "external_test_pack",
+      "bindings": [{"name":"line","type":"dyn","selectorId":"dynamic.line.moving","parameters":{}}],
+      "condition": {"type":"predicate","operatorId":"branch_is","operands":[{"kind":"ref","bindingName":"line"},{"kind":"lit","value":"卯"}]},
+      "actions": [{"type":"tag","cat":"取象","tagId":"手脚","subject":null}],
+      "overrideTarget": null,
+      "enabled": true,
+      "reviewState": "APPROVED",
+      "schemaVersion": 1
+    }
+  ],
+  "mappings": [
+    {"key":"branch.卯","image":"手脚"},
+    {"key":"branch.巳","image":"手术刀"}
+  ],
+  "customShensha": [
+    {"id":"shensha.custom.morning_star","name":"自定义晨星","description":"外部规则包测试神煞"}
+  ],
+  "dependencies": {
+    "mappings": ["branch.卯", "branch.巳"],
+    "customShensha": ["shensha.custom.morning_star"]
+  }
+}

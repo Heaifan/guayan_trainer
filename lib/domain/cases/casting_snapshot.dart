@@ -6,6 +6,7 @@ class CastingSnapshot {
   CastingSnapshot({
     required this.castingTime,
     required this.subject,
+    this.category = '',
     required List<LineState> lines,
     required this.originalHexagramName,
     this.changedHexagramName,
@@ -16,15 +17,17 @@ class CastingSnapshot {
 
   final DateTime castingTime;
   final String subject;
+  final String category;
   final List<LineState> lines;
   final String originalHexagramName;
   final String? changedHexagramName;
   final List<int> movingPositions;
   final CalendarSnapshot? calendar;
 
-  CastingSnapshot copyWith({String? subject}) => CastingSnapshot(
+  CastingSnapshot copyWith({String? subject, String? category}) => CastingSnapshot(
     castingTime: castingTime,
     subject: subject ?? this.subject,
+    category: category ?? this.category,
     lines: lines,
     originalHexagramName: originalHexagramName,
     changedHexagramName: changedHexagramName,
@@ -35,6 +38,7 @@ class CastingSnapshot {
   Map<String, Object?> toJson() => {
     'castingTime': castingTime.toIso8601String(),
     'subject': subject,
+    'category': category,
     'lines': lines.map((line) => line.toJson()).toList(),
     'originalHexagramName': originalHexagramName,
     if (changedHexagramName != null) 'changedHexagramName': changedHexagramName,
@@ -45,6 +49,7 @@ class CastingSnapshot {
   factory CastingSnapshot.fromJson(Map<String, Object?> json) => CastingSnapshot(
     castingTime: DateTime.parse(json['castingTime'] as String),
     subject: json['subject'] as String? ?? '',
+    category: json['category'] as String? ?? '',
     lines: (json['lines'] as List<Object?>)
         .map((line) => LineState.fromJson(line as Map<String, Object?>))
         .toList(),
@@ -63,6 +68,7 @@ class CastingSnapshot {
   bool operator ==(Object other) => other is CastingSnapshot &&
       other.castingTime == castingTime &&
       other.subject == subject &&
+      other.category == category &&
       _sameLines(other.lines, lines) &&
       other.originalHexagramName == originalHexagramName &&
       other.changedHexagramName == changedHexagramName &&
@@ -71,7 +77,7 @@ class CastingSnapshot {
 
   @override
   int get hashCode => Object.hash(
-    castingTime, subject, originalHexagramName, changedHexagramName,
+    castingTime, subject, category, originalHexagramName, changedHexagramName,
     lines.map((line) => line.toJson()).join(), movingPositions.join(','), calendar,
   );
 }

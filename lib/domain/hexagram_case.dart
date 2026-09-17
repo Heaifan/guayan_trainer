@@ -18,6 +18,7 @@ class HexagramCase {
     required this.lines,
     required this.createdAt,
     required this.ruleContext,
+    this.category = '',
     this.calendar,
   });
 
@@ -31,6 +32,7 @@ class HexagramCase {
     required DateTime createdAt,
     RuleExecutionContext ruleContext = const RuleExecutionContext.empty(),
     CalendarSnapshot? calendar,
+    String category = '',
   }) {
     _validateLines(lines);
     return HexagramCase._(
@@ -40,6 +42,7 @@ class HexagramCase {
       createdAt: createdAt,
       ruleContext: ruleContext,
       calendar: calendar,
+      category: category,
     );
   }
 
@@ -59,6 +62,7 @@ class HexagramCase {
   /// 规则版本上下文：记录计算关系时各规则使用的版本，
   /// 重算旧卦例时据此复现历史 RelationKey（replay 契约）。
   final RuleExecutionContext ruleContext;
+  final String category;
 
   /// 起卦当时的历法快照（月建 / 日辰）。
   ///

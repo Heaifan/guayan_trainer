@@ -1,13 +1,16 @@
-﻿library;
+library;
+
 import '../ast/binding_selector.dart';
 import '../ast/rule_binding.dart';
 import '../facts/fact_snapshot.dart';
 import '../facts/semantic_ref.dart';
+import '../objects/dynamic_object_resolver.dart';
 
 class BindingResolutionException implements Exception {
   final String message;
   BindingResolutionException(this.message);
-  @override String toString() => 'BindingResolutionException: $message';
+  @override
+  String toString() => 'BindingResolutionException: $message';
 }
 
 class BindingContext {
@@ -17,7 +20,8 @@ class BindingContext {
   }
   void add(String name, SemanticRef ref) => _resolvedBindings[name] = ref;
   SemanticRef? get(String name) => _resolvedBindings[name];
-  Map<String, SemanticRef> get allBindings => Map.unmodifiable(_resolvedBindings);
+  Map<String, SemanticRef> get allBindings =>
+      Map.unmodifiable(_resolvedBindings);
 }
 
 class BindingResolver {
@@ -39,19 +43,38 @@ class BindingResolver {
           }
         } on BindingResolutionException catch (_) {}
       }
-      if (!progress) throw BindingResolutionException('Failed to resolve bindings: ${unresolved.map((b) => b.name).join(', ')}');
+      if (!progress) {
+        throw BindingResolutionException(
+          'Failed to resolve bindings: ${unresolved.map((b) => b.name).join(', ')}',
+        );
+      }
       unresolved.removeWhere((b) => toRemove.contains(b));
     }
     return context;
   }
 
-  SemanticRef? _resolveSelector(BindingSelector selector, BindingContext context, FactSnapshot snapshot) {
+  SemanticRef? _resolveSelector(
+    BindingSelector selector,
+    BindingContext context,
+    FactSnapshot snapshot,
+  ) {
     if (selector is DirectSelector) return _parseSemanticRef(selector.target);
+    if (selector is DynamicBindingSelector) {
+      return const DynamicObjectResolver().resolveSingle(selector, snapshot);
+    }
     if (selector is RelativeSelector) {
       final baseRef = context.get(selector.baseBinding);
-      if (baseRef == null) throw BindingResolutionException('Base not found: ${selector.baseBinding}');
-      final fact = snapshot.facts.where((f) => f.subject == baseRef && f.predicateId == selector.path).firstOrNull;
-      if (fact == null) throw BindingResolutionException('Unknown path or no relation found');
+      if (baseRef == null) {
+        throw BindingResolutionException(
+          'Base not found: ${selector.baseBinding}',
+        );
+      }
+      final fact = snapshot.facts
+          .where((f) => f.subject == baseRef && f.predicateId == selector.path)
+          .firstOrNull;
+      if (fact == null) {
+        throw BindingResolutionException('Unknown path or no relation found');
+      }
       final val = fact.value.value;
       if (val is String) return _parseSemanticRef(val);
       throw BindingResolutionException('Invalid SemanticRef string');

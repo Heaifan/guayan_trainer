@@ -23,7 +23,7 @@ class SystemKnowledgeRuleCatalog {
       KnowledgeRuleCategory.voidTombGrowth,
       '判断某爻是否处于旬空状态。',
       'knowledge.category.state',
-      ['旬空', '空墓', '状态'],
+      ['旬空', '空库', '状态'],
     ),
     _common(
       'yue_po',
@@ -43,11 +43,11 @@ class SystemKnowledgeRuleCatalog {
     ),
     _common(
       'in_tomb',
-      '入墓',
+      '入库',
       KnowledgeRuleCategory.voidTombGrowth,
-      '判断某爻是否入墓。',
+      '判断某爻是否入库。',
       'knowledge.category.state',
-      ['墓', '入墓', '空墓', '状态'],
+      ['库', '入库', '空库', '状态'],
     ),
     _common(
       'month_generate',

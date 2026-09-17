@@ -9,6 +9,7 @@ import 'package:guayan_trainer/domain/calendar/solar_term/month_branch_resolver.
 import 'package:guayan_trainer/domain/calendar/store/calendar_data_store.dart';
 import 'package:guayan_trainer/domain/calendar/store/stored_solar_term_provider.dart';
 import 'package:guayan_trainer/domain/di_zhi.dart';
+import 'package:guayan_trainer/services/calendar/casting_calendar_service.dart';
 
 import 'calendar_pack_fixtures.dart';
 
@@ -94,6 +95,22 @@ void main() {
       expect(at('2024-02-29 12:00:00').monthBranch, DiZhi.yin);
     });
   });
+
+  test(
+    'CastingCalendarService freezes lunar date and shichen in the snapshot',
+    () {
+      final snapshot = CastingCalendarService(
+        engine,
+      ).snapshotFor(DateTime(2026, 9, 17, 21, 31));
+
+      expect(snapshot.lunarDate, '丙午年八月初七');
+      expect(snapshot.shichen, '亥');
+      expect(snapshot.monthBranch, '酉');
+      expect(snapshot.dayGanZhi, '甲午');
+      expect(snapshot.yearGanZhi, '丙午');
+      expect(snapshot.hourGanZhi, '乙亥');
+    },
+  );
 
   group('T9 · 日辰 / 旬空（跨年代锚点）', () {
     test('2023-09-29 → 庚寅日 · 酉月 · 旬空午未', () {

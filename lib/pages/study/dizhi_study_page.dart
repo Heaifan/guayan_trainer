@@ -30,7 +30,7 @@ class DizhiStudyPage extends StatelessWidget {
           _wuxingGroup('土', ['辰', '戌', '丑', '未']),
           const SizedBox(height: 16),
           _section('地支分类',
-              '四正：子、午、卯、酉\n四生：寅、申、巳、亥\n四墓库：辰、戌、丑、未'),
+              '四正：子、午、卯、酉\n四生：寅、申、巳、亥\n四库：辰、戌、丑、未'),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,

@@ -17,4 +17,15 @@ class ConditionId {
   static const chongMu = 'chong_mu';
   static const chuMu = 'chu_mu';
   static const hasTag = 'has_tag';
+
+  static const stemIs = 'stem_is';
+  static const branchIs = 'branch_is';
+  static const elementIs = 'element_is';
+  static const controls = 'wuxing_overcomes';
+  static const branchClashes = 'branch_clashes';
+  static const branchCombines = 'branch_combines';
+  static const branchPunishes = 'branch_punishes';
+  static const branchHarms = 'branch_harms';
+  static const branchBreaks = 'branch_breaks';
+  static const structureFormed = 'structure_formed';
 }

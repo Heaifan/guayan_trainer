@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../review_page_state.dart';
 import 'review_hexagram_line_row.dart';
+import 'board_column_layout.dart';
 
 /// 完整卦盘组件（审卦一屏版总 SVG）。
 ///
@@ -14,11 +15,13 @@ class ReviewHexagramResultTable extends StatelessWidget {
     required this.state,
     this.selectedPosition,
     this.onLineTap,
+    this.anchorKeys = const {},
   });
 
   final ReviewPageState state;
   final int? selectedPosition;
   final ValueChanged<int>? onLineTap;
+  final Map<String, GlobalKey> anchorKeys;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +45,10 @@ class ReviewHexagramResultTable extends StatelessWidget {
               onTap: onLineTap == null
                   ? null
                   : () => onLineTap!(state.displayLines[i].position),
+              mainAnchorKey:
+                  anchorKeys['yao:original:${state.displayLines[i].position}'],
+              changedAnchorKey:
+                  anchorKeys['yao:changed:${state.displayLines[i].position}'],
             ),
             if (i < state.displayLines.length - 1)
               Container(
@@ -65,7 +72,7 @@ class _HeaderZone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
+      height: 54,
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xFFE5ECE8))),
       ),
@@ -133,21 +140,53 @@ class _ColumnHeaderZone extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(bottom: 12, top: 10),
+      height: 24,
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: FittedBox(
         fit: BoxFit.contain,
         alignment: Alignment.centerLeft,
         child: SizedBox(
-          width: 402,
-          height: 12,
+          width: BoardColumnLayout.width,
+          height: 18,
           child: Stack(
             clipBehavior: Clip.none,
-            children: const [
-              Positioned(left: 18, child: _ColText('六神')),
-              Positioned(left: 72, child: _ColText('伏神')),
-              Positioned(left: 136, child: _ColText('主卦')),
-              Positioned(left: 222, child: _ColText('爻')),
-              Positioned(left: 278, child: _ColText('变卦')),
+            children: [
+              const _HeaderSlot(
+                key: ValueKey('header_six_spirit'),
+                left: BoardColumnLayout.sixSpiritLeft,
+                width: BoardColumnLayout.sixSpiritWidth,
+                label: '六神',
+              ),
+              const _HeaderSlot(
+                key: ValueKey('header_primary_hidden'),
+                left: BoardColumnLayout.primaryHiddenLeft,
+                width: BoardColumnLayout.primaryHiddenWidth,
+                label: '主伏',
+              ),
+              const _HeaderSlot(
+                key: ValueKey('header_opposite_hidden'),
+                left: BoardColumnLayout.oppositeHiddenLeft,
+                width: BoardColumnLayout.oppositeHiddenWidth,
+                label: '旁伏',
+              ),
+              const _HeaderSlot(
+                key: ValueKey('header_main_text'),
+                left: BoardColumnLayout.mainTextLeft,
+                width: BoardColumnLayout.mainTextWidth,
+                label: '主卦',
+              ),
+              const _HeaderSlot(
+                key: ValueKey('header_yao_band'),
+                left: BoardColumnLayout.centralHeaderLeft,
+                width: BoardColumnLayout.centralHeaderWidth,
+                label: '爻',
+              ),
+              const _HeaderSlot(
+                key: ValueKey('header_changed_text'),
+                left: BoardColumnLayout.changedTextLeft,
+                width: BoardColumnLayout.changedTextWidth,
+                label: '变卦',
+              ),
             ],
           ),
         ),
@@ -171,4 +210,26 @@ class _ColText extends StatelessWidget {
       ),
     );
   }
+}
+
+class _HeaderSlot extends StatelessWidget {
+  const _HeaderSlot({
+    super.key,
+    required this.left,
+    required this.width,
+    required this.label,
+  });
+
+  final double left;
+  final double width;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Positioned(
+    left: left,
+    width: width,
+    top: 0,
+    bottom: 0,
+    child: Center(child: _ColText(label)),
+  );
 }

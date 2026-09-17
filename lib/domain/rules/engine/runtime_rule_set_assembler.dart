@@ -7,16 +7,24 @@ import '../packs/rule_pack.dart';
 import '../packs/rule_pack_id.dart';
 import '../governance/rule_resolver.dart';
 import '../governance/resolved_rule_set.dart';
+import '../packages/global_rule_pack_registry.dart';
+import '../packages/rule_package_store.dart';
+import '../library/effective_rule_selector.dart';
+import '../library/rule_library_index.dart';
 
 class RuntimeRuleSetAssembler {
   final CustomRuleService customRuleService;
   final List<RulePack> availableTopics;
   final Map<RulePackId, List<RuleDefinition>> topicRulesMap;
+  final GlobalRulePackRegistry? globalRegistry;
+  final RuleLibraryIndex? libraryIndex;
 
   const RuntimeRuleSetAssembler({
     required this.customRuleService,
     required this.availableTopics,
     required this.topicRulesMap,
+    this.globalRegistry,
+    this.libraryIndex,
   });
 
   ResolvedRuleSet assemble(List<String> selectedTopicIds) {
@@ -25,6 +33,21 @@ class RuntimeRuleSetAssembler {
 
     final mergedCommon = customRuleService.getMergedRules(commonRules)
         .where((r) => r.namespace == 'common').toList();
+    if (libraryIndex != null) {
+      mergedCommon
+        ..removeWhere((rule) => rule.origin.name == 'CUSTOM')
+        ..addAll(selectEffectiveRules(
+          customRuleService.store.getAll(),
+          libraryIndex!,
+        ));
+    }
+    for (final installed in
+        globalRegistry?.enabledUserPacks ?? const <InstalledRulePack>[]) {
+      final packageRules = libraryIndex == null
+          ? installed.package.rules.where((rule) => rule.enabled).toList()
+          : selectEffectiveRules(installed.package.rules, libraryIndex!);
+      mergedCommon.addAll(packageRules);
+    }
     
     final finalTopicRules = <RulePackId, List<RuleDefinition>>{};
     

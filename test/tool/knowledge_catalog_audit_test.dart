@@ -61,12 +61,12 @@ void main() {
       'id': 'knowledge.category.state',
       'displayName': '状态体系',
     });
-    expect(jsonRule['tags'], ['旬空', '空墓', '状态']);
+    expect(jsonRule['tags'], ['旬空', '空库', '状态']);
     expect(catalog.rows.first.primaryCategoryId, 'knowledge.category.state');
-    expect(catalog.rows.first.tags, ['旬空', '空墓', '状态']);
+    expect(catalog.rows.first.tags, ['旬空', '空库', '状态']);
     expect(renderAuditMarkdown(catalog), contains('Primary Category'));
     expect(renderAuditMarkdown(catalog), contains('knowledge.category.state'));
     expect(renderAuditMarkdown(catalog), contains('状态体系'));
-    expect(renderAuditMarkdown(catalog), contains('旬空, 空墓, 状态'));
+    expect(renderAuditMarkdown(catalog), contains('旬空, 空库, 状态'));
   });
 }

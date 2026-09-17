@@ -35,6 +35,14 @@ class RuleDefinitionCodec {
             'path': sel.path,
           };
         }
+        if (sel is DynamicBindingSelector) {
+          return {
+            'name': b.name,
+            'type': 'dyn',
+            'selectorId': sel.selectorId,
+            'parameters': sel.parameters,
+          };
+        }
         throw ArgumentError('Unknown selector');
       }).toList(),
       'condition': RuleExprCodec.toJson(r.condition),
@@ -61,8 +69,15 @@ class RuleDefinitionCodec {
         BindingSelector sel;
         if (b['type'] == 'dir') {
           sel = DirectSelector(b['target']);
-        } else {
+        } else if (b['type'] == 'rel') {
           sel = RelativeSelector(baseBinding: b['base'], path: b['path']);
+        } else if (b['type'] == 'dyn') {
+          sel = DynamicBindingSelector(
+            selectorId: b['selectorId'],
+            parameters: Map<String, String>.from(b['parameters'] ?? const {}),
+          );
+        } else {
+          throw ArgumentError('Unknown binding selector type: ${b['type']}');
         }
         return RuleBinding(name: b['name'], selector: sel);
       }).toList(),

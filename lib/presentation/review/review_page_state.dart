@@ -7,16 +7,35 @@
 library;
 
 import '../../domain/line_state.dart';
+import '../../domain/casting/fushen.dart';
+import '../../domain/casting/double_fucang.dart';
+import '../../domain/casting/hexagram_palace_profile.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
 import '../../domain/relation_type.dart';
+import '../../domain/relations/relation_record.dart';
 
 /// 神煞标签项（§8「名称：值」结构，如 卦身：申）。
 class ReviewShenShaItem {
-  const ReviewShenShaItem({required this.name, required this.value});
+  const ReviewShenShaItem({
+    required this.name,
+    required this.value,
+    this.id,
+    this.basisType,
+    this.basisValue,
+    this.ruleSetId,
+    this.ruleVersion,
+    this.reasonSnapshot,
+  });
 
   final String name;
   final String value;
+  final String? id;
+  final String? basisType;
+  final String? basisValue;
+  final String? ruleSetId;
+  final int? ruleVersion;
+  final String? reasonSnapshot;
 
   String get label => '$name：$value';
 }
@@ -29,6 +48,7 @@ class ReviewChangedLine {
     this.displayExtra,
     this.movementType,
     this.isVoid = false,
+    this.identity,
   });
 
   final String? sixRelative;
@@ -43,6 +63,9 @@ class ReviewChangedLine {
   /// 变卦侧空亡（旬空，UI 表现专用；由排盘引擎提供 isVoid，Widget 不计算）。
   final bool isVoid;
 
+  /// 变卦纳甲身份的结构化展示事实。
+  final ReviewLineIdentity? identity;
+
   bool get isYang =>
       movementType == MovementType.shaoYang ||
       movementType == MovementType.laoYang;
@@ -50,8 +73,21 @@ class ReviewChangedLine {
   String get primaryLabel {
     final base = sixRelative ?? earthlyBranch;
     if (base == null) return '—';
-    return base;
+    return isVoid ? '$base□□' : base;
   }
+}
+
+/// 六亲与纳甲干支的结构化展示事实；五行由领域层提供。
+class ReviewLineIdentity {
+  const ReviewLineIdentity({
+    required this.relative,
+    required this.ganZhi,
+    required this.element,
+  });
+
+  final String relative;
+  final String ganZhi;
+  final String element;
 }
 
 /// 审卦页单行爻展示模型（§7 每行至少能渲染的字段）。
@@ -63,6 +99,10 @@ class ReviewLineView {
     this.sixSpirit,
     this.hiddenSpirit1,
     this.hiddenSpirit2,
+    this.hiddenSpiritFacts = const [],
+    this.primaryHidden,
+    this.oppositeHidden,
+    this.identity,
     this.sixRelative,
     this.displayExtra,
     this.shiYing,
@@ -87,6 +127,16 @@ class ReviewLineView {
 
   /// 伏神2。
   final String? hiddenSpirit2;
+
+  /// 由本宫伏神引擎生成的结构化伏神事实；兼容字段仍保留给旧档案。
+  final List<FushenResult> hiddenSpiritFacts;
+
+  /// 全宫双伏藏的主伏与旁伏，按当前爻位各占一个固定子列。
+  final HiddenPalaceLine? primaryHidden;
+  final HiddenPalaceLine? oppositeHidden;
+
+  /// 本卦六亲与纳甲的结构化展示事实。
+  final ReviewLineIdentity? identity;
 
   /// 六亲 + 地支（如 父母丁未土）。
   final String? sixRelative;
@@ -118,7 +168,7 @@ class ReviewLineView {
   String get mainPrimary {
     final base = sixRelative ?? branch;
     if (base == null) return '—';
-    return base;
+    return isVoid ? '$base□□' : base;
   }
 }
 
@@ -126,9 +176,11 @@ class ReviewLineView {
 class ReviewPageState {
   const ReviewPageState({
     required this.question,
+    this.category,
     required this.lines,
     required this.focusedRelations,
     required this.allRelations,
+    this.relationRecords = const [],
     this.castingMethod,
     this.solarDateTime,
     this.lunarDateTime,
@@ -146,14 +198,23 @@ class ReviewPageState {
     this.changedHexagramName,
     this.originalPalaceInfo,
     this.changedPalaceInfo,
+    this.originalPalaceProfile,
+    this.changedPalaceProfile,
     this.changedHexagramExtra,
     this.focusedLine,
     this.focusSummary,
     this.rulePackId,
     this.ruleVersion,
+    this.caseId,
   });
 
   final String question;
+
+  /// 主题分类（如事业、财运），不替代具体问事正文。
+  final String? category;
+
+  /// 备注作用域；同一卦例内复用，换卦自动隔离。
+  final String? caseId;
 
   /// 起卦方式（铜钱手动等）；排盘引擎未接入时为空。
   final String? castingMethod;
@@ -184,6 +245,9 @@ class ReviewPageState {
   final String? originalPalaceInfo;
   final String? changedPalaceInfo;
 
+  final HexagramPalaceProfile? originalPalaceProfile;
+  final HexagramPalaceProfile? changedPalaceProfile;
+
   /// 变卦附加说明（如 六合卦）。
   final String? changedHexagramExtra;
 
@@ -198,6 +262,26 @@ class ReviewPageState {
 
   /// 本卦全部关系实例（点爻弹层按爻过滤用，同样来自 Domain 计算）。
   final List<RelationInstance> allRelations;
+
+  /// Ledger/Overlay 共享的统一投影记录。
+  final List<RelationRecord> relationRecords;
+
+  List<RelationRecord> get focusedRelationRecords => [
+    for (final record in relationRecords)
+      if (focusedLine == null ||
+          record.participants.any(
+            (endpoint) =>
+                endpoint is YaoEndpoint && endpoint.position == focusedLine,
+          ))
+        record,
+  ];
+
+  List<RelationRecord> relationRecordsInvolving(int position) => [
+    for (final record in relationRecords)
+      if (record.kind == RelationKind.relation && record.participants.any(
+        (endpoint) => endpoint is YaoEndpoint && endpoint.position == position,
+      )) record,
+  ];
 
   /// 焦点区摘要文案（演示档案可覆盖定稿文案，真实数据由实例生成）。
   final String? focusSummary;
@@ -224,13 +308,17 @@ class ReviewPageState {
 
   String? get originalHexagramLabel {
     if (originalHexagramName == null && originalPalaceInfo == null) return null;
-    final parts = [?originalPalaceInfo, originalHexagramName ?? '—'];
+    final palace = originalPalaceInfo ?? originalPalaceProfile?.palace.label;
+    final stage = originalPalaceProfile?.compactStage;
+    final parts = [?palace, originalHexagramName ?? '—', ?stage];
     return parts.join(' · ');
   }
 
   String? get changedHexagramLabel {
     if (changedHexagramName == null && changedPalaceInfo == null) return null;
-    final parts = [?changedPalaceInfo, changedHexagramName ?? '—'];
+    final palace = changedPalaceInfo ?? changedPalaceProfile?.palace.label;
+    final stage = changedPalaceProfile?.compactStage;
+    final parts = [?palace, changedHexagramName ?? '—', ?stage];
     if (changedHexagramExtra != null) parts.add(changedHexagramExtra!);
     return parts.join(' · ');
   }
@@ -268,7 +356,7 @@ bool _matchesReviewFilter(RelationInstance relation, String filter) =>
         relation.type == RelationType.dongBian ||
             relation.type == RelationType.huiTouSheng ||
             relation.type == RelationType.huiTouKe,
-      '墓库' => false,
+      '库' => false,
       _ => true,
     };
 

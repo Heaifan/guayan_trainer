@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:guayan_trainer/app/app.dart';
 import 'package:guayan_trainer/app/navigation/guayan_main_tab_bar.dart';
@@ -11,6 +12,10 @@ import 'package:guayan_trainer/presentation/casting/casting_tokens.dart';
 /// 覆盖：五主导航（Test E）、排卦艮卦图标（Test F）、
 /// IndexedStack 状态保持、更多菜单入口。
 void main() {
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   Future<void> pumpApp(WidgetTester tester) async {
     await tester.pumpWidget(const GuayanApp());
     await tester.pumpAndSettle();
@@ -38,42 +43,50 @@ void main() {
       await pumpApp(tester);
 
       final labels = tester
-          .widgetList<Text>(find.descendant(
-            of: find.byType(GuayanMainTabBar),
-            matching: find.byType(Text),
-          ))
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(GuayanMainTabBar),
+              matching: find.byType(Text),
+            ),
+          )
           .map((t) => t.data)
           .toList();
       expect(labels, ['排卦', '审卦', '关系', '卦例', '训练']);
       expect(mainTabs.length, 5);
-      expect(mainTabs.map((t) => t.title).toList(),
-          ['排卦', '审卦', '关系', '卦例', '训练']);
+      expect(mainTabs.map((t) => t.title).toList(), [
+        '排卦',
+        '审卦',
+        '关系',
+        '卦例',
+        '训练',
+      ]);
     });
 
     testWidgets('点击训练显示训练页面', (tester) async {
       await pumpApp(tester);
 
-      await tester.tap(find.descendant(
-        of: find.byType(GuayanMainTabBar),
-        matching: find.text('训练'),
-      ));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(GuayanMainTabBar),
+          matching: find.text('训练'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(inAppBar('训练'), findsOneWidget);
-      expect(
-        find.text('旧卦眼的学习与训练能力将在后续阶段统一迁移到这里。'),
-        findsOneWidget,
-      );
+      expect(find.text('旧卦眼的学习与训练能力将在后续阶段统一迁移到这里。'), findsOneWidget);
     });
 
     testWidgets('五个页面可循环切换', (tester) async {
       await pumpApp(tester);
 
       for (final label in ['审卦', '关系', '卦例', '训练', '排卦']) {
-        await tester.tap(find.descendant(
-          of: find.byType(GuayanMainTabBar),
-          matching: find.text(label),
-        ));
+        await tester.tap(
+          find.descendant(
+            of: find.byType(GuayanMainTabBar),
+            matching: find.text(label),
+          ),
+        );
         await tester.pumpAndSettle();
         if (label == '排卦') {
           expect(find.text('起卦时间'), findsOneWidget);
@@ -122,15 +135,19 @@ void main() {
       await tester.pumpAndSettle();
 
       // 切到审卦再切回排卦。
-      await tester.tap(find.descendant(
-        of: find.byType(GuayanMainTabBar),
-        matching: find.text('审卦'),
-      ));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(GuayanMainTabBar),
+          matching: find.text('审卦'),
+        ),
+      );
       await tester.pumpAndSettle();
-      await tester.tap(find.descendant(
-        of: find.byType(GuayanMainTabBar),
-        matching: find.text('排卦'),
-      ));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(GuayanMainTabBar),
+          matching: find.text('排卦'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       final text = tester

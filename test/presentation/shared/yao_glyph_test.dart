@@ -15,7 +15,9 @@ void main() {
   group('YaoGlyph 统一 24×6', () {
     testWidgets('阳爻 = 24×6', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: YaoGlyph(kind: YaoKind.yang))),
+        const MaterialApp(
+          home: Scaffold(body: YaoGlyph(kind: YaoKind.yang)),
+        ),
       );
       final size = tester.getSize(find.byType(YaoGlyph));
       expect(size.width, 24);
@@ -24,7 +26,9 @@ void main() {
 
     testWidgets('阴爻 = 24×6', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: YaoGlyph(kind: YaoKind.yin))),
+        const MaterialApp(
+          home: Scaffold(body: YaoGlyph(kind: YaoKind.yin)),
+        ),
       );
       final size = tester.getSize(find.byType(YaoGlyph));
       expect(size.width, 24);
@@ -67,9 +71,9 @@ void main() {
       expect(size.height, 12);
     });
 
-    test('便捷工厂 of：老阴/老阳推导', () {
-      expect(MovingMarker.of(MovementType.laoYin).isYin, isTrue);
-      expect(MovingMarker.of(MovementType.laoYang).isYin, isFalse);
+    test('便捷工厂 of：老阳○ / 老阴× 推导', () {
+      expect(MovingMarker.of(MovementType.laoYang).isYin, isTrue);
+      expect(MovingMarker.of(MovementType.laoYin).isYin, isFalse);
     });
   });
 }

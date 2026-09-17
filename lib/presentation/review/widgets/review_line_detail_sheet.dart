@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../casting/casting_tokens.dart';
 import '../../rules/rule_library_page.dart';
-import '../review_case_adapter.dart';
 import '../review_page_state.dart';
 
 /// 点爻关系焦点弹层（审卦一屏版交互：点击某爻 → 高亮 → Bottom Sheet）。
@@ -27,7 +26,7 @@ class ReviewLineDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final line = _line;
-    final relations = state.relationsInvolving(position);
+    final relations = state.relationRecordsInvolving(position);
     return SafeArea(
       child: Container(
         key: const Key('line_detail_sheet'),
@@ -67,9 +66,10 @@ class ReviewLineDetailSheet extends StatelessWidget {
                   const Spacer(),
                   if (line.shiYing != null || line.changedShiYing != null)
                     Text(
-                      [line.shiYing, line.changedShiYing]
-                          .whereType<String>()
-                          .join(' · '),
+                      [
+                        line.shiYing,
+                        line.changedShiYing,
+                      ].whereType<String>().join(' · '),
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -130,7 +130,7 @@ class ReviewLineDetailSheet extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            ReviewCaseAdapter.relationLabel(r),
+                            r.title,
                             style: const TextStyle(
                               fontSize: 11,
                               color: CastingTokens.textBody,
@@ -220,9 +220,7 @@ class _ActionButton extends StatelessWidget {
           height: 38,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: filled
-                ? CastingTokens.accentSurface
-                : CastingTokens.surface,
+            color: filled ? CastingTokens.accentSurface : CastingTokens.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: filled ? CastingTokens.accentBorder : CastingTokens.border,

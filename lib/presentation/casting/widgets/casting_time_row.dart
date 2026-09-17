@@ -6,8 +6,8 @@ import 'casting_chip.dart';
 
 /// 起卦时间 · 第一行（UI-CORRECTION-R2 §2 SVG：402×88）。
 ///
-/// 同时显示公历与农历；农历为 presentation mock（[lunarPlaceholder]，GAP
-/// 标注，不做真实换算算法）。未设置时显示占位并标记「待完善」。
+/// 同时显示公历与农历；农历由共享历法适配器确定性计算。
+/// 未设置时显示占位并标记「待完善」。
 class CastingTimeRow extends StatelessWidget {
   const CastingTimeRow({super.key, required this.castingTime, this.onTap});
 
@@ -25,7 +25,7 @@ class CastingTimeRow extends StatelessWidget {
   }
 
   String get _lunar =>
-      castingTime == null ? '农历：—' : lunarPlaceholder(castingTime!);
+      castingTime == null ? '农历：—' : lunarDisplay(castingTime!);
 
   @override
   Widget build(BuildContext context) {

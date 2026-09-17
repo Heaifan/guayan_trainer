@@ -35,13 +35,36 @@ class RuleVersionRef {
   int get hashCode => Object.hash(ruleId, version);
 }
 
+class RulePackVersionRef {
+  const RulePackVersionRef(this.packId, this.version);
+
+  final String packId;
+  final String version;
+
+  Map<String, String> toJson() => {'packId': packId, 'version': version};
+
+  factory RulePackVersionRef.fromJson(Map<String, Object?> json) =>
+      RulePackVersionRef(json['packId'] as String, json['version'] as String);
+
+  @override
+  bool operator ==(Object other) =>
+      other is RulePackVersionRef &&
+      other.packId == packId &&
+      other.version == version;
+
+  @override
+  int get hashCode => Object.hash(packId, version);
+}
+
 /// 卦例级规则版本快照（最小 replay 上下文）。
 class RuleExecutionContext {
   /// 空上下文：无版本记录（旧数据 / 未启用规则上下文）。
-  const RuleExecutionContext.empty() : refs = const [];
+  const RuleExecutionContext.empty()
+      : refs = const [],
+        packRefs = const [];
 
   /// 带版本记录的上下文；重复 ruleId 或非法版本直接拒绝（runtime 校验）。
-  RuleExecutionContext(this.refs) {
+  RuleExecutionContext(this.refs, {this.packRefs = const []}) {
     final seen = <String>{};
     for (final ref in refs) {
       if (!seen.add(ref.ruleId)) {
@@ -54,6 +77,7 @@ class RuleExecutionContext {
   }
 
   final List<RuleVersionRef> refs;
+  final List<RulePackVersionRef> packRefs;
 
   /// 查询某规则在此卦例中使用的版本；无记录返回 null。
   int? versionFor(String ruleId) {
@@ -69,22 +93,28 @@ class RuleExecutionContext {
 
   Map<String, Object?> toJson() => {
     'refs': refs.map((r) => r.toJson()).toList(),
+    'packRefs': packRefs.map((r) => r.toJson()).toList(),
   };
 
   factory RuleExecutionContext.fromJson(Map<String, Object?> json) {
     final refs = (json['refs'] as List<Object?>? ?? const [])
         .map((e) => RuleVersionRef.fromJson(e as Map<String, Object?>))
         .toList();
-    return refs.isEmpty
+    final packRefs = (json['packRefs'] as List<Object?>? ?? const [])
+        .map((e) => RulePackVersionRef.fromJson(e as Map<String, Object?>))
+        .toList();
+    return refs.isEmpty && packRefs.isEmpty
         ? const RuleExecutionContext.empty()
-        : RuleExecutionContext(refs);
+        : RuleExecutionContext(refs, packRefs: packRefs);
   }
 
   @override
   bool operator ==(Object other) =>
       other is RuleExecutionContext &&
       other.refs.length == refs.length &&
-      other.refs.every((r) => refs.contains(r));
+      other.refs.every((r) => refs.contains(r)) &&
+      other.packRefs.length == packRefs.length &&
+      other.packRefs.every((r) => packRefs.contains(r));
 
   @override
   int get hashCode => Object.hashAll(refs);

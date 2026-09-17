@@ -26,9 +26,7 @@ class _State extends State<RuleCenterPage> {
     _refresh();
   }
 
-  void _refresh() => setState(
-    () => _merged = widget.service.getMergedRules(widget.systemRules),
-  );
+  void _refresh() => setState(() => _merged = widget.service.store.getAll());
 
   Future<void> _toggleEnable(RuleDefinition r, bool val) async {
     if (r.origin == RuleOrigin.SYSTEM) {
@@ -79,17 +77,19 @@ class _State extends State<RuleCenterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('规则中心')),
-      body: ListView.builder(
-        itemCount: _merged.length,
-        itemBuilder: (c, i) => RuleListItem(
-          r: _merged[i],
-          onToggle: (v) => _toggleEnable(_merged[i], v),
-          onEdit: () => _edit(_merged[i], false),
-          onCopy: () => _edit(_merged[i], true),
-          onDelete: () => _delete(_merged[i]),
-        ),
-      ),
+      appBar: AppBar(title: const Text('自定义规则')),
+      body: _merged.isEmpty
+          ? const Center(child: Text('还没有自定义规则'))
+          : ListView.builder(
+              itemCount: _merged.length,
+              itemBuilder: (c, i) => RuleListItem(
+                r: _merged[i],
+                onToggle: (v) => _toggleEnable(_merged[i], v),
+                onEdit: () => _edit(_merged[i], false),
+                onCopy: () => _edit(_merged[i], true),
+                onDelete: () => _delete(_merged[i]),
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _edit(null, false),
         child: const Icon(Icons.add),

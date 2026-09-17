@@ -254,7 +254,7 @@ void main() {
     testWidgets('UI-02 · 起卦时间同时显示公历与农历', (tester) async {
       await pumpPage(tester); // demo 草稿：2026-08-30 09:30
       expect(find.text('公历：2026-08-30 09:30'), findsOneWidget);
-      expect(find.text('农历：2026年8月30日 巳时 · 农历换算待接入'), findsOneWidget);
+      expect(find.text('农历：丙午年七月十八 · 巳时'), findsOneWidget);
     });
 
     testWidgets('UI-03 · 普通行高 == 编辑行高 == 52', (tester) async {

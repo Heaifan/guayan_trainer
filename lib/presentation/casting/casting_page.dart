@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../domain/hexagram_case.dart';
 import '../../domain/line_state.dart';
 import '../../domain/rule_execution_context.dart';
+import '../../domain/rules/packages/global_rule_pack_registry.dart';
+import '../../domain/rules/packages/rule_package_store.dart';
 import '../../domain/casting/casting_engine.dart';
 import '../../domain/calendar/day/ganzhi_day.dart';
 import '../../domain/tian_gan.dart';
@@ -43,6 +45,7 @@ class CastingPage extends StatefulWidget {
     this.calendarService,
     this.useDemoDraft = true,
     this.onGenerated,
+    this.globalRegistry,
   });
 
   /// 初始草稿；null 时按 [useDemoDraft] 决定是否使用视觉定稿演示草稿。
@@ -61,6 +64,7 @@ class CastingPage extends StatefulWidget {
 
   /// 生成成功回调：App Shell 借此把最新排盘结果带给审卦页。
   final ValueChanged<HexagramCase>? onGenerated;
+  final GlobalRulePackRegistry? globalRegistry;
 
   @override
   State<CastingPage> createState() => _CastingPageState();
@@ -76,6 +80,7 @@ class _CastingPageState extends State<CastingPage> {
   DateTime? _castingTime;
   final List<LineState?> _lines = List<LineState?>.filled(6, null);
   RuleVersionRef _ruleRef = const RuleVersionRef('sys.default', 1);
+  late final GlobalRulePackRegistry _globalRegistry;
 
   int? _editingPosition;
   bool _generated = false;
@@ -85,6 +90,9 @@ class _CastingPageState extends State<CastingPage> {
   @override
   void initState() {
     super.initState();
+    _globalRegistry = widget.globalRegistry ??
+        GlobalRulePackRegistry(RulePackageStore());
+    _loadGlobalPacks();
     _repository = widget.repository ?? InMemoryDraftRepository();
     final isDemo = widget.initialDraft == null && widget.useDemoDraft;
     _apply(
@@ -93,6 +101,11 @@ class _CastingPageState extends State<CastingPage> {
     );
     // 视觉基准：演示草稿下三爻为当前编辑爻（任务书 §5.5）。
     if (isDemo) _editingPosition = 3;
+  }
+
+  Future<void> _loadGlobalPacks() async {
+    await _globalRegistry.load();
+    if (mounted) setState(() {});
   }
 
   void _apply(CastingDraft draft) {
@@ -191,10 +204,14 @@ class _CastingPageState extends State<CastingPage> {
     ];
     final generated = HexagramCase(
       id: 'draft-${DateTime.now().millisecondsSinceEpoch}',
-      question: _questionTitle.isEmpty ? _questionBody : _questionTitle,
+      question: _questionBody,
+      category: _questionTitle,
       lines: caseLines,
       createdAt: castingAt,
-      ruleContext: RuleExecutionContext([_ruleRef]),
+      ruleContext: RuleExecutionContext(
+        [_ruleRef],
+        packRefs: _globalRegistry.enabledPackRefs,
+      ),
       calendar: calendarForCase,
     );
     _update(() {

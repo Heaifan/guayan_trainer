@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../domain/rules/corpus/common_rule_corpus.dart';
 import '../../domain/rules/core/rule_definition.dart';
 import '../../domain/rules/editor/custom_rule_service.dart';
 import '../../domain/rules/knowledge/knowledge_rule.dart';
@@ -50,7 +49,7 @@ class _SystemRuleListPageState extends State<SystemRuleListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('系统规则')),
+      appBar: AppBar(title: const Text('规则库')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -97,9 +96,7 @@ class _SystemRuleListPageState extends State<SystemRuleListPage> {
       MaterialPageRoute(
         builder: (_) => RuleCenterPage(
           service: widget.service,
-          systemRules: widget.systemRules.isEmpty
-              ? CommonRuleCorpus.v1()
-              : widget.systemRules,
+          systemRules: widget.systemRules,
         ),
       ),
     );

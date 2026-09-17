@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/hexagram_case.dart';
+import '../../domain/relation_endpoint.dart';
+import '../../domain/shensha/shensha_note_store.dart';
 import 'review_case_adapter.dart';
 import 'review_demo_data.dart';
 import 'review_page_state.dart';
@@ -8,13 +10,14 @@ import 'widgets/review_app_bar.dart';
 import 'widgets/review_basic_info_card.dart';
 import 'widgets/review_time_card.dart';
 import 'widgets/review_hexagram_result_table.dart';
-import 'widgets/review_line_detail_sheet.dart';
 import 'widgets/review_shensha_card.dart';
+import 'widgets/review_shensha_detail_dialog.dart';
 import 'widgets/review_relation_toolbar.dart';
+import 'widgets/relation_overlay.dart';
 
 /// 审卦页 —— 审卦一屏版（GUAYAN-2.0 审卦首屏总基准）。
 ///
-/// 一屏先看完整：基本信息（问事/公历/农历/meta）→ 四柱 → 4×4 神煞 →
+/// 一屏先看完整：基本信息（问事/公历/农历/meta）→ 四柱 → 紧凑神煞 →
 /// 完整卦盘（主/变卦标题 + 六行排盘，六亲地支与纳音拆两行、无省略号）。
 /// 「关系焦点」不再常驻大卡：点击某一爻 → 高亮该爻 → Bottom Sheet
 /// （当前爻关系列表 / 规则依据 / 关系备注 / 进入关系页）。
@@ -29,6 +32,8 @@ class ReviewPage extends StatelessWidget {
     this.initialProfile,
     this.onOpenRelations,
     this.useDemoFallback = true,
+    this.shenShaNoteStore,
+    this.onRecompute,
   });
 
   /// App Shell 传入的最近排盘结果；null 时回退演示排盘。
@@ -45,6 +50,8 @@ class ReviewPage extends StatelessWidget {
 
   /// 仅测试/视觉基准允许演示数据；真实 App 路径关闭此回退。
   final bool useDemoFallback;
+  final ShenShaNoteStore? shenShaNoteStore;
+  final VoidCallback? onRecompute;
 
   @override
   Widget build(BuildContext context) {
@@ -62,15 +69,27 @@ class ReviewPage extends StatelessWidget {
             allRelations: const [],
           )
         : ReviewCaseAdapter.adapt(provided, profile: initialProfile);
-    return _ReviewWorkbench(state: state, onOpenRelations: onOpenRelations);
+    return _ReviewWorkbench(
+      state: state,
+      onOpenRelations: onOpenRelations,
+      shenShaNoteStore: shenShaNoteStore ?? ShenShaNoteStore(),
+      onRecompute: onRecompute,
+    );
   }
 }
 
 class _ReviewWorkbench extends StatefulWidget {
-  const _ReviewWorkbench({required this.state, this.onOpenRelations});
+  const _ReviewWorkbench({
+    required this.state,
+    this.onOpenRelations,
+    required this.shenShaNoteStore,
+    this.onRecompute,
+  });
 
   final ReviewPageState state;
   final VoidCallback? onOpenRelations;
+  final ShenShaNoteStore shenShaNoteStore;
+  final VoidCallback? onRecompute;
 
   @override
   State<_ReviewWorkbench> createState() => _ReviewWorkbenchState();
@@ -78,19 +97,44 @@ class _ReviewWorkbench extends StatefulWidget {
 
 class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
   int? _selectedPosition;
+  String _relationFilter = '全部';
+  late final _anchorKeys = <String, GlobalKey>{
+    for (var i = 1; i <= 6; i++) 'yao:original:$i': GlobalKey(),
+    for (var i = 1; i <= 6; i++) 'yao:changed:$i': GlobalKey(),
+    'month': GlobalKey(),
+    'day': GlobalKey(),
+    'hour': GlobalKey(),
+  };
 
   void _onLineTap(int position) {
+    if (_selectedPosition == position) {
+      setState(() => _selectedPosition = null);
+      return;
+    }
     setState(() => _selectedPosition = position);
-    showModalBottomSheet<void>(
+  }
+
+  Future<void> _onShenShaTap(ReviewShenShaItem item) async {
+    final id = item.id;
+    if (id == null) return;
+    final note = await showDialog<String>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => ReviewLineDetailSheet(
-        state: widget.state,
-        position: position,
-        onOpenRelations: widget.onOpenRelations,
+      builder: (_) => ReviewShenShaDetailDialog(
+        item: item,
+        note: widget.shenShaNoteStore.noteFor(
+          caseId: widget.state.caseId ?? widget.state.question,
+          shenShaId: id,
+        ),
       ),
     );
+    if (note == null) return;
+    setState(() {
+      widget.shenShaNoteStore.save(
+        caseId: widget.state.caseId ?? widget.state.question,
+        shenShaId: id,
+        content: note,
+      );
+    });
   }
 
   @override
@@ -102,31 +146,65 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
         bottom: false,
         child: Column(
           children: [
-            const ReviewAppBar(),
+            ReviewAppBar(onRecompute: widget.onRecompute),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.fromLTRB(
                   14,
                   8,
                   14,
-                  MediaQuery.of(context).padding.bottom + 88,
+                  // 页面可滚动，但底部导航不能覆盖关系栏或卦盘尾部。
+                  MediaQuery.of(context).viewPadding.bottom + 112,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ReviewBasicInfoCard(state: widget.state),
                     const SizedBox(height: 6),
-                    ReviewShenShaCard(state: widget.state),
-                    const SizedBox(height: 6),
-                    ReviewTimeCard(state: widget.state),
-                    const SizedBox(height: 6),
-                    ReviewHexagramResultTable(
+                    ReviewShenShaCard(
                       state: widget.state,
-                      selectedPosition: _selectedPosition,
-                      onLineTap: _onLineTap,
+                      onItemTap: _onShenShaTap,
                     ),
                     const SizedBox(height: 6),
-                    ReviewRelationToolbar(state: widget.state),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Column(
+                          children: [
+                            ReviewTimeCard(
+                              state: widget.state,
+                              anchorKeys: _anchorKeys,
+                            ),
+                            const SizedBox(height: 6),
+                            ReviewHexagramResultTable(
+                              state: widget.state,
+                              selectedPosition: _selectedPosition,
+                              onLineTap: _onLineTap,
+                              anchorKeys: _anchorKeys,
+                            ),
+                          ],
+                        ),
+                        RelationOverlay(
+                          records: widget.state.relationRecords,
+                          anchorKeys: _anchorKeys,
+                          category: _relationFilter,
+                          focus: _selectedPosition == null
+                              ? null
+                              : YaoEndpoint(
+                                  LineScope.original,
+                                  _selectedPosition!,
+                                ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    ReviewRelationToolbar(
+                      state: widget.state,
+                      focusedPosition: _selectedPosition,
+                      selectedFilter: _relationFilter,
+                      onFilterChanged: (filter) =>
+                          setState(() => _relationFilter = filter),
+                    ),
                   ],
                 ),
               ),

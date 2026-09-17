@@ -50,6 +50,10 @@ class CustomRuleService {
     await store.addOrUpdate(rule);
   }
 
+  Future<void> setEnabled(RuleDefinition rule, bool enabled) async {
+    await store.addOrUpdate(_cloneWithEnabled(rule, enabled));
+  }
+
   void _validateExpr(RuleExpr expr) {
     if (expr is PredicateExpr) {
       final def = CanonicalConditionRegistry.getDefinition(expr.operatorId);

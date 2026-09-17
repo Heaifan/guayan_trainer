@@ -21,6 +21,15 @@ enum SixRelative {
   /// 中文名，如「父母」。
   final String label;
 
+  /// 移动端伏藏的紧凑六亲简称。
+  String get shortLabel => switch (this) {
+    SixRelative.fuMu => '父',
+    SixRelative.xiongDi => '兄',
+    SixRelative.ziSun => '孙',
+    SixRelative.guanGui => '官',
+    SixRelative.qiCai => '财',
+  };
+
   /// 由「我」与「所判者」的五行关系映射六亲（唯一入口）。
   ///
   /// [self] = 我（宫位五行），[other] = 待判五行（爻支五行）。

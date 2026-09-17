@@ -22,6 +22,7 @@ class GeneratedCaseRecorder {
     final snapshot = CastingSnapshot(
       castingTime: generated.createdAt,
       subject: generated.question,
+      category: generated.category,
       lines: generated.lines,
       originalHexagramName: chart.original.name,
       changedHexagramName: chart.changed?.name,

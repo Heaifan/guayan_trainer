@@ -2,9 +2,7 @@
 ///
 /// 唯一职责：把现有 Domain（[HexagramCase] / [LineState] /
 /// [RelationInstance]）适配成审卦页可渲染的 [ReviewPageState]。
-/// 传统排盘字段（六神/伏神/六亲/神煞/四柱/卦名）来自
-/// [ReviewTraditionalProfile] 演示档案；真实计算属后续排盘引擎（R3），
-/// 无档案时显式置空，绝不伪造计算逻辑。
+/// 传统展示档案仅供视觉/兼容测试；正式卦例优先使用 Domain 排盘结果。
 library;
 
 import '../../domain/hexagram_case.dart';
@@ -13,10 +11,19 @@ import '../../domain/relation_calculator.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
 import '../../domain/relation_type.dart';
+import '../../domain/relations/relation_projection.dart';
+import '../../domain/relations/relation_record.dart';
 import '../../domain/casting/cast_chart.dart';
 import '../../domain/casting/casting_engine.dart';
+import '../../domain/casting/fushen_engine.dart';
+import '../../domain/casting/fushen.dart';
+import '../../domain/casting/double_fucang.dart';
+import '../../domain/casting/double_fucang_engine.dart';
+import '../../domain/casting/hexagram_palace_profile.dart';
 import '../../domain/calendar/day/ganzhi_day.dart';
 import '../../domain/calendar/day/xun_kong.dart';
+import '../../domain/calendar/calendar_pillars.dart';
+import '../../domain/calendar/lunar_calendar.dart';
 import '../../domain/di_zhi.dart';
 import '../../domain/tian_gan.dart';
 import 'review_page_state.dart';
@@ -120,11 +127,22 @@ class ReviewCaseAdapter {
     final chart = CastingEngine.cast([
       for (final line in hexagramCase.lines) line.movementType,
     ], dayGan: dayGan);
+    final fushens = FushenEngine.calculate(chart);
+    final doubleFucang = DoubleFucangEngine.calculate(chart.original.palace);
+    final originalProfile = HexagramPalaceProfile.fromHexagram(chart.original);
+    final changedProfile = chart.changed == null
+        ? null
+        : HexagramPalaceProfile.fromHexagram(chart.changed!);
     final lines = <ReviewLineView>[
       for (final line in hexagramCase.lines)
         _toLineView(
+          hexagramCase,
           line,
           chart.lineAt(line.position),
+          fushens.where((fushen) => fushen.lineIndex == line.position).toList(),
+          doubleFucang.primary[line.position - 1],
+          doubleFucang.opposite[line.position - 1],
+          changedProfile,
           profile?.lineTraditional[line.position],
         ),
     ];
@@ -145,37 +163,80 @@ class ReviewCaseAdapter {
         ? null
         : hexagramCase.ruleContext.refs.first;
 
+    final relationRecords = [
+      ...RelationProjection.projectRelationInstances(relations),
+      for (final line in lines)
+        if (line.isVoid)
+          RelationRecord.state(
+            id: 'fact:state:xun_kong:yao:original:${line.position}',
+            sourceKind: RelationSourceKind.fact,
+            stateType: RelationStateType.xunKong,
+            participants: [YaoEndpoint(LineScope.original, line.position)],
+            title: '${reviewLinePositionName(line.position)}旬空',
+            subtitle: '旬空 · ${reviewLinePositionName(line.position)}',
+            category: '状态',
+          ),
+    ];
+
     return ReviewPageState(
+      caseId: hexagramCase.id,
       question: hexagramCase.question,
-      castingMethod: profile?.castingMethod,
+      category: hexagramCase.category,
+      castingMethod: profile?.castingMethod ?? '铜钱手动',
       solarDateTime: hexagramCase.createdAt,
-      lunarDateTime: profile?.lunarDateTime,
-      shenShaItems: profile?.shenShaItems ?? const [],
-      yearPillar: profile?.yearPillar,
-      yearNaYin: profile?.yearNaYin,
+      lunarDateTime: profile?.lunarDateTime ?? _lunarDateTime(hexagramCase),
+      shenShaItems: profile?.shenShaItems ?? _shenShaItems(hexagramCase),
+      yearPillar: profile?.yearPillar ?? _yearPillar(hexagramCase),
+      yearNaYin: profile?.yearNaYin ?? _yearNaYin(hexagramCase),
       monthPillar: profile?.monthPillar ?? _monthPillar(hexagramCase),
-      monthNaYin: profile?.monthNaYin,
+      monthNaYin: profile?.monthNaYin ?? _monthNaYin(hexagramCase),
       dayPillar: profile?.dayPillar ?? _dayPillar(hexagramCase),
-      dayNaYin: profile?.dayNaYin,
-      hourPillar: profile?.hourPillar,
-      hourNaYin: profile?.hourNaYin,
+      dayNaYin: profile?.dayNaYin ?? _dayNaYin(hexagramCase),
+      hourPillar: profile?.hourPillar ?? _hourPillar(hexagramCase),
+      hourNaYin: profile?.hourNaYin ?? _hourNaYin(hexagramCase),
       xunKong: profile?.xunKong ?? _xunKong(hexagramCase),
       originalHexagramName:
           profile?.originalHexagramName ?? chart.original.name,
-      changedHexagramName: profile?.changedHexagramName ?? chart.changed?.name,
+      changedHexagramName:
+          profile?.changedHexagramName ??
+          chart.changed?.name ??
+          chart.original.name,
       originalPalaceInfo:
           profile?.originalPalaceInfo ?? chart.original.palace.label,
       changedPalaceInfo:
-          profile?.changedPalaceInfo ?? chart.changed?.palace.label,
+          profile?.changedPalaceInfo ??
+          chart.changed?.palace.label ??
+          chart.original.palace.label,
+      originalPalaceProfile: profile == null ? originalProfile : null,
+      changedPalaceProfile: profile == null ? changedProfile : null,
       changedHexagramExtra: profile?.changedHexagramExtra,
       lines: lines,
       focusedLine: focusLine,
       focusedRelations: focused,
       allRelations: relations,
+      relationRecords: relationRecords,
       focusSummary: profile?.focusSummaryOverride ?? buildFocusSummary(focused),
       rulePackId: ref?.ruleId,
       ruleVersion: ref?.version,
     );
+  }
+
+  static List<ReviewShenShaItem> _shenShaItems(HexagramCase hexagramCase) {
+    final results = hexagramCase.calendar?.shenShaResults;
+    if (results == null) return const [];
+    return [
+      for (final result in results)
+        ReviewShenShaItem(
+          name: result.displayName,
+          value: result.value,
+          id: result.id,
+          basisType: result.basisType,
+          basisValue: result.basisValue,
+          ruleSetId: result.ruleSetId,
+          ruleVersion: result.ruleVersion,
+          reasonSnapshot: result.reasonSnapshot,
+        ),
+    ];
   }
 
   /// 单条关系的展示标签（如 动变：三爻 → 变三爻；展示层，非重算）。
@@ -195,8 +256,13 @@ class ReviewCaseAdapter {
   }
 
   static ReviewLineView _toLineView(
+    HexagramCase hexagramCase,
     LineState line,
     CastLine castLine,
+    List<FushenResult> fushens,
+    HiddenPalaceLine primaryHidden,
+    HiddenPalaceLine oppositeHidden,
+    HexagramPalaceProfile? changedProfile,
     ReviewLineTraditional? t,
   ) {
     return ReviewLineView(
@@ -206,24 +272,53 @@ class ReviewCaseAdapter {
       sixSpirit: t == null ? castLine.spirit?.label : t.sixSpirit,
       hiddenSpirit1: t?.hiddenSpirit1,
       hiddenSpirit2: t?.hiddenSpirit2,
-      sixRelative: t == null ? castLine.relative.label : t.sixRelative,
-      displayExtra: t == null ? castLine.branch.wuXing.label : t.displayExtra,
+      hiddenSpiritFacts: t == null ? const [] : fushens,
+      primaryHidden: t == null ? primaryHidden : null,
+      oppositeHidden: t == null ? oppositeHidden : null,
+      identity: t == null
+          ? ReviewLineIdentity(
+              relative: castLine.relative.label,
+              ganZhi: castLine.ganZhi,
+              element: castLine.branch.wuXing.label,
+            )
+          : null,
+      sixRelative: t == null
+          ? '${castLine.relative.label}${castLine.ganZhi}${castLine.branch.wuXing.label}'
+          : t.sixRelative,
+      displayExtra: t?.displayExtra,
       shiYing: t == null
           ? (castLine.shiYingLabel.isEmpty ? null : castLine.shiYingLabel)
           : t.shiYing,
-      changedShiYing: t?.changedShiYing,
+      changedShiYing:
+          t?.changedShiYing ?? _positionMarker(changedProfile, line.position),
       changed: t == null ? _changedLine(castLine) : t.changed,
-      isVoid: t?.isVoid ?? false,
+      isVoid: t?.isVoid ?? _isXunKong(hexagramCase, castLine.branch),
     );
   }
 
+  static String? _positionMarker(HexagramPalaceProfile? profile, int position) {
+    if (profile == null) return null;
+    if (position == profile.shiLine) return '世';
+    if (position == profile.yingLine) return '应';
+    return null;
+  }
+
   static ReviewChangedLine? _changedLine(CastLine line) {
-    if (line.changedIsYang == null || line.changedBranch == null) return null;
+    final branch = line.changedBranch ?? line.branch;
+    final relative = line.changedRelative ?? line.relative;
+    final ganZhi = line.changedGanZhi ?? line.ganZhi;
     return ReviewChangedLine(
-      sixRelative: line.changedRelative?.label,
-      earthlyBranch: line.changedBranch!.label,
-      displayExtra: line.changedBranch!.wuXing.label,
-      movementType: line.isMoving
+      sixRelative: '${relative.label}$ganZhi${branch.wuXing.label}',
+      earthlyBranch: branch.label,
+      displayExtra: null,
+      identity: ReviewLineIdentity(
+        relative: relative.label,
+        ganZhi: ganZhi,
+        element: branch.wuXing.label,
+      ),
+      movementType: line.changedIsYang == null
+          ? (line.isYang ? MovementType.shaoYang : MovementType.shaoYin)
+          : line.isMoving
           ? (line.changedIsYang! ? MovementType.laoYang : MovementType.laoYin)
           : (line.changedIsYang!
                 ? MovementType.shaoYang
@@ -240,15 +335,105 @@ class ReviewCaseAdapter {
     ).label;
   }
 
+  static bool _isXunKong(HexagramCase hexagramCase, DiZhi branch) {
+    final calendar = hexagramCase.calendar;
+    if (calendar == null) return false;
+    return xunKongOf(
+      GanZhiDay.fromCycleIndex(_cycleIndexFor(calendar.dayGanZhi)),
+    ).contains(branch);
+  }
+
   static String? _monthPillar(HexagramCase hexagramCase) =>
       hexagramCase.calendar == null
       ? null
-      : '月建${hexagramCase.calendar!.monthBranch}';
+      : '${CalendarPillars.monthGanZhi(TianGan.fromLabel(_yearLabel(hexagramCase).substring(0, 1)), hexagramCase.calendar!.monthBranch)}月';
+
+  static String? _yearPillar(HexagramCase hexagramCase) {
+    final calendar = hexagramCase.calendar;
+    if (calendar == null) return null;
+    final label =
+        calendar.yearGanZhi ??
+        CalendarPillars.yearGanZhi(
+          LunarCalendar.dateFor(hexagramCase.createdAt),
+        );
+    if (label.isNotEmpty) return '年柱$label';
+    return null;
+  }
+
+  static String? _yearNaYin(HexagramCase hexagramCase) {
+    final calendar = hexagramCase.calendar;
+    if (calendar == null) return null;
+    final label =
+        calendar.yearGanZhi ??
+        CalendarPillars.yearGanZhi(
+          LunarCalendar.dateFor(hexagramCase.createdAt),
+        );
+    return CalendarPillars.naYinFor(label);
+  }
+
+  static String? _hourPillar(HexagramCase hexagramCase) {
+    final calendar = hexagramCase.calendar;
+    if (calendar == null) return null;
+    final label = calendar.hourGanZhi ?? _legacyHourGanZhi(hexagramCase);
+    if (label != null) return '$label时';
+    return null;
+  }
+
+  static String? _hourNaYin(HexagramCase hexagramCase) {
+    final calendar = hexagramCase.calendar;
+    if (calendar == null) return null;
+    final label = calendar.hourGanZhi ?? _legacyHourGanZhi(hexagramCase);
+    return label == null ? null : CalendarPillars.naYinFor(label);
+  }
+
+  static String? _legacyHourGanZhi(HexagramCase hexagramCase) {
+    final shichen = hexagramCase.calendar?.shichen;
+    final branchIndex = shichen == null
+        ? null
+        : '子丑寅卯辰巳午未申酉戌亥'.indexOf(shichen);
+    if (branchIndex == null || branchIndex < 0) return null;
+    return CalendarPillars.hourGanZhiForBranch(
+      TianGan.fromLabel(hexagramCase.calendar!.dayGan),
+      branchIndex,
+    );
+  }
 
   static String? _dayPillar(HexagramCase hexagramCase) =>
       hexagramCase.calendar == null
       ? null
-      : '日辰${hexagramCase.calendar!.dayGanZhi}';
+      : '${hexagramCase.calendar!.dayGanZhi}日';
+
+  static String? _monthNaYin(HexagramCase hexagramCase) {
+    final calendar = hexagramCase.calendar;
+    if (calendar == null) return null;
+    final month = CalendarPillars.monthGanZhi(
+      TianGan.fromLabel(_yearLabel(hexagramCase).substring(0, 1)),
+      calendar.monthBranch,
+    );
+    return CalendarPillars.naYinFor(month);
+  }
+
+  static String? _dayNaYin(HexagramCase hexagramCase) {
+    final label = hexagramCase.calendar?.dayGanZhi;
+    return label == null ? null : CalendarPillars.naYinFor(label);
+  }
+
+  static String _yearLabel(HexagramCase hexagramCase) {
+    final calendar = hexagramCase.calendar!;
+    return calendar.yearGanZhi ??
+        CalendarPillars.yearGanZhi(
+          LunarCalendar.dateFor(hexagramCase.createdAt),
+        );
+  }
+
+  static String? _lunarDateTime(HexagramCase hexagramCase) {
+    final calendar = hexagramCase.calendar;
+    if (calendar == null || calendar.lunarDate == null) return null;
+    final shichen = calendar.shichen;
+    return shichen == null
+        ? calendar.lunarDate
+        : '${calendar.lunarDate} · $shichen时';
+  }
 
   static int _cycleIndexFor(String label) {
     final gan = TianGan.fromLabel(label.substring(0, 1));

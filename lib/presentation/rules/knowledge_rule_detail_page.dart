@@ -77,14 +77,19 @@ class _VariantSection extends StatelessWidget {
         subtitle: Text(
           'v${variant.version} · 执行规则 ${variant.executionRules.length} 条',
         ),
-        children: variant.executionRules
-            .map(
-              (ref) => ListTile(
-                leading: const Icon(Icons.radio_button_unchecked),
-                title: Text(ref.displayName),
-              ),
-            )
-            .toList(),
+        children: [
+          const ListTile(dense: true, title: Text('执行实例（只读）')),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: variant.executionRules
+                  .map((ref) => Text(ref.displayName))
+                  .toList(),
+            ),
+          ),
+        ],
       ),
     );
   }

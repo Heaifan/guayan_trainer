@@ -5,23 +5,23 @@ import '../casting/casting_tokens.dart';
 
 /// 动爻标记统一组件（GUAYAN-2.0-UI-CORRECTION-R2 冻结规格）。
 ///
-/// 老阴 → 空心圆 ○（stroke #A17F45 w1.7）
-/// 老阳 → ×（stroke #567866 w1.7，圆头）
+/// 老阳 → 空心圆 ○（stroke #A17F45 w1.7）
+/// 老阴 → ×（stroke #567866 w1.7，圆头）
 ///
 /// Bounding Box 固定 12 × 12 DIP，两者必须完全一致。
 /// 排卦页与审卦页必须统一复用本组件，禁止各自另画一套。
 class MovingMarker extends StatelessWidget {
-  /// 显式指定类型（老阴 true / 老阳 false）。
+  /// 显式指定符号（老阳 true / 老阴 false）。
   const MovingMarker({super.key, required this.isYin});
 
-  /// 老阴（空心圆）。
+  /// 老阳（空心圆）。
   const MovingMarker.oldYin({super.key}) : isYin = true;
 
-  /// 老阳（×）。
+  /// 老阴（×）。
   const MovingMarker.oldYang({super.key}) : isYin = false;
 
   /// 便捷工厂：由 [MovementType] 推导（仅动爻使用）。
-  static MovingMarker of(MovementType type) => type == MovementType.laoYin
+  static MovingMarker of(MovementType type) => type == MovementType.laoYang
       ? const MovingMarker.oldYin()
       : const MovingMarker.oldYang();
 

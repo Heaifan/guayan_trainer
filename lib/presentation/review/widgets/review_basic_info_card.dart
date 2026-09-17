@@ -4,19 +4,11 @@ import '../review_page_state.dart';
 
 /// 基本信息卡（审卦一屏版总 SVG：问事 / 公历 / 农历 / meta 单行）。
 ///
-/// 紧凑单卡：问事 + 起卦方式 chip + 公历/农历两栏 + meta
-/// （规则包版本 · 手动起卦 · 排盘已生成）。不再拆大卡片。
+/// 紧凑单卡：问事 + 起卦方式 chip + 公历/农历两栏。
 class ReviewBasicInfoCard extends StatelessWidget {
   const ReviewBasicInfoCard({super.key, required this.state});
 
   final ReviewPageState state;
-
-  String get _rulePackLabel {
-    final id = state.rulePackId;
-    if (id == null) return '—';
-    final name = id == 'sys.default' ? '默认规则包' : id;
-    return '$name v${state.ruleVersion ?? 1}';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +19,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
@@ -52,7 +44,7 @@ class ReviewBasicInfoCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  state.question.isEmpty ? '—' : state.question,
+                  state.question.isEmpty ? '未填写' : state.question,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -83,20 +75,16 @@ class ReviewBasicInfoCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
+          if (state.category != null && state.category!.trim().isNotEmpty)
+            Text(
+              '主题：${state.category}',
+              style: const TextStyle(fontSize: 10, color: Color(0xFF71838B)),
+            ),
+          if (state.category != null && state.category!.trim().isNotEmpty)
+            const SizedBox(height: 4),
           Text(
             '公历 $solar　农历 $lunar',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              color: Color(0xFF71838B),
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '$_rulePackLabel　${state.castingMethod == null ? '—' : '手动起卦'}　排盘已生成',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(

@@ -61,7 +61,7 @@ class SystemKnowledgeCategoryCatalog {
       id: 'knowledge.category.state',
       displayName: '状态体系',
       order: 7,
-      description: '旬空、入墓、出墓、填实、冲空及十二长生状态。',
+      description: '旬空、入库、出库、填实、冲空及十二长生状态。',
     ),
     SystemKnowledgeCategory(
       id: 'knowledge.category.relation',

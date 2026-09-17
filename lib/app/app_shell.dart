@@ -39,10 +39,11 @@ class AppShellState extends State<AppShell> {
   /// 最近一次排卦生成结果（排卦 → 审卦 数据桥接）。
   HexagramCase? _latestCase;
   CaseRecord? _activeRecord;
-  ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
+  final ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
   CaseRepository? _caseRepository;
-  RelationAnnotationStore _relationAnnotations = RelationAnnotationStore();
-  ManualRelationStore _manualRelations = ManualRelationStore();
+  final RelationAnnotationStore _relationAnnotations =
+      RelationAnnotationStore();
+  final ManualRelationStore _manualRelations = ManualRelationStore();
 
   @override
   void initState() {
@@ -102,7 +103,11 @@ class AppShellState extends State<AppShell> {
             annotationStore: _relationAnnotations,
             manualStore: _manualRelations,
           ),
-          CasesPage(repository: _caseRepository, onOpenCase: _openCase),
+          CasesPage(
+            repository: _caseRepository,
+            onOpenCase: _openCase,
+            showAppBar: false,
+          ),
           mainTabs[4].builder(context),
         ],
       ),

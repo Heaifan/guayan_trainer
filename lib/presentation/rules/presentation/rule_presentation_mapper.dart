@@ -8,7 +8,7 @@ class RulePresentationMapper {
     'xun_kong': '旬空',
     'yue_po': '月破',
     'ri_po': '日破',
-    'in_tomb': '入墓',
+    'in_tomb': '在库',
     'month_generate': '月生',
     'day_generate': '日生',
     'fu_mu': '父母',
@@ -57,7 +57,7 @@ class RulePresentationMapper {
     if (title == '旬空') return '判断某爻是否处于旬空状态，影响其力量。';
     if (title == '月破') return '判断某爻是否受月破影响，主不利。';
     if (title == '日破') return '判断某爻是否受日破影响，主不利。';
-    if (title == '入墓') return '判断某爻是否入墓，力量受限。';
+    if (title == '在库') return '判断某爻是否在库，力量受限。';
     if (title == '月生') return '判断某爻是否得月令相生。';
     if (title == '日生') return '判断某爻是否得日辰相生。';
     if (title == '父母') return '判断规则对象是否属于父母关系。';

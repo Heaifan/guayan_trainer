@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/mistake_store.dart';
-import '../../presentation/rules/rule_center_page_loader.dart';
-
+import '../../presentation/rules/rule_library_page.dart';
 
 class HomePage extends StatefulWidget {
   final void Function(int index)? onNavigateTab;
@@ -21,7 +20,17 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('卦眼训练器'),
-        centerTitle: true, actions: [IconButton(icon: const Icon(Icons.rule), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RuleCenterPageLoader())))],
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.rule),
+            tooltip: '规则库',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RuleLibraryPage()),
+            ),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -60,7 +69,11 @@ class _HomePageState extends State<HomePage> {
           SizedBox(height: 8),
           Text(
             '先练五行、生克、地支、冲合。\n错了就回炉，慢了也提醒，目标是看一眼就知道关系。',
-            style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF6B4E2E)),
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: Color(0xFF6B4E2E),
+            ),
           ),
         ],
       ),
@@ -77,15 +90,20 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('学习状态', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+          const Text(
+            '学习状态',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 12),
           _statusRow('五行', 0.3),
           _statusRow('地支', 0.3),
           _statusRow('六冲', 0.1),
           _statusRow('六合', 0.1),
           const SizedBox(height: 8),
-          Text('回炉项: $mistakeCount',
-              style: const TextStyle(color: Color(0xFF6B4E2E))),
+          Text(
+            '回炉项: $mistakeCount',
+            style: const TextStyle(color: Color(0xFF6B4E2E)),
+          ),
         ],
       ),
     );
@@ -96,7 +114,13 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          SizedBox(width: 48, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+          SizedBox(
+            width: 48,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
           Expanded(
             child: LinearProgressIndicator(
               value: value,
@@ -105,8 +129,10 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(width: 8),
-          Text(value < 0.2 ? '生疏' : '入门',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF6B4E2E))),
+          Text(
+            value < 0.2 ? '生疏' : '入门',
+            style: const TextStyle(fontSize: 13, color: Color(0xFF6B4E2E)),
+          ),
         ],
       ),
     );
@@ -126,17 +152,28 @@ class _HomePageState extends State<HomePage> {
         children: [
           const Row(
             children: [
-              Icon(Icons.local_fire_department, color: Color(0xFFC0392B), size: 20),
+              Icon(
+                Icons.local_fire_department,
+                color: Color(0xFFC0392B),
+                size: 20,
+              ),
               SizedBox(width: 6),
-              Text('回炉提醒', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+              Text(
+                '回炉提醒',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          ...records.map((r) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Text('• ${r.relationText}  (错${r.wrongCount}次)',
-                style: const TextStyle(fontSize: 14)),
-          )),
+          ...records.map(
+            (r) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Text(
+                '• ${r.relationText}  (错${r.wrongCount}次)',
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -145,11 +182,29 @@ class _HomePageState extends State<HomePage> {
   Widget _quickActions() {
     return Row(
       children: [
-        Expanded(child: _actionBtn('继续练习', Icons.play_arrow, () => widget.onNavigateTab?.call(2))),
+        Expanded(
+          child: _actionBtn(
+            '继续练习',
+            Icons.play_arrow,
+            () => widget.onNavigateTab?.call(2),
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _actionBtn('立即回炉', Icons.local_fire_department_outlined, () => widget.onNavigateTab?.call(3))),
+        Expanded(
+          child: _actionBtn(
+            '立即回炉',
+            Icons.local_fire_department_outlined,
+            () => widget.onNavigateTab?.call(3),
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _actionBtn('进入学习', Icons.menu_book_outlined, () => widget.onNavigateTab?.call(1))),
+        Expanded(
+          child: _actionBtn(
+            '进入学习',
+            Icons.menu_book_outlined,
+            () => widget.onNavigateTab?.call(1),
+          ),
+        ),
       ],
     );
   }

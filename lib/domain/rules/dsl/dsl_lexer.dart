@@ -94,6 +94,9 @@ class DslLexer {
         adv();
       }
       add(TokenType.literalString, s.substring(st, p));
+    } else if (ch == '取' && !end() && s[p] == '象') {
+      adv();
+      add(TokenType.keywordQuXiang, '取象');
     } else if (RegExp(r'[a-zA-Z_]').hasMatch(ch)) {
       lexRgx(r'[a-zA-Z0-9_]', TokenType.ident);
     } else if (RegExp(r'[0-9]').hasMatch(ch)) {

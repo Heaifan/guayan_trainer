@@ -3,6 +3,7 @@ library;
 import '../ast/rule_expr.dart';
 import '../ast/rule_operand.dart';
 import '../facts/rule_value.dart';
+import '../ast/binding_selector.dart';
 
 class RuleExprCodec {
   static Map<String, dynamic> toJson(RuleExpr expr) {
@@ -13,6 +14,18 @@ class RuleExprCodec {
       return {'type': 'any', 'nodes': expr.nodes.map(toJson).toList()};
     }
     if (expr is NotExpr) return {'type': 'not', 'node': toJson(expr.node)};
+    if (expr is QuantifiedExpr) {
+      final selector = expr.selector;
+      return {
+        'type': 'quantified',
+        'bindingName': expr.bindingName,
+        'selectorId': selector.selectorId,
+        'parameters': selector.parameters,
+        'kind': expr.kind.name,
+        'count': expr.count,
+        'node': toJson(expr.node),
+      };
+    }
     if (expr is PredicateExpr) {
       return {
         'type': 'predicate',
@@ -43,6 +56,19 @@ class RuleExprCodec {
         );
       case 'not':
         return NotExpr(fromJson(json['node']));
+      case 'quantified':
+        return QuantifiedExpr(
+          bindingName: json['bindingName'],
+          selector: DynamicBindingSelector(
+            selectorId: json['selectorId'],
+            parameters: Map<String, String>.from(
+              json['parameters'] ?? const {},
+            ),
+          ),
+          kind: QuantifierKind.values.byName(json['kind']),
+          count: json['count'] ?? 1,
+          node: fromJson(json['node']),
+        );
       case 'predicate':
         return PredicateExpr(
           operatorId: json['operatorId'],

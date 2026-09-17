@@ -1,8 +1,151 @@
+# GUAYAN Trainer file tree
+
+## v2.0.6 — 2026-09-18
+
+- Last edited: 2026-09-18 05:03:34
+- `docs/superpowers/specs/2026-09-18-rule-package-import-design.md` — G2-R3 JSON RulePack import and activation design.
+- `docs/superpowers/plans/2026-09-18-g2-r3-rule-package-import.md` — G2-R3 implementation plan.
+
+## G2-R3 JSON RULE PACK IMPORT (2026-09-18)
+
+> 用户规则包支持 JSON 预览、校验、安装、全局启用、开关持久化与导出；本轮完成定向 UI 冒烟与静态检查，暂不执行全量回归。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/packages/ | Portable RulePack 模型、校验、导入、存储与全局启用注册表 |
+| lib/services/rules/rule_package_file_adapter.dart | JSON 文件选择与导出适配 |
+| lib/presentation/rules/rule_package_page.dart | 用户规则包导入预览、安装、启用/禁用与导出 UI |
+| lib/presentation/rules/rule_library_page.dart | 规则库到用户规则包页面的入口 |
+| test/domain/rules/packages/ | 规则包校验、持久化、激活与 JSON round-trip 测试 |
+| test/presentation/rules/rule_package_page_test.dart | 导入预览与安装后的 UI 冒烟测试 |
+| test/fixtures/external_test_pack.json | 外部规则包导入测试 fixture |
+
+## G2-R4 RULE FOLDER TREE (2026-09-18)
+
+> 用户规则库支持稳定文件夹树、递归规则计数、文件夹继承启停、规则移动、JSON 目标文件夹导入与安全删除；不改变 AST、DSL、RuleId、Version 或历史 RuleRun。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/library/rule_folder.dart | 稳定文件夹模型与保留文件夹 ID |
+| lib/domain/rules/library/rule_library_index.dart | 文件夹树、规则归属、递归计数与循环保护 |
+| lib/domain/rules/library/rule_library_store.dart | SharedPreferences 索引持久化 |
+| lib/domain/rules/library/rule_library_service.dart | 迁移、CRUD、删除策略与索引归一化 |
+| lib/domain/rules/library/effective_rule_selector.dart | Rule.enabled 与祖先文件夹开关的 Runtime 有效性计算 |
+| lib/presentation/rules/rule_folder_tree_page.dart | 移动端规则树、导入、开关与文件夹操作入口 |
+| lib/presentation/rules/widgets/rule_folder_tree.dart | 递归文件夹/规则行与操作菜单组件 |
+| test/domain/rules/library/ | 文件夹模型、迁移、持久化、Runtime 规则选择测试 |
+| test/presentation/rules/rule_folder_tree_test.dart | 树状 UI 与递归计数测试 |
+| test/domain/rules/packages/rule_package_folder_target_test.dart | JSON 导入目标文件夹测试 |
+
+- Android build version: `versionName 2.0.6`, `versionCode 47`
+- FIX3 Focus-only review relation overlay package prepared for device installation.
+- FIX4 relation ledger now presents Chinese endpoint semantics, painted relation glyphs,
+  user-facing source/rule labels, and readable position/category filters.
+- R7-FIX2 Ledger glyphs now render action text above a custom-painted arrow; review
+  overlay routing uses focus-scoped topology lanes and semantic cell anchors.
+- R7-FIX3 relation Ledger now shares the high-contrast relation palette and shows
+  Chinese action text above every painted arrow, including bidirectional glyphs.
+- ROUTER2-FIX2 aligns the review table and time-card in one overlay stack, keeps
+  relation/state filtering shared, and routes main/main, main/changed, changed/changed,
+  and calendar/yao relations through separate geometry regions.
+- `lib/presentation/relations/relation_endpoint_presenter.dart` — Domain endpoint to
+  Chinese display adapter.
+- `lib/presentation/relations/widgets/relation_glyph.dart` — Canvas relation glyph;
+  no Unicode arrow characters in the ledger UI.
+- `docs/superpowers/specs/2026-09-18-case-library-design.md` — G0 卦例档案库设计与真实调用链审计。
+- `lib/domain/cases/` — 不可变 CastingSnapshot、CaseRecord 与自包含 RuleRun 模型。
+- `lib/services/cases/` — 卦例 JSON repository、查询、生成记录、元数据防抖与重算服务。
+- `lib/presentation/cases/cases_page.dart` — 极简卦例库、筛选、分页、回收站与批量删除。
+- `lib/services/cases/json_*_store.dart` — 神煞、关系与手工关系备注的 JSON 持久化适配。
+- `test/services/cases/` — G1-G6 卦例持久化、查询、恢复、备注与重算回归测试。
+
+## G2-R2 INTERNAL CONTINUATION (2026-09-18)
+
+> Quantifier 后继续补齐结构事实与派生事实链；当前仍未进入 APK/手机验收。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/facts/derived_fact.dart | 稳定派生事实模型与证据来源 |
+| lib/domain/rules/engine/derived_fact_producer.dart | StructureFact 到 DerivedFact 的确定性投影 |
+| lib/domain/rules/facts/fact_snapshot.dart | 不可变快照承载结构事实与派生事实 |
+| lib/domain/rules/engine/operators/structure_operators.dart | 结构成立事实的 Runtime 消费 |
+| lib/domain/rules/editor/rule_mapping_table.dart | 稳定规则值到用户取象文本的只读映射 |
+| lib/domain/rules/editor/custom_shen_sha_definition.dart | USER 神煞定义模型 |
+| lib/domain/rules/editor/custom_shen_sha_store.dart | USER 神煞 JSON 持久化与引用删除保护 |
+| test/domain/rules/derived_fact_test.dart | 派生事实 ID、类型、值与证据回归 |
+| test/domain/rules/structure_operator_test.dart | StructureFact 到 Runtime 条件闭环 |
+| test/domain/rules/editor/rule_mapping_table_test.dart | 映射表稳定值与展示文本测试 |
+| test/domain/rules/editor/custom_shen_sha_store_test.dart | 自定义神煞存储与删除保护测试 |
+
+## G2-R2 EDITOR CLOSURE (2026-09-18)
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/presentation/rules/rule_editor_page.dart | 范围/量词、结构条件、自定义神煞入口接线 |
+| lib/domain/rules/editor/rule_visual_renderer.dart | QuantifiedExpr 与结构条件可视化投影 |
+| test/domain/rules/editor/r2_round_trip_gate_test.dart | 新 AST 能力 Codec round-trip 门禁 |
+| test/domain/rules/r2_golden_corpus_test.dart | 60 条 SYSTEM 规则 Portable JSON golden corpus |
+
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
+
+## P0 真机排卦修复 HOTFIX-R1 神煞引擎 (2026-09-17)
+
+> 冻结 `shensha.standard.v1` 规则集：排卦生成时计算并写入 CalendarSnapshot，审卦页只读；含 19 项结果、Golden A/B 与审卦紧凑展示。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/shensha/shensha_models.dart | 神煞计算上下文与可序列化结果模型 |
+| lib/domain/shensha/shensha_tables.dart | 已确认的天干、三合局、月支规则表 |
+| lib/domain/shensha/shensha_engine.dart | 纯 Dart 神煞确定性计算引擎 |
+| lib/domain/calendar_snapshot.dart | 保存神煞结果快照并支持序列化 |
+| lib/services/calendar/casting_calendar_service.dart | 生成排盘时计算并回写神煞快照 |
+| lib/presentation/review/review_case_adapter.dart | 将快照结果投影为审卦展示模型 |
+| lib/presentation/review/widgets/review_shensha_card.dart | 固定 150dp、4×5 同屏神煞网格与点击入口 |
+| lib/presentation/review/widgets/review_basic_info_card.dart | 紧凑问事、公历与农历展示，不显示规则包元信息 |
+| lib/presentation/review/widgets/review_time_card.dart | 四柱与“(地支空)”旬空展示 |
+| lib/domain/shensha/shensha_note_store.dart | 以 caseId + 神煞 ID 隔离的卦例备注存储 |
+| lib/presentation/review/widgets/review_shensha_detail_dialog.dart | 神煞全文查看与备注编辑弹窗 |
+| lib/domain/casting/fushen.dart | 伏神结构化事实模型与规则证据字段 |
+| lib/domain/casting/fushen_engine.dart | 按本宫首卦计算一个或多个伏神 |
+| lib/domain/casting/double_fucang.dart | 全宫双伏藏结果与逐爻隐藏宫线模型 |
+| lib/domain/casting/double_fucang_engine.dart | 本宫纯卦与对宫纯卦 6+6 双伏藏引擎 |
+| lib/domain/casting/hexagram_palace_profile.dart | 八宫阶段、世爻与应爻结构化分类模型 |
+| lib/presentation/review/widgets/line_identity_text.dart | 主卦、变卦、伏神统一纳甲五行着色 |
+| lib/presentation/review/widgets/board_column_layout.dart | 卦盘表头与六爻行共用的固定列坐标 |
+| lib/presentation/review/widgets/hexagram_line_cell.dart | 主卦与变卦共用的镜像固定文本、世应与爻象槽 |
+| test/domain/shensha/shensha_golden_fixture.dart | Golden A/B 输入与期望值 |
+| test/domain/shensha/shensha_engine_test.dart | 引擎规则、顺序、序列化回归测试 |
+| test/presentation/review/review_shensha_adapter_test.dart | 生成快照到审卦展示接线测试 |
+| test/presentation/review/review_shensha_card_test.dart | 神煞固定高度与 4×5 同屏 UI 测试 |
+| docs/r5/shensha-catalog-audit.md | 神煞 Catalog 确认状态与验证记录 |
+
+> **当前应用版本：** 2.0.5+46（pubspec.yaml）
+> **最后编辑时间：** 2026-09-18 03:35:27
+
+---
+
+## P0 真机排卦修复 HOTFIX-R2 / R3 (2026-09-17)
+
+> 统一农历真实结果与排卦/审卦快照链；静卦不生成变卦；审卦补齐 Engine 已有纳甲干支投影。不扩展神煞、规则中心或训练模块。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/calendar/lunar_calendar.dart | 离线公历→农历确定性转换 |
+| lib/domain/calendar/lunar_year_data.dart | 2019–2029 农历年度编码与春节日期 |
+| lib/domain/calendar/calendar_pillars.dart | 快照年柱、时柱及纳音推导 |
+| lib/domain/calendar_snapshot.dart | 保存农历日期、时辰、月建与日辰快照 |
+| lib/services/calendar/casting_calendar_service.dart | 生成一次排卦共用的历法快照 |
+| lib/presentation/casting/casting_page_state.dart | 排卦页农历展示适配 |
+| lib/presentation/review/review_case_adapter.dart | 快照、纳甲干支与旬空事实投影 |
+| lib/presentation/review/review_page_state.dart | 旬空标记展示派生 |
+| lib/presentation/review/widgets/review_hexagram_line_row.dart | 六爻行、动爻符号与无箭头布局 |
+| lib/presentation/shared/moving_marker.dart | 老阳○ / 老阴× 动爻符号 |
+| docs/r5/shensha-catalog-audit.md | 神煞算法与来源审计、待确认 Catalog |
+| test/domain/calendar/lunar_calendar_test.dart | 农历转换与时区独立性回归 |
 
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
 > **R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
-> **最后编辑时间：** 2026-09-17 20:58:49
+> **最后编辑时间：** 2026-09-18 00:09:14
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
@@ -36,6 +179,117 @@
 | lib/presentation/rules/system_rule_list_page.dart | 10 个 KnowledgeRule 首页、动态 Variant 分组与入口 |
 | lib/presentation/rules/knowledge_rule_detail_page.dart | KnowledgeRule、Variant、ExecutionRule 分层详情 |
 | test/presentation/rules/knowledge_rule_*_test.dart | 展示适配、动态分组、搜索与详情 Widget 测试 |
+
+## R5-G2-D0.2 RULE LIBRARY ROUTE CLOSURE HOTFIX (2026-09-17)
+
+> 收口规则库用户入口：SYSTEM 只进入 10 条 KnowledgeRule；旧 ExecutionRule 列表仅保留自定义规则 CRUD 能力；详情执行实例改为只读展示并移除选择控件视觉。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/pages/home/home_page.dart | 首页规则入口统一跳转规则库 |
+| lib/presentation/rules/rule_library_page.dart | 规则库唯一用户入口与 SYSTEM/自定义分流 |
+| lib/presentation/rules/system_rule_list_page.dart | KnowledgeRule 系统规则目录与自定义规则入口 |
+| lib/presentation/rules/rule_center_page.dart | 仅承载自定义规则 CRUD，不再展示 SYSTEM ExecutionRule 列表 |
+| lib/presentation/rules/knowledge_rule_detail_page.dart | 只读执行实例展示，移除 Radio 视觉语义 |
+| test/presentation/rules/rule_library_page_test.dart | SYSTEM 唯一入口与自定义入口隔离回归测试 |
+| test/presentation/rules/knowledge_rule_detail_page_test.dart | 执行实例无 Radio/Checkbox/Switch 回归测试 |
+
+## R5-R6 VISUAL TOKEN RULE IDE V1 (2026-09-18)
+
+> 以现有 AST 与 Runtime 为唯一事实源，把自定义规则编辑器收口为 AST 驱动的 Token 可视化编辑器；普通模式不再以多行代码输入作为状态，Token 选择通过依赖约束的 Bottom Sheet 修改 AST 并自动渲染缩进。未伪造未被 Runtime 支持的条件能力。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/editor/condition_catalog.dart | 13 个真实 Runtime operator 的唯一条件能力目录与搜索 |
+| lib/domain/rules/editor/portable_rule_codec.dart | RuleDefinition Portable JSON V1 编解码 |
+| lib/domain/rules/editor/rule_visual_renderer.dart | RuleDefinition AST 到只读 Token 行的纯渲染投影 |
+| lib/presentation/rules/rule_editor_page.dart | 浅色 Token 编辑器、对象/属性/值选择、AST 撤销重做与 JSON 导入导出 |
+| lib/domain/rules/dsl/dsl_lexer.dart | 修正“取象”多字中文 DSL 关键字识别 |
+| test/domain/rules/editor/condition_catalog_test.dart | 条件目录唯一性、Runtime 能力与搜索测试 |
+| test/domain/rules/editor/portable_rule_codec_test.dart | Portable JSON schema 与 round-trip 测试 |
+| test/domain/rules/editor/rule_visual_renderer_test.dart | AST 逻辑节点、缩进、用户文案与技术 ID 隔离测试 |
+| test/presentation/rules/rule_editor_page_test.dart | Token 编辑器主界面回归测试 |
+
+## G2-C CONDITION RUNTIME COMPLETION (2026-09-18)
+
+> 收敛技术 Operator 与用户条件语义：隐藏 `empty` 兼容别名、统一 `in_tomb` 为“在库”，条件添加入口从硬编码改为 Runtime-backed Catalog；补齐关系/标签条件入口、搜索，以及六亲/六神/30 项纳音值目录的中文显示。
+
+| 文件/目录 | 模块职责 |
+| --- | --- |
+| lib/domain/rules/editor/condition_catalog.dart | 当前 21 个用户条件的 Runtime-backed 条件目录；不暴露 `empty` 兼容别名 |
+| lib/domain/rules/editor/rule_value_catalog.dart | 六亲、六神、30 项纳音的稳定 ID 与中文显示映射 |
+| lib/presentation/rules/rule_editor_page.dart | 从条件目录生成选择器，支持关系/标签条件、搜索与结构化绑定 |
+| test/domain/rules/editor/rule_value_catalog_test.dart | 值目录完整性与技术 ID 隔离回归 |
+| docs/superpowers/plans/2026-09-18-condition-runtime-completion.md | G2-C 分阶段实施计划 |
+
+## G2-D FOUNDATIONAL CONDITION RUNTIME (2026-09-18)
+
+> 保留既有 `tomb` 技术 ID，仅将用户文案与 DSL 显示统一为“库”；新增并注册天干为、地支为、五行为，以及五行克、地支冲合刑害破 Evaluator，并由 ConditionCatalog 自动暴露。
+
+| 文件/目录 | 模块职责 |
+| --- | --- |
+| lib/domain/rules/engine/operators/foundational_operators.dart | 基础属性事实比较、五行克与地支冲合刑害破 Evaluator |
+| lib/domain/rules/vocabulary/condition_id.dart | 新增基础属性与地支关系 canonical operator ID |
+| lib/domain/rules/vocabulary/condition_registry.dart | 新增条件参数形状与值策略定义 |
+| lib/domain/rules/editor/condition_catalog.dart | 将 9 个真实 Runtime 条件自动加入用户目录 |
+| lib/domain/rules/dsl/dsl_vocabulary.dart | 新增属性/关系及“库”用户文案映射 |
+| lib/domain/dsl/parser/dsl_pattern_matcher.dart | 新旧墓库 DSL 文案兼容解析 |
+| test/domain/rules/engine/foundational_operator_test.dart | 属性与生克冲合刑害破 Evaluator 测试 |
+
+## R5-G2-E1 TEMPLATE FOUNDATION (2026-09-18)
+
+> 建立编辑期强类型模板、Slot、Invocation、Validation 与 Compiler Registry；现有 Rule AST、Runtime、UI、DSL 与持久化保持不变。
+
+| 文件/目录 | 模块职责 |
+| --- | --- |
+| lib/domain/rules/templates/rule_slot_definition.dart | Object、Property、Value、State、Relation 强类型 Slot 定义与值对象 |
+| lib/domain/rules/templates/template_definition.dart | 模板分类、句式、Slot 与投影定义 |
+| lib/domain/rules/templates/template_invocation.dart | 已填充模板的编辑期调用模型 |
+| lib/domain/rules/templates/template_validation.dart | Slot 完整性、类型与值目录匹配校验 |
+| lib/domain/rules/templates/template_compiler.dart | Template 到现有 RuleExpr 的编译契约 |
+| lib/domain/rules/templates/template_compiler_registry.dart | 四个基础模板的独立编译器注册表 |
+| lib/domain/rules/templates/template_catalog.dart | property/state/wuxing relation/branch relation 四个基础模板 |
+| test/domain/rules/templates/template_foundation_test.dart | 模板 Slot、非法组合、projection 与 AST 编译门禁 |
+
+## R5-G2-E2 PICKER ROUTER (2026-09-18)
+
+> 以 PickerRequest → PickerRouter → PickerResult 统一编辑期选择路由；值目录、状态、关系与当前固定对象均由 domain 层决定，BottomSheet 仍由现有页面负责显示。
+
+| 文件/目录 | 模块职责 |
+| --- | --- |
+| lib/domain/rules/editor/pickers/picker_request.dart | Slot 类型、catalogId、当前值与允许值的选择请求 |
+| lib/domain/rules/editor/pickers/picker_result.dart | 统一选择结果与显示文本 |
+| lib/domain/rules/editor/pickers/picker_catalog.dart | 天干、地支、五行、六神、六亲、纳音、状态、关系、固定对象目录 |
+| lib/domain/rules/editor/pickers/picker_router.dart | 按 SlotType/catalogId 路由选择目录，未知目录失败关闭 |
+| lib/presentation/rules/rule_editor_page.dart | 渐进迁移对象、属性和值选择到 PickerRouter，保留现有 BottomSheet |
+| test/domain/rules/editor/picker_router_test.dart | 值目录、属性联动、状态/关系目录与未知目录门禁 |
+
+## R5-G2-E2.5 BASE RULE END-TO-END GATE (2026-09-18)
+
+> 验证模板、Picker、编译器、现有 AST、持久化、DSL 与 Runtime 的闭环；仅做最小接通，不引入 E3 动态对象、范围或量词能力。
+
+| 文件/目录 | 模块职责 |
+| --- | --- |
+| lib/presentation/rules/rule_editor_page.dart | 四个已模板化条件族通过 TemplateInvocation/CompilerRegistry 创建 AST；legacy 条件保留旧路径 |
+| lib/domain/dsl/formatter/dsl_expr_formatter.dart | 基础属性 DSL 输出补充分隔，保证属性 AST round-trip |
+| test/domain/rules/e2_5_base_rule_gate_test.dart | 属性、状态、五行/地支关系的编译、持久化、DSL 与 Runtime 闭环测试 |
+
+## R5-G2-E3 DYNAMIC OBJECT FOUNDATION (2026-09-18)
+
+> 在 Binding 层增加稳定的动态对象选择器与解析器；支持六神所临之爻、世爻、应爻、发动候选集及地支关系候选集，many 结果不隐式转为单对象。
+
+| 文件/目录 | 模块职责 |
+| --- | --- |
+| lib/domain/rules/ast/binding_selector.dart | 保持 Direct/Relative 兼容并新增 DynamicBindingSelector |
+| lib/domain/rules/objects/dynamic_object_definition.dart | 动态对象定义与 exactlyOne/zeroOrOne/many cardinality |
+| lib/domain/rules/objects/dynamic_object_catalog.dart | 第一批动态对象稳定 ID、名称与参数定义 |
+| lib/domain/rules/objects/dynamic_object_resolver.dart | 从 FactSnapshot 解析动态对象与候选集合，拒绝隐式选第一项 |
+| lib/domain/rules/engine/binding_resolver.dart | 将 DynamicBindingSelector 接入既有 BindingContext |
+| lib/domain/rules/editor/rule_definition_codec.dart | Dynamic Binding JSON 编解码，保留旧 Direct/Relative 格式 |
+| lib/domain/rules/editor/pickers/picker_catalog.dart | 动态对象与动态参数目录 |
+| lib/domain/rules/editor/pickers/picker_router.dart | 动态对象 Picker 路由 |
+| lib/presentation/rules/rule_editor_page.dart | 固定/动态对象选择与 many 结果阻止提示 |
+| test/domain/rules/dynamic_object_test.dart | 动态解析、候选集合、关系查询、持久化与旧格式兼容测试 |
 
 ## R5-G2-C1 SYSTEM KNOWLEDGE CATALOG AUDIT (2026-09-17)
 
@@ -1556,3 +1810,20 @@ theme/  data/  閳? models/  閳? services/  閳? pages/  +  widgets/
 | rule_resolver.dart | 鏍稿績瑙ｆ瀽鍣紝璐熻矗鐗堟湰閫夋嫨銆丼YSTEM/CUSTOM 瑕嗗啓銆佸拰纭畾鎬ф帓搴?|
 | resolved_rule_set.dart | 瑙ｆ瀽鍚庤緭鍑虹殑鏁版嵁缁撴瀯 (鍖呭惈 active, suppressed, diagnostics) |
 | rule_resolution_diagnostic.dart | 瑙ｆ瀽杩囩▼涓殑璇婃柇淇℃伅妯″瀷 |
+## R7 Relation Graph & Ledger update — 2026-09-18
+
+新增关系系统文件：
+
+- `lib/domain/relations/relation_record.dart`：统一展示/治理记录模型，区分 RELATION 与 STATE。
+- `lib/domain/relations/relation_projection.dart`：从现有 `RelationInstance` 投影稳定 FACT 记录，不重新计算关系。
+- `lib/domain/relations/relation_capability.dart`：统计真实 Runtime 关系/状态能力。
+- `lib/services/relation_annotation_store.dart`：按 caseId + stable recordId 保存用户备注/标签。
+- `lib/services/relation_ledger_query.dart`：关系搜索与 AND 筛选纯逻辑。
+- `lib/services/manual_relation_store.dart`：结构化 USER 关系存储。
+- `lib/presentation/relations/relations_page.dart`：关系与状态 Ledger、搜索、筛选、详情与备注。
+- `lib/presentation/review/relation_visual_tokens.dart`：Guayan Relation Visual Protocol V1.1 视觉 Token。
+- `lib/presentation/review/widgets/relation_overlay.dart`：审卦关系 Overlay、Focus 过滤与基础路径绘制。
+- `docs/superpowers/specs/2026-09-18-relation-graph-ledger-design.md`：R7 设计文档。
+- `docs/superpowers/plans/2026-09-18-relation-graph-ledger.md`：R7 实现计划。
+
+最后编辑时间：2026-09-18
