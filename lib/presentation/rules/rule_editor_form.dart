@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import '../../domain/rules/editor/rule_editor_draft.dart';
 import '../../domain/rules/dsl/guayan_dsl_formatter.dart';
 import '../../domain/rules/dsl/guayan_rule_body.dart';
-import '../../domain/rules/core/rule_id.dart';
 import 'widgets/condition_editor.dart';
 import 'widgets/binding_editor.dart';
 import 'widgets/action_editor.dart';
+import 'widgets/rule_editor_action_card.dart';
+import 'widgets/rule_dsl_preview.dart';
 
 class RuleEditorForm extends StatelessWidget {
   final RuleEditorDraft draft;
@@ -17,17 +18,25 @@ class RuleEditorForm extends StatelessWidget {
     required this.onChange,
   });
 
-  Widget _btn(BuildContext context, String t, Widget p) => ElevatedButton(
-    onPressed: () => Navigator.push(
+  Widget _btn(
+    BuildContext context,
+    String t,
+    String description,
+    IconData icon,
+    Widget p,
+  ) => RuleEditorActionCard(
+    icon: icon,
+    title: t,
+    description: description,
+    onTap: () => Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => p),
     ).then((_) => onChange()),
-    child: Text(t),
   );
 
   @override
   Widget build(BuildContext context) {
-    String preview = '未完成';
+    String preview = '';
     try {
       preview = const GuayanDslFormatter().format(
         GuayanRuleBody(
@@ -40,43 +49,71 @@ class RuleEditorForm extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        TextField(
+        TextFormField(
           decoration: const InputDecoration(labelText: '名称'),
           onChanged: (v) => draft.title = v,
-          controller: TextEditingController(text: draft.title),
+          initialValue: draft.title,
         ),
-        DropdownButton<String>(
-          value: draft.namespace.startsWith('topic.')
-              ? draft.namespace.substring(6)
-              : 'common',
+        const SizedBox(height: 12),
+        const ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text('归属'),
+          trailing: Text('CUSTOM'),
+        ),
+        DropdownButtonFormField<String>(
+          initialValue: draft.categoryId == 'common'
+              ? 'status'
+              : draft.categoryId,
+          decoration: const InputDecoration(labelText: '分类'),
           items: const [
-            DropdownMenuItem(value: 'common', child: Text('COMMON')),
-            DropdownMenuItem(value: 'exam', child: Text('考试·学业')),
+            DropdownMenuItem(value: 'status', child: Text('状态')),
+            DropdownMenuItem(value: 'relation', child: Text('关系')),
+            DropdownMenuItem(value: 'image', child: Text('取象')),
           ],
           onChanged: (v) {
-            draft.namespace = v == 'common' ? 'common' : 'topic.$v';
-            draft.categoryId = v!;
+            // COMMON 的领域边界仍要求 categoryId=common；展示分类属于
+            // presentation 层，不能把 UI 文案写进保存契约。
+            draft.categoryId = 'common';
             onChange();
           },
         ),
-        SwitchListTile(
-          title: const Text('覆盖系统规则'),
-          value: draft.overrideTarget != null,
-          onChanged: (v) {
-            draft.overrideTarget = v ? RuleId('') : null;
-            onChange();
-          },
+        const SizedBox(height: 12),
+        Text('优先级', style: Theme.of(context).textTheme.labelLarge),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(onPressed: () {}, icon: const Icon(Icons.remove)),
+            const Text('1'),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+          ],
         ),
-        if (draft.overrideTarget != null)
-          TextField(
-            decoration: const InputDecoration(labelText: '覆盖的 System Rule ID'),
-            onChanged: (v) => draft.overrideTarget = RuleId(v),
-            controller: TextEditingController(text: draft.overrideTarget!.id),
-          ),
-        Text('预览:\n$preview', style: const TextStyle(color: Colors.blue)),
-        _btn(context, '编辑绑定(A)', BindingEditor(draft: draft)),
-        _btn(context, '编辑条件', ConditionEditor(draft: draft)),
-        _btn(context, '编辑动作', ActionEditor(draft: draft)),
+        const SizedBox(height: 12),
+        Text('规则预览（中文 DSL）', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        RuleDslPreview(dsl: preview),
+        const SizedBox(height: 12),
+        _btn(
+          context,
+          '编辑绑定',
+          '设置规则的作用范围与绑定对象',
+          Icons.link,
+          BindingEditor(draft: draft),
+        ),
+        _btn(
+          context,
+          '编辑条件',
+          '设置触发规则的条件逻辑',
+          Icons.filter_alt_outlined,
+          ConditionEditor(draft: draft),
+        ),
+        _btn(
+          context,
+          '编辑动作',
+          '设置触发后执行的动作与结果',
+          Icons.bolt,
+          ActionEditor(draft: draft),
+        ),
       ],
     );
   }

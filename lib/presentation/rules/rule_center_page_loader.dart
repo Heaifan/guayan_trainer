@@ -5,9 +5,12 @@ import '../../domain/rules/editor/custom_rule_service.dart';
 import '../../domain/rules/editor/custom_rule_store.dart';
 import '../../domain/rules/editor/user_governance_state.dart';
 import 'rule_center_page.dart';
+import 'system_rule_list_page.dart';
 
 class RuleCenterPageLoader extends StatefulWidget {
-  const RuleCenterPageLoader({super.key});
+  const RuleCenterPageLoader({super.key, this.openCustomRules = false});
+
+  final bool openCustomRules;
   @override
   State<RuleCenterPageLoader> createState() => _State();
 }
@@ -30,8 +33,13 @@ class _State extends State<RuleCenterPageLoader> {
 
   @override
   Widget build(BuildContext context) {
-    if (loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final systemRules = [...CommonRuleCorpus.v1(), ...ExamRuleCorpus.v1()];
-    return RuleCenterPage(service: service, systemRules: systemRules);
+    if (widget.openCustomRules) {
+      return RuleCenterPage(service: service, systemRules: systemRules);
+    }
+    return SystemRuleListPage(service: service, systemRules: systemRules);
   }
 }

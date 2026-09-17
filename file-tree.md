@@ -1,13 +1,25 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
-> **R5 开发基线：** R5-G BASELINE RECOVERY
+> **R5 开发基线：** R5-G1 RULE CENTER UI / SCHEME A
 > **最后编辑时间：** 2026-09-17
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
+
+## R5-G1 RULE CENTER UI / SCHEME A (2026-09-17)
+
+> 规则中心中文化、分类化、系统规则只读详情与自定义规则编辑入口重构；不修改 Engine、DSL、AST 与 COMMON 保存边界。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/presentation/rules/presentation/ | 规则展示模型、中文名称/分类/说明映射 |
+| lib/presentation/rules/system_rule_list_page.dart | 系统规则搜索、分类和启用列表 |
+| lib/presentation/rules/rule_detail_page.dart | 系统规则只读详情与中文 DSL 展示 |
+| lib/presentation/rules/widgets/ | 搜索栏、入口卡片、分类筛选、规则卡片、DSL 预览与编辑入口卡片 |
+| test/presentation/rules/ | 规则中心首页、列表、详情、编辑器与展示映射测试 |
 
 ## R5-G BASELINE RECOVERY (2026-09-17)
 

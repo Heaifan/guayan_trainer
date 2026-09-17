@@ -96,11 +96,42 @@ class _State extends State<RuleEditorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('编辑规则'),
-        actions: [IconButton(icon: const Icon(Icons.save), onPressed: _save)],
+      appBar: AppBar(title: const Text('编辑规则')),
+      body: Column(
+        children: [
+          Expanded(
+            child: RuleEditorForm(
+              draft: _draft,
+              onChange: () => setState(() {}),
+            ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.play_arrow),
+                      label: const Text('预览规则'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _save,
+                      icon: const Icon(Icons.save),
+                      label: const Text('保存'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
-      body: RuleEditorForm(draft: _draft, onChange: () => setState(() {})),
     );
   }
 }

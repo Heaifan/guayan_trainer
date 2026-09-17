@@ -4,9 +4,31 @@
 > **归档分支：** `feat/guayan-2.0`
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
-> **当前 R5 开发基线：** R5-G BASELINE RECOVERY
+> **当前 R5 开发基线：** R5-G1 RULE CENTER UI / SCHEME A
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
+
+---
+
+## 2026-09-17 · R5-G1 规则中心 UI / 方案 A
+
+> 规则中心完成中文化、分类浏览、系统规则只读详情、中文 DSL 展示和自定义规则编辑入口重构；Engine、DSL、AST 与 COMMON 保存边界保持不变。
+
+### 新增/修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/presentation/rules/presentation/` | 规则展示模型与真实规则数据映射 |
+| `lib/presentation/rules/system_rule_list_page.dart` | 系统规则搜索与分类列表 |
+| `lib/presentation/rules/rule_detail_page.dart` | 系统规则只读详情页 |
+| `lib/presentation/rules/rule_editor_page.dart` | 方案 A 编辑页布局与固定底部操作栏 |
+| `test/presentation/rules/` | 规则中心 UI / presentation 测试 |
+
+### 验证
+
+- `flutter analyze`：通过，0 issues
+- 规则中心 + DSL + CUSTOM 定向测试：33/33 通过
+- `flutter test`：正在进行最终门禁复核
 
 ---
 

@@ -152,7 +152,7 @@ void main() {
       expect(find.text('关于'), findsOneWidget);
     });
 
-    testWidgets('点击规则库进入 Skeleton 并可返回', (tester) async {
+    testWidgets('点击规则库进入方案 A 规则库并可返回', (tester) async {
       await pumpApp(tester);
 
       await tester.tap(find.byKey(const Key('casting_more_button')));
@@ -162,7 +162,7 @@ void main() {
 
       expect(find.text('自定义规则'), findsOneWidget);
       expect(find.text('规则包'), findsOneWidget);
-      expect(find.text('系统规则'), findsOneWidget);
+      expect(find.text('系统规则'), findsWidgets);
 
       await tester.pageBack();
       await tester.pumpAndSettle();

@@ -1,61 +1,82 @@
 import 'package:flutter/material.dart';
 import 'rule_center_page_loader.dart';
+import 'widgets/rule_entry_card.dart';
+import 'widgets/rule_search_bar.dart';
 
-/// 规则库（Rule Library）Skeleton。
-///
-/// 规则是配置能力，不是主导航。
-/// 本阶段只展示三类规则的入口卡片，不做 CRUD。
-class RuleLibraryPage extends StatelessWidget {
+class RuleLibraryPage extends StatefulWidget {
   const RuleLibraryPage({super.key});
+
+  @override
+  State<RuleLibraryPage> createState() => _RuleLibraryPageState();
+}
+
+class _RuleLibraryPageState extends State<RuleLibraryPage> {
+  String _query = '';
+  final List<String> _recent = ['旬空', '月破'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('规则库')),
+      appBar: AppBar(
+        title: const Text('规则库'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(76),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: RuleSearchBar(
+              hintText: '搜索规则、规则包或关键词',
+              onChanged: (value) => setState(() => _query = value),
+            ),
+          ),
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _RuleEntryCard(icon: Icons.tune_rounded, title: '自定义规则', description: '用户自己创建的象义规则', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RuleCenterPageLoader()))),
-          _RuleEntryCard(
+          RuleEntryCard(
+            icon: Icons.settings_rounded,
+            title: '系统规则',
+            description: '查看内置规则与说明',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RuleCenterPageLoader()),
+            ),
+          ),
+          RuleEntryCard(
             icon: Icons.folder_copy_rounded,
             title: '规则包',
-            description: '按场景组织规则',
+            description: '按主题组合规则',
+            onTap: () {},
           ),
-          _RuleEntryCard(
-            icon: Icons.verified_rounded,
-            title: '系统规则',
-            description: '查看系统计算规则',
+          RuleEntryCard(
+            icon: Icons.add_rounded,
+            title: '自定义规则',
+            description: '创建与管理个人规则',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    const RuleCenterPageLoader(openCustomRules: true),
+              ),
+            ),
           ),
+          if (_query.isEmpty) ...[
+            const SizedBox(height: 12),
+            Text('最近使用', style: Theme.of(context).textTheme.titleMedium),
+            ..._recent.map(
+              (item) => ListTile(
+                leading: const Icon(Icons.description_outlined),
+                title: Text(item),
+                subtitle: const Text('系统规则'),
+                trailing: const Icon(Icons.chevron_right),
+              ),
+            ),
+          ] else
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text('正在搜索：$_query'),
+            ),
         ],
-      ),
-    );
-  }
-}
-
-class _RuleEntryCard extends StatelessWidget {
-  const _RuleEntryCard({
-    required this.icon,
-    required this.title,
-    required this.description, this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String description;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: Icon(icon, color: theme.colorScheme.primary),
-        title: Text(title),
-        subtitle: Text(description),
-        trailing: onTap == null ? const Text('后续开放') : const Icon(Icons.chevron_right),
-        enabled: onTap != null,
-        onTap: onTap,
       ),
     );
   }
