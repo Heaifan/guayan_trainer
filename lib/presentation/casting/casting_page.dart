@@ -8,6 +8,9 @@ import '../../domain/calendar/day/ganzhi_day.dart';
 import '../../domain/tian_gan.dart';
 import '../../services/draft/casting_draft.dart';
 import '../../services/draft/draft_repository.dart';
+import '../../services/cases/case_repository.dart';
+import '../../services/cases/generated_case_recorder.dart';
+import '../../services/cases/json_case_repository.dart';
 import '../../services/calendar/casting_calendar_service.dart';
 import 'casting_page_state.dart';
 import 'casting_tokens.dart';
@@ -36,6 +39,7 @@ class CastingPage extends StatefulWidget {
     super.key,
     this.initialDraft,
     this.repository,
+    this.caseRepository,
     this.calendarService,
     this.useDemoDraft = true,
     this.onGenerated,
@@ -46,6 +50,9 @@ class CastingPage extends StatefulWidget {
 
   /// 草稿仓库；null 时使用内存实现（接口边界已留，任务书 §15）。
   final DraftRepository? repository;
+
+  /// 生成后写入卦例档案；null 时使用默认本地 JSON repository。
+  final CaseRepository? caseRepository;
 
   final CastingCalendarService? calendarService;
 
@@ -159,7 +166,7 @@ class _CastingPageState extends State<CastingPage> {
     });
   }
 
-  void _generate() {
+  Future<void> _generate() async {
     if (!_lines.every((l) => l != null)) return;
     final input = List<LineState>.generate(6, (i) => _lines[i]!);
     final castingAt = _castingTime ?? DateTime.now();
@@ -170,6 +177,9 @@ class _CastingPageState extends State<CastingPage> {
     final chart = CastingEngine.cast([
       for (final line in input) line.movementType,
     ], dayGan: dayGan);
+    final calendarForCase = calendar == null
+        ? null
+        : widget.calendarService!.withHexagram(calendar, chart.original);
     final caseLines = [
       for (final line in chart.lines)
         LineState(
@@ -185,13 +195,15 @@ class _CastingPageState extends State<CastingPage> {
       lines: caseLines,
       createdAt: castingAt,
       ruleContext: RuleExecutionContext([_ruleRef]),
-      calendar: calendar,
+      calendar: calendarForCase,
     );
     _update(() {
       _generated = true;
       _regenerateNeeded = false;
       _generatedCase = generated;
     });
+    final caseRepository = widget.caseRepository ?? await JsonCaseRepository.open();
+    await GeneratedCaseRecorder(caseRepository).record(generated, chart);
     widget.onGenerated?.call(generated);
   }
 

@@ -1,4 +1,5 @@
 import '../line_state.dart';
+import '../calendar_snapshot.dart';
 
 /// 一次生成时冻结的排盘事实。`castingTime` 是唯一事实源。
 class CastingSnapshot {
@@ -9,6 +10,7 @@ class CastingSnapshot {
     required this.originalHexagramName,
     this.changedHexagramName,
     required List<int> movingPositions,
+    this.calendar,
   })  : lines = List.unmodifiable(lines),
         movingPositions = List.unmodifiable(movingPositions);
 
@@ -18,6 +20,7 @@ class CastingSnapshot {
   final String originalHexagramName;
   final String? changedHexagramName;
   final List<int> movingPositions;
+  final CalendarSnapshot? calendar;
 
   CastingSnapshot copyWith({String? subject}) => CastingSnapshot(
     castingTime: castingTime,
@@ -26,6 +29,7 @@ class CastingSnapshot {
     originalHexagramName: originalHexagramName,
     changedHexagramName: changedHexagramName,
     movingPositions: movingPositions,
+    calendar: calendar,
   );
 
   Map<String, Object?> toJson() => {
@@ -35,6 +39,7 @@ class CastingSnapshot {
     'originalHexagramName': originalHexagramName,
     if (changedHexagramName != null) 'changedHexagramName': changedHexagramName,
     'movingPositions': movingPositions,
+    if (calendar != null) 'calendar': calendar!.toJson(),
   };
 
   factory CastingSnapshot.fromJson(Map<String, Object?> json) => CastingSnapshot(
@@ -49,6 +54,9 @@ class CastingSnapshot {
       for (final position in (json['movingPositions'] as List<Object?>? ?? const []))
         position as int,
     ],
+    calendar: json['calendar'] == null
+        ? null
+        : CalendarSnapshot.fromJson(json['calendar'] as Map<String, Object?>),
   );
 
   @override
@@ -58,12 +66,13 @@ class CastingSnapshot {
       _sameLines(other.lines, lines) &&
       other.originalHexagramName == originalHexagramName &&
       other.changedHexagramName == changedHexagramName &&
-      _sameInts(other.movingPositions, movingPositions);
+      _sameInts(other.movingPositions, movingPositions) &&
+      other.calendar == calendar;
 
   @override
   int get hashCode => Object.hash(
     castingTime, subject, originalHexagramName, changedHexagramName,
-    lines.map((line) => line.toJson()).join(), movingPositions.join(','),
+    lines.map((line) => line.toJson()).join(), movingPositions.join(','), calendar,
   );
 }
 
