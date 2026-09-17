@@ -8,7 +8,9 @@ import '../../casting/casting_tokens.dart';
 /// 副标题「排盘结果」。属于审卦工作台自带顶栏（App Shell 对审卦不叠加全局
 /// AppBar）。返回按钮仅在可 pop 时生效，主 Tab 场景下为装饰。
 class ReviewAppBar extends StatelessWidget {
-  const ReviewAppBar({super.key});
+  const ReviewAppBar({super.key, this.onRecompute});
+
+  final VoidCallback? onRecompute;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,12 @@ class ReviewAppBar extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 46), // 平衡左侧返回按钮宽度，保持标题居中
+          IconButton(
+            key: const Key('review_recompute_button'),
+            tooltip: '重算规则',
+            onPressed: onRecompute,
+            icon: const Icon(Icons.refresh, size: 20),
+          ),
         ],
       ),
     );

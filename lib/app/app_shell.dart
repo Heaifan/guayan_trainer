@@ -13,6 +13,9 @@ import '../presentation/relations/relations_page.dart';
 import '../services/calendar/casting_calendar_service.dart';
 import '../services/cases/case_repository.dart';
 import '../services/cases/json_case_repository.dart';
+import '../services/cases/case_recompute_service.dart';
+import '../services/relation_annotation_store.dart';
+import '../services/manual_relation_store.dart';
 
 /// 卦眼 2.0 应用壳。
 ///
@@ -35,8 +38,11 @@ class AppShellState extends State<AppShell> {
 
   /// 最近一次排卦生成结果（排卦 → 审卦 数据桥接）。
   HexagramCase? _latestCase;
-  final ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
+  CaseRecord? _activeRecord;
+  ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
   CaseRepository? _caseRepository;
+  RelationAnnotationStore _relationAnnotations = RelationAnnotationStore();
+  ManualRelationStore _manualRelations = ManualRelationStore();
 
   @override
   void initState() {
@@ -48,6 +54,7 @@ class AppShellState extends State<AppShell> {
 
   void _openCase(CaseRecord record) {
     setState(() {
+      _activeRecord = record;
       _latestCase = record.toHexagramCase();
       selectedIndex = 1;
     });
@@ -73,7 +80,13 @@ class AppShellState extends State<AppShell> {
             onGenerated: (case_) {
               setState(() {
                 _latestCase = case_;
+                _activeRecord = null;
                 selectedIndex = 1;
+              });
+              _caseRepository?.read(case_.id).then((record) {
+                if (mounted && record != null) {
+                  setState(() => _activeRecord = record);
+                }
               });
             },
           ),
@@ -81,9 +94,14 @@ class AppShellState extends State<AppShell> {
             latestCase: _latestCase,
             useDemoFallback: false,
             shenShaNoteStore: _shenShaNoteStore,
+            onRecompute: _recomputeActiveCase,
             onOpenRelations: () => setState(() => selectedIndex = 2),
           ),
-          RelationsPage(latestCase: _latestCase),
+          RelationsPage(
+            latestCase: _latestCase,
+            annotationStore: _relationAnnotations,
+            manualStore: _manualRelations,
+          ),
           CasesPage(repository: _caseRepository, onOpenCase: _openCase),
           mainTabs[4].builder(context),
         ],
@@ -96,5 +114,21 @@ class AppShellState extends State<AppShell> {
         },
       ),
     );
+  }
+
+  Future<void> _recomputeActiveCase() async {
+    final record = _activeRecord;
+    final repository = _caseRepository;
+    if (record == null || repository == null || record.ruleRuns.isEmpty) return;
+    final latest = record.ruleRuns.last;
+    await CaseRecomputeService(repository).recompute(
+      caseId: record.id,
+      ruleContext: latest.ruleContext,
+      result: latest.result,
+      evidence: latest.evidence,
+    );
+    if (!mounted) return;
+    final refreshed = await repository.read(record.id);
+    if (refreshed != null) setState(() => _activeRecord = refreshed);
   }
 }
