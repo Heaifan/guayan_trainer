@@ -1,14 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:guayan_trainer/domain/cases/case_record.dart';
-import 'package:guayan_trainer/domain/cases/casting_snapshot.dart';
-import 'package:guayan_trainer/domain/cases/rule_run.dart';
-import 'package:guayan_trainer/domain/line_state.dart';
-import 'package:guayan_trainer/domain/rule_execution_context.dart';
 import 'package:guayan_trainer/services/cases/case_repository.dart';
 import 'package:guayan_trainer/services/cases/case_query.dart';
 import 'package:guayan_trainer/services/cases/json_case_repository.dart';
+import 'case_test_fixtures.dart';
 
 void main() {
   late CaseRepository repository;
@@ -19,7 +15,7 @@ void main() {
   });
 
   test('create and read preserve snapshot while index stores only metadata', () async {
-    final record = _record('case-1', DateTime(2026, 9, 18, 22, 30));
+    final record = recordFixture('case-1', DateTime(2026, 9, 18, 22, 30));
 
     await repository.create(record);
     final restored = await repository.read('case-1');
@@ -32,9 +28,9 @@ void main() {
   });
 
   test('soft delete, restore, favorite, and stable casting-time ordering work', () async {
-    await repository.create(_record('b', DateTime(2026, 9, 18, 22, 30)));
-    await repository.create(_record('a', DateTime(2026, 9, 18, 22, 30)));
-    await repository.create(_record('c', DateTime(2026, 9, 17, 22, 30)));
+    await repository.create(recordFixture('b', DateTime(2026, 9, 18, 22, 30)));
+    await repository.create(recordFixture('a', DateTime(2026, 9, 18, 22, 30)));
+    await repository.create(recordFixture('c', DateTime(2026, 9, 17, 22, 30)));
 
     expect(
       (await repository.list(const CaseQuery(limit: 20))).items.map((e) => e.id),
@@ -55,24 +51,3 @@ void main() {
     expect(await repository.read('b'), isNull);
   });
 }
-
-CaseRecord _record(String id, DateTime time) => CaseRecord.create(
-      id: id,
-      snapshot: CastingSnapshot(
-        castingTime: time,
-        subject: '',
-        lines: [
-          for (var position = 1; position <= 6; position++)
-            LineState(position: position, movementType: MovementType.shaoYin),
-        ],
-        originalHexagramName: '雷水解',
-        movingPositions: const [],
-      ),
-      createdAt: time.add(const Duration(minutes: 1)),
-      originalRuleRun: RuleRun.original(
-        executedAt: time,
-        ruleContext: const RuleExecutionContext.empty(),
-        result: const {},
-        evidence: const [],
-      ),
-    );
