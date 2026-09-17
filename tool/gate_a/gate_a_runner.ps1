@@ -31,12 +31,26 @@
 
 $ErrorActionPreference = 'Stop'
 
-$DartRoot = 'D:\MyApp\app-flutter\flutter\bin\cache\dart-sdk'
-$GitRoot = 'D:\MyApp\app-git\Git'
+$flutterRoot = $null
+$configuredRoots = @($env:GUAYAN_FLUTTER_ROOT, $env:FLUTTER_ROOT, $env:FLUTTER_HOME) |
+  Where-Object { $_ -and (Test-Path (Join-Path $_ 'bin\cache\dart-sdk\bin\dart.exe')) }
+if ($configuredRoots.Count -gt 0) {
+  $flutterRoot = @($configuredRoots)[0]
+} else {
+  $flutterCommand = Get-Command flutter -ErrorAction SilentlyContinue
+  if ($flutterCommand -and $flutterCommand.Source) {
+    $flutterBin = Split-Path -Parent $flutterCommand.Source
+    $flutterRoot = Split-Path -Parent $flutterBin
+  }
+}
+if (-not $flutterRoot) {
+  throw 'Flutter SDK not found. Set GUAYAN_FLUTTER_ROOT, FLUTTER_ROOT, or FLUTTER_HOME, or add flutter to PATH.'
+}
 
+$DartRoot = Join-Path $flutterRoot 'bin\cache\dart-sdk'
 $dartExe = Join-Path $DartRoot 'bin\dart.exe'
 if (-not (Test-Path $dartExe)) {
-  throw "dart not found: $dartExe"
+  throw "dart not found in Flutter SDK: $dartExe"
 }
 
 $systemDirs = @(
@@ -47,7 +61,6 @@ $systemDirs = @(
 )
 $toolDirs = @(
   (Join-Path $DartRoot 'bin')
-  (Join-Path $GitRoot 'cmd')
 )
 $existing = $env:PATH -split ';' | Where-Object { $_ -ne '' }
 $missing = @($systemDirs + $toolDirs) |
