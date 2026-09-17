@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:guayan_trainer/domain/hexagram_case.dart';
+import 'package:guayan_trainer/domain/calendar_snapshot.dart';
 import 'package:guayan_trainer/domain/line_state.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
 import 'package:guayan_trainer/domain/rule_execution_context.dart';
@@ -232,8 +233,59 @@ void main() {
         rel.key.canonical,
         'dong_bian|sys.dong_bian|v1|-|yao:original:3->yao:changed:3',
       );
+      expect(rel.key.ruleVersion, 1);
       expect(state.rulePackId, 'sys.default');
       expect(state.ruleVersion, 3);
+    });
+
+    test('关系筛选：返回对应类型的真实 RelationInstance', () {
+      final base = ReviewDemoData.hexagramCase();
+      final state = ReviewCaseAdapter.adapt(
+        HexagramCase(
+          id: base.id,
+          question: base.question,
+          lines: base.lines,
+          createdAt: base.createdAt,
+          ruleContext: base.ruleContext,
+          calendar: const CalendarSnapshot(monthBranch: '寅', dayGanZhi: '甲子'),
+        ),
+      );
+
+      final shengKe = filterReviewRelations(state, '生克');
+      final chongHe = filterReviewRelations(state, '冲合');
+      final monthDay = filterReviewRelations(state, '月日');
+      final dongBian = filterReviewRelations(state, '动变');
+      expect(shengKe, isNotEmpty);
+      expect(
+        shengKe.every(
+          (r) => r.type.name.contains('sheng') || r.type.name.contains('ke'),
+        ),
+        isTrue,
+      );
+      expect(
+        chongHe.every(
+          (r) =>
+              r.type == RelationType.liuChong || r.type == RelationType.liuHe,
+        ),
+        isTrue,
+      );
+      expect(
+        monthDay.every(
+          (r) =>
+              r.key.ruleId == 'sys.month_branch' ||
+              r.key.ruleId == 'sys.day_branch',
+        ),
+        isTrue,
+      );
+      expect(
+        dongBian.every(
+          (r) =>
+              r.type == RelationType.dongBian ||
+              r.type == RelationType.huiTouSheng ||
+              r.type == RelationType.huiTouKe,
+        ),
+        isTrue,
+      );
     });
 
     test('适配器：allRelations + relationsInvolving 按爻过滤', () {
@@ -596,6 +648,24 @@ void main() {
       await pumpDemo(tester);
       expect(tester.takeException(), isNull);
     });
+
+    for (final size in const [
+      Size(375, 812),
+      Size(388, 863),
+      Size(393, 852),
+      Size(412, 915),
+    ]) {
+      testWidgets('${size.width.toInt()}×${size.height.toInt()} 无溢出', (
+        tester,
+      ) async {
+        tester.view.physicalSize = size * 3;
+        tester.view.devicePixelRatio = 3.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await pumpDemo(tester);
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     testWidgets('硬门禁 · 六爻六行 + 表尾在首屏完整显示（430×932）', (tester) async {
       // 模拟常见真机逻辑尺寸（430×932，含底部导航 56 DIP）。

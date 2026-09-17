@@ -28,6 +28,7 @@ class ReviewPage extends StatelessWidget {
     this.initialCase,
     this.initialProfile,
     this.onOpenRelations,
+    this.useDemoFallback = true,
   });
 
   /// App Shell 传入的最近排盘结果；null 时回退演示排盘。
@@ -42,13 +43,23 @@ class ReviewPage extends StatelessWidget {
   /// 点爻弹层「进入关系页」回调（App Shell 切换到关系 Tab）。
   final VoidCallback? onOpenRelations;
 
+  /// 仅测试/视觉基准允许演示数据；真实 App 路径关闭此回退。
+  final bool useDemoFallback;
+
   @override
   Widget build(BuildContext context) {
     final provided = initialCase ?? latestCase;
-    final state = provided == null
+    final state = provided == null && useDemoFallback
         ? ReviewCaseAdapter.adapt(
             ReviewDemoData.hexagramCase(),
             profile: initialProfile ?? ReviewDemoData.profile(),
+          )
+        : provided == null
+        ? ReviewPageState(
+            question: '尚未生成排盘',
+            lines: const [],
+            focusedRelations: const [],
+            allRelations: const [],
           )
         : ReviewCaseAdapter.adapt(provided, profile: initialProfile);
     return _ReviewWorkbench(state: state, onOpenRelations: onOpenRelations);

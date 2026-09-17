@@ -9,6 +9,7 @@ library;
 import '../../domain/line_state.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
+import '../../domain/relation_type.dart';
 
 /// 神煞标签项（§8「名称：值」结构，如 卦身：申）。
 class ReviewShenShaItem {
@@ -42,7 +43,8 @@ class ReviewChangedLine {
   /// 变卦侧空亡（旬空，UI 表现专用；由排盘引擎提供 isVoid，Widget 不计算）。
   final bool isVoid;
 
-  bool get isYang => movementType == MovementType.shaoYang ||
+  bool get isYang =>
+      movementType == MovementType.shaoYang ||
       movementType == MovementType.laoYang;
 
   String get primaryLabel {
@@ -104,7 +106,8 @@ class ReviewLineView {
   /// 主卦侧空亡（旬空，UI 表现专用；由排盘引擎提供 isVoid，Widget 不计算）。
   final bool isVoid;
 
-  bool get isYang => movementType == MovementType.shaoYang ||
+  bool get isYang =>
+      movementType == MovementType.shaoYang ||
       movementType == MovementType.laoYang;
 
   String get yinYangLabel => isYang ? '阳' : '阴';
@@ -212,9 +215,9 @@ class ReviewPageState {
   ///
   /// 月建 / 日辰端点不是爻，因此不会被「点某爻」命中。
   List<RelationInstance> relationsInvolving(int position) => [
-        for (final r in allRelations)
-          if (_isLine(r.source, position) || _isLine(r.target, position)) r,
-      ];
+    for (final r in allRelations)
+      if (_isLine(r.source, position) || _isLine(r.target, position)) r,
+  ];
 
   static bool _isLine(RelationEndpoint endpoint, int position) =>
       endpoint is YaoEndpoint && endpoint.position == position;
@@ -232,6 +235,42 @@ class ReviewPageState {
     return parts.join(' · ');
   }
 }
+
+/// 关系筛选的纯数据入口；UI 只负责选择 [filter]，不重算关系。
+List<RelationInstance> filterReviewRelations(
+  ReviewPageState state,
+  String filter,
+) {
+  if (filter == '全部') return state.allRelations;
+  if (filter == '重点') return state.focusedRelations;
+  return [
+    for (final relation in state.allRelations)
+      if (_matchesReviewFilter(relation, filter)) relation,
+  ];
+}
+
+bool _matchesReviewFilter(RelationInstance relation, String filter) =>
+    switch (filter) {
+      '生克' =>
+        relation.type == RelationType.sheng ||
+            relation.type == RelationType.ke ||
+            relation.type == RelationType.huiTouSheng ||
+            relation.type == RelationType.huiTouKe,
+      '冲合' =>
+        relation.type == RelationType.liuChong ||
+            relation.type == RelationType.liuHe,
+      '月日' =>
+        relation.source is MonthEndpoint ||
+            relation.source is DayEndpoint ||
+            relation.target is MonthEndpoint ||
+            relation.target is DayEndpoint,
+      '动变' =>
+        relation.type == RelationType.dongBian ||
+            relation.type == RelationType.huiTouSheng ||
+            relation.type == RelationType.huiTouKe,
+      '墓库' => false,
+      _ => true,
+    };
 
 /// 阳历展示（如 2026-08-30 17:59）。
 String formatSolar(DateTime time) {

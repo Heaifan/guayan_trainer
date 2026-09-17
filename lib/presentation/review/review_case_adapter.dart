@@ -17,6 +17,8 @@ import '../../domain/casting/cast_chart.dart';
 import '../../domain/casting/casting_engine.dart';
 import '../../domain/calendar/day/ganzhi_day.dart';
 import '../../domain/calendar/day/xun_kong.dart';
+import '../../domain/di_zhi.dart';
+import '../../domain/tian_gan.dart';
 import 'review_page_state.dart';
 
 /// 单爻传统排盘附加档案（六神/伏神/六亲/世应/空亡等）。
@@ -105,14 +107,19 @@ class ReviewCaseAdapter {
     HexagramCase hexagramCase, {
     ReviewTraditionalProfile? profile,
   }) {
-    final day = ganzhiDayOfDate(
-      hexagramCase.createdAt.year,
-      hexagramCase.createdAt.month,
-      hexagramCase.createdAt.day,
-    );
+    final day = hexagramCase.calendar == null
+        ? ganzhiDayOfDate(
+            hexagramCase.createdAt.year,
+            hexagramCase.createdAt.month,
+            hexagramCase.createdAt.day,
+          )
+        : null;
+    final dayGan = hexagramCase.calendar == null
+        ? day!.gan
+        : TianGan.fromLabel(hexagramCase.calendar!.dayGan);
     final chart = CastingEngine.cast([
       for (final line in hexagramCase.lines) line.movementType,
-    ], dayGan: day.gan);
+    ], dayGan: dayGan);
     final lines = <ReviewLineView>[
       for (final line in hexagramCase.lines)
         _toLineView(
@@ -146,9 +153,9 @@ class ReviewCaseAdapter {
       shenShaItems: profile?.shenShaItems ?? const [],
       yearPillar: profile?.yearPillar,
       yearNaYin: profile?.yearNaYin,
-      monthPillar: profile?.monthPillar,
+      monthPillar: profile?.monthPillar ?? _monthPillar(hexagramCase),
       monthNaYin: profile?.monthNaYin,
-      dayPillar: profile?.dayPillar,
+      dayPillar: profile?.dayPillar ?? _dayPillar(hexagramCase),
       dayNaYin: profile?.dayNaYin,
       hourPillar: profile?.hourPillar,
       hourNaYin: profile?.hourNaYin,
@@ -226,8 +233,32 @@ class ReviewCaseAdapter {
 
   static String? _xunKong(HexagramCase hexagramCase) {
     if (hexagramCase.calendar == null) return null;
-    final date = hexagramCase.createdAt;
-    return xunKongOf(ganzhiDayOfDate(date.year, date.month, date.day)).label;
+    return xunKongOf(
+      GanZhiDay.fromCycleIndex(
+        _cycleIndexFor(hexagramCase.calendar!.dayGanZhi),
+      ),
+    ).label;
+  }
+
+  static String? _monthPillar(HexagramCase hexagramCase) =>
+      hexagramCase.calendar == null
+      ? null
+      : '月建${hexagramCase.calendar!.monthBranch}';
+
+  static String? _dayPillar(HexagramCase hexagramCase) =>
+      hexagramCase.calendar == null
+      ? null
+      : '日辰${hexagramCase.calendar!.dayGanZhi}';
+
+  static int _cycleIndexFor(String label) {
+    final gan = TianGan.fromLabel(label.substring(0, 1));
+    final zhi = DiZhi.fromLabel(label.substring(1));
+    for (var i = 0; i < 60; i++) {
+      if (TianGan.fromCycleIndex(i) == gan && DiZhi.values[i % 12] == zhi) {
+        return i;
+      }
+    }
+    throw ArgumentError.value(label, 'dayGanZhi', '非法干支');
   }
 
   static int? _firstMoving(HexagramCase hexagramCase) {

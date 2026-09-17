@@ -5,8 +5,10 @@ import '../../domain/line_state.dart';
 import '../../domain/rule_execution_context.dart';
 import '../../domain/casting/casting_engine.dart';
 import '../../domain/calendar/day/ganzhi_day.dart';
+import '../../domain/tian_gan.dart';
 import '../../services/draft/casting_draft.dart';
 import '../../services/draft/draft_repository.dart';
+import '../../services/calendar/casting_calendar_service.dart';
 import 'casting_page_state.dart';
 import 'casting_tokens.dart';
 import 'widgets/casting_app_bar.dart';
@@ -27,21 +29,28 @@ import 'widgets/time_editor_sheet.dart';
 /// 页面是 INPUT WORKBENCH：输入 / 编辑 / 草稿 / 生成，不做关系分析。
 ///
 /// 状态全部进入 [CastingPageState]（任务书 §7），草稿自动写入
-/// [DraftRepository]（任务书 §15）；默认初始草稿为视觉定稿演示态
-/// （[CastingDraft.demo]），正式版本可改传空草稿。
+/// [DraftRepository]（任务书 §15）；测试/视觉基准可启用演示草稿，正式 App
+/// 路径由 App Shell 关闭该回退。
 class CastingPage extends StatefulWidget {
   const CastingPage({
     super.key,
     this.initialDraft,
     this.repository,
+    this.calendarService,
+    this.useDemoDraft = true,
     this.onGenerated,
   });
 
-  /// 初始草稿；null 时使用视觉定稿演示草稿（4/6 爻）。
+  /// 初始草稿；null 时按 [useDemoDraft] 决定是否使用视觉定稿演示草稿。
   final CastingDraft? initialDraft;
 
   /// 草稿仓库；null 时使用内存实现（接口边界已留，任务书 §15）。
   final DraftRepository? repository;
+
+  final CastingCalendarService? calendarService;
+
+  /// 仅测试/视觉基准允许演示草稿；真实 App 路径关闭此回退。
+  final bool useDemoDraft;
 
   /// 生成成功回调：App Shell 借此把最新排盘结果带给审卦页。
   final ValueChanged<HexagramCase>? onGenerated;
@@ -70,8 +79,11 @@ class _CastingPageState extends State<CastingPage> {
   void initState() {
     super.initState();
     _repository = widget.repository ?? InMemoryDraftRepository();
-    final isDemo = widget.initialDraft == null;
-    _apply(widget.initialDraft ?? CastingDraft.demo());
+    final isDemo = widget.initialDraft == null && widget.useDemoDraft;
+    _apply(
+      widget.initialDraft ??
+          (widget.useDemoDraft ? CastingDraft.demo() : const CastingDraft()),
+    );
     // 视觉基准：演示草稿下三爻为当前编辑爻（任务书 §5.5）。
     if (isDemo) _editingPosition = 3;
   }
@@ -151,11 +163,10 @@ class _CastingPageState extends State<CastingPage> {
     if (!_lines.every((l) => l != null)) return;
     final input = List<LineState>.generate(6, (i) => _lines[i]!);
     final castingAt = _castingTime ?? DateTime.now();
-    final dayGan = ganzhiDayOfDate(
-      castingAt.year,
-      castingAt.month,
-      castingAt.day,
-    ).gan;
+    final calendar = widget.calendarService?.snapshotFor(castingAt);
+    final dayGan = calendar == null
+        ? ganzhiDayOfDate(castingAt.year, castingAt.month, castingAt.day).gan
+        : TianGan.fromLabel(calendar.dayGan);
     final chart = CastingEngine.cast([
       for (final line in input) line.movementType,
     ], dayGan: dayGan);
@@ -174,6 +185,7 @@ class _CastingPageState extends State<CastingPage> {
       lines: caseLines,
       createdAt: castingAt,
       ruleContext: RuleExecutionContext([_ruleRef]),
+      calendar: calendar,
     );
     _update(() {
       _generated = true;

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/relation_endpoint.dart';
 import '../../../domain/relation_instance.dart';
-import '../../../domain/relation_type.dart';
 import '../review_page_state.dart';
 
 /// 关系工具栏（审卦一屏版总 SVG：关系、全部/重点/生克等）。
@@ -32,35 +30,8 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
   String _selected = '全部';
 
   List<RelationInstance> get _relations {
-    if (_selected == '全部') return widget.state.allRelations;
-    if (_selected == '重点') return widget.state.focusedRelations;
-    return [
-      for (final relation in widget.state.allRelations)
-        if (_matches(relation)) relation,
-    ];
+    return filterReviewRelations(widget.state, _selected);
   }
-
-  bool _matches(RelationInstance relation) => switch (_selected) {
-    '生克' =>
-      relation.type == RelationType.sheng ||
-          relation.type == RelationType.ke ||
-          relation.type == RelationType.huiTouSheng ||
-          relation.type == RelationType.huiTouKe,
-    '冲合' =>
-      relation.type == RelationType.liuChong ||
-          relation.type == RelationType.liuHe,
-    '月日' =>
-      relation.source is MonthEndpoint ||
-          relation.source is DayEndpoint ||
-          relation.target is MonthEndpoint ||
-          relation.target is DayEndpoint,
-    '动变' =>
-      relation.type == RelationType.dongBian ||
-          relation.type == RelationType.huiTouSheng ||
-          relation.type == RelationType.huiTouKe,
-    '墓库' => false,
-    _ => true,
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +62,7 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
               ),
               const SizedBox(width: 12),
               const Text(
-                '筛选卦盘上的关系箭头',
+                '筛选真实关系数据',
                 style: TextStyle(
                   fontSize: 10,
                   color: Color(0xFF71838B),
@@ -104,21 +75,24 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
                 style: const TextStyle(fontSize: 10, color: Color(0xFF71838B)),
               ),
               const SizedBox(width: 8),
-              Container(
-                width: 68,
-                height: 28,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF7F9F8),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  '＋连线',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF243744),
-                    height: 1.2,
+              Opacity(
+                opacity: 0.45,
+                child: Container(
+                  width: 68,
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF7F9F8),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    '＋连线',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF243744),
+                      height: 1.2,
+                    ),
                   ),
                 ),
               ),

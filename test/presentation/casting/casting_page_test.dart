@@ -61,10 +61,7 @@ void main() {
       expect(
         tester
             .widget<InkWell>(
-              find.descendant(
-                of: button,
-                matching: find.byType(InkWell),
-              ),
+              find.descendant(of: button, matching: find.byType(InkWell)),
             )
             .onTap,
         isNotNull,
@@ -177,18 +174,14 @@ void main() {
     testWidgets('起卦时间 → 问事信息 → 六爻录入 → 规则包 → 生成排盘', (tester) async {
       await pumpPage(tester);
 
-      double y(String text) =>
-          tester.getTopLeft(find.text(text)).dy;
-      final order = [
-        y('起卦时间'),
-        y('问事信息'),
-        y('六爻录入'),
-        y('规则包'),
-        y('生成排盘'),
-      ];
+      double y(String text) => tester.getTopLeft(find.text(text)).dy;
+      final order = [y('起卦时间'), y('问事信息'), y('六爻录入'), y('规则包'), y('生成排盘')];
       for (var i = 0; i < order.length - 1; i++) {
-        expect(order[i] < order[i + 1], isTrue,
-            reason: '第 ${i + 1} 行必须在第 ${i + 2} 行之前');
+        expect(
+          order[i] < order[i + 1],
+          isTrue,
+          reason: '第 ${i + 1} 行必须在第 ${i + 2} 行之前',
+        );
       }
     });
   });
@@ -202,10 +195,7 @@ void main() {
       await tester.tap(find.byKey(const Key('question_row')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('q_title')), '测试问事');
-      await tester.enterText(
-        find.byKey(const Key('q_body')),
-        '项目推进是否顺利？',
-      );
+      await tester.enterText(find.byKey(const Key('q_body')), '项目推进是否顺利？');
       await tester.tap(find.byKey(const Key('question_save')));
       await tester.pumpAndSettle();
 
@@ -227,21 +217,34 @@ void main() {
       await tester.pumpAndSettle();
 
       // 弹层独有文案（规则包行卡片同样显示该标签，故不计数该行文本）。
-      expect(
-        find.textContaining('自定义规则包将在后续版本开放。'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('自定义规则包将在后续版本开放。'), findsOneWidget);
       expect(find.textContaining('RuleId + RuleVersion'), findsOneWidget);
       await tester.tap(find.byKey(const Key('rule_pack_close')));
       await tester.pumpAndSettle();
-      expect(
-        find.textContaining('自定义规则包将在后续版本开放。'),
-        findsNothing,
-      );
+      expect(find.textContaining('自定义规则包将在后续版本开放。'), findsNothing);
     });
   });
 
   group('UI-CORRECTION-R2', () {
+    for (final size in const [
+      Size(360, 800),
+      Size(375, 812),
+      Size(388, 863),
+      Size(393, 852),
+      Size(412, 915),
+    ]) {
+      testWidgets('${size.width.toInt()}×${size.height.toInt()} 排卦页无溢出', (
+        tester,
+      ) async {
+        tester.view.physicalSize = size * 3;
+        tester.view.devicePixelRatio = 3.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await pumpPage(tester, draft: const CastingDraft());
+        expect(tester.takeException(), isNull);
+      });
+    }
+
     testWidgets('UI-01 · 顶部草稿摘要卡已删除', (tester) async {
       await pumpPage(tester);
       expect(find.byKey(const Key('draft_state_chip')), findsNothing);
@@ -251,18 +254,17 @@ void main() {
     testWidgets('UI-02 · 起卦时间同时显示公历与农历', (tester) async {
       await pumpPage(tester); // demo 草稿：2026-08-30 09:30
       expect(find.text('公历：2026-08-30 09:30'), findsOneWidget);
-      expect(
-        find.text('农历：2026年8月30日 巳时 · 农历换算待接入'),
-        findsOneWidget,
-      );
+      expect(find.text('农历：2026年8月30日 巳时 · 农历换算待接入'), findsOneWidget);
     });
 
     testWidgets('UI-03 · 普通行高 == 编辑行高 == 52', (tester) async {
       await pumpPage(tester); // demo：三爻为当前编辑爻
-      final editingHeight =
-          tester.getSize(find.byKey(const Key('yao_row_3'))).height;
-      final normalHeight =
-          tester.getSize(find.byKey(const Key('yao_row_6'))).height;
+      final editingHeight = tester
+          .getSize(find.byKey(const Key('yao_row_3')))
+          .height;
+      final normalHeight = tester
+          .getSize(find.byKey(const Key('yao_row_6')))
+          .height;
       expect(editingHeight, 52);
       expect(normalHeight, 52);
       expect(editingHeight, normalHeight);
@@ -341,14 +343,8 @@ void main() {
     });
 
     test('阴阳动静展示文案', () {
-      expect(
-        movementDisplay(MovementType.shaoYin),
-        '阴 · 静',
-      );
-      expect(
-        movementDisplay(MovementType.laoYang),
-        '阳 · 动',
-      );
+      expect(movementDisplay(MovementType.shaoYin), '阴 · 静');
+      expect(movementDisplay(MovementType.laoYang), '阳 · 动');
     });
   });
 }
