@@ -3,6 +3,7 @@ import 'package:guayan_trainer/domain/rules/core/rule_definition.dart';
 import 'package:guayan_trainer/domain/rules/knowledge/execution_rule_ref.dart';
 import 'package:guayan_trainer/domain/rules/knowledge/knowledge_rule.dart';
 import 'package:guayan_trainer/domain/rules/knowledge/rule_variant.dart';
+import 'package:guayan_trainer/domain/rules/knowledge/system_knowledge_category_catalog.dart';
 import 'package:guayan_trainer/domain/rules/knowledge/system_knowledge_rule_catalog.dart';
 import 'knowledge_catalog_audit_model.dart';
 
@@ -63,7 +64,11 @@ KnowledgeCatalogAudit buildSystemKnowledgeCatalogAudit({
       'missingVersionCount': missingVersions,
       'missingBindingDisplayNameCount': missingBindingNames,
       'missingSourceCount': 0,
+      'categoryCount': SystemKnowledgeCategoryCatalog.categories.length,
     },
+    categories: SystemKnowledgeCategoryCatalog.categories
+        .map((category) => category.toJson())
+        .toList(),
     rows: rows,
     objectiveAnomalies: anomalies,
   );
@@ -92,6 +97,11 @@ KnowledgeCatalogAuditRow _row(
     executionRuleId: rule.ruleId.id,
     knowledgeRuleId: knowledgeRule.id,
     knowledgeRuleDisplayName: knowledgeRule.name,
+    primaryCategoryId: knowledgeRule.primaryCategoryId!,
+    primaryCategoryDisplayName: SystemKnowledgeCategoryCatalog.byId(
+      knowledgeRule.primaryCategoryId!,
+    ).displayName,
+    tags: knowledgeRule.tags,
     ruleVariantId: variant.id,
     ruleVariantDisplayName: variant.name,
     version: rule.version.version,

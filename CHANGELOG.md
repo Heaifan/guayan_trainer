@@ -10,6 +10,32 @@
 
 ---
 
+## 2026-09-17 · R5-G2-C2 SYSTEM Knowledge Catalog V1 分类治理
+
+> 建立 12 个用户知识一级分类，为 10 条 SYSTEM KnowledgeRule 固化唯一 Primary Category 与 Tags；审计 JSON/Markdown 同源生成，不修改 Engine、DSL、AST、规则条件或 Action。
+
+### 新增/修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/domain/rules/knowledge/system_knowledge_category_catalog.dart` | 12 个一级分类的唯一权威定义源 |
+| `lib/domain/rules/knowledge/knowledge_rule.dart` | 增加用户层 `primaryCategoryId` 与 `tags` 元数据 |
+| `lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart` | 固化当前 10 条 SYSTEM KnowledgeRule 的分类与标签 |
+| `lib/domain/rules/knowledge/knowledge_rule_catalog_validator.dart` | 增加分类引用完整性门禁 |
+| `tool/knowledge_catalog_audit_*.dart` | JSON/Markdown 同源输出分类、Primary Category 与 Tags |
+| `test/domain/rules/knowledge/system_knowledge_category_catalog_test.dart` | 12 分类、完整性、映射与 Tags 测试 |
+| `docs/knowledge/system-knowledge-catalog-v1-audit.*` | 同步后的机器可读与 Markdown 审计结果 |
+
+### 验证
+
+- SYSTEM 分类：12 个
+- 已分类 KnowledgeRule：10/10
+- ExecutionRule：60 条
+- RuleVariant：10 条
+- Orphan：0 条
+
+---
+
 ## 2026-09-17 · R5-G2-D0 SYSTEM Knowledge Rule Center MVP
 
 > 以真实 KnowledgeRule 为 SYSTEM 规则中心一级展示对象；动态按 RuleVariant 分组，详情页下沉展示 Variant 与 ExecutionRule 实例；不修改 Loader、自定义规则 CRUD 或 SYSTEM 数据层。

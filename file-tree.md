@@ -2,12 +2,28 @@
 
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
 > **R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
-> **最后编辑时间：** 2026-09-17 19:05:35
+> **最后编辑时间：** 2026-09-17 20:58:49
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
+
+## R5-G2-C2 SYSTEM KNOWLEDGE CATALOG V1 分类治理 (2026-09-17)
+
+> 建立 12 个用户知识一级分类，为 10 条 SYSTEM KnowledgeRule 补充唯一 Primary Category 与 Tags；JSON/Markdown 均从同一 Catalog 生成，不修改技术分类、Engine、DSL、AST 或规则语义。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/knowledge/system_knowledge_category_catalog.dart | 12 个用户知识一级分类的唯一权威定义源 |
+| lib/domain/rules/knowledge/knowledge_rule.dart | KnowledgeRule 的用户层 Primary Category 与 Tags 元数据 |
+| lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart | 10 条 SYSTEM KnowledgeRule 的冻结分类与标签映射 |
+| lib/domain/rules/knowledge/knowledge_rule_catalog_validator.dart | Primary Category 引用完整性与既有 Catalog 门禁 |
+| tool/knowledge_catalog_audit_*.dart | 从领域 Catalog 同源生成分类与规则审计 JSON/Markdown |
+| test/domain/rules/knowledge/system_knowledge_category_catalog_test.dart | 12 分类、10 条映射与 Tags 门禁 |
+| docs/knowledge/system-knowledge-catalog-v1-audit.* | 同源机器可读与 Markdown 审计产物 |
+
+## R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP (2026-09-17)
 
 ## R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP (2026-09-17)
 

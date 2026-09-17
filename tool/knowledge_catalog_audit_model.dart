@@ -1,11 +1,13 @@
 class KnowledgeCatalogAudit {
   const KnowledgeCatalogAudit({
     required this.baseline,
+    required this.categories,
     required this.rows,
     required this.objectiveAnomalies,
   });
 
   final Map<String, Object?> baseline;
+  final List<Map<String, Object>> categories;
   final List<KnowledgeCatalogAuditRow> rows;
   final List<String> objectiveAnomalies;
 }
@@ -15,6 +17,9 @@ class KnowledgeCatalogAuditRow {
     required this.executionRuleId,
     required this.knowledgeRuleId,
     required this.knowledgeRuleDisplayName,
+    required this.primaryCategoryId,
+    required this.primaryCategoryDisplayName,
+    required this.tags,
     required this.ruleVariantId,
     required this.ruleVariantDisplayName,
     required this.version,
@@ -29,6 +34,9 @@ class KnowledgeCatalogAuditRow {
   final String executionRuleId;
   final String knowledgeRuleId;
   final String knowledgeRuleDisplayName;
+  final String primaryCategoryId;
+  final String primaryCategoryDisplayName;
+  final List<String> tags;
   final String ruleVariantId;
   final String ruleVariantDisplayName;
   final String version;
@@ -43,6 +51,11 @@ class KnowledgeCatalogAuditRow {
     'executionRuleId': executionRuleId,
     'knowledgeRuleId': knowledgeRuleId,
     'knowledgeRuleDisplayName': knowledgeRuleDisplayName,
+    'primaryCategory': {
+      'id': primaryCategoryId,
+      'displayName': primaryCategoryDisplayName,
+    },
+    'tags': tags,
     'ruleVariantId': ruleVariantId,
     'ruleVariantDisplayName': ruleVariantDisplayName,
     'version': version,

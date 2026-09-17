@@ -1,17 +1,20 @@
 import 'knowledge_rule.dart';
 import 'knowledge_rule_category.dart';
 import 'rule_variant.dart';
+import 'system_knowledge_category_catalog.dart';
 
 class KnowledgeRuleCatalogValidator {
   static List<String> validate(
     List<KnowledgeRule> rules,
-    List<String> systemExecutionRuleIds,
-  ) {
+    List<String> systemExecutionRuleIds, {
+    Set<String>? categoryIds,
+  }) {
     final issues = <String>[];
     final systemIds = systemExecutionRuleIds.toSet();
     final knowledgeIds = <String>{};
     final variantIds = <String>{};
     final mappedIds = <String>{};
+    final validCategoryIds = categoryIds ?? SystemKnowledgeCategoryCatalog.ids;
 
     for (final rule in rules) {
       if (!knowledgeIds.add(rule.id)) {
@@ -22,6 +25,10 @@ class KnowledgeRuleCatalogValidator {
       }
       if (!KnowledgeRuleCategory.ids.contains(rule.categoryId)) {
         issues.add('invalid category: ${rule.id}');
+      }
+      if (rule.primaryCategoryId == null ||
+          !validCategoryIds.contains(rule.primaryCategoryId)) {
+        issues.add('invalid primary category: ${rule.id}');
       }
       if (rule.variants.isEmpty) {
         issues.add('knowledge rule has no variant: ${rule.id}');

@@ -6,8 +6,8 @@
 
 ```text
 branch: feat/guayan-2.0
-head: 0478bbddeb782caaa4fddc9383972aa10f526631
-generationTime: 2026-09-17T10:29:34.636478Z
+head: a73a532bab74a1be775fbc19180d6b1df44fc214
+generationTime: 2026-09-17T12:59:15.478850Z
 systemExecutionRuleCount: 60
 catalogRowCount: 60
 knowledgeRuleCount: 10
@@ -19,72 +19,90 @@ missingRuleVariantDisplayNameCount: 0
 missingVersionCount: 0
 missingBindingDisplayNameCount: 12
 missingSourceCount: 0
+categoryCount: 12
 ```
+
+## Primary Categories (12)
+
+| Order | ID | 中文名 | Description |
+|---:|---|---|---|
+| 1 | `knowledge.category.foundation` | 基础理论 | 五行、地支、纳甲、六亲生成及直接参与规则执行的基础理论。 |
+| 2 | `knowledge.category.six_relatives` | 六亲与取用 | 六亲与用神、原神、忌神、仇神、闲神等取用体系。 |
+| 3 | `knowledge.category.six_spirits` | 六神体系 | 青龙、朱雀、勾陈、螣蛇、白虎、玄武及其基础取象。 |
+| 4 | `knowledge.category.shi_ying` | 世应体系 | 世爻、应爻、世应定位、世应关系及相关判断。 |
+| 5 | `knowledge.category.calendar_influence` | 月日时令 | 月建、日辰及月日对爻的直接作用，不等同于最终旺衰结论。 |
+| 6 | `knowledge.category.strength` | 旺衰判断 | 旺相休囚死、得令失令、综合旺衰与强弱判断。 |
+| 7 | `knowledge.category.state` | 状态体系 | 旬空、入墓、出墓、填实、冲空及十二长生状态。 |
+| 8 | `knowledge.category.relation` | 生克冲合 | 生、克、冲、合、刑、害、破与三合、三会、六合等合局。 |
+| 9 | `knowledge.category.change` | 动变体系 | 动爻、变爻、化进化退、进神退神及爻自身变化关系。 |
+| 10 | `knowledge.category.hidden` | 飞伏体系 | 飞神、伏神、飞伏关系、伏神得出与受制。 |
+| 11 | `knowledge.category.hexagram_structure` | 卦象结构 | 反吟、伏吟、六冲卦、六合卦、游魂、归魂等整卦特殊结构。 |
+| 12 | `knowledge.category.shen_sha` | 神煞体系 | 神煞定义、计算、适用范围及相关规则。 |
 
 ## Complete Catalog (60 rows)
 
-| # | ExecutionRule | KnowledgeRule | 中文名 | Variant | Variant 中文名 | Version | Variant Version | Binding Targets | Technical Type | Runtime/System | Audit Note |
-|---:|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `common.line.1.xun_kong` | `knowledge.xun_kong` | 旬空 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 2 | `common.line.2.xun_kong` | `knowledge.xun_kong` | 旬空 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 3 | `common.line.3.xun_kong` | `knowledge.xun_kong` | 旬空 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 4 | `common.line.4.xun_kong` | `knowledge.xun_kong` | 旬空 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 5 | `common.line.5.xun_kong` | `knowledge.xun_kong` | 旬空 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 6 | `common.line.6.xun_kong` | `knowledge.xun_kong` | 旬空 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 7 | `common.line.1.yue_po` | `knowledge.yue_po` | 月破 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 8 | `common.line.2.yue_po` | `knowledge.yue_po` | 月破 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 9 | `common.line.3.yue_po` | `knowledge.yue_po` | 月破 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 10 | `common.line.4.yue_po` | `knowledge.yue_po` | 月破 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 11 | `common.line.5.yue_po` | `knowledge.yue_po` | 月破 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 12 | `common.line.6.yue_po` | `knowledge.yue_po` | 月破 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 13 | `common.line.1.ri_po` | `knowledge.ri_po` | 日破 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 14 | `common.line.2.ri_po` | `knowledge.ri_po` | 日破 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 15 | `common.line.3.ri_po` | `knowledge.ri_po` | 日破 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 16 | `common.line.4.ri_po` | `knowledge.ri_po` | 日破 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 17 | `common.line.5.ri_po` | `knowledge.ri_po` | 日破 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 18 | `common.line.6.ri_po` | `knowledge.ri_po` | 日破 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 19 | `common.line.1.in_tomb` | `knowledge.in_tomb` | 入墓 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 20 | `common.line.2.in_tomb` | `knowledge.in_tomb` | 入墓 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 21 | `common.line.3.in_tomb` | `knowledge.in_tomb` | 入墓 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 22 | `common.line.4.in_tomb` | `knowledge.in_tomb` | 入墓 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 23 | `common.line.5.in_tomb` | `knowledge.in_tomb` | 入墓 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 24 | `common.line.6.in_tomb` | `knowledge.in_tomb` | 入墓 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 25 | `common.line.1.month_generate` | `knowledge.month_generate` | 月生 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 26 | `common.line.2.month_generate` | `knowledge.month_generate` | 月生 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 27 | `common.line.3.month_generate` | `knowledge.month_generate` | 月生 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 28 | `common.line.4.month_generate` | `knowledge.month_generate` | 月生 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 29 | `common.line.5.month_generate` | `knowledge.month_generate` | 月生 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 30 | `common.line.6.month_generate` | `knowledge.month_generate` | 月生 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 31 | `common.line.1.day_generate` | `knowledge.day_generate` | 日生 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 32 | `common.line.2.day_generate` | `knowledge.day_generate` | 日生 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 33 | `common.line.3.day_generate` | `knowledge.day_generate` | 日生 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 34 | `common.line.4.day_generate` | `knowledge.day_generate` | 日生 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 35 | `common.line.5.day_generate` | `knowledge.day_generate` | 日生 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 36 | `common.line.6.day_generate` | `knowledge.day_generate` | 日生 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 37 | `exam.line.1.role.fu_mu` | `knowledge.fu_mu` | 父母 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 38 | `exam.line.2.role.fu_mu` | `knowledge.fu_mu` | 父母 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 39 | `exam.line.3.role.fu_mu` | `knowledge.fu_mu` | 父母 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 40 | `exam.line.4.role.fu_mu` | `knowledge.fu_mu` | 父母 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 41 | `exam.line.5.role.fu_mu` | `knowledge.fu_mu` | 父母 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 42 | `exam.line.6.role.fu_mu` | `knowledge.fu_mu` | 父母 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 43 | `exam.line.1.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 44 | `exam.line.2.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 45 | `exam.line.3.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 46 | `exam.line.4.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 47 | `exam.line.5.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 48 | `exam.line.6.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
-| 49 | `exam.line.1.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 50 | `exam.line.2.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 51 | `exam.line.3.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 52 | `exam.line.4.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 53 | `exam.line.5.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 54 | `exam.line.6.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 55 | `exam.line.1.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 56 | `exam.line.2.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 57 | `exam.line.3.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 58 | `exam.line.4.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 59 | `exam.line.5.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
-| 60 | `exam.line.6.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| # | ExecutionRule | KnowledgeRule | 中文名 | Primary Category | Tags | Variant | Variant 中文名 | Version | Variant Version | Binding Targets | Technical Type | Runtime/System | Audit Note |
+|---:|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `common.line.1.xun_kong` | `knowledge.xun_kong` | 旬空 | `knowledge.category.state` (状态体系) | 旬空, 空墓, 状态 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 2 | `common.line.2.xun_kong` | `knowledge.xun_kong` | 旬空 | `knowledge.category.state` (状态体系) | 旬空, 空墓, 状态 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 3 | `common.line.3.xun_kong` | `knowledge.xun_kong` | 旬空 | `knowledge.category.state` (状态体系) | 旬空, 空墓, 状态 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 4 | `common.line.4.xun_kong` | `knowledge.xun_kong` | 旬空 | `knowledge.category.state` (状态体系) | 旬空, 空墓, 状态 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 5 | `common.line.5.xun_kong` | `knowledge.xun_kong` | 旬空 | `knowledge.category.state` (状态体系) | 旬空, 空墓, 状态 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 6 | `common.line.6.xun_kong` | `knowledge.xun_kong` | 旬空 | `knowledge.category.state` (状态体系) | 旬空, 空墓, 状态 | `variant.xun_kong.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 7 | `common.line.1.yue_po` | `knowledge.yue_po` | 月破 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 破, 时令 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 8 | `common.line.2.yue_po` | `knowledge.yue_po` | 月破 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 破, 时令 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 9 | `common.line.3.yue_po` | `knowledge.yue_po` | 月破 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 破, 时令 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 10 | `common.line.4.yue_po` | `knowledge.yue_po` | 月破 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 破, 时令 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 11 | `common.line.5.yue_po` | `knowledge.yue_po` | 月破 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 破, 时令 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 12 | `common.line.6.yue_po` | `knowledge.yue_po` | 月破 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 破, 时令 | `variant.yue_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 13 | `common.line.1.ri_po` | `knowledge.ri_po` | 日破 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 破, 时令 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 14 | `common.line.2.ri_po` | `knowledge.ri_po` | 日破 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 破, 时令 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 15 | `common.line.3.ri_po` | `knowledge.ri_po` | 日破 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 破, 时令 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 16 | `common.line.4.ri_po` | `knowledge.ri_po` | 日破 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 破, 时令 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 17 | `common.line.5.ri_po` | `knowledge.ri_po` | 日破 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 破, 时令 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 18 | `common.line.6.ri_po` | `knowledge.ri_po` | 日破 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 破, 时令 | `variant.ri_po.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 19 | `common.line.1.in_tomb` | `knowledge.in_tomb` | 入墓 | `knowledge.category.state` (状态体系) | 墓, 入墓, 空墓, 状态 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 20 | `common.line.2.in_tomb` | `knowledge.in_tomb` | 入墓 | `knowledge.category.state` (状态体系) | 墓, 入墓, 空墓, 状态 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 21 | `common.line.3.in_tomb` | `knowledge.in_tomb` | 入墓 | `knowledge.category.state` (状态体系) | 墓, 入墓, 空墓, 状态 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 22 | `common.line.4.in_tomb` | `knowledge.in_tomb` | 入墓 | `knowledge.category.state` (状态体系) | 墓, 入墓, 空墓, 状态 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 23 | `common.line.5.in_tomb` | `knowledge.in_tomb` | 入墓 | `knowledge.category.state` (状态体系) | 墓, 入墓, 空墓, 状态 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 24 | `common.line.6.in_tomb` | `knowledge.in_tomb` | 入墓 | `knowledge.category.state` (状态体系) | 墓, 入墓, 空墓, 状态 | `variant.in_tomb.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 25 | `common.line.1.month_generate` | `knowledge.month_generate` | 月生 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 生, 时令 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 26 | `common.line.2.month_generate` | `knowledge.month_generate` | 月生 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 生, 时令 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 27 | `common.line.3.month_generate` | `knowledge.month_generate` | 月生 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 生, 时令 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 28 | `common.line.4.month_generate` | `knowledge.month_generate` | 月生 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 生, 时令 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 29 | `common.line.5.month_generate` | `knowledge.month_generate` | 月生 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 生, 时令 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 30 | `common.line.6.month_generate` | `knowledge.month_generate` | 月生 | `knowledge.category.calendar_influence` (月日时令) | 月, 月建, 生, 时令 | `variant.month_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻)<br>M=calendar/month (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 31 | `common.line.1.day_generate` | `knowledge.day_generate` | 日生 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 生, 时令 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/1 (初爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 32 | `common.line.2.day_generate` | `knowledge.day_generate` | 日生 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 生, 时令 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/2 (二爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 33 | `common.line.3.day_generate` | `knowledge.day_generate` | 日生 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 生, 时令 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/3 (三爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 34 | `common.line.4.day_generate` | `knowledge.day_generate` | 日生 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 生, 时令 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/4 (四爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 35 | `common.line.5.day_generate` | `knowledge.day_generate` | 日生 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 生, 时令 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/5 (五爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 36 | `common.line.6.day_generate` | `knowledge.day_generate` | 日生 | `knowledge.category.calendar_influence` (月日时令) | 日, 日辰, 生, 时令 | `variant.day_generate.common` | 通用判法 | 1.0.0 | 1.0.0 | A=line/6 (上爻)<br>D=calendar/day (MISSING) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 37 | `exam.line.1.role.fu_mu` | `knowledge.fu_mu` | 父母 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 考试 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 38 | `exam.line.2.role.fu_mu` | `knowledge.fu_mu` | 父母 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 考试 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 39 | `exam.line.3.role.fu_mu` | `knowledge.fu_mu` | 父母 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 考试 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 40 | `exam.line.4.role.fu_mu` | `knowledge.fu_mu` | 父母 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 考试 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 41 | `exam.line.5.role.fu_mu` | `knowledge.fu_mu` | 父母 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 考试 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 42 | `exam.line.6.role.fu_mu` | `knowledge.fu_mu` | 父母 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 考试 | `variant.fu_mu.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 43 | `exam.line.1.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `knowledge.category.six_relatives` (六亲与取用) | 官鬼, 六亲, 考试 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 44 | `exam.line.2.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `knowledge.category.six_relatives` (六亲与取用) | 官鬼, 六亲, 考试 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 45 | `exam.line.3.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `knowledge.category.six_relatives` (六亲与取用) | 官鬼, 六亲, 考试 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 46 | `exam.line.4.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `knowledge.category.six_relatives` (六亲与取用) | 官鬼, 六亲, 考试 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 47 | `exam.line.5.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `knowledge.category.six_relatives` (六亲与取用) | 官鬼, 六亲, 考试 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 48 | `exam.line.6.role.guan_gui` | `knowledge.guan_gui` | 官鬼 | `knowledge.category.six_relatives` (六亲与取用) | 官鬼, 六亲, 考试 | `variant.guan_gui.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/PredicateExpr/TagAction` | SYSTEM | None |
+| 49 | `exam.line.1.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 旬空, 状态, 考试, 组合规则 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 50 | `exam.line.2.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 旬空, 状态, 考试, 组合规则 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 51 | `exam.line.3.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 旬空, 状态, 考试, 组合规则 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 52 | `exam.line.4.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 旬空, 状态, 考试, 组合规则 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 53 | `exam.line.5.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 旬空, 状态, 考试, 组合规则 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 54 | `exam.line.6.state.fu_mu_xun_kong` | `knowledge.fu_mu_xun_kong` | 父母旬空 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 旬空, 状态, 考试, 组合规则 | `variant.fu_mu_xun_kong.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 55 | `exam.line.1.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 月生, 月, 考试, 组合规则 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/1 (初爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 56 | `exam.line.2.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 月生, 月, 考试, 组合规则 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/2 (二爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 57 | `exam.line.3.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 月生, 月, 考试, 组合规则 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/3 (三爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 58 | `exam.line.4.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 月生, 月, 考试, 组合规则 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/4 (四爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 59 | `exam.line.5.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 月生, 月, 考试, 组合规则 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/5 (五爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
+| 60 | `exam.line.6.relation.fu_mu_month_generate` | `knowledge.fu_mu_month_generate` | 父母月生 | `knowledge.category.six_relatives` (六亲与取用) | 父母, 六亲, 月生, 月, 考试, 组合规则 | `variant.fu_mu_month_generate.exam` | 考试取象 | 1.0.0 | 1.0.0 | A=line/6 (上爻) | `tag/AllExpr/TagAction` | SYSTEM | None |
 
 ## Sources
 

@@ -22,40 +22,69 @@ class SystemKnowledgeRuleCatalog {
       '旬空',
       KnowledgeRuleCategory.voidTombGrowth,
       '判断某爻是否处于旬空状态。',
+      'knowledge.category.state',
+      ['旬空', '空墓', '状态'],
     ),
     _common(
       'yue_po',
       '月破',
       KnowledgeRuleCategory.voidTombGrowth,
       '判断某爻是否受月破影响。',
+      'knowledge.category.calendar_influence',
+      ['月', '月建', '破', '时令'],
     ),
     _common(
       'ri_po',
       '日破',
       KnowledgeRuleCategory.voidTombGrowth,
       '判断某爻是否受日破影响。',
+      'knowledge.category.calendar_influence',
+      ['日', '日辰', '破', '时令'],
     ),
-    _common('in_tomb', '入墓', KnowledgeRuleCategory.voidTombGrowth, '判断某爻是否入墓。'),
+    _common(
+      'in_tomb',
+      '入墓',
+      KnowledgeRuleCategory.voidTombGrowth,
+      '判断某爻是否入墓。',
+      'knowledge.category.state',
+      ['墓', '入墓', '空墓', '状态'],
+    ),
     _common(
       'month_generate',
       '月生',
       KnowledgeRuleCategory.monthDayStrength,
       '判断某爻是否得月令相生。',
+      'knowledge.category.calendar_influence',
+      ['月', '月建', '生', '时令'],
     ),
     _common(
       'day_generate',
       '日生',
       KnowledgeRuleCategory.monthDayStrength,
       '判断某爻是否得日辰相生。',
+      'knowledge.category.calendar_influence',
+      ['日', '日辰', '生', '时令'],
     ),
-    _exam('fu_mu', '父母', '判断规则对象是否属于父母关系。', 'role.fu_mu'),
-    _exam('guan_gui', '官鬼', '判断规则对象是否属于官鬼关系。', 'role.guan_gui'),
-    _exam('fu_mu_xun_kong', '父母旬空', '判断父母爻是否同时处于旬空。', 'state.fu_mu_xun_kong'),
+    _exam('fu_mu', '父母', '判断规则对象是否属于父母关系。', 'role.fu_mu', ['父母', '六亲', '考试']),
+    _exam('guan_gui', '官鬼', '判断规则对象是否属于官鬼关系。', 'role.guan_gui', [
+      '官鬼',
+      '六亲',
+      '考试',
+    ]),
+    _exam('fu_mu_xun_kong', '父母旬空', '判断父母爻是否同时处于旬空。', 'state.fu_mu_xun_kong', [
+      '父母',
+      '六亲',
+      '旬空',
+      '状态',
+      '考试',
+      '组合规则',
+    ]),
     _exam(
       'fu_mu_month_generate',
       '父母月生',
       '判断父母爻是否得月令相生。',
       'relation.fu_mu_month_generate',
+      ['父母', '六亲', '月生', '月', '考试', '组合规则'],
     ),
   ];
 
@@ -64,12 +93,16 @@ class SystemKnowledgeRuleCatalog {
     String name,
     String category,
     String summary,
+    String primaryCategoryId,
+    List<String> tags,
   ) {
     return KnowledgeRule(
       id: 'knowledge.$suffix',
       name: name,
       categoryId: category,
       summary: summary,
+      primaryCategoryId: primaryCategoryId,
+      tags: tags,
       variants: [
         RuleVariant(
           id: 'variant.$suffix.common',
@@ -88,12 +121,15 @@ class SystemKnowledgeRuleCatalog {
     String name,
     String summary,
     String executionSuffix,
+    List<String> tags,
   ) {
     return KnowledgeRule(
       id: 'knowledge.$suffix',
       name: name,
       categoryId: KnowledgeRuleCategory.other,
       summary: summary,
+      primaryCategoryId: 'knowledge.category.six_relatives',
+      tags: tags,
       variants: [
         RuleVariant(
           id: 'variant.$suffix.exam',

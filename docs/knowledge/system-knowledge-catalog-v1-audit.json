@@ -1,8 +1,8 @@
 {
   "baseline": {
     "branch": "feat/guayan-2.0",
-    "head": "0478bbddeb782caaa4fddc9383972aa10f526631",
-    "generationTime": "2026-09-17T10:29:34.636478Z",
+    "head": "a73a532bab74a1be775fbc19180d6b1df44fc214",
+    "generationTime": "2026-09-17T12:59:15.478850Z",
     "systemExecutionRuleCount": 60,
     "catalogRowCount": 60,
     "knowledgeRuleCount": 10,
@@ -13,13 +13,97 @@
     "missingRuleVariantDisplayNameCount": 0,
     "missingVersionCount": 0,
     "missingBindingDisplayNameCount": 12,
-    "missingSourceCount": 0
+    "missingSourceCount": 0,
+    "categoryCount": 12
   },
+  "categories": [
+    {
+      "id": "knowledge.category.foundation",
+      "displayName": "基础理论",
+      "order": 1,
+      "description": "五行、地支、纳甲、六亲生成及直接参与规则执行的基础理论。"
+    },
+    {
+      "id": "knowledge.category.six_relatives",
+      "displayName": "六亲与取用",
+      "order": 2,
+      "description": "六亲与用神、原神、忌神、仇神、闲神等取用体系。"
+    },
+    {
+      "id": "knowledge.category.six_spirits",
+      "displayName": "六神体系",
+      "order": 3,
+      "description": "青龙、朱雀、勾陈、螣蛇、白虎、玄武及其基础取象。"
+    },
+    {
+      "id": "knowledge.category.shi_ying",
+      "displayName": "世应体系",
+      "order": 4,
+      "description": "世爻、应爻、世应定位、世应关系及相关判断。"
+    },
+    {
+      "id": "knowledge.category.calendar_influence",
+      "displayName": "月日时令",
+      "order": 5,
+      "description": "月建、日辰及月日对爻的直接作用，不等同于最终旺衰结论。"
+    },
+    {
+      "id": "knowledge.category.strength",
+      "displayName": "旺衰判断",
+      "order": 6,
+      "description": "旺相休囚死、得令失令、综合旺衰与强弱判断。"
+    },
+    {
+      "id": "knowledge.category.state",
+      "displayName": "状态体系",
+      "order": 7,
+      "description": "旬空、入墓、出墓、填实、冲空及十二长生状态。"
+    },
+    {
+      "id": "knowledge.category.relation",
+      "displayName": "生克冲合",
+      "order": 8,
+      "description": "生、克、冲、合、刑、害、破与三合、三会、六合等合局。"
+    },
+    {
+      "id": "knowledge.category.change",
+      "displayName": "动变体系",
+      "order": 9,
+      "description": "动爻、变爻、化进化退、进神退神及爻自身变化关系。"
+    },
+    {
+      "id": "knowledge.category.hidden",
+      "displayName": "飞伏体系",
+      "order": 10,
+      "description": "飞神、伏神、飞伏关系、伏神得出与受制。"
+    },
+    {
+      "id": "knowledge.category.hexagram_structure",
+      "displayName": "卦象结构",
+      "order": 11,
+      "description": "反吟、伏吟、六冲卦、六合卦、游魂、归魂等整卦特殊结构。"
+    },
+    {
+      "id": "knowledge.category.shen_sha",
+      "displayName": "神煞体系",
+      "order": 12,
+      "description": "神煞定义、计算、适用范围及相关规则。"
+    }
+  ],
   "rules": [
     {
       "executionRuleId": "common.line.1.xun_kong",
       "knowledgeRuleId": "knowledge.xun_kong",
       "knowledgeRuleDisplayName": "旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "旬空",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.xun_kong.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -45,6 +129,15 @@
       "executionRuleId": "common.line.2.xun_kong",
       "knowledgeRuleId": "knowledge.xun_kong",
       "knowledgeRuleDisplayName": "旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "旬空",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.xun_kong.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -70,6 +163,15 @@
       "executionRuleId": "common.line.3.xun_kong",
       "knowledgeRuleId": "knowledge.xun_kong",
       "knowledgeRuleDisplayName": "旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "旬空",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.xun_kong.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -95,6 +197,15 @@
       "executionRuleId": "common.line.4.xun_kong",
       "knowledgeRuleId": "knowledge.xun_kong",
       "knowledgeRuleDisplayName": "旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "旬空",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.xun_kong.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -120,6 +231,15 @@
       "executionRuleId": "common.line.5.xun_kong",
       "knowledgeRuleId": "knowledge.xun_kong",
       "knowledgeRuleDisplayName": "旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "旬空",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.xun_kong.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -145,6 +265,15 @@
       "executionRuleId": "common.line.6.xun_kong",
       "knowledgeRuleId": "knowledge.xun_kong",
       "knowledgeRuleDisplayName": "旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "旬空",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.xun_kong.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -170,6 +299,16 @@
       "executionRuleId": "common.line.1.yue_po",
       "knowledgeRuleId": "knowledge.yue_po",
       "knowledgeRuleDisplayName": "月破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.yue_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -195,6 +334,16 @@
       "executionRuleId": "common.line.2.yue_po",
       "knowledgeRuleId": "knowledge.yue_po",
       "knowledgeRuleDisplayName": "月破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.yue_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -220,6 +369,16 @@
       "executionRuleId": "common.line.3.yue_po",
       "knowledgeRuleId": "knowledge.yue_po",
       "knowledgeRuleDisplayName": "月破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.yue_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -245,6 +404,16 @@
       "executionRuleId": "common.line.4.yue_po",
       "knowledgeRuleId": "knowledge.yue_po",
       "knowledgeRuleDisplayName": "月破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.yue_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -270,6 +439,16 @@
       "executionRuleId": "common.line.5.yue_po",
       "knowledgeRuleId": "knowledge.yue_po",
       "knowledgeRuleDisplayName": "月破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.yue_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -295,6 +474,16 @@
       "executionRuleId": "common.line.6.yue_po",
       "knowledgeRuleId": "knowledge.yue_po",
       "knowledgeRuleDisplayName": "月破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.yue_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -320,6 +509,16 @@
       "executionRuleId": "common.line.1.ri_po",
       "knowledgeRuleId": "knowledge.ri_po",
       "knowledgeRuleDisplayName": "日破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.ri_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -345,6 +544,16 @@
       "executionRuleId": "common.line.2.ri_po",
       "knowledgeRuleId": "knowledge.ri_po",
       "knowledgeRuleDisplayName": "日破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.ri_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -370,6 +579,16 @@
       "executionRuleId": "common.line.3.ri_po",
       "knowledgeRuleId": "knowledge.ri_po",
       "knowledgeRuleDisplayName": "日破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.ri_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -395,6 +614,16 @@
       "executionRuleId": "common.line.4.ri_po",
       "knowledgeRuleId": "knowledge.ri_po",
       "knowledgeRuleDisplayName": "日破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.ri_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -420,6 +649,16 @@
       "executionRuleId": "common.line.5.ri_po",
       "knowledgeRuleId": "knowledge.ri_po",
       "knowledgeRuleDisplayName": "日破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.ri_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -445,6 +684,16 @@
       "executionRuleId": "common.line.6.ri_po",
       "knowledgeRuleId": "knowledge.ri_po",
       "knowledgeRuleDisplayName": "日破",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "破",
+        "时令"
+      ],
       "ruleVariantId": "variant.ri_po.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -470,6 +719,16 @@
       "executionRuleId": "common.line.1.in_tomb",
       "knowledgeRuleId": "knowledge.in_tomb",
       "knowledgeRuleDisplayName": "入墓",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "墓",
+        "入墓",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.in_tomb.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -495,6 +754,16 @@
       "executionRuleId": "common.line.2.in_tomb",
       "knowledgeRuleId": "knowledge.in_tomb",
       "knowledgeRuleDisplayName": "入墓",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "墓",
+        "入墓",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.in_tomb.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -520,6 +789,16 @@
       "executionRuleId": "common.line.3.in_tomb",
       "knowledgeRuleId": "knowledge.in_tomb",
       "knowledgeRuleDisplayName": "入墓",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "墓",
+        "入墓",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.in_tomb.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -545,6 +824,16 @@
       "executionRuleId": "common.line.4.in_tomb",
       "knowledgeRuleId": "knowledge.in_tomb",
       "knowledgeRuleDisplayName": "入墓",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "墓",
+        "入墓",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.in_tomb.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -570,6 +859,16 @@
       "executionRuleId": "common.line.5.in_tomb",
       "knowledgeRuleId": "knowledge.in_tomb",
       "knowledgeRuleDisplayName": "入墓",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "墓",
+        "入墓",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.in_tomb.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -595,6 +894,16 @@
       "executionRuleId": "common.line.6.in_tomb",
       "knowledgeRuleId": "knowledge.in_tomb",
       "knowledgeRuleDisplayName": "入墓",
+      "primaryCategory": {
+        "id": "knowledge.category.state",
+        "displayName": "状态体系"
+      },
+      "tags": [
+        "墓",
+        "入墓",
+        "空墓",
+        "状态"
+      ],
       "ruleVariantId": "variant.in_tomb.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -620,6 +929,16 @@
       "executionRuleId": "common.line.1.month_generate",
       "knowledgeRuleId": "knowledge.month_generate",
       "knowledgeRuleDisplayName": "月生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.month_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -650,6 +969,16 @@
       "executionRuleId": "common.line.2.month_generate",
       "knowledgeRuleId": "knowledge.month_generate",
       "knowledgeRuleDisplayName": "月生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.month_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -680,6 +1009,16 @@
       "executionRuleId": "common.line.3.month_generate",
       "knowledgeRuleId": "knowledge.month_generate",
       "knowledgeRuleDisplayName": "月生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.month_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -710,6 +1049,16 @@
       "executionRuleId": "common.line.4.month_generate",
       "knowledgeRuleId": "knowledge.month_generate",
       "knowledgeRuleDisplayName": "月生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.month_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -740,6 +1089,16 @@
       "executionRuleId": "common.line.5.month_generate",
       "knowledgeRuleId": "knowledge.month_generate",
       "knowledgeRuleDisplayName": "月生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.month_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -770,6 +1129,16 @@
       "executionRuleId": "common.line.6.month_generate",
       "knowledgeRuleId": "knowledge.month_generate",
       "knowledgeRuleDisplayName": "月生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "月",
+        "月建",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.month_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -800,6 +1169,16 @@
       "executionRuleId": "common.line.1.day_generate",
       "knowledgeRuleId": "knowledge.day_generate",
       "knowledgeRuleDisplayName": "日生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.day_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -830,6 +1209,16 @@
       "executionRuleId": "common.line.2.day_generate",
       "knowledgeRuleId": "knowledge.day_generate",
       "knowledgeRuleDisplayName": "日生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.day_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -860,6 +1249,16 @@
       "executionRuleId": "common.line.3.day_generate",
       "knowledgeRuleId": "knowledge.day_generate",
       "knowledgeRuleDisplayName": "日生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.day_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -890,6 +1289,16 @@
       "executionRuleId": "common.line.4.day_generate",
       "knowledgeRuleId": "knowledge.day_generate",
       "knowledgeRuleDisplayName": "日生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.day_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -920,6 +1329,16 @@
       "executionRuleId": "common.line.5.day_generate",
       "knowledgeRuleId": "knowledge.day_generate",
       "knowledgeRuleDisplayName": "日生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.day_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -950,6 +1369,16 @@
       "executionRuleId": "common.line.6.day_generate",
       "knowledgeRuleId": "knowledge.day_generate",
       "knowledgeRuleDisplayName": "日生",
+      "primaryCategory": {
+        "id": "knowledge.category.calendar_influence",
+        "displayName": "月日时令"
+      },
+      "tags": [
+        "日",
+        "日辰",
+        "生",
+        "时令"
+      ],
       "ruleVariantId": "variant.day_generate.common",
       "ruleVariantDisplayName": "通用判法",
       "version": "1.0.0",
@@ -980,6 +1409,15 @@
       "executionRuleId": "exam.line.1.role.fu_mu",
       "knowledgeRuleId": "knowledge.fu_mu",
       "knowledgeRuleDisplayName": "父母",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.fu_mu.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1005,6 +1443,15 @@
       "executionRuleId": "exam.line.2.role.fu_mu",
       "knowledgeRuleId": "knowledge.fu_mu",
       "knowledgeRuleDisplayName": "父母",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.fu_mu.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1030,6 +1477,15 @@
       "executionRuleId": "exam.line.3.role.fu_mu",
       "knowledgeRuleId": "knowledge.fu_mu",
       "knowledgeRuleDisplayName": "父母",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.fu_mu.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1055,6 +1511,15 @@
       "executionRuleId": "exam.line.4.role.fu_mu",
       "knowledgeRuleId": "knowledge.fu_mu",
       "knowledgeRuleDisplayName": "父母",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.fu_mu.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1080,6 +1545,15 @@
       "executionRuleId": "exam.line.5.role.fu_mu",
       "knowledgeRuleId": "knowledge.fu_mu",
       "knowledgeRuleDisplayName": "父母",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.fu_mu.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1105,6 +1579,15 @@
       "executionRuleId": "exam.line.6.role.fu_mu",
       "knowledgeRuleId": "knowledge.fu_mu",
       "knowledgeRuleDisplayName": "父母",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.fu_mu.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1130,6 +1613,15 @@
       "executionRuleId": "exam.line.1.role.guan_gui",
       "knowledgeRuleId": "knowledge.guan_gui",
       "knowledgeRuleDisplayName": "官鬼",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "官鬼",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.guan_gui.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1155,6 +1647,15 @@
       "executionRuleId": "exam.line.2.role.guan_gui",
       "knowledgeRuleId": "knowledge.guan_gui",
       "knowledgeRuleDisplayName": "官鬼",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "官鬼",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.guan_gui.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1180,6 +1681,15 @@
       "executionRuleId": "exam.line.3.role.guan_gui",
       "knowledgeRuleId": "knowledge.guan_gui",
       "knowledgeRuleDisplayName": "官鬼",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "官鬼",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.guan_gui.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1205,6 +1715,15 @@
       "executionRuleId": "exam.line.4.role.guan_gui",
       "knowledgeRuleId": "knowledge.guan_gui",
       "knowledgeRuleDisplayName": "官鬼",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "官鬼",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.guan_gui.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1230,6 +1749,15 @@
       "executionRuleId": "exam.line.5.role.guan_gui",
       "knowledgeRuleId": "knowledge.guan_gui",
       "knowledgeRuleDisplayName": "官鬼",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "官鬼",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.guan_gui.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1255,6 +1783,15 @@
       "executionRuleId": "exam.line.6.role.guan_gui",
       "knowledgeRuleId": "knowledge.guan_gui",
       "knowledgeRuleDisplayName": "官鬼",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "官鬼",
+        "六亲",
+        "考试"
+      ],
       "ruleVariantId": "variant.guan_gui.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1280,6 +1817,18 @@
       "executionRuleId": "exam.line.1.state.fu_mu_xun_kong",
       "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
       "knowledgeRuleDisplayName": "父母旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "旬空",
+        "状态",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_xun_kong.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1305,6 +1854,18 @@
       "executionRuleId": "exam.line.2.state.fu_mu_xun_kong",
       "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
       "knowledgeRuleDisplayName": "父母旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "旬空",
+        "状态",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_xun_kong.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1330,6 +1891,18 @@
       "executionRuleId": "exam.line.3.state.fu_mu_xun_kong",
       "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
       "knowledgeRuleDisplayName": "父母旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "旬空",
+        "状态",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_xun_kong.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1355,6 +1928,18 @@
       "executionRuleId": "exam.line.4.state.fu_mu_xun_kong",
       "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
       "knowledgeRuleDisplayName": "父母旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "旬空",
+        "状态",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_xun_kong.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1380,6 +1965,18 @@
       "executionRuleId": "exam.line.5.state.fu_mu_xun_kong",
       "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
       "knowledgeRuleDisplayName": "父母旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "旬空",
+        "状态",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_xun_kong.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1405,6 +2002,18 @@
       "executionRuleId": "exam.line.6.state.fu_mu_xun_kong",
       "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
       "knowledgeRuleDisplayName": "父母旬空",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "旬空",
+        "状态",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_xun_kong.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1430,6 +2039,18 @@
       "executionRuleId": "exam.line.1.relation.fu_mu_month_generate",
       "knowledgeRuleId": "knowledge.fu_mu_month_generate",
       "knowledgeRuleDisplayName": "父母月生",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "月生",
+        "月",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_month_generate.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1455,6 +2076,18 @@
       "executionRuleId": "exam.line.2.relation.fu_mu_month_generate",
       "knowledgeRuleId": "knowledge.fu_mu_month_generate",
       "knowledgeRuleDisplayName": "父母月生",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "月生",
+        "月",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_month_generate.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1480,6 +2113,18 @@
       "executionRuleId": "exam.line.3.relation.fu_mu_month_generate",
       "knowledgeRuleId": "knowledge.fu_mu_month_generate",
       "knowledgeRuleDisplayName": "父母月生",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "月生",
+        "月",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_month_generate.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1505,6 +2150,18 @@
       "executionRuleId": "exam.line.4.relation.fu_mu_month_generate",
       "knowledgeRuleId": "knowledge.fu_mu_month_generate",
       "knowledgeRuleDisplayName": "父母月生",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "月生",
+        "月",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_month_generate.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1530,6 +2187,18 @@
       "executionRuleId": "exam.line.5.relation.fu_mu_month_generate",
       "knowledgeRuleId": "knowledge.fu_mu_month_generate",
       "knowledgeRuleDisplayName": "父母月生",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "月生",
+        "月",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_month_generate.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
@@ -1555,6 +2224,18 @@
       "executionRuleId": "exam.line.6.relation.fu_mu_month_generate",
       "knowledgeRuleId": "knowledge.fu_mu_month_generate",
       "knowledgeRuleDisplayName": "父母月生",
+      "primaryCategory": {
+        "id": "knowledge.category.six_relatives",
+        "displayName": "六亲与取用"
+      },
+      "tags": [
+        "父母",
+        "六亲",
+        "月生",
+        "月",
+        "考试",
+        "组合规则"
+      ],
       "ruleVariantId": "variant.fu_mu_month_generate.exam",
       "ruleVariantDisplayName": "考试取象",
       "version": "1.0.0",
