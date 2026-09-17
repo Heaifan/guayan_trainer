@@ -31,9 +31,9 @@ class _State extends State<RuleCenterPage> {
   );
 
   Future<void> _toggleEnable(RuleDefinition r, bool val) async {
-    if (r.origin == RuleOrigin.SYSTEM)
+    if (r.origin == RuleOrigin.SYSTEM) {
       await widget.service.governance.setSystemRuleEnabled(r.ruleId, val);
-    else {
+    } else {
       final updated = RuleEditorDraft.fromDefinition(r)..enabled = val;
       await widget.service.store.addOrUpdate(updated.toDefinition());
     }

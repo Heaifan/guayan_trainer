@@ -3,7 +3,7 @@ import '../core/rule_definition.dart';
 import '../core/rule_origin.dart';
 import 'custom_rule_store.dart';
 import 'user_governance_state.dart';
-import '../topics/topic_rule_boundary_validator.dart';
+import 'custom_rule_save_boundary.dart';
 import '../vocabulary/condition_registry.dart';
 import '../ast/rule_expr.dart';
 import '../governance/rule_resolver.dart';
@@ -37,9 +37,8 @@ class CustomRuleService {
     // 1. Schema Validation using existing registry
     _validateExpr(rule.condition);
 
-    // 2. Boundary Validation
-    final expectedId = rule.namespace.startsWith('topic.') ? rule.namespace.substring(6) : 'common';
-    TopicRuleBoundaryValidator.validate(rule, expectedId);
+    // 2. Boundary Validation（COMMON / topic.* 分发，未知 namespace 拒绝）
+    CustomRuleSaveBoundary.validate(rule);
 
     // 3. RuleResolver Preflight
     final testSet = getMergedRules(currentSystemRules).toList();

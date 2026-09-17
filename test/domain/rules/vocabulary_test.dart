@@ -46,26 +46,26 @@ void main() {
     });
 
     test('60 JiaZi Anchor Truth Tests', () {
-      expect(NaYinCatalog.getByJiaZiIndex(0).name, '海中�?); // 甲子
-      expect(NaYinCatalog.getByJiaZiIndex(1).name, '海中�?); // 乙丑
+      expect(NaYinCatalog.getByJiaZiIndex(0).name, '海中金'); // 甲子
+      expect(NaYinCatalog.getByJiaZiIndex(1).name, '海中金'); // 乙丑
 
-      expect(NaYinCatalog.getByJiaZiIndex(8).name, '剑锋�?); // 壬申
-      expect(NaYinCatalog.getByJiaZiIndex(9).name, '剑锋�?); // 癸酉
+      expect(NaYinCatalog.getByJiaZiIndex(8).name, '剑锋金'); // 壬申
+      expect(NaYinCatalog.getByJiaZiIndex(9).name, '剑锋金'); // 癸酉
 
-      expect(NaYinCatalog.getByJiaZiIndex(30).name, '沙中�?); // 甲午
-      expect(NaYinCatalog.getByJiaZiIndex(31).name, '沙中�?); // 乙未
+      expect(NaYinCatalog.getByJiaZiIndex(30).name, '沙中金'); // 甲午
+      expect(NaYinCatalog.getByJiaZiIndex(31).name, '沙中金'); // 乙未
 
-      expect(NaYinCatalog.getByJiaZiIndex(40).name, '佛灯�?); // 甲辰
-      expect(NaYinCatalog.getByJiaZiIndex(41).name, '佛灯�?); // 乙巳
+      expect(NaYinCatalog.getByJiaZiIndex(40).name, '佛灯火'); // 甲辰
+      expect(NaYinCatalog.getByJiaZiIndex(41).name, '佛灯火'); // 乙巳
 
-      expect(NaYinCatalog.getByJiaZiIndex(48).name, '桑柘�?); // 壬子
-      expect(NaYinCatalog.getByJiaZiIndex(49).name, '桑柘�?); // 癸丑
+      expect(NaYinCatalog.getByJiaZiIndex(48).name, '桑柘木'); // 壬子
+      expect(NaYinCatalog.getByJiaZiIndex(49).name, '桑柘木'); // 癸丑
 
-      expect(NaYinCatalog.getByJiaZiIndex(56).name, '石榴�?); // 庚申
-      expect(NaYinCatalog.getByJiaZiIndex(57).name, '石榴�?); // 辛酉
+      expect(NaYinCatalog.getByJiaZiIndex(56).name, '石榴木'); // 庚申
+      expect(NaYinCatalog.getByJiaZiIndex(57).name, '石榴木'); // 辛酉
 
-      expect(NaYinCatalog.getByJiaZiIndex(58).name, '大海�?); // 壬戌
-      expect(NaYinCatalog.getByJiaZiIndex(59).name, '大海�?); // 癸亥
+      expect(NaYinCatalog.getByJiaZiIndex(58).name, '大海水'); // 壬戌
+      expect(NaYinCatalog.getByJiaZiIndex(59).name, '大海水'); // 癸亥
     });
   });
 

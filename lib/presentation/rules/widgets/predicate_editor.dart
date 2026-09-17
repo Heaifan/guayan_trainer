@@ -35,8 +35,9 @@ class PredicateEditor extends StatelessWidget {
       onChanged: (v) {
         final ops = List.of(expr.operands);
         if (ops.length <= idx) {
-          while (ops.length <= idx)
+          while (ops.length <= idx) {
             ops.add(LiteralOperand(RuleValue.string('')));
+          }
         }
         ops[idx] = LiteralOperand(RuleValue.string(v));
         onChange(PredicateExpr(operatorId: expr.operatorId, operands: ops));

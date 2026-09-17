@@ -24,15 +24,17 @@ class RuleDefinitionCodec {
       'provenance': r.provenance,
       'bindings': r.bindings.map((b) {
         final sel = b.selector;
-        if (sel is DirectSelector)
+        if (sel is DirectSelector) {
           return {'name': b.name, 'type': 'dir', 'target': sel.target};
-        if (sel is RelativeSelector)
+        }
+        if (sel is RelativeSelector) {
           return {
             'name': b.name,
             'type': 'rel',
             'base': sel.baseBinding,
             'path': sel.path,
           };
+        }
         throw ArgumentError('Unknown selector');
       }).toList(),
       'condition': RuleExprCodec.toJson(r.condition),
@@ -57,10 +59,11 @@ class RuleDefinitionCodec {
       provenance: json['provenance'],
       bindings: (json['bindings'] as List).map<RuleBinding>((b) {
         BindingSelector sel;
-        if (b['type'] == 'dir')
+        if (b['type'] == 'dir') {
           sel = DirectSelector(b['target']);
-        else
+        } else {
           sel = RelativeSelector(baseBinding: b['base'], path: b['path']);
+        }
         return RuleBinding(name: b['name'], selector: sel);
       }).toList(),
       condition: RuleExprCodec.fromJson(json['condition']),

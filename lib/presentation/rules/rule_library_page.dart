@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'rule_center_page_loader.dart';
 
 /// 规则库（Rule Library）Skeleton。
 ///
@@ -13,12 +14,8 @@ class RuleLibraryPage extends StatelessWidget {
       appBar: AppBar(title: const Text('规则库')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
-          _RuleEntryCard(
-            icon: Icons.tune_rounded,
-            title: '自定义规则',
-            description: '用户自己创建的象义规则',
-          ),
+        children: [
+          _RuleEntryCard(icon: Icons.tune_rounded, title: '自定义规则', description: '用户自己创建的象义规则', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RuleCenterPageLoader()))),
           _RuleEntryCard(
             icon: Icons.folder_copy_rounded,
             title: '规则包',
@@ -39,12 +36,13 @@ class _RuleEntryCard extends StatelessWidget {
   const _RuleEntryCard({
     required this.icon,
     required this.title,
-    required this.description,
+    required this.description, this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String description;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +53,9 @@ class _RuleEntryCard extends StatelessWidget {
         leading: Icon(icon, color: theme.colorScheme.primary),
         title: Text(title),
         subtitle: Text(description),
-        trailing: const Text('后续开放'),
-        enabled: false,
+        trailing: onTap == null ? const Text('后续开放') : const Icon(Icons.chevron_right),
+        enabled: onTap != null,
+        onTap: onTap,
       ),
     );
   }

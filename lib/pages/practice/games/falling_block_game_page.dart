@@ -354,7 +354,7 @@ class _FallingBlockGamePageState extends State<FallingBlockGamePage>
             fontSize: 13, fontWeight: FontWeight.w700,
             color: _combo >= 5 ? const Color(0xFFC0392B) : null,
           )),
-          Text(widget.isInfinite ? '∞' : '${_nextQuestionIndex}', style: const TextStyle(fontSize: 13, color: Color(0xFF6B4E2E))),
+          Text(widget.isInfinite ? '∞' : '$_nextQuestionIndex', style: const TextStyle(fontSize: 13, color: Color(0xFF6B4E2E))),
         ],
       ),
     );

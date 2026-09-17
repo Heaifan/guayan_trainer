@@ -14,10 +14,10 @@ import 'package:guayan_trainer/domain/rules/facts/rule_value.dart';
 void main() {
   group('T2 Golden Contract Test', () {
     test('手工构建规则：父母得月生', () {
-      // 本测试证�?Canonical Model 能完整表达：
-      // �?A 为二爻，M 为月�?
-      // �?A之六亲为父母 �?A临青�?�?M生A �?A非旬�?
-      // �?A得「父母有力�? A取象「文书�?
+      // 本测试证明 Canonical Model 能完整表达：
+      // A 为二爻，M 为月建
+      // A之六亲为父母 A临青龙、M生A A非旬空
+      // A得「父母有力」。 A取象「文书」。
 
       final bindings = [
         RuleBinding(name: 'A', selector: DirectSelector('line/2')),
@@ -68,9 +68,9 @@ void main() {
         namespace: 'core',
         categoryId: 'exam',
         stage: RuleStage.derivedState,
-        title: '父母得月�?,
-        description: '父母临青龙得月建生，不空，为文书有利之象�?,
-        provenance: '《增删卜易�?,
+        title: '父母得月建',
+        description: '父母临青龙得月建生，不空，为文书有利之象。',
+        provenance: '《增删卜易》',
         bindings: bindings,
         condition: condition,
         actions: actions,

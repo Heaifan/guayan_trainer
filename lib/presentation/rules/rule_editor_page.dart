@@ -63,8 +63,9 @@ class _State extends State<RuleEditorPage> {
   void _save() async {
     try {
       final oldVersion = _draft.version;
-      if (widget.initialRule != null && !widget.isCopy)
+      if (widget.initialRule != null && !widget.isCopy) {
         _draft.version = RuleVersionBumper.bumpPatch(_draft.version);
+      }
 
       final def = _draft.toDefinition();
       final currentSystemRules = [
@@ -77,16 +78,18 @@ class _State extends State<RuleEditorPage> {
         if (mounted) Navigator.pop(context);
       } catch (e) {
         _draft.version = oldVersion;
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     }
   }
 

@@ -69,7 +69,7 @@ Future<void> main(List<String> args) async {
     final pack = _buildPack(year, entries);
     final path = '$_outDir/$year.calendar.json';
     File(path).writeAsStringSync(
-      const JsonEncoder.withIndent('  ').convert(pack) + '\n',
+      '${const JsonEncoder.withIndent('  ').convert(pack)}\n',
     );
     stdout.writeln('$year -> $path  (${entries.length} terms)');
   }

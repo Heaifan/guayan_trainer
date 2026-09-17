@@ -23,14 +23,16 @@ class _State extends State<ConditionEditor> {
   }
 
   Widget _buildNode(RuleExpr expr, Function(RuleExpr?) onChange) {
-    if (expr is AllExpr || expr is AnyExpr || expr is NotExpr)
+    if (expr is AllExpr || expr is AnyExpr || expr is NotExpr) {
       return CompoundExprEditor(
         expr: expr,
         onChange: onChange,
         buildNode: _buildNode,
       );
-    if (expr is PredicateExpr)
+    }
+    if (expr is PredicateExpr) {
       return PredicateEditor(expr: expr, onChange: onChange);
+    }
     return const SizedBox();
   }
 

@@ -6,20 +6,24 @@ import '../facts/rule_value.dart';
 
 class RuleExprCodec {
   static Map<String, dynamic> toJson(RuleExpr expr) {
-    if (expr is AllExpr)
+    if (expr is AllExpr) {
       return {'type': 'all', 'nodes': expr.nodes.map(toJson).toList()};
-    if (expr is AnyExpr)
+    }
+    if (expr is AnyExpr) {
       return {'type': 'any', 'nodes': expr.nodes.map(toJson).toList()};
+    }
     if (expr is NotExpr) return {'type': 'not', 'node': toJson(expr.node)};
     if (expr is PredicateExpr) {
       return {
         'type': 'predicate',
         'operatorId': expr.operatorId,
         'operands': expr.operands.map((o) {
-          if (o is BindingRefOperand)
+          if (o is BindingRefOperand) {
             return {'kind': 'ref', 'bindingName': o.bindingName};
-          if (o is LiteralOperand)
+          }
+          if (o is LiteralOperand) {
             return {'kind': 'lit', 'value': o.value.toJson()};
+          }
           throw ArgumentError('Unknown operand');
         }).toList(),
       };
@@ -44,8 +48,9 @@ class RuleExprCodec {
           operatorId: json['operatorId'],
           operands: (json['operands'] as List).map<RuleOperand>((o) {
             if (o['kind'] == 'ref') return BindingRefOperand(o['bindingName']);
-            if (o['kind'] == 'lit')
+            if (o['kind'] == 'lit') {
               return LiteralOperand(RuleValue.fromJson(o['value']));
+            }
             throw ArgumentError('Unknown operand json');
           }).toList(),
         );

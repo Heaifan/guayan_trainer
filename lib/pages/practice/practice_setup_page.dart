@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../data/practice/wuxing_practice_question_generator.dart';
 import '../../models/practice/practice_enums.dart';
-import '../../theme/wuxing_colors.dart';
 import '../../utils/practice_labels.dart';
 import 'games/falling_block_game_page.dart';
 import 'games/link_match_game_page.dart';

@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-import '../theme/wuxing_colors.dart';
 
 /// Draws the five-pointed star control lines ("克") between wuxing nodes.
 ///

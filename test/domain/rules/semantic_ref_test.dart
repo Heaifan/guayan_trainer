@@ -20,7 +20,7 @@ void main() {
       expect(restored, equals(ref));
     });
 
-    test('line/changedLine/month/day/world/response 可以无歧义表�?, () {
+    test('line/changedLine/month/day/world/response 可以无歧义表达', () {
       expect(SemanticRef.line(1).toString(), 'SemanticRef(line/1)');
       expect(SemanticRef.changedLine(6).toString(), 'SemanticRef(changed_line/6)');
       expect(SemanticRef.month.toString(), 'SemanticRef(calendar/month)');
@@ -31,7 +31,7 @@ void main() {
   });
 
   group('RuleValue Contract', () {
-    test('RuleValue 不接�?Function / 任意可执行对�?, () {
+    test('RuleValue 不接受 Function / 任意可执行对象', () {
       final valid = RuleValue.string('relative.parent');
       expect(valid.value, 'relative.parent');
 
@@ -43,7 +43,7 @@ void main() {
   });
 
   group('FactSnapshot Contract', () {
-    test('FactSnapshot 构建后不可修�?, () {
+    test('FactSnapshot 构建后不可修改', () {
       final facts = [
         FactRecord(
           factId: 'f1',
@@ -69,9 +69,9 @@ void main() {
       }, throwsA(isA<NoSuchMethodError>()));
     });
 
-    test('构建 FactSnapshot 不修�?HexagramCase (Contract verification)', () {
-      // 本测试只需表明 FactSnapshot 是数据容器，完全分离�?HexagramCase 业务实体
-      // 外部只需传�?Iterable<FactRecord> 即可构建，无 HexagramCase 依赖
+    test('构建 FactSnapshot 不依赖于 HexagramCase (Contract verification)', () {
+      // 本测试只需表明 FactSnapshot 是数据容器，完全分离�?HexagramCase 业务实体
+      // 外部只需传�?Iterable<FactRecord> 即可构建，无 HexagramCase 依赖
       final snapshot = FactSnapshot.build([]);
       expect(snapshot.facts, isEmpty);
     });

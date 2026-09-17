@@ -5,25 +5,28 @@ import '../facts/rule_value.dart';
 
 class RuleActionCodec {
   static Map<String, dynamic> toJson(RuleAction action) {
-    if (action is DeriveAction)
+    if (action is DeriveAction) {
       return {
         'type': 'derive',
         'target': action.targetBinding,
         'key': action.factKey,
       };
-    if (action is TagAction)
+    }
+    if (action is TagAction) {
       return {
         'type': 'tag',
         'cat': action.categoryId,
         'tagId': action.tagId,
         'subject': action.subjectBinding,
       };
-    if (action is StructureAction)
+    }
+    if (action is StructureAction) {
       return {
         'type': 'structure',
         'id': action.structureId,
         'members': action.memberBindings,
       };
+    }
     if (action is RecordAction) {
       return {
         'type': 'record',
