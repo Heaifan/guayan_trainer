@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'casting_snapshot.dart';
 import 'rule_run.dart';
+import '../hexagram_case.dart';
+import '../rule_execution_context.dart';
 
 /// 一次真实生成的排盘事实档案。
 class CaseRecord {
@@ -43,6 +45,16 @@ class CaseRecord {
   final DateTime? deletedAt;
 
   String get subjectDisplay => subject.trim().isEmpty ? '未填写事项' : subject;
+
+  /// 将历史 Snapshot 投影给现有审卦页；不读取当前排卦草稿。
+  HexagramCase toHexagramCase() => HexagramCase(
+    id: id,
+    question: subject,
+    lines: snapshot.lines,
+    createdAt: snapshot.castingTime,
+    ruleContext: ruleRuns.isEmpty ? const RuleExecutionContext.empty() : ruleRuns.first.ruleContext,
+    calendar: snapshot.calendar,
+  );
 
   CaseRecord copyWith({
     String? subject,

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/hexagram_case.dart';
+import '../../domain/cases/case_record.dart';
+import '../../domain/shensha/shensha_note_store.dart';
 import 'more_menu.dart';
 import 'navigation/guayan_main_tab_bar.dart';
 import 'navigation/main_tabs.dart';
 import '../presentation/casting/casting_page.dart';
+import '../presentation/cases/cases_page.dart';
 import '../presentation/review/review_page.dart';
+import '../presentation/relations/relations_page.dart';
 import '../services/calendar/casting_calendar_service.dart';
+import '../services/cases/case_repository.dart';
+import '../services/cases/json_case_repository.dart';
 
 /// 卦眼 2.0 应用壳。
 ///
@@ -29,6 +35,23 @@ class AppShellState extends State<AppShell> {
 
   /// 最近一次排卦生成结果（排卦 → 审卦 数据桥接）。
   HexagramCase? _latestCase;
+  final ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
+  CaseRepository? _caseRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    JsonCaseRepository.open().then((repository) {
+      if (mounted) setState(() => _caseRepository = repository);
+    });
+  }
+
+  void _openCase(CaseRecord record) {
+    setState(() {
+      _latestCase = record.toHexagramCase();
+      selectedIndex = 1;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +68,7 @@ class AppShellState extends State<AppShell> {
         children: [
           CastingPage(
             calendarService: widget.calendarService,
+            caseRepository: _caseRepository,
             useDemoDraft: false,
             onGenerated: (case_) {
               setState(() {
@@ -56,9 +80,12 @@ class AppShellState extends State<AppShell> {
           ReviewPage(
             latestCase: _latestCase,
             useDemoFallback: false,
+            shenShaNoteStore: _shenShaNoteStore,
             onOpenRelations: () => setState(() => selectedIndex = 2),
           ),
-          for (final tab in mainTabs.skip(2)) tab.builder(context),
+          RelationsPage(latestCase: _latestCase),
+          CasesPage(repository: _caseRepository, onOpenCase: _openCase),
+          mainTabs[4].builder(context),
         ],
       ),
       bottomNavigationBar: GuayanMainTabBar(
