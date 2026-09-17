@@ -4,9 +4,35 @@
 > **归档分支：** `feat/guayan-2.0`
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
-> **当前 R5 开发基线：** R5-G2-A/B KNOWLEDGE RULE DOMAIN MODEL
+> **当前 R5 开发基线：** R5-G2-C1 SYSTEM KNOWLEDGE CATALOG AUDIT
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
+
+---
+
+## 2026-09-17 · R5-G2-C1 SYSTEM Knowledge Catalog Audit
+
+> 基于真实 SYSTEM ExecutionRule 与现有 KnowledgeRule/RuleVariant Catalog 生成完整 60 条审计表和 JSON；不修改知识语义、Runtime 或 UI。
+
+### 新增/修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `tool/knowledge_catalog_audit*.dart` | 开发期同源 Catalog 审计生成器 |
+| `docs/knowledge/system-knowledge-catalog-v1-audit.md` | 完整 60 行人工审计表与来源证据 |
+| `docs/knowledge/system-knowledge-catalog-v1-audit.json` | 完整 60 行机器可读 Catalog |
+| `test/tool/knowledge_catalog_audit_test.dart` | Catalog 不变量与 JSON/Markdown 一致性测试 |
+
+### 验证
+
+- SYSTEM ExecutionRule：60 条
+- Catalog rows：60
+- Unique ExecutionRule：60
+- Orphan：0
+- 缺失 KnowledgeRule 中文名：0
+- 缺失 RuleVariant 中文名：0
+- 缺失 Version：0
+- 缺失绑定中文名：12（`calendar/month`、`calendar/day` 当前无正式中文显示名）
 
 ---
 

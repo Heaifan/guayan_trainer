@@ -1,13 +1,27 @@
 # 妞ゅ湱娲伴弬鍥︽閺?閳?閸楋妇婧傜拋顓犵矊閸?
 
 > **当前应用版本：** 2.0.0+41（pubspec.yaml）
-> **R5 开发基线：** R5-G2-A/B KNOWLEDGE RULE DOMAIN MODEL
-> **最后编辑时间：** 2026-09-17 18:08:53
+> **R5 开发基线：** R5-G2-C1 SYSTEM KNOWLEDGE CATALOG AUDIT
+> **最后编辑时间：** 2026-09-17 18:29:41
 
 > 请在每一次新增、重命名、删除文件后，或者发版时，更新本文件。
 > 作为 AI 请记住：不要只修改内容，确保本文件的最后编辑时间也一并更新。
 
 ---
+
+## R5-G2-C1 SYSTEM KNOWLEDGE CATALOG AUDIT (2026-09-17)
+
+> 从真实 SYSTEM ExecutionRule、现有 KnowledgeRule Catalog 与 RuleVariant 映射生成 60 行 Markdown/JSON 审计基线；不修改知识语义、Runtime 或 UI。
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| tool/knowledge_catalog_audit.dart | 开发期生成器入口，写出同源 Markdown/JSON |
+| tool/knowledge_catalog_audit_model.dart | 审计 Catalog 与行模型 |
+| tool/knowledge_catalog_audit_builder.dart | 从真实 Corpus/Catalog 构建审计行 |
+| tool/knowledge_catalog_audit_render.dart | Markdown/JSON 渲染器 |
+| docs/knowledge/system-knowledge-catalog-v1-audit.md | 60 条人工审计主表与证据 |
+| docs/knowledge/system-knowledge-catalog-v1-audit.json | 机器可读 60 条 Catalog |
+| test/tool/knowledge_catalog_audit_test.dart | 行数、唯一性与 Markdown/JSON 同源校验 |
 
 ## R5-G2-A/B KNOWLEDGE RULE DOMAIN MODEL (2026-09-17)
 

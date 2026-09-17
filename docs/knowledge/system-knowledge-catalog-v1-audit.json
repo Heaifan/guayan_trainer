@@ -1,0 +1,1581 @@
+{
+  "baseline": {
+    "branch": "feat/guayan-2.0",
+    "head": "0478bbddeb782caaa4fddc9383972aa10f526631",
+    "generationTime": "2026-09-17T10:29:34.636478Z",
+    "systemExecutionRuleCount": 60,
+    "catalogRowCount": 60,
+    "knowledgeRuleCount": 10,
+    "ruleVariantCount": 10,
+    "uniqueExecutionRuleCount": 60,
+    "orphanCount": 0,
+    "missingKnowledgeRuleDisplayNameCount": 0,
+    "missingRuleVariantDisplayNameCount": 0,
+    "missingVersionCount": 0,
+    "missingBindingDisplayNameCount": 12,
+    "missingSourceCount": 0
+  },
+  "rules": [
+    {
+      "executionRuleId": "common.line.1.xun_kong",
+      "knowledgeRuleId": "knowledge.xun_kong",
+      "knowledgeRuleDisplayName": "旬空",
+      "ruleVariantId": "variant.xun_kong.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.2.xun_kong",
+      "knowledgeRuleId": "knowledge.xun_kong",
+      "knowledgeRuleDisplayName": "旬空",
+      "ruleVariantId": "variant.xun_kong.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.3.xun_kong",
+      "knowledgeRuleId": "knowledge.xun_kong",
+      "knowledgeRuleDisplayName": "旬空",
+      "ruleVariantId": "variant.xun_kong.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.4.xun_kong",
+      "knowledgeRuleId": "knowledge.xun_kong",
+      "knowledgeRuleDisplayName": "旬空",
+      "ruleVariantId": "variant.xun_kong.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.5.xun_kong",
+      "knowledgeRuleId": "knowledge.xun_kong",
+      "knowledgeRuleDisplayName": "旬空",
+      "ruleVariantId": "variant.xun_kong.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.6.xun_kong",
+      "knowledgeRuleId": "knowledge.xun_kong",
+      "knowledgeRuleDisplayName": "旬空",
+      "ruleVariantId": "variant.xun_kong.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.1.yue_po",
+      "knowledgeRuleId": "knowledge.yue_po",
+      "knowledgeRuleDisplayName": "月破",
+      "ruleVariantId": "variant.yue_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.2.yue_po",
+      "knowledgeRuleId": "knowledge.yue_po",
+      "knowledgeRuleDisplayName": "月破",
+      "ruleVariantId": "variant.yue_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.3.yue_po",
+      "knowledgeRuleId": "knowledge.yue_po",
+      "knowledgeRuleDisplayName": "月破",
+      "ruleVariantId": "variant.yue_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.4.yue_po",
+      "knowledgeRuleId": "knowledge.yue_po",
+      "knowledgeRuleDisplayName": "月破",
+      "ruleVariantId": "variant.yue_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.5.yue_po",
+      "knowledgeRuleId": "knowledge.yue_po",
+      "knowledgeRuleDisplayName": "月破",
+      "ruleVariantId": "variant.yue_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.6.yue_po",
+      "knowledgeRuleId": "knowledge.yue_po",
+      "knowledgeRuleDisplayName": "月破",
+      "ruleVariantId": "variant.yue_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.1.ri_po",
+      "knowledgeRuleId": "knowledge.ri_po",
+      "knowledgeRuleDisplayName": "日破",
+      "ruleVariantId": "variant.ri_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.2.ri_po",
+      "knowledgeRuleId": "knowledge.ri_po",
+      "knowledgeRuleDisplayName": "日破",
+      "ruleVariantId": "variant.ri_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.3.ri_po",
+      "knowledgeRuleId": "knowledge.ri_po",
+      "knowledgeRuleDisplayName": "日破",
+      "ruleVariantId": "variant.ri_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.4.ri_po",
+      "knowledgeRuleId": "knowledge.ri_po",
+      "knowledgeRuleDisplayName": "日破",
+      "ruleVariantId": "variant.ri_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.5.ri_po",
+      "knowledgeRuleId": "knowledge.ri_po",
+      "knowledgeRuleDisplayName": "日破",
+      "ruleVariantId": "variant.ri_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.6.ri_po",
+      "knowledgeRuleId": "knowledge.ri_po",
+      "knowledgeRuleDisplayName": "日破",
+      "ruleVariantId": "variant.ri_po.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.1.in_tomb",
+      "knowledgeRuleId": "knowledge.in_tomb",
+      "knowledgeRuleDisplayName": "入墓",
+      "ruleVariantId": "variant.in_tomb.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.2.in_tomb",
+      "knowledgeRuleId": "knowledge.in_tomb",
+      "knowledgeRuleDisplayName": "入墓",
+      "ruleVariantId": "variant.in_tomb.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.3.in_tomb",
+      "knowledgeRuleId": "knowledge.in_tomb",
+      "knowledgeRuleDisplayName": "入墓",
+      "ruleVariantId": "variant.in_tomb.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.4.in_tomb",
+      "knowledgeRuleId": "knowledge.in_tomb",
+      "knowledgeRuleDisplayName": "入墓",
+      "ruleVariantId": "variant.in_tomb.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.5.in_tomb",
+      "knowledgeRuleId": "knowledge.in_tomb",
+      "knowledgeRuleDisplayName": "入墓",
+      "ruleVariantId": "variant.in_tomb.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.6.in_tomb",
+      "knowledgeRuleId": "knowledge.in_tomb",
+      "knowledgeRuleDisplayName": "入墓",
+      "ruleVariantId": "variant.in_tomb.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.1.month_generate",
+      "knowledgeRuleId": "knowledge.month_generate",
+      "knowledgeRuleDisplayName": "月生",
+      "ruleVariantId": "variant.month_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        },
+        {
+          "name": "M",
+          "targetId": "calendar/month",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.2.month_generate",
+      "knowledgeRuleId": "knowledge.month_generate",
+      "knowledgeRuleDisplayName": "月生",
+      "ruleVariantId": "variant.month_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        },
+        {
+          "name": "M",
+          "targetId": "calendar/month",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.3.month_generate",
+      "knowledgeRuleId": "knowledge.month_generate",
+      "knowledgeRuleDisplayName": "月生",
+      "ruleVariantId": "variant.month_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        },
+        {
+          "name": "M",
+          "targetId": "calendar/month",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.4.month_generate",
+      "knowledgeRuleId": "knowledge.month_generate",
+      "knowledgeRuleDisplayName": "月生",
+      "ruleVariantId": "variant.month_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        },
+        {
+          "name": "M",
+          "targetId": "calendar/month",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.5.month_generate",
+      "knowledgeRuleId": "knowledge.month_generate",
+      "knowledgeRuleDisplayName": "月生",
+      "ruleVariantId": "variant.month_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        },
+        {
+          "name": "M",
+          "targetId": "calendar/month",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.6.month_generate",
+      "knowledgeRuleId": "knowledge.month_generate",
+      "knowledgeRuleDisplayName": "月生",
+      "ruleVariantId": "variant.month_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        },
+        {
+          "name": "M",
+          "targetId": "calendar/month",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.1.day_generate",
+      "knowledgeRuleId": "knowledge.day_generate",
+      "knowledgeRuleDisplayName": "日生",
+      "ruleVariantId": "variant.day_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        },
+        {
+          "name": "D",
+          "targetId": "calendar/day",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.2.day_generate",
+      "knowledgeRuleId": "knowledge.day_generate",
+      "knowledgeRuleDisplayName": "日生",
+      "ruleVariantId": "variant.day_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        },
+        {
+          "name": "D",
+          "targetId": "calendar/day",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.3.day_generate",
+      "knowledgeRuleId": "knowledge.day_generate",
+      "knowledgeRuleDisplayName": "日生",
+      "ruleVariantId": "variant.day_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        },
+        {
+          "name": "D",
+          "targetId": "calendar/day",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.4.day_generate",
+      "knowledgeRuleId": "knowledge.day_generate",
+      "knowledgeRuleDisplayName": "日生",
+      "ruleVariantId": "variant.day_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        },
+        {
+          "name": "D",
+          "targetId": "calendar/day",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.5.day_generate",
+      "knowledgeRuleId": "knowledge.day_generate",
+      "knowledgeRuleDisplayName": "日生",
+      "ruleVariantId": "variant.day_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        },
+        {
+          "name": "D",
+          "targetId": "calendar/day",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "common.line.6.day_generate",
+      "knowledgeRuleId": "knowledge.day_generate",
+      "knowledgeRuleDisplayName": "日生",
+      "ruleVariantId": "variant.day_generate.common",
+      "ruleVariantDisplayName": "通用判法",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        },
+        {
+          "name": "D",
+          "targetId": "calendar/day",
+          "displayName": "MISSING"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/corpus/common_rule_factory.dart:CommonRuleFactory.buildLineRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.1.role.fu_mu",
+      "knowledgeRuleId": "knowledge.fu_mu",
+      "knowledgeRuleDisplayName": "父母",
+      "ruleVariantId": "variant.fu_mu.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.2.role.fu_mu",
+      "knowledgeRuleId": "knowledge.fu_mu",
+      "knowledgeRuleDisplayName": "父母",
+      "ruleVariantId": "variant.fu_mu.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.3.role.fu_mu",
+      "knowledgeRuleId": "knowledge.fu_mu",
+      "knowledgeRuleDisplayName": "父母",
+      "ruleVariantId": "variant.fu_mu.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.4.role.fu_mu",
+      "knowledgeRuleId": "knowledge.fu_mu",
+      "knowledgeRuleDisplayName": "父母",
+      "ruleVariantId": "variant.fu_mu.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.5.role.fu_mu",
+      "knowledgeRuleId": "knowledge.fu_mu",
+      "knowledgeRuleDisplayName": "父母",
+      "ruleVariantId": "variant.fu_mu.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.6.role.fu_mu",
+      "knowledgeRuleId": "knowledge.fu_mu",
+      "knowledgeRuleDisplayName": "父母",
+      "ruleVariantId": "variant.fu_mu.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.1.role.guan_gui",
+      "knowledgeRuleId": "knowledge.guan_gui",
+      "knowledgeRuleDisplayName": "官鬼",
+      "ruleVariantId": "variant.guan_gui.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.2.role.guan_gui",
+      "knowledgeRuleId": "knowledge.guan_gui",
+      "knowledgeRuleDisplayName": "官鬼",
+      "ruleVariantId": "variant.guan_gui.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.3.role.guan_gui",
+      "knowledgeRuleId": "knowledge.guan_gui",
+      "knowledgeRuleDisplayName": "官鬼",
+      "ruleVariantId": "variant.guan_gui.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.4.role.guan_gui",
+      "knowledgeRuleId": "knowledge.guan_gui",
+      "knowledgeRuleDisplayName": "官鬼",
+      "ruleVariantId": "variant.guan_gui.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.5.role.guan_gui",
+      "knowledgeRuleId": "knowledge.guan_gui",
+      "knowledgeRuleDisplayName": "官鬼",
+      "ruleVariantId": "variant.guan_gui.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.6.role.guan_gui",
+      "knowledgeRuleId": "knowledge.guan_gui",
+      "knowledgeRuleDisplayName": "官鬼",
+      "ruleVariantId": "variant.guan_gui.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/PredicateExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_role_rule_factory.dart:ExamRoleRuleFactory.buildRoleRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.1.state.fu_mu_xun_kong",
+      "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
+      "knowledgeRuleDisplayName": "父母旬空",
+      "ruleVariantId": "variant.fu_mu_xun_kong.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.2.state.fu_mu_xun_kong",
+      "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
+      "knowledgeRuleDisplayName": "父母旬空",
+      "ruleVariantId": "variant.fu_mu_xun_kong.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.3.state.fu_mu_xun_kong",
+      "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
+      "knowledgeRuleDisplayName": "父母旬空",
+      "ruleVariantId": "variant.fu_mu_xun_kong.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.4.state.fu_mu_xun_kong",
+      "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
+      "knowledgeRuleDisplayName": "父母旬空",
+      "ruleVariantId": "variant.fu_mu_xun_kong.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.5.state.fu_mu_xun_kong",
+      "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
+      "knowledgeRuleDisplayName": "父母旬空",
+      "ruleVariantId": "variant.fu_mu_xun_kong.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.6.state.fu_mu_xun_kong",
+      "knowledgeRuleId": "knowledge.fu_mu_xun_kong",
+      "knowledgeRuleDisplayName": "父母旬空",
+      "ruleVariantId": "variant.fu_mu_xun_kong.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.1.relation.fu_mu_month_generate",
+      "knowledgeRuleId": "knowledge.fu_mu_month_generate",
+      "knowledgeRuleDisplayName": "父母月生",
+      "ruleVariantId": "variant.fu_mu_month_generate.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/1",
+          "displayName": "初爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.2.relation.fu_mu_month_generate",
+      "knowledgeRuleId": "knowledge.fu_mu_month_generate",
+      "knowledgeRuleDisplayName": "父母月生",
+      "ruleVariantId": "variant.fu_mu_month_generate.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/2",
+          "displayName": "二爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.3.relation.fu_mu_month_generate",
+      "knowledgeRuleId": "knowledge.fu_mu_month_generate",
+      "knowledgeRuleDisplayName": "父母月生",
+      "ruleVariantId": "variant.fu_mu_month_generate.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/3",
+          "displayName": "三爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.4.relation.fu_mu_month_generate",
+      "knowledgeRuleId": "knowledge.fu_mu_month_generate",
+      "knowledgeRuleDisplayName": "父母月生",
+      "ruleVariantId": "variant.fu_mu_month_generate.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/4",
+          "displayName": "四爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.5.relation.fu_mu_month_generate",
+      "knowledgeRuleId": "knowledge.fu_mu_month_generate",
+      "knowledgeRuleDisplayName": "父母月生",
+      "ruleVariantId": "variant.fu_mu_month_generate.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/5",
+          "displayName": "五爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    },
+    {
+      "executionRuleId": "exam.line.6.relation.fu_mu_month_generate",
+      "knowledgeRuleId": "knowledge.fu_mu_month_generate",
+      "knowledgeRuleDisplayName": "父母月生",
+      "ruleVariantId": "variant.fu_mu_month_generate.exam",
+      "ruleVariantDisplayName": "考试取象",
+      "version": "1.0.0",
+      "variantVersion": "1.0.0",
+      "bindingTargets": [
+        {
+          "name": "A",
+          "targetId": "line/6",
+          "displayName": "上爻"
+        }
+      ],
+      "technicalType": "tag/AllExpr/TagAction",
+      "sources": {
+        "executionRule": "lib/domain/rules/topics/exam/exam_common_tag_rule_factory.dart:ExamCommonTagRuleFactory.buildCommonTagRules",
+        "knowledgeRule": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "ruleVariant": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules",
+        "mapping": "lib/domain/rules/knowledge/system_knowledge_rule_catalog.dart:SystemKnowledgeRuleCatalog.rules"
+      },
+      "runtimeSystem": "SYSTEM",
+      "auditNote": "None"
+    }
+  ],
+  "objectiveAnomalies": []
+}
