@@ -26,11 +26,15 @@ void main() {
     );
     expect(
       RelationVisualTokens.colorFor(RelationType.huiTouSheng),
-      RelationVisualTokens.colorFor(RelationType.sheng),
+      const Color(0xFF2864C7),
     );
     expect(
       RelationVisualTokens.colorFor(RelationType.huiTouKe),
       RelationVisualTokens.colorFor(RelationType.ke),
+    );
+    expect(
+      RelationVisualTokens.colorFor(RelationType.flyingOvercomesHidden),
+      const Color(0xFF7B3FA1),
     );
     expect(RelationVisualTokens.strokeNormal, 1.15);
     expect(RelationVisualTokens.strokeFocused, 1.40);
@@ -51,6 +55,11 @@ void main() {
     expect(RelationVisualTokens.backHookArrowSize, closeTo(5.0, 0.01));
     expect(RelationVisualTokens.backHookLabel(RelationType.huiTouSheng), '回生');
     expect(RelationVisualTokens.backHookLabel(RelationType.huiTouKe), '回克');
+    expect(RelationVisualTokens.isDashed(RelationType.huiTouSheng), isTrue);
+    expect(
+      RelationVisualTokens.isDotted(RelationType.flyingGeneratesHidden),
+      isTrue,
+    );
   });
 
   test('only symmetric actions use double arrow protocol', () {

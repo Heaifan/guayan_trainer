@@ -1,5 +1,19 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX7-UI — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/relation_display_model.dart` | 将 Effective RelationRecord 映射为 UI 类别、状态、证据与视觉样式 |
+| `lib/presentation/review/relation_visual_tokens.dart` | 普通、回头、飞伏关系的颜色与线型语义 |
+| `lib/presentation/review/review_relation_filter.dart` | 全部/生克/特殊筛选，不重新生成关系 |
+| `lib/presentation/review/widgets/review_relation_toolbar.dart` | 实时关系数量、筛选 Chip 与当前爻关系入口 |
+| `lib/presentation/review/widgets/relation_detail_sheet.dart` | 关系详情、事实/派生证据与备注保存 |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 使用既有 Router 绘制不同关系线型，不改变路径算法 |
+| `test/presentation/review/relation_display_model_test.dart` | DisplayModel、分类与实时数量回归 |
+
+- Last edited: 2026-09-18 23:30:00
+
 ## GUAYAN-R5-FIX7 — 2026-09-18
 
 | 文件/目录 | 职责 |

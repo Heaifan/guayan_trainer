@@ -52,7 +52,7 @@ void main() {
   test('back glyph keeps relation-specific color and label semantics', () {
     expect(
       RelationVisualTokens.colorFor(RelationType.huiTouSheng),
-      RelationVisualTokens.colorFor(RelationType.sheng),
+      const Color(0xFF2864C7),
     );
     expect(
       RelationVisualTokens.colorFor(RelationType.huiTouKe),

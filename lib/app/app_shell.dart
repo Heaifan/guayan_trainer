@@ -52,10 +52,13 @@ class AppShellState extends State<AppShell> {
   final ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
   CaseRepository? _caseRepository;
   final CustomRuleStore _customRuleStore = CustomRuleStore();
-  final GlobalRulePackRegistry _globalRulePackRegistry =
-      GlobalRulePackRegistry(RulePackageStore());
-  late final CustomRuleService _customRuleService =
-      CustomRuleService(_customRuleStore, UserGovernanceState());
+  final GlobalRulePackRegistry _globalRulePackRegistry = GlobalRulePackRegistry(
+    RulePackageStore(),
+  );
+  late final CustomRuleService _customRuleService = CustomRuleService(
+    _customRuleStore,
+    UserGovernanceState(),
+  );
   final RelationAnnotationStore _relationAnnotations =
       RelationAnnotationStore();
   final ManualRelationStore _manualRelations = ManualRelationStore();
@@ -117,6 +120,7 @@ class AppShellState extends State<AppShell> {
             latestCase: _latestCase,
             useDemoFallback: false,
             shenShaNoteStore: _shenShaNoteStore,
+            relationAnnotationStore: _relationAnnotations,
             onRecompute: _recomputeActiveCase,
             onOpenRules: () => Navigator.of(context).push(
               MaterialPageRoute(

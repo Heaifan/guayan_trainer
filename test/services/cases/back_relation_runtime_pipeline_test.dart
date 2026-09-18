@@ -63,14 +63,14 @@ void main() {
     );
     expect(records, hasLength(1));
     expect(
-      filterReviewRelationRecords(state.relationRecords, category: '生克'),
+      filterReviewRelationRecords(state.relationRecords, category: '特殊'),
       contains(records.single),
     );
     expect(
       RelationOverlay.visibleRecords(
         state.relationRecords,
         focus: YaoEndpoint(LineScope.original, 2),
-        category: '生克',
+        category: '特殊',
       ),
       contains(records.single),
     );

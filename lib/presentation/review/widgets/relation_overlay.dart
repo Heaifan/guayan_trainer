@@ -96,7 +96,8 @@ class _Painter extends CustomPainter {
     final placements = {
       for (final placement in RelationRouteLayout.layout(
         records.where(
-          (record) => !_isBackRelation(record) &&
+          (record) =>
+              !_isBackRelation(record) &&
               !_isMovingRelationAt(record, backPositions),
         ),
       ))
@@ -132,17 +133,7 @@ class _Painter extends CustomPainter {
         placement.branchOffset,
         size,
       );
-      if (type == RelationType.liuChong) {
-        final metric = path.computeMetrics().first;
-        for (var d = 0.0; d < metric.length; d += 10) {
-          canvas.drawPath(
-            metric.extractPath(d, math.min(d + 5, metric.length)),
-            paint,
-          );
-        }
-      } else {
-        canvas.drawPath(path, paint);
-      }
+      _drawStyledPath(canvas, path, type, paint);
       _drawPathArrow(canvas, path, paint.color, atEnd: true);
       if (RelationVisualTokens.isBidirectional(type)) {
         _drawPathArrow(canvas, path, paint.color, atEnd: false);
@@ -161,6 +152,32 @@ class _Painter extends CustomPainter {
       }
       _label(canvas, type.displayName, _labelCenter(path, route), paint.color);
     }
+  }
+
+  void _drawStyledPath(
+    Canvas canvas,
+    Path path,
+    RelationType type,
+    Paint paint,
+  ) {
+    final metric = path.computeMetrics().first;
+    if (type == RelationType.liuChong || RelationVisualTokens.isDashed(type)) {
+      for (var distance = 0.0; distance < metric.length; distance += 10) {
+        canvas.drawPath(
+          metric.extractPath(distance, math.min(distance + 5, metric.length)),
+          paint,
+        );
+      }
+      return;
+    }
+    if (RelationVisualTokens.isDotted(type)) {
+      for (var distance = 0.0; distance < metric.length; distance += 7) {
+        final tangent = metric.getTangentForOffset(distance);
+        if (tangent != null) canvas.drawCircle(tangent.position, 1.15, paint);
+      }
+      return;
+    }
+    canvas.drawPath(path, paint);
   }
 
   bool _isBackRelation(RelationRecord record) =>
@@ -185,7 +202,8 @@ class _Painter extends CustomPainter {
     final from = _endpointRect(record.fromRef!);
     final to = _endpointRect(record.toRef!);
     if (from == null || to == null) return;
-    final original = record.fromRef is YaoEndpoint &&
+    final original =
+        record.fromRef is YaoEndpoint &&
             (record.fromRef! as YaoEndpoint).scope == LineScope.original
         ? from
         : to;
@@ -208,7 +226,13 @@ class _Painter extends CustomPainter {
           : RelationVisualTokens.backHookStroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    canvas.drawPath(geometry.path, paint);
+    final metric = geometry.path.computeMetrics().first;
+    for (var distance = 0.0; distance < metric.length; distance += 10) {
+      canvas.drawPath(
+        metric.extractPath(distance, math.min(distance + 5, metric.length)),
+        paint,
+      );
+    }
     canvas.drawPath(geometry.arrow, Paint()..color = color);
     if (active) {
       canvas.drawCircle(
@@ -222,7 +246,13 @@ class _Painter extends CustomPainter {
         Paint()..color = color,
       );
     }
-    _label(canvas, RelationVisualTokens.backHookLabel(type), geometry.labelCenter, color, fontSize: 10);
+    _label(
+      canvas,
+      RelationVisualTokens.backHookLabel(type),
+      geometry.labelCenter,
+      color,
+      fontSize: 10,
+    );
   }
 
   Rect? _endpointRect(RelationEndpoint endpoint) {

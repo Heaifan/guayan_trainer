@@ -1,5 +1,6 @@
 import '../../domain/relation_endpoint.dart';
 import '../../domain/relations/relation_record.dart';
+import 'relation_display_model.dart';
 
 /// 审卦关系的唯一可见集合查询；Toolbar 与 Overlay 必须共用。
 List<RelationRecord> filterReviewRelationRecords(
@@ -11,6 +12,14 @@ List<RelationRecord> filterReviewRelationRecords(
     if (record.kind == RelationKind.relation &&
         record.relationType != null &&
         (focus == null || record.participants.contains(focus)) &&
-        (category == '全部' || category == '重点' || record.category == category))
+        _matchesCategory(record, category))
       record,
 ];
+
+bool _matchesCategory(RelationRecord record, String category) {
+  if (category == '全部' || category == '重点') return true;
+  final model = RelationDisplayModel.fromRecord(record);
+  if (category == '生克') return model.isOrdinaryWuxing;
+  if (category == '特殊') return model.isSpecial;
+  return record.category == category;
+}

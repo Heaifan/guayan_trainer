@@ -5,9 +5,11 @@ import '../../domain/rules/evidence/derived_evidence.dart';
 import '../../domain/rules/engine/rule_trace.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/shensha/shensha_note_store.dart';
+import '../../services/relation_annotation_store.dart';
 import 'review_case_adapter.dart';
 import 'review_demo_data.dart';
 import 'review_page_state.dart';
+import 'relation_display_model.dart';
 import 'widgets/review_app_bar.dart';
 import 'widgets/review_basic_info_card.dart';
 import 'widgets/review_time_card.dart';
@@ -16,6 +18,7 @@ import 'widgets/review_shensha_card.dart';
 import 'widgets/review_shensha_detail_dialog.dart';
 import 'widgets/review_relation_toolbar.dart';
 import 'widgets/relation_overlay.dart';
+import 'widgets/relation_detail_sheet.dart';
 import 'widgets/review_evidence_card.dart';
 import 'widgets/review_rule_runs_card.dart';
 import '../rules/widgets/rule_trace_tree.dart';
@@ -38,6 +41,7 @@ class ReviewPage extends StatelessWidget {
     this.onOpenRelations,
     this.useDemoFallback = true,
     this.shenShaNoteStore,
+    this.relationAnnotationStore,
     this.onRecompute,
     this.onOpenRules,
   });
@@ -57,6 +61,7 @@ class ReviewPage extends StatelessWidget {
   /// 仅测试/视觉基准允许演示数据；真实 App 路径关闭此回退。
   final bool useDemoFallback;
   final ShenShaNoteStore? shenShaNoteStore;
+  final RelationAnnotationStore? relationAnnotationStore;
   final VoidCallback? onRecompute;
   final VoidCallback? onOpenRules;
 
@@ -80,6 +85,8 @@ class ReviewPage extends StatelessWidget {
       state: state,
       onOpenRelations: onOpenRelations,
       shenShaNoteStore: shenShaNoteStore ?? ShenShaNoteStore(),
+      relationAnnotationStore:
+          relationAnnotationStore ?? RelationAnnotationStore(),
       onRecompute: onRecompute,
       onOpenRules: onOpenRules,
     );
@@ -91,6 +98,7 @@ class _ReviewWorkbench extends StatefulWidget {
     required this.state,
     this.onOpenRelations,
     required this.shenShaNoteStore,
+    required this.relationAnnotationStore,
     this.onRecompute,
     this.onOpenRules,
   });
@@ -98,6 +106,7 @@ class _ReviewWorkbench extends StatefulWidget {
   final ReviewPageState state;
   final VoidCallback? onOpenRelations;
   final ShenShaNoteStore shenShaNoteStore;
+  final RelationAnnotationStore relationAnnotationStore;
   final VoidCallback? onRecompute;
   final VoidCallback? onOpenRules;
 
@@ -107,6 +116,7 @@ class _ReviewWorkbench extends StatefulWidget {
 
 class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
   int? _selectedPosition;
+  String? _selectedRelationId;
   String _relationFilter = '全部';
   late final _anchorKeys = <String, GlobalKey>{
     for (var i = 1; i <= 6; i++) 'yao:original:$i': GlobalKey(),
@@ -162,6 +172,33 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
           '目标：${evidence.targetRefs.map((ref) => '${ref.kind}/${ref.key}').join(' → ')}\n'
           '依据：${evidence.supports.length} 条',
         ),
+      ),
+    );
+  }
+
+  Future<void> _showRelation(String id) async {
+    final record = widget.state.relationRecords.firstWhere(
+      (item) => item.id == id,
+    );
+    final model = RelationDisplayModel.fromRecord(record);
+    final caseId = widget.state.caseId ?? widget.state.question;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => RelationDetailSheet(
+        model: model,
+        initialNote:
+            widget.relationAnnotationStore
+                .annotationFor(caseId: caseId, recordId: id)
+                ?.note ??
+            '',
+        onSaveNote: (note) {
+          widget.relationAnnotationStore.upsert(
+            caseId: caseId,
+            recordId: id,
+            note: note,
+          );
+        },
       ),
     );
   }
@@ -231,6 +268,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                           records: widget.state.relationRecords,
                           anchorKeys: _anchorKeys,
                           rowKeys: _rowKeys,
+                          selectedId: _selectedRelationId,
                           category: _relationFilter,
                           focus: _selectedPosition == null
                               ? null
@@ -248,6 +286,10 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                       selectedFilter: _relationFilter,
                       onFilterChanged: (filter) =>
                           setState(() => _relationFilter = filter),
+                      onRelationTap: (id) {
+                        setState(() => _selectedRelationId = id);
+                        _showRelation(id);
+                      },
                     ),
                     const SizedBox(height: 6),
                     ReviewEvidenceCard(

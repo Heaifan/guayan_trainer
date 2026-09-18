@@ -29,7 +29,7 @@ void main() {
       (item) => item.relationType == RelationType.huiTouKe,
     );
     expect(filterReviewRelationRecords(state.relationRecords, category: '全部'), contains(record));
-    expect(filterReviewRelationRecords(state.relationRecords, category: '生克'), contains(record));
+    expect(filterReviewRelationRecords(state.relationRecords, category: '特殊'), contains(record));
   });
 
   test('fresh and legacy-restored Cases produce equivalent back Relations', () {

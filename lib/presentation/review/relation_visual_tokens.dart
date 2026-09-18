@@ -31,12 +31,12 @@ abstract final class RelationVisualTokens {
     RelationType.dayControl => const Color(0xFFD9342B),
     RelationType.liuChong => const Color(0xFFF57C00),
     RelationType.liuHe => const Color(0xFF1565C0),
-    RelationType.huiTouSheng => const Color(0xFF119E57),
+    RelationType.huiTouSheng => const Color(0xFF2864C7),
     RelationType.huiTouKe => const Color(0xFFD9342B),
     RelationType.flyingGeneratesHidden ||
-    RelationType.hiddenGeneratesFlying => const Color(0xFF119E57),
+    RelationType.hiddenGeneratesFlying ||
     RelationType.flyingOvercomesHidden ||
-    RelationType.hiddenOvercomesFlying => const Color(0xFFD9342B),
+    RelationType.hiddenOvercomesFlying => const Color(0xFF7B3FA1),
     RelationType.dongBian => const Color(0xFF2E7D32),
   };
 
@@ -45,6 +45,17 @@ abstract final class RelationVisualTokens {
 
   static bool isBackRelation(RelationType type) =>
       type == RelationType.huiTouSheng || type == RelationType.huiTouKe;
+
+  static bool isDashed(RelationType type) =>
+      type == RelationType.huiTouSheng || type == RelationType.huiTouKe;
+
+  static bool isDotted(RelationType type) => switch (type) {
+    RelationType.flyingGeneratesHidden ||
+    RelationType.flyingOvercomesHidden ||
+    RelationType.hiddenGeneratesFlying ||
+    RelationType.hiddenOvercomesFlying => true,
+    _ => false,
+  };
 
   static String backHookLabel(RelationType type) => switch (type) {
     RelationType.huiTouSheng => '回生',

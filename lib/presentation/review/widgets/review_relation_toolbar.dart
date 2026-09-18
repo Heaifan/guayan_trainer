@@ -4,6 +4,7 @@ import '../../../domain/relations/relation_record.dart';
 import '../../../domain/relation_endpoint.dart';
 import '../review_page_state.dart';
 import '../review_relation_filter.dart';
+import '../relation_display_model.dart';
 
 /// 关系工具栏（审卦一屏版总 SVG：关系、全部/重点/生克等）。
 ///
@@ -15,12 +16,14 @@ class ReviewRelationToolbar extends StatelessWidget {
     this.focusedPosition,
     this.selectedFilter = '全部',
     this.onFilterChanged,
+    this.onRelationTap,
   });
 
   final ReviewPageState state;
   final int? focusedPosition;
   final String selectedFilter;
   final ValueChanged<String>? onFilterChanged;
+  final ValueChanged<String>? onRelationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +32,7 @@ class ReviewRelationToolbar extends StatelessWidget {
       focusedPosition: focusedPosition,
       selectedFilter: selectedFilter,
       onFilterChanged: onFilterChanged,
+      onRelationTap: onRelationTap,
     );
   }
 }
@@ -39,12 +43,14 @@ class _RelationFilterPanel extends StatefulWidget {
     this.focusedPosition,
     required this.selectedFilter,
     this.onFilterChanged,
+    this.onRelationTap,
   });
 
   final ReviewPageState state;
   final int? focusedPosition;
   final String selectedFilter;
   final ValueChanged<String>? onFilterChanged;
+  final ValueChanged<String>? onRelationTap;
 
   @override
   State<_RelationFilterPanel> createState() => _RelationFilterPanelState();
@@ -66,12 +72,15 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
       .where((record) => record.kind == RelationKind.relation)
       .length;
 
+  Map<String, int> get _counts =>
+      relationFilterCounts(widget.state.relationRecords);
+
   @override
   Widget build(BuildContext context) {
-    final filters = ['全部', '重点', '生克', '冲合', '库', '月日', '动变'];
+    final filters = ['全部', '生克', '特殊'];
     return Container(
       width: double.infinity,
-      height: 80,
+      height: widget.focusedPosition == null ? 80 : 122,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
@@ -153,7 +162,7 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
                       widget.onFilterChanged?.call(filters[i]);
                     },
                     child: _FilterChip(
-                      label: filters[i],
+                      label: '${filters[i]} ${_counts[filters[i]] ?? 0}',
                       isActive: _selected == filters[i],
                     ),
                   ),
@@ -161,6 +170,42 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
               ],
             ),
           ),
+          if (widget.focusedPosition != null) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 25,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _relations.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 6),
+                itemBuilder: (context, index) {
+                  final model = RelationDisplayModel.fromRecord(
+                    _relations[index],
+                  );
+                  return InkWell(
+                    onTap: () => widget.onRelationTap?.call(model.record.id),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8F4EE),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE4D8C8)),
+                      ),
+                      child: Text(
+                        model.type.displayName,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF5D5146),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -176,7 +221,7 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 46,
+      width: label.length > 3 ? 58 : 46,
       height: 26,
       alignment: Alignment.center,
       decoration: BoxDecoration(
