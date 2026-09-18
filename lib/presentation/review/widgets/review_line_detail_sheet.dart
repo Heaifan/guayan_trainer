@@ -27,6 +27,7 @@ class ReviewLineDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final line = _line;
     final relations = state.relationRecordsInvolving(position);
+    final evidence = state.evidenceForLine(position);
     return SafeArea(
       child: Container(
         key: const Key('line_detail_sheet'),
@@ -92,6 +93,30 @@ class ReviewLineDetailSheet extends StatelessWidget {
                   height: 1.5,
                 ),
               ),
+              const SizedBox(height: 14),
+              const Text(
+                '取象',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: CastingTokens.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              if (evidence.isEmpty)
+                const Text(
+                  '该爻暂无规则取象',
+                  style: TextStyle(fontSize: 11, color: CastingTokens.textMuted),
+                )
+              else
+                for (final item in evidence)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: Text(
+                      '✓ ${item.value} · ${item.ruleOrigin.name == 'CUSTOM' ? '自定义规则' : '系统规则'}',
+                      style: const TextStyle(fontSize: 11, color: CastingTokens.textBody),
+                    ),
+                  ),
               const SizedBox(height: 14),
               // 关系列表
               const Text(

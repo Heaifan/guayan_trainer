@@ -29,7 +29,8 @@ class ActionOutputFactory {
         );
       }
     } else if (action is TagAction) {
-      final ref = action.subjectBinding != null ? context.get(action.subjectBinding!) : const SemanticRef('global', 'scope');
+      final subjectBinding = action.subjectBinding ?? action.target?.sourceBinding;
+      final ref = subjectBinding != null ? context.get(subjectBinding) : const SemanticRef('global', 'scope');
       if (ref != null) {
         return BuiltActionOutput(
           output: FactRecord(

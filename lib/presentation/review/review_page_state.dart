@@ -14,6 +14,8 @@ import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
 import '../../domain/relation_type.dart';
 import '../../domain/relations/relation_record.dart';
+import '../../domain/cases/rule_run.dart';
+import '../../domain/rules/evidence/derived_evidence.dart';
 
 /// 神煞标签项（§8「名称：值」结构，如 卦身：申）。
 class ReviewShenShaItem {
@@ -181,6 +183,8 @@ class ReviewPageState {
     required this.focusedRelations,
     required this.allRelations,
     this.relationRecords = const [],
+    this.derivedEvidence = const [],
+    this.ruleRuns = const [],
     this.castingMethod,
     this.solarDateTime,
     this.lunarDateTime,
@@ -265,6 +269,20 @@ class ReviewPageState {
 
   /// Ledger/Overlay 共享的统一投影记录。
   final List<RelationRecord> relationRecords;
+  final List<DerivedEvidence> derivedEvidence;
+  final List<RuleRun> ruleRuns;
+
+  List<DerivedEvidence> evidenceForLine(int position) => [
+    for (final item in derivedEvidence)
+      if (item.targetRefs.any(
+        (ref) => ref.kind == 'line' && ref.key == position.toString(),
+      )) item,
+  ];
+
+  List<DerivedEvidence> get relationEvidence => [
+    for (final item in derivedEvidence)
+      if (item.targetKind.name == 'relation') item,
+  ];
 
   List<RelationRecord> get focusedRelationRecords => [
     for (final record in relationRecords)

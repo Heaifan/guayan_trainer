@@ -37,7 +37,7 @@ class RuleTraceTree extends StatelessWidget {
         if (trace.reason != null)
           Padding(
             padding: const EdgeInsets.only(left: 22, top: 2),
-            child: Text(trace.reason!, style: TextStyle(color: _color)),
+            child: Text(_reasonLabel(trace.reason!), style: TextStyle(color: _color)),
           ),
         for (final child in trace.children)
           RuleTraceTree(trace: child, depth: depth + 1),
@@ -52,5 +52,10 @@ class RuleTraceTree extends StatelessWidget {
         RuleTraceStatus.error => '错误',
         RuleTraceStatus.success => '成功',
         RuleTraceStatus.failed => '失败',
+      };
+
+  String _reasonLabel(String reason) => switch (reason) {
+        'NO_MATCH' => '未找到对象',
+        _ => reason,
       };
 }

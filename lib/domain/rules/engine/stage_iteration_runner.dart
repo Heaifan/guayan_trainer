@@ -8,6 +8,7 @@ import 'action_executor.dart';
 import 'binding_resolver.dart';
 import 'predicate_evaluator.dart';
 import 'rule_trace.dart';
+import '../evidence/derived_evidence.dart';
 
 class StageIterationRunner {
   final BindingResolver bindingResolver;
@@ -41,7 +42,12 @@ class StageIterationRunner {
     List<RuleHit> allRuleHits,
     List<EvidenceNode> allEvidenceNodes,
     List<EvidenceEdge> allEvidenceEdges,
+    List<DerivedEvidence> allDerivedEvidence,
     List<RuleTrace> allRuleTraces,
+    {
+    String caseId = 'preview',
+    String ruleRunId = 'in-memory',
+    }
   ) {
     bool stageChanged = false;
     for (final rule in stageRules) {
@@ -72,7 +78,14 @@ class StageIterationRunner {
             : [for (final bindings in result.matchedBindings) BindingContext(bindings)];
         final actionResults = [
           for (final scoped in contexts)
-            actionExecutor.execute(rule, scoped, result.supports),
+            actionExecutor.execute(
+              rule,
+              scoped,
+              result.supports,
+              caseId: caseId,
+              ruleRunId: ruleRunId,
+              conditionTrace: result.trace,
+            ),
         ];
         allRuleTraces.add(RuleTrace(
           kind: RuleTraceKind.rule,
@@ -84,6 +97,13 @@ class StageIterationRunner {
             for (final actionResult in actionResults) ...actionResult.actionTraces,
           ],
         ));
+        for (final actionResult in actionResults) {
+          for (final evidence in actionResult.derivedEvidence) {
+            if (!allDerivedEvidence.any((item) => item.id == evidence.id)) {
+              allDerivedEvidence.add(evidence);
+            }
+          }
+        }
         bool anyNewFact = false;
 
         void processFacts(List<FactRecord> sourceList, List<FactRecord> targetList) {

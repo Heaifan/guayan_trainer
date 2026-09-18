@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/hexagram_case.dart';
+import '../../domain/rules/evidence/derived_evidence.dart';
+import '../../domain/rules/engine/rule_trace.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/shensha/shensha_note_store.dart';
 import 'review_case_adapter.dart';
@@ -14,6 +16,9 @@ import 'widgets/review_shensha_card.dart';
 import 'widgets/review_shensha_detail_dialog.dart';
 import 'widgets/review_relation_toolbar.dart';
 import 'widgets/relation_overlay.dart';
+import 'widgets/review_evidence_card.dart';
+import 'widgets/review_rule_runs_card.dart';
+import '../rules/widgets/rule_trace_tree.dart';
 
 /// 审卦页 —— 审卦一屏版（GUAYAN-2.0 审卦首屏总基准）。
 ///
@@ -137,6 +142,32 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
     });
   }
 
+  Future<void> _showEvidence(DerivedEvidence evidence) async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(evidence.value),
+        content: Text(
+          '来源：${evidence.ruleOrigin.name == 'CUSTOM' ? '自定义规则' : '系统规则'}\n'
+          '规则：${evidence.ruleId.id}\n'
+          '版本：${evidence.ruleVersion.version}\n'
+          '目标：${evidence.targetRefs.map((ref) => '${ref.kind}/${ref.key}').join(' → ')}\n'
+          '依据：${evidence.supports.length} 条',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showTrace(RuleTrace trace) async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(trace.label),
+        content: SingleChildScrollView(child: RuleTraceTree(trace: trace)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,6 +235,16 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                       selectedFilter: _relationFilter,
                       onFilterChanged: (filter) =>
                           setState(() => _relationFilter = filter),
+                    ),
+                    const SizedBox(height: 6),
+                    ReviewEvidenceCard(
+                      state: widget.state,
+                      onOpen: _showEvidence,
+                    ),
+                    const SizedBox(height: 6),
+                    ReviewRuleRunsCard(
+                      state: widget.state,
+                      onOpen: _showTrace,
                     ),
                   ],
                 ),

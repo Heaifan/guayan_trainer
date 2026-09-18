@@ -1852,4 +1852,20 @@ theme/  data/  閳? models/  閳? services/  閳? pages/  +  widgets/
 - `lib/domain/rules/engine/predicate_evaluator.dart`：复合条件中 EMPTY Binding 按 false 参与计算。
 - `test/domain/rules/engine/dynamic_binding_empty_test.dart`：ANY/ALL、非法 selector 与“有路冲家”回归测试。
 
+## R5 FIX4 Rule Evidence Loop（2026-09-18）
+
+- `lib/domain/rules/ast/rule_action.dart`：兼容旧 subject Action，并增加 OBJECT/RELATION/CASE 目标。
+- `lib/domain/rules/evidence/derived_evidence.dart`：正式派生取象模型，保存规则来源、目标、支持事实与 Trace 引用。
+- `lib/domain/rules/engine/action_executor.dart`：Action 命中后生成 DerivedEvidence，支持关系条件多路径。
+- `lib/domain/rules/engine/engine_types.dart`、`stage_runner.dart`、`analysis_stage_executor.dart`：传递分析结果中的 DerivedEvidence。
+- `lib/domain/rules/engine/trace_labels.dart`：Trace 的爻位、六亲、六神与地支展示文案。
+- `lib/domain/cases/rule_run.dart`：持久化结构化 Evidence 与 RuleTrace，并兼容旧 RuleRun JSON。
+- `lib/domain/hexagram_case.dart`、`lib/domain/cases/case_record.dart`：历史 RuleRun 随卦例投影到审卦。
+- `lib/presentation/review/widgets/review_evidence_card.dart`：审卦取象去重主展示。
+- `lib/presentation/review/widgets/review_rule_runs_card.dart`：审卦规则运行状态入口。
+- `test/domain/rules/engine/r5_real_rule_corpus_test.dart`：有路冲家 CASE A–E 与多路径关系 Evidence。
+- `test/domain/rules/evidence/derived_evidence_test.dart`：Evidence、Action Target 与旧 JSON 兼容回归。
+- `test/services/cases/rule_run_persistence_test.dart`：RuleRun 历史 Evidence/Trace 重载回归。
+- `test/presentation/review/review_evidence_presentation_test.dart`：审卦取象与规则运行最小 UI 回归。
+
 最后编辑时间：2026-09-18

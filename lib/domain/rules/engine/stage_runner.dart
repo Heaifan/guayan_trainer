@@ -11,6 +11,7 @@ import 'predicate_evaluator.dart';
 import 'engine_types.dart';
 import 'stage_iteration_runner.dart';
 import 'rule_trace.dart';
+import '../evidence/derived_evidence.dart';
 
 class StageRunnerResult {
   final List<FactRecord> derivedFacts;
@@ -21,12 +22,14 @@ class StageRunnerResult {
   final List<RuleHit> ruleHits;
   final List<EvidenceNode> evidenceNodes;
   final List<EvidenceEdge> evidenceEdges;
+  final List<DerivedEvidence> derivedEvidence;
   final int iterations;
   final List<RuleTrace> ruleTraces;
   const StageRunnerResult(
     this.derivedFacts, this.derivedStates, this.tags, this.structures,
     this.records, this.ruleHits, this.evidenceNodes, this.evidenceEdges, this.iterations, [
     this.ruleTraces = const [],
+    this.derivedEvidence = const [],
   ]);
   List<FactRecord> get allNewFacts => [
     ...derivedFacts, ...derivedStates, ...tags, ...structures, ...records,
@@ -45,7 +48,13 @@ class StageRunner {
   final ActionExecutor actionExecutor;
   final int maxIterations;
 
-  StageRunnerResult runStage(RuleStage stage, List<RuleDefinition> stageRules, FactSnapshot initialSnapshot) {
+  StageRunnerResult runStage(
+    RuleStage stage,
+    List<RuleDefinition> stageRules,
+    FactSnapshot initialSnapshot, {
+    String caseId = 'preview',
+    String ruleRunId = 'in-memory',
+  }) {
     var currentSnapshot = initialSnapshot;
     final allDerivedFacts = <FactRecord>[];
     final allDerivedStates = <FactRecord>[];
@@ -55,6 +64,7 @@ class StageRunner {
     final allRuleHits = <RuleHit>[];
     final allEvidenceNodes = <EvidenceNode>[];
     final allEvidenceEdges = <EvidenceEdge>[];
+    final allDerivedEvidence = <DerivedEvidence>[];
     final allRuleTraces = <RuleTrace>[];
     int iterations = 0;
     bool stageChanged = true;
@@ -69,7 +79,10 @@ class StageRunner {
       stageChanged = iter.runIteration(
         stageRules, currentSnapshot, newFactsInIteration,
         allDerivedFacts, allDerivedStates, allTags, allStructures, allRecords,
-        allRuleHits, allEvidenceNodes, allEvidenceEdges, allRuleTraces
+        allRuleHits, allEvidenceNodes, allEvidenceEdges, allDerivedEvidence,
+        allRuleTraces,
+        caseId: caseId,
+        ruleRunId: ruleRunId,
       );
 
       if (newFactsInIteration.isNotEmpty) {
@@ -83,6 +96,7 @@ class StageRunner {
       allDerivedFacts, allDerivedStates, allTags, allStructures, allRecords,
       allRuleHits, allEvidenceNodes, allEvidenceEdges, iterations,
       allRuleTraces,
+      allDerivedEvidence,
     );
   }
 }

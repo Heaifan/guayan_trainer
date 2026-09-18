@@ -19,6 +19,7 @@ class RuleTrace {
     this.actual,
     this.reason,
     this.resolvedObjects = const [],
+    this.operatorId,
   });
 
   final RuleTraceKind kind;
@@ -29,6 +30,7 @@ class RuleTrace {
   final Object? actual;
   final String? reason;
   final List<SemanticRef> resolvedObjects;
+  final String? operatorId;
 
   bool get matched => status == RuleTraceStatus.matched;
 
@@ -42,6 +44,7 @@ class RuleTrace {
         if (reason != null) 'reason': reason,
         if (resolvedObjects.isNotEmpty)
           'resolvedObjects': resolvedObjects.map((e) => e.toJson()).toList(),
+        if (operatorId != null) 'operatorId': operatorId,
       };
 
   factory RuleTrace.fromJson(Map<String, Object?> json) => RuleTrace(
@@ -57,6 +60,7 @@ class RuleTrace {
         resolvedObjects: ((json['resolvedObjects'] as List?) ?? const [])
             .map((e) => SemanticRef.fromJson(Map<String, Object?>.from(e as Map)))
             .toList(),
+        operatorId: json['operatorId'] as String?,
       );
 
   @override

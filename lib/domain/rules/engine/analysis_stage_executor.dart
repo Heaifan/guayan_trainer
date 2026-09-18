@@ -8,12 +8,18 @@ import '../evidence/evidence_edge.dart';
 import 'stage_runner.dart';
 import 'engine_types.dart';
 import 'rule_trace.dart';
+import '../evidence/derived_evidence.dart';
 
 class AnalysisStageExecutor {
   final StageRunner stageRunner;
   const AnalysisStageExecutor(this.stageRunner);
 
-  AnalysisRun execute(List<RuleDefinition> rules, FactSnapshot initialSnapshot) {
+  AnalysisRun execute(
+    List<RuleDefinition> rules,
+    FactSnapshot initialSnapshot, {
+    String caseId = 'preview',
+    String ruleRunId = 'in-memory',
+  }) {
     final stages = [
       RuleStage.baseRelation,
       RuleStage.derivedState,
@@ -30,6 +36,7 @@ class AnalysisStageExecutor {
     final allRuleHits = <RuleHit>[];
     final allEvidenceNodes = <EvidenceNode>[];
     final allEvidenceEdges = <EvidenceEdge>[];
+    final allDerivedEvidence = <DerivedEvidence>[];
     final allRuleTraces = <RuleTrace>[];
     int totalIterations = 0;
 
@@ -45,7 +52,13 @@ class AnalysisStageExecutor {
       }
       if (stageRules.isEmpty) continue;
 
-      final stageResult = stageRunner.runStage(stage, stageRules, currentSnapshot);
+      final stageResult = stageRunner.runStage(
+        stage,
+        stageRules,
+        currentSnapshot,
+        caseId: caseId,
+        ruleRunId: ruleRunId,
+      );
 
       if (stageResult.allNewFacts.isNotEmpty) {
         allDerivedFacts.addAll(stageResult.derivedFacts);
@@ -60,6 +73,7 @@ class AnalysisStageExecutor {
       allRuleHits.addAll(stageResult.ruleHits);
       allEvidenceNodes.addAll(stageResult.evidenceNodes);
       allEvidenceEdges.addAll(stageResult.evidenceEdges);
+      allDerivedEvidence.addAll(stageResult.derivedEvidence);
       allRuleTraces.addAll(stageResult.ruleTraces);
       totalIterations += stageResult.iterations;
     }
@@ -76,6 +90,7 @@ class AnalysisStageExecutor {
       evidenceEdges: List.unmodifiable(allEvidenceEdges),
       iterations: totalIterations,
       traces: List.unmodifiable(allRuleTraces),
+      derivedEvidence: List.unmodifiable(allDerivedEvidence),
     );
   }
 }

@@ -7,6 +7,7 @@ import '../evidence/rule_hit.dart';
 import '../evidence/evidence_node.dart';
 import '../evidence/evidence_edge.dart';
 import 'rule_trace.dart';
+import '../evidence/derived_evidence.dart';
 
 /// 运行时关系
 class RuntimeRelation {
@@ -35,6 +36,7 @@ class AnalysisRun {
     required this.evidenceEdges,
     required this.iterations,
     this.traces = const [],
+    this.derivedEvidence = const [],
   });
 
   final FactSnapshot baseSnapshot;
@@ -47,6 +49,7 @@ class AnalysisRun {
   final List<EvidenceNode> evidenceNodes;
   final List<EvidenceEdge> evidenceEdges;
   final List<RuleTrace> traces;
+  final List<DerivedEvidence> derivedEvidence;
   final int iterations;
 }
 
@@ -71,6 +74,7 @@ class ActionExecutionResult {
   final List<RuleHit> ruleHits;
   final List<EvidenceNode> evidenceNodes;
   final List<EvidenceEdge> evidenceEdges;
+  final List<DerivedEvidence> derivedEvidence;
   final List<RuleTrace> actionTraces;
 
   const ActionExecutionResult(
@@ -83,6 +87,7 @@ class ActionExecutionResult {
     this.evidenceNodes,
     this.evidenceEdges, [
     this.actionTraces = const [],
+    this.derivedEvidence = const [],
   ]);
 
   List<FactRecord> get allNewFacts => [

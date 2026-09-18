@@ -55,6 +55,7 @@ class CaseRecord {
     ruleContext: ruleRuns.isEmpty ? const RuleExecutionContext.empty() : ruleRuns.first.ruleContext,
     calendar: snapshot.calendar,
     category: snapshot.category,
+    ruleRuns: ruleRuns,
   );
 
   CaseRecord copyWith({

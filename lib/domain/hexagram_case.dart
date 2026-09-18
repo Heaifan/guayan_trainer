@@ -10,6 +10,7 @@ library;
 import 'calendar_snapshot.dart';
 import 'line_state.dart';
 import 'rule_execution_context.dart';
+import 'cases/rule_run.dart';
 
 class HexagramCase {
   const HexagramCase._({
@@ -20,6 +21,7 @@ class HexagramCase {
     required this.ruleContext,
     this.category = '',
     this.calendar,
+    this.ruleRuns = const [],
   });
 
   /// 唯一构造入口：runtime 校验六爻不变量
@@ -33,6 +35,7 @@ class HexagramCase {
     RuleExecutionContext ruleContext = const RuleExecutionContext.empty(),
     CalendarSnapshot? calendar,
     String category = '',
+    List<RuleRun> ruleRuns = const [],
   }) {
     _validateLines(lines);
     return HexagramCase._(
@@ -43,6 +46,7 @@ class HexagramCase {
       ruleContext: ruleContext,
       calendar: calendar,
       category: category,
+      ruleRuns: List.unmodifiable(ruleRuns),
     );
   }
 
@@ -63,6 +67,7 @@ class HexagramCase {
   /// 重算旧卦例时据此复现历史 RelationKey（replay 契约）。
   final RuleExecutionContext ruleContext;
   final String category;
+  final List<RuleRun> ruleRuns;
 
   /// 起卦当时的历法快照（月建 / 日辰）。
   ///
@@ -97,6 +102,7 @@ class HexagramCase {
     'createdAt': createdAt.toIso8601String(),
     'lines': lines.map((l) => l.toJson()).toList(),
     'ruleContext': ruleContext.toJson(),
+    'ruleRuns': ruleRuns.map((run) => run.toJson()).toList(),
     if (calendar != null) 'calendar': calendar!.toJson(),
   };
 
@@ -115,6 +121,10 @@ class HexagramCase {
     calendar: json['calendar'] == null
         ? null
         : CalendarSnapshot.fromJson(json['calendar'] as Map<String, Object?>),
+    ruleRuns: [
+      for (final item in (json['ruleRuns'] as List<Object?>? ?? const []))
+        RuleRun.fromJson(Map<String, Object?>.from(item as Map)),
+    ],
   );
 
   @override

@@ -6,6 +6,7 @@ import '../facts/fact_snapshot.dart';
 import '../facts/semantic_ref.dart';
 import '../objects/dynamic_object_resolver.dart';
 import 'rule_trace.dart';
+import 'trace_labels.dart';
 
 class BindingResolutionResult {
   const BindingResolutionResult(this.context, this.traces);
@@ -57,7 +58,7 @@ class BindingResolver {
             context.addEmpty(binding.name);
             traces.add(RuleTrace(
               kind: RuleTraceKind.binding,
-              label: '${binding.name} ${_selectorLabel(selector)}',
+              label: '${binding.name} · ${selectorLabel(selector)}',
               status: RuleTraceStatus.notMatched,
               reason: 'NO_MATCH',
             ));
@@ -72,7 +73,7 @@ class BindingResolver {
           context.add(binding.name, ref);
           traces.add(RuleTrace(
             kind: RuleTraceKind.binding,
-            label: '${binding.name} ${_selectorLabel(selector)}',
+            label: '${binding.name} · ${selectorLabel(selector)}',
             status: RuleTraceStatus.matched,
             resolvedObjects: [ref],
           ));
@@ -83,14 +84,14 @@ class BindingResolver {
         context.add(binding.name, ref);
         traces.add(RuleTrace(
           kind: RuleTraceKind.binding,
-          label: '${binding.name} ${_selectorLabel(binding.selector)}',
+          label: '${binding.name} · ${selectorLabel(binding.selector)}',
           status: RuleTraceStatus.matched,
           resolvedObjects: [ref],
         ));
       } catch (error) {
         traces.add(RuleTrace(
           kind: RuleTraceKind.binding,
-          label: '${binding.name} ${_selectorLabel(binding.selector)}',
+          label: '${binding.name} · ${selectorLabel(binding.selector)}',
           status: RuleTraceStatus.error,
           reason: error.toString(),
         ));
@@ -162,11 +163,4 @@ class BindingResolver {
     return SemanticRef(parts[0], parts[1]);
   }
 
-  String _selectorLabel(BindingSelector selector) => switch (selector) {
-        DirectSelector(:final target) => 'DirectSelector($target)',
-        RelativeSelector(:final baseBinding, :final path) =>
-          'RelativeSelector($baseBinding.$path)',
-        DynamicBindingSelector(:final selectorId) => selectorId,
-        _ => selector.runtimeType.toString(),
-      };
 }

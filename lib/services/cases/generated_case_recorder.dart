@@ -4,6 +4,7 @@ import '../../domain/cases/rule_run.dart';
 import '../../domain/hexagram_case.dart';
 import '../../domain/casting/cast_chart.dart';
 import 'case_repository.dart';
+import '../../domain/rules/engine/engine_types.dart';
 
 /// 把一次已经完成的排盘写成新的 CaseRecord。
 class GeneratedCaseRecorder {
@@ -18,7 +19,11 @@ class GeneratedCaseRecorder {
   final String Function() _idFactory;
   final DateTime Function() _clock;
 
-  Future<CaseRecord> record(HexagramCase generated, CastChart chart) async {
+  Future<CaseRecord> record(
+    HexagramCase generated,
+    CastChart chart, {
+    AnalysisRun? analysis,
+  }) async {
     final snapshot = CastingSnapshot(
       castingTime: generated.createdAt,
       subject: generated.question,
@@ -29,19 +34,26 @@ class GeneratedCaseRecorder {
       movingPositions: chart.movingPositions,
       calendar: generated.calendar,
     );
-    final ruleRun = RuleRun.original(
-      executedAt: _clock(),
-      ruleContext: generated.ruleContext,
-      result: {
-        'originalHexagramName': chart.original.name,
-        'changedHexagramName': chart.changed?.name,
-        'movingPositions': chart.movingPositions,
-      },
-      evidence: [
-        for (final line in chart.lines)
-          {'position': line.position, 'text': line.ganZhi},
-      ],
-    );
+    final ruleRun = analysis == null
+        ? RuleRun.original(
+            executedAt: _clock(),
+            ruleContext: generated.ruleContext,
+            result: {
+              'originalHexagramName': chart.original.name,
+              'changedHexagramName': chart.changed?.name,
+              'movingPositions': chart.movingPositions,
+            },
+            evidence: [
+              for (final line in chart.lines)
+                {'position': line.position, 'text': line.ganZhi},
+            ],
+          )
+        : RuleRun.fromAnalysis(
+            id: 'original',
+            executedAt: _clock(),
+            ruleContext: generated.ruleContext,
+            analysis: analysis,
+          );
     final record = CaseRecord.create(
       id: _idFactory(),
       snapshot: snapshot,

@@ -18,6 +18,7 @@ class RuleActionCodec {
         'cat': action.categoryId,
         'tagId': action.tagId,
         'subject': action.subjectBinding,
+        if (action.target != null) 'target': action.target!.toJson(),
       };
     }
     if (action is StructureAction) {
@@ -49,6 +50,11 @@ class RuleActionCodec {
           categoryId: json['cat'],
           tagId: json['tagId'],
           subjectBinding: json['subject'],
+          target: json['target'] == null
+              ? null
+              : ActionTarget.fromJson(
+                  Map<String, Object?>.from(json['target'] as Map),
+                ),
         );
       case 'structure':
         return StructureAction(

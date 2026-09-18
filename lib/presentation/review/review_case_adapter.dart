@@ -176,6 +176,31 @@ class ReviewCaseAdapter {
             subtitle: '旬空 · ${reviewLinePositionName(line.position)}',
             category: '状态',
           ),
+      for (final evidence in [
+        for (final run in hexagramCase.ruleRuns) ...run.derivedEvidence,
+      ])
+        if (evidence.targetKind.name == 'relation' &&
+            evidence.targetRefs.length >= 2 &&
+            evidence.targetRefs[0].kind == 'line' &&
+            evidence.targetRefs[1].kind == 'line')
+          RelationRecord.relation(
+            id: 'rule-evidence:${evidence.id.id}',
+            sourceKind: RelationSourceKind.rule,
+            relationType: RelationType.liuChong,
+            fromRef: YaoEndpoint(
+              LineScope.original,
+              int.parse(evidence.targetRefs[0].key),
+            ),
+            toRef: YaoEndpoint(
+              LineScope.original,
+              int.parse(evidence.targetRefs[1].key),
+            ),
+            title: '规则取象：${evidence.value}',
+            subtitle: '${evidence.ruleId.id} · ${evidence.ruleVersion.version}',
+            category: '规则取象',
+            ruleId: evidence.ruleId.id,
+            evidence: [evidence.id.id],
+          ),
     ];
 
     return ReviewPageState(
@@ -215,6 +240,10 @@ class ReviewCaseAdapter {
       focusedRelations: focused,
       allRelations: relations,
       relationRecords: relationRecords,
+      derivedEvidence: [
+        for (final run in hexagramCase.ruleRuns) ...run.derivedEvidence,
+      ],
+      ruleRuns: hexagramCase.ruleRuns,
       focusSummary: profile?.focusSummaryOverride ?? buildFocusSummary(focused),
       rulePackId: ref?.ruleId,
       ruleVersion: ref?.version,

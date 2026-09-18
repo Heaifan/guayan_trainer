@@ -12,6 +12,7 @@ import 'predicate_result.dart';
 import '../evidence/evidence_id.dart';
 import '../objects/dynamic_object_resolver.dart';
 import 'rule_trace.dart';
+import 'trace_labels.dart';
 
 /// 表达式求值异常
 class EvaluationException implements Exception {
@@ -36,6 +37,9 @@ class PredicateEvaluator {
     if (expr is AllExpr) {
       final allSupports = <EvidenceId>[];
       final traces = <RuleTrace>[];
+      var matchedBindings = <Map<String, SemanticRef>>[
+        bindingContext.allBindings,
+      ];
       for (final child in expr.nodes) {
         final result = evaluate(child, bindingContext, snapshot);
         if (result.trace != null) traces.add(result.trace!);
@@ -51,10 +55,18 @@ class PredicateEvaluator {
           );
         }
         allSupports.addAll(result.supports);
+        if (result.matchedBindings.isNotEmpty) {
+          matchedBindings = [
+            for (final left in matchedBindings)
+              for (final right in result.matchedBindings)
+                {...left, ...right},
+          ];
+        }
       }
       return PredicateResult(
         matched: true,
         supports: allSupports,
+        matchedBindings: matchedBindings,
         trace: RuleTrace(
           kind: RuleTraceKind.all,
           label: 'ALL',
@@ -76,6 +88,7 @@ class PredicateEvaluator {
       bool matched = false;
       final anySupports = <EvidenceId>[];
       final traces = <RuleTrace>[];
+      final matchedBindings = <Map<String, SemanticRef>>[];
 
       for (final child in expr.nodes) {
         final result = evaluate(child, bindingContext, snapshot);
@@ -83,12 +96,16 @@ class PredicateEvaluator {
         if (result.matched) {
           matched = true;
           anySupports.addAll(result.supports);
+          matchedBindings.addAll(result.matchedBindings.isEmpty
+              ? [bindingContext.allBindings]
+              : result.matchedBindings);
         }
       }
       if (matched) {
         return PredicateResult(
           matched: true,
           supports: anySupports,
+          matchedBindings: matchedBindings,
           trace: RuleTrace(
             kind: RuleTraceKind.any,
             label: 'ANY',
@@ -111,6 +128,7 @@ class PredicateEvaluator {
       if (!childResult.matched) {
         return PredicateResult(
           matched: true,
+          matchedBindings: [bindingContext.allBindings],
           trace: RuleTrace(
             kind: RuleTraceKind.not,
             label: 'NOT',
@@ -135,7 +153,8 @@ class PredicateEvaluator {
       );
       final results = <PredicateResult>[];
       final matchedBindings = <Map<String, SemanticRef>>[];
-      final traces = <RuleTrace>[];
+      final quantifiedSupports = <EvidenceId>[];
+      final candidateTraces = <RuleTrace>[];
       for (final candidate in resolution.candidates) {
         final scoped = BindingContext(
           Map.of(bindingContext.allBindings)..[expr.bindingName] = candidate,
@@ -145,8 +164,17 @@ class PredicateEvaluator {
         }
         final result = evaluate(expr.node, scoped, snapshot);
         results.add(result);
-        if (result.trace != null) traces.add(result.trace!);
+        candidateTraces.add(RuleTrace(
+          kind: RuleTraceKind.binding,
+          label: '${semanticRefLabel(candidate)} ${expr.bindingName}',
+          status: result.matched
+              ? RuleTraceStatus.matched
+              : RuleTraceStatus.notMatched,
+          children: [if (result.trace != null) result.trace!],
+          resolvedObjects: [candidate],
+        ));
         if (result.matched) matchedBindings.add(scoped.allBindings);
+        if (result.matched) quantifiedSupports.addAll(result.supports);
       }
       final matches = results.where((result) => result.matched).length;
       final required = expr.count;
@@ -159,14 +187,16 @@ class PredicateEvaluator {
       };
       return PredicateResult(
         matched: matched,
+        supports: quantifiedSupports,
         matchedBindings: matchedBindings,
         trace: RuleTrace(
           kind: RuleTraceKind.quantified,
-          label: '${expr.kind.name} ${expr.bindingName}',
+          label: '${_quantifierLabel(expr.kind)} ${expr.bindingName} · '
+              '${resolution.candidates.length} 个候选 · $matches 个命中',
           status: matched
               ? RuleTraceStatus.matched
               : RuleTraceStatus.notMatched,
-          children: traces,
+          children: candidateTraces,
           resolvedObjects: resolution.candidates,
         ),
       );
@@ -230,13 +260,24 @@ class PredicateEvaluator {
     );
     final result = operatorImpl.evaluate(resolvedOperands, context);
     final actual = _actualValue(expr.operatorId, resolvedOperands, snapshot);
+    final references = [
+      for (final operand in resolvedOperands)
+        if (operand.reference != null) operand.reference!,
+    ];
+    final literals = [
+      for (final operand in resolvedOperands)
+        if (operand.literal != null) operand.literal!.value,
+    ];
     return PredicateResult(
       matched: result.matched,
       supports: result.supports,
-      matchedBindings: result.matchedBindings,
+      matchedBindings: result.matched
+          ? [bindingContext.allBindings]
+          : result.matchedBindings,
       trace: RuleTrace(
         kind: RuleTraceKind.predicate,
-        label: expr.operatorId,
+        label: predicateLabel(expr.operatorId, references, literals, actual),
+        operatorId: expr.operatorId,
         status: result.matched
             ? RuleTraceStatus.matched
             : RuleTraceStatus.notMatched,
@@ -245,8 +286,7 @@ class PredicateEvaluator {
             : null,
         actual: actual,
         resolvedObjects: [
-          for (final operand in resolvedOperands)
-            if (operand.reference != null) operand.reference!,
+          ...references,
         ],
       ),
     );
@@ -258,6 +298,13 @@ class PredicateEvaluator {
     FactSnapshot snapshot,
   ) {
     if (operands.isEmpty || operands.first.reference == null) return null;
+    if (operatorId == 'branch_clashes' && operands.length > 1 &&
+        operands[1].reference != null) {
+      return [
+        _factValue(operatorId, operands.first.reference!, snapshot),
+        _factValue(operatorId, operands[1].reference!, snapshot),
+      ];
+    }
     final predicate = switch (operatorId) {
       'branch_is' => 'branch',
       'spirit' => 'spirit',
@@ -274,4 +321,24 @@ class PredicateEvaluator {
         .map((fact) => fact.value.value)
         .firstOrNull;
   }
+
+  Object? _factValue(
+    String operatorId,
+    SemanticRef ref,
+    FactSnapshot snapshot,
+  ) {
+    final predicate = operatorId == 'branch_clashes' ? 'branch' : operatorId;
+    return snapshot.facts
+        .where((fact) => fact.subject == ref && fact.predicateId == predicate)
+        .map((fact) => fact.value.value)
+        .firstOrNull;
+  }
+
+  String _quantifierLabel(QuantifierKind kind) => switch (kind) {
+        QuantifierKind.any => '任一爻',
+        QuantifierKind.all => '全部爻',
+        QuantifierKind.none => '不存在爻',
+        QuantifierKind.atLeast => '至少',
+        QuantifierKind.exactly => '恰好',
+      };
 }

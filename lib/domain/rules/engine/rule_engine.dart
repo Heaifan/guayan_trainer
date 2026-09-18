@@ -36,7 +36,16 @@ class RuleEngine {
   AnalysisRun execute(
     List<RuleDefinition> rules,
     FactSnapshot initialSnapshot,
+    {
+    String caseId = 'preview',
+    String ruleRunId = 'in-memory',
+    }
   ) {
-    return executor.execute(rules, initialSnapshot);
+    return executor.execute(
+      rules,
+      initialSnapshot,
+      caseId: caseId,
+      ruleRunId: ruleRunId,
+    );
   }
 }
