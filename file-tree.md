@@ -1,5 +1,17 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX7 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/relation_resolution_model.dart` | Candidate、作用角色、可解释结算条目与 hidden/eligible/revealed 状态扩展模型 |
+| `lib/domain/relation_resolution.dart` | Facts → Candidates → Special Resolution → Eligibility → State → Effective Relation Set |
+| `lib/domain/relation_type.dart` | 增加四种独立飞伏特殊关系类型，保留稳定机器名 |
+| `lib/presentation/review/review_case_adapter.dart` | 审卦页只投影 Effective Relation Set，不再把事实账本直接交给 Router |
+| `test/domain/relation_resolution_fix7_test.dart` | FIX7 作用权、回头生克、飞伏身份、可解释过滤与 Golden Case 回归 |
+
+- Last edited: 2026-09-18 23:04:40
+
 ## GUAYAN-R5-FIX6.5 — 2026-09-18
 
 | 文件/目录 | 职责 |

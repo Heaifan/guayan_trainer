@@ -33,6 +33,10 @@ abstract final class RelationVisualTokens {
     RelationType.liuHe => const Color(0xFF1565C0),
     RelationType.huiTouSheng => const Color(0xFF119E57),
     RelationType.huiTouKe => const Color(0xFFD9342B),
+    RelationType.flyingGeneratesHidden ||
+    RelationType.hiddenGeneratesFlying => const Color(0xFF119E57),
+    RelationType.flyingOvercomesHidden ||
+    RelationType.hiddenOvercomesFlying => const Color(0xFFD9342B),
     RelationType.dongBian => const Color(0xFF2E7D32),
   };
 
@@ -45,6 +49,10 @@ abstract final class RelationVisualTokens {
   static String backHookLabel(RelationType type) => switch (type) {
     RelationType.huiTouSheng => '回生',
     RelationType.huiTouKe => '回克',
+    RelationType.flyingGeneratesHidden => '飞生伏',
+    RelationType.flyingOvercomesHidden => '飞克伏',
+    RelationType.hiddenGeneratesFlying => '伏生飞',
+    RelationType.hiddenOvercomesFlying => '伏克飞',
     _ => type.displayName,
   };
 }

@@ -36,6 +36,10 @@ abstract final class RelationProjection {
     RelationType.monthControl ||
     RelationType.dayGenerate ||
     RelationType.dayControl => '月日',
+    RelationType.flyingGeneratesHidden ||
+    RelationType.flyingOvercomesHidden ||
+    RelationType.hiddenGeneratesFlying ||
+    RelationType.hiddenOvercomesFlying => '飞伏',
     RelationType.liuChong || RelationType.liuHe => '冲合',
     RelationType.dongBian => '动变',
   };

@@ -62,6 +62,10 @@ class RelationEndpointPresenter {
       RelationType.monthControl => '月建克爻',
       RelationType.dayGenerate => '日辰生爻',
       RelationType.dayControl => '日辰克爻',
+      RelationType.flyingGeneratesHidden => '飞神生伏神',
+      RelationType.flyingOvercomesHidden => '飞神克伏神',
+      RelationType.hiddenGeneratesFlying => '伏神生飞神',
+      RelationType.hiddenOvercomesFlying => '伏神克飞神',
       RelationType.dongBian => '动爻变卦',
     };
   }
@@ -75,6 +79,10 @@ class RelationEndpointPresenter {
     RelationType.monthControl ||
     RelationType.dayGenerate ||
     RelationType.dayControl => '月日',
+    RelationType.flyingGeneratesHidden ||
+    RelationType.flyingOvercomesHidden ||
+    RelationType.hiddenGeneratesFlying ||
+    RelationType.hiddenOvercomesFlying => '飞伏',
     RelationType.liuChong || RelationType.liuHe => '冲合',
     RelationType.dongBian => '动变',
     null => '状态',

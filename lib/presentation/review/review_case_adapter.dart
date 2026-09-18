@@ -7,9 +7,9 @@ library;
 
 import '../../domain/hexagram_case.dart';
 import '../../domain/line_state.dart';
-import '../../domain/relation_calculator.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
+import '../../domain/relation_resolution.dart';
 import '../../domain/relation_type.dart';
 import '../../domain/relations/relation_projection.dart';
 import '../../domain/relations/relation_record.dart';
@@ -149,7 +149,10 @@ class ReviewCaseAdapter {
     ];
 
     // 关系一律来自 Domain 计算（Stable Relation Identity），禁止 UI 重算。
-    final relations = calculateRelations(hexagramCase);
+    final resolution = resolveRelationResult(hexagramCase);
+    final relations = [
+      for (final entry in resolution.effective) entry.relation,
+    ];
     final focusLine = profile?.focusedLine ?? _firstMoving(hexagramCase);
     final focused = focusLine == null
         ? <RelationInstance>[]

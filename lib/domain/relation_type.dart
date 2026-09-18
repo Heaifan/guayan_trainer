@@ -24,6 +24,26 @@ enum RelationType {
   monthControl('month_control', RelationDirectionKind.directed, '月克'),
   dayGenerate('day_generate', RelationDirectionKind.directed, '日生'),
   dayControl('day_control', RelationDirectionKind.directed, '日克'),
+  flyingGeneratesHidden(
+    'flying_generates_hidden',
+    RelationDirectionKind.directed,
+    '飞生伏',
+  ),
+  flyingOvercomesHidden(
+    'flying_overcomes_hidden',
+    RelationDirectionKind.directed,
+    '飞克伏',
+  ),
+  hiddenGeneratesFlying(
+    'hidden_generates_flying',
+    RelationDirectionKind.directed,
+    '伏生飞',
+  ),
+  hiddenOvercomesFlying(
+    'hidden_overcomes_flying',
+    RelationDirectionKind.directed,
+    '伏克飞',
+  ),
   liuChong('liu_chong', RelationDirectionKind.symmetric, '六冲'),
   liuHe('liu_he', RelationDirectionKind.symmetric, '六合');
 
