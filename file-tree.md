@@ -10,6 +10,7 @@
 | 文件/目录 | 职责 |
 | --- | --- |
 | docs/superpowers/specs/2026-09-18-fix4-3-custom-rule-and-nayin-design.md | 正式 CUSTOM Rule 执行闭环、Trace 审计与三类纳音恢复设计 |
+| docs/superpowers/plans/2026-09-18-fix4-3-custom-rule-and-nayin.md | FIX4.3 的 TDD 实施步骤、文件边界与交付门禁 |
 
 ## GUAYAN-R5-FIX4.2 EDITOR CONTEXT AND RENDERING (2026-09-18)
 
