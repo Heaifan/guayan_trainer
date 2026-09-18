@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:math' as math;
 
 /// Geometry for one open, left-facing back-relation turnback glyph.
 class BackRelationGeometry {
@@ -38,8 +39,9 @@ abstract final class BackRelationGlyph {
     final width = (right - left).clamp(28.0, double.infinity).toDouble();
     final turnX = left + width;
     final centerY = rowRect.center.dy;
-    final bottomY = centerY + height / 2;
-    final topY = centerY - height / 2;
+    final glyphHeight = math.min(height, math.max(8.0, rowRect.height - 4));
+    final bottomY = centerY + glyphHeight / 2;
+    final topY = centerY - glyphHeight / 2;
     final returnX = left + turnRadius + arrowLength;
     final arrowTip = Offset(returnX, topY);
     final arrowBaseCenter = Offset(returnX + arrowLength, topY);

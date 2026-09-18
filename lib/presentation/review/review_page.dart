@@ -115,6 +115,9 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
     'day': GlobalKey(),
     'hour': GlobalKey(),
   };
+  late final _rowKeys = <int, GlobalKey>{
+    for (var position = 1; position <= 6; position++) position: GlobalKey(),
+  };
 
   void _onLineTap(int position) {
     if (_selectedPosition == position) {
@@ -220,12 +223,14 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                               selectedPosition: _selectedPosition,
                               onLineTap: _onLineTap,
                               anchorKeys: _anchorKeys,
+                              rowKeys: _rowKeys,
                             ),
                           ],
                         ),
                         RelationOverlay(
                           records: widget.state.relationRecords,
                           anchorKeys: _anchorKeys,
+                          rowKeys: _rowKeys,
                           category: _relationFilter,
                           focus: _selectedPosition == null
                               ? null

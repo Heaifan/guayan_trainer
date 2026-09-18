@@ -29,6 +29,26 @@ void main() {
     expect(geometry.bounds.bottom, lessThanOrEqualTo(row.bottom));
   });
 
+  test('each Domain position owns its reversed visual row without coordinate guessing', () {
+    final rowRects = <int, Rect>{
+      for (var position = 1; position <= 6; position++)
+        position: Rect.fromLTWH(0, 500 + (6 - position) * 44, 360, 44),
+    };
+    for (var position = 1; position <= 6; position++) {
+      final geometry = BackRelationGlyph.layout(
+        rowRect: rowRects[position]!,
+        mainLineRect: main,
+        changedLineRect: changed,
+      );
+      expect(geometry.bounds.top, greaterThanOrEqualTo(rowRects[position]!.top));
+      expect(geometry.bounds.bottom, lessThanOrEqualTo(rowRects[position]!.bottom));
+      expect(geometry.labelCenter.dy, greaterThan(rowRects[position]!.top));
+      expect(geometry.labelCenter.dy, lessThan(rowRects[position]!.bottom));
+    }
+    expect(rowRects[6]!.top, 500);
+    expect(rowRects[1]!.top, 720);
+  });
+
   test('back glyph keeps relation-specific color and label semantics', () {
     expect(
       RelationVisualTokens.colorFor(RelationType.huiTouSheng),

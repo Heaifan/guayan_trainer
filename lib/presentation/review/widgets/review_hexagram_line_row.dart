@@ -29,6 +29,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
     this.onTap,
     this.mainAnchorKey,
     this.changedAnchorKey,
+    this.rowKey,
   });
 
   final ReviewLineView line;
@@ -36,6 +37,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
   final VoidCallback? onTap;
   final GlobalKey? mainAnchorKey;
   final GlobalKey? changedAnchorKey;
+  final GlobalKey? rowKey;
 
   static const double _designW = BoardColumnLayout.width;
   static const double _rowH = 44;
@@ -186,10 +188,13 @@ class ReviewHexagramLineRow extends StatelessWidget {
       ),
     );
 
-    if (onTap == null) return row;
+    final anchoredRow = rowKey == null
+        ? row
+        : KeyedSubtree(key: rowKey, child: row);
+    if (onTap == null) return anchoredRow;
     return Material(
       color: Colors.transparent,
-      child: InkWell(onTap: onTap, child: row),
+      child: InkWell(onTap: onTap, child: anchoredRow),
     );
   }
 

@@ -1,5 +1,19 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX6.5 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/back_relation_glyph.dart` | 按真实 Row Rect 自适应生成行内开放式 U 型回头 Glyph |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 将 Domain position 通过 Row GlobalKey 转换到 Overlay local 坐标，并隔离同位动变绘制 |
+| `lib/presentation/review/widgets/review_hexagram_line_row.dart` | 为每个 Domain position 暴露真实行容器锚点，同时保持既有测试语义键 |
+| `lib/presentation/review/widgets/review_hexagram_result_table.dart` | 将 position→row key 显式传入六爻行 |
+| `lib/presentation/review/review_page.dart` | 注册并传递六个 Domain position 的行锚点 |
+| `test/presentation/review/back_relation_glyph_test.dart` | 六爻反向显示映射、非零偏移、边界、开放路径与左向三角回归 |
+| `file-tree.md` | 记录 FIX6.5 Renderer 收口的文件职责 |
+
+- Last edited: 2026-09-18 17:10:00
+
 ## GUAYAN-R5-FIX6.4 — 2026-09-18
 
 | 文件/目录 | 职责 |

@@ -18,6 +18,7 @@ class RelationOverlay extends StatelessWidget {
     this.selectedId,
     this.onRelationTap,
     this.anchorKeys = const {},
+    this.rowKeys = const {},
     this.category,
   });
   final List<RelationRecord> records;
@@ -25,6 +26,7 @@ class RelationOverlay extends StatelessWidget {
   final String? selectedId;
   final ValueChanged<String>? onRelationTap;
   final Map<String, GlobalKey> anchorKeys;
+  final Map<int, GlobalKey> rowKeys;
   final String? category;
   static List<RelationRecord> visibleRecords(
     Iterable<RelationRecord> records, {
@@ -60,6 +62,7 @@ class RelationOverlay extends StatelessWidget {
           visibleRecords(records, focus: focus, category: category),
           selectedId,
           anchorKeys,
+          rowKeys,
           context,
         ),
       ),
@@ -68,10 +71,17 @@ class RelationOverlay extends StatelessWidget {
 }
 
 class _Painter extends CustomPainter {
-  const _Painter(this.records, this.selectedId, this.anchorKeys, this.context);
+  const _Painter(
+    this.records,
+    this.selectedId,
+    this.anchorKeys,
+    this.rowKeys,
+    this.context,
+  );
   final List<RelationRecord> records;
   final String? selectedId;
   final Map<String, GlobalKey> anchorKeys;
+  final Map<int, GlobalKey> rowKeys;
   final BuildContext context;
   @override
   void paint(Canvas canvas, Size size) {
@@ -180,12 +190,9 @@ class _Painter extends CustomPainter {
         ? from
         : to;
     final changed = identical(original, from) ? to : from;
-    final row = Rect.fromLTRB(
-      math.min(original.left, changed.left),
-      math.min(original.top, changed.top),
-      math.max(original.right, changed.right),
-      math.max(original.bottom, changed.bottom),
-    );
+    final position = _originalPosition(record);
+    final row = position == null ? null : _rowRect(position);
+    if (row == null) return;
     final geometry = BackRelationGlyph.layout(
       rowRect: row,
       mainLineRect: original,
@@ -220,6 +227,15 @@ class _Painter extends CustomPainter {
 
   Rect? _endpointRect(RelationEndpoint endpoint) {
     final key = anchorKeys[endpoint.semanticId];
+    final box = key?.currentContext?.findRenderObject() as RenderBox?;
+    final overlay = context.findRenderObject() as RenderBox?;
+    if (box == null || overlay == null || !box.hasSize) return null;
+    final topLeft = overlay.globalToLocal(box.localToGlobal(Offset.zero));
+    return topLeft & box.size;
+  }
+
+  Rect? _rowRect(int position) {
+    final key = rowKeys[position];
     final box = key?.currentContext?.findRenderObject() as RenderBox?;
     final overlay = context.findRenderObject() as RenderBox?;
     if (box == null || overlay == null || !box.hasSize) return null;
