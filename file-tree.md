@@ -5,6 +5,19 @@
 - Last edited: 2026-09-18 11:34:52
 - FIX4.2 增加真实 Case 选择器与会话上下文，并修复 Quantified/Dynamic/Tag 的编辑器可视化回显；审卦页增加直达规则测试入口。
 
+## GUAYAN-R5-FIX4.3 IMPLEMENTATION (2026-09-18)
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/services/cases/formal_case_recompute_service.dart | 从当前有效规则集合重建 FactSnapshot、执行 RuleEngine 并持久化正式 RuleRun |
+| lib/domain/rules/engine/stage_runner.dart | 只保留规则固定点收敛轮的 Trace，避免同次执行重复计数 |
+| lib/domain/rules/engine/predicate_evaluator.dart | 将六亲/六神事实以用户可读实际值写入 Trace |
+| lib/domain/rules/vocabulary/nayin_catalog.dart | 从天干地支复用唯一六十甲子纳音映射 |
+| lib/presentation/review/review_case_adapter.dart | 将主卦、变卦、伏神纳音事实适配到 Review line 状态 |
+| lib/presentation/review/widgets/review_hexagram_line_row.dart | 以紧凑弱化基线渲染三类纳音并提供语义点击节点 |
+| test/services/cases/formal_case_recompute_test.dart | 正式 CUSTOM Rule→RuleRun→OBJECT Evidence 回归 |
+| test/domain/rules/nayin_truth_test.dart | 60 甲子纳音按干支查找回归 |
+
 ## GUAYAN-R5-FIX4.3 DESIGN (2026-09-18)
 
 | 文件/目录 | 职责 |
