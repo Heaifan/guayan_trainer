@@ -1,5 +1,17 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX6.1 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/widgets/board_column_layout.dart` | 固定主/变卦镜像列坐标、正文宽度与爻象间距契约 |
+| `lib/presentation/review/widgets/review_hexagram_line_row.dart` | 使用镜像 Cell 渲染变卦爻象、正文、纳音与世应槽 |
+| `test/presentation/review/mirrored_hexagram_layout_test.dart` | 主变卦镜像间距、行序映射与世应边界回归 |
+| `test/presentation/review/review_page_test.dart` | 更新变卦长纳音的镜像爻槽边界断言 |
+| `file-tree.md` | 记录 FIX6.1 布局修复的文件职责 |
+
+- Last edited: 2026-09-18 15:18:00
+
 ## GUAYAN-R5-FIX6 — 2026-09-18
 
 | 文件/目录 | 职责 |

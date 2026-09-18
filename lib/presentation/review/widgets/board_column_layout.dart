@@ -15,8 +15,7 @@ class BoardColumnLayout {
   static const mainShiYingLeft = 208.0;
   static const changedYaoLeft = 278.0;
   static const changedShiYingLeft = 306.0;
-  static const changedValueLeft = 396.0;
-  static const changedTextLeft = 278.0;
+  static const changedTextLeft = changedShiYingLeft + 14.0 + yaoGap;
   static const changedTextWidth = 64.0;
   static const centralHeaderLeft = mainShiYingLeft;
   static const centralHeaderWidth = changedShiYingLeft + 14 - mainShiYingLeft;

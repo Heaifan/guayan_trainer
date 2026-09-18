@@ -487,13 +487,13 @@ void main() {
       expect(mainPrimary.right <= mainYaoRect.left, isTrue, reason: '主卦正文压爻槽');
       final mainNaYin = tester.getRect(find.text(longExtra).first);
       expect(mainNaYin.right <= mainYaoRect.left, isTrue, reason: '主卦纳音压爻槽');
-      // 变卦纳音列右缘 ≤ 变卦爻槽左缘。
+      // 变卦为镜像列：爻槽右缘 ≤ 纳音列左缘。
       final changedYaoRect = tester.getRect(
         find.byKey(const Key('changed_yao_glyph_6')),
       );
       final changedNaYin = tester.getRect(find.text(longExtra).at(1));
       expect(
-        changedNaYin.right <= changedYaoRect.left,
+        changedYaoRect.right <= changedNaYin.left,
         isTrue,
         reason: '变卦纳音压变卦爻槽',
       );

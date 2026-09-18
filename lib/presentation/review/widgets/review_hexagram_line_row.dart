@@ -19,7 +19,7 @@ import 'hexagram_line_cell.dart';
 ///
 /// 行高固定 44；设计坐标空间宽 402，列左缘冻结：六神18 伏神1·44 伏神2·70
 /// 主卦文136 主卦爻212 世应244 动爻260 箭头277 变卦文278 变卦爻368 变卦世应396。
-/// 主/变卦文本列宽封顶（74 / 88），超长文本在列缘裁剪（无省略号），
+/// 主/变卦文本列宽固定为 64，超长文本在列缘裁剪（无省略号），
 /// 任何情况下不侵占爻槽；整行 FittedBox(contain) 自适应缩放。
 class ReviewHexagramLineRow extends StatelessWidget {
   const ReviewHexagramLineRow({
@@ -154,12 +154,13 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 naYinKey: Key('changed_nayin_${line.position}'),
                 onNaYinTap: onTap,
                 textContentKey: Key('changed_text_${line.position}'),
-                shiYing: null,
-                shiYingKey: null,
+                shiYing: line.changedShiYing,
+                shiYingKey: Key('changed_shi_ying_${line.position}'),
                 yaoKey: Key('changed_yao_glyph_${line.position}'),
                 textKey: Key('changed_text_slot_${line.position}'),
                 shiYingSlotKey: Key('changed_shi_ying_slot_${line.position}'),
                 yaoSlotKey: Key('changed_yao_slot_${line.position}'),
+                reverse: true,
                 yaoKind: line.changed?.movementType == null
                     ? null
                     : line.changed!.isVoid
@@ -168,15 +169,6 @@ class ReviewHexagramLineRow extends StatelessWidget {
               ),
             ),
           ),
-          if (line.changedShiYing != null)
-            _leftText(
-              BoardColumnLayout.changedValueLeft,
-              line.changedShiYing!,
-              _spiritStyle,
-              _spiritBaseline,
-              width: 14,
-              textKey: Key('changed_shi_ying_${line.position}'),
-            ),
         ],
       ),
     );
