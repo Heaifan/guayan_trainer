@@ -1,5 +1,4 @@
 import '../../domain/cases/case_record.dart';
-import '../../domain/cases/rule_run.dart';
 import '../../domain/rule_execution_context.dart';
 import '../../domain/rules/core/rule_definition.dart';
 import '../../domain/rules/engine/rule_engine.dart';
