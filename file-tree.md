@@ -1838,4 +1838,11 @@ theme/  data/  閳? models/  閳? services/  閳? pages/  +  widgets/
 - `docs/superpowers/specs/2026-09-18-rule-trace-and-scoped-runtime-design.md`：R5 设计说明。
 - `docs/superpowers/plans/2026-09-18-rule-trace-and-scoped-runtime.md`：R5 实施计划。
 
+## Rule Test Hotfix（2026-09-18）
+
+- `lib/domain/rules/engine/rule_test_runner.dart`：直接执行编辑器 RuleDefinition 的内存测试边界，不经过 Portable 导入。
+- `lib/presentation/rules/rule_test_result_page.dart`：使用 RuleTestRunner 展示测试 Trace。
+- `test/domain/rules/engine/rule_test_runner_test.dart`：命中、未命中、测试隔离与 Portable envelope 回归测试。
+- `test/presentation/rules/rule_editor_page_test.dart`：编辑器测试入口 schema 错误回归测试。
+
 最后编辑时间：2026-09-18

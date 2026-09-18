@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/rules/core/rule_definition.dart';
-import '../../domain/rules/engine/rule_engine.dart';
+import '../../domain/rules/engine/rule_test_runner.dart';
 import '../../domain/rules/facts/fact_snapshot.dart';
 import 'widgets/rule_trace_tree.dart';
 
@@ -12,7 +12,7 @@ class RuleTestResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final run = RuleEngine().execute([rule], snapshot);
+    final run = const RuleTestRunner().run(rule, snapshot);
     return Scaffold(
       appBar: AppBar(title: Text('测试：${rule.title}')),
       body: ListView(

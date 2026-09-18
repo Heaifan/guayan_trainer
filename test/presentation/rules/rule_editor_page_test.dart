@@ -28,6 +28,22 @@ void main() {
     expect(find.text('保存'), findsOneWidget);
   });
 
+  testWidgets('test rule opens runtime result without portable schema error', (
+    tester,
+  ) async {
+    final service = CustomRuleService(CustomRuleStore(), UserGovernanceState());
+    await tester.pumpWidget(
+      MaterialApp(home: RuleEditorPage(service: service)),
+    );
+
+    await tester.tap(find.text('测试规则'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('测试：白虎道路'), findsNothing);
+    expect(find.textContaining('测试：'), findsOneWidget);
+    expect(find.textContaining('Unsupported portable rule schema'), findsNothing);
+  });
+
   testWidgets('result token opens result choices', (tester) async {
     final service = CustomRuleService(CustomRuleStore(), UserGovernanceState());
     await tester.pumpWidget(
