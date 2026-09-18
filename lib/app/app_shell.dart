@@ -24,6 +24,8 @@ import '../../domain/rules/editor/user_governance_state.dart';
 import '../../domain/rules/engine/runtime_rule_set_assembler.dart';
 import '../../domain/rules/packs/rule_pack.dart';
 import '../../domain/rules/packs/rule_pack_id.dart';
+import '../../domain/rules/packages/global_rule_pack_registry.dart';
+import '../../domain/rules/packages/rule_package_store.dart';
 
 /// 卦眼 2.0 应用壳。
 ///
@@ -50,6 +52,8 @@ class AppShellState extends State<AppShell> {
   final ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
   CaseRepository? _caseRepository;
   final CustomRuleStore _customRuleStore = CustomRuleStore();
+  final GlobalRulePackRegistry _globalRulePackRegistry =
+      GlobalRulePackRegistry(RulePackageStore());
   late final CustomRuleService _customRuleService =
       CustomRuleService(_customRuleStore, UserGovernanceState());
   final RelationAnnotationStore _relationAnnotations =
@@ -60,6 +64,7 @@ class AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
     _customRuleService.load();
+    _globalRulePackRegistry.load();
     JsonCaseRepository.open().then((repository) {
       if (mounted) setState(() => _caseRepository = repository);
     });
@@ -151,10 +156,12 @@ class AppShellState extends State<AppShell> {
     final repository = _caseRepository;
     if (record == null || repository == null) return;
     await _customRuleService.load();
+    await _globalRulePackRegistry.load();
     final assembler = RuntimeRuleSetAssembler(
       customRuleService: _customRuleService,
       availableTopics: const <RulePack>[],
       topicRulesMap: const <RulePackId, List<RuleDefinition>>{},
+      globalRegistry: _globalRulePackRegistry,
     );
     await FormalCaseRecomputeService(repository).recompute(
       record: record,

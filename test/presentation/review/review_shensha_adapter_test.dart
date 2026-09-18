@@ -66,5 +66,11 @@ void main() {
     expect(state.lineAt(3).oppositeHidden!.label, '官鬼己亥水');
     expect(state.lineAt(3).oppositeHidden!.naYin, '平地木');
     expect(state.lineAt(3).identity!.element, '水');
+
+    final reloaded = HexagramCase.fromJson(hexagramCase.toJson());
+    expect(
+      ReviewCaseAdapter.adapt(reloaded).lineAt(3).identity!.naYin,
+      state.lineAt(3).identity!.naYin,
+    );
   });
 }
