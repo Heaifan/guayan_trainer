@@ -40,7 +40,6 @@ class ReviewHexagramLineRow extends StatelessWidget {
   static const double _designW = BoardColumnLayout.width;
   static const double _rowH = 44;
 
-  static const double _naYinBaseline = 31;
   static const double _spiritBaseline = 21;
   static const double _yaoCenterY = 22;
 
@@ -88,6 +87,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
             _hiddenIdentity(
               BoardColumnLayout.primaryHiddenLeft + i * 44,
               line.hiddenSpiritFacts[i],
+              index: i,
               key: Key('hidden_slot_${line.position}_$i'),
             ),
           if (line.primaryHidden != null)
@@ -113,6 +113,10 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 key: Key('main_line_cell_${line.position}'),
                 text: line.mainPrimary,
                 identity: line.identity,
+                naYin: line.displayExtra,
+                naYinKey: Key('main_nayin_${line.position}'),
+                onNaYinTap: onTap,
+                textContentKey: Key('main_text_${line.position}'),
                 shiYing: line.shiYing,
                 shiYingKey: Key('shi_ying_${line.position}'),
                 yaoKey: Key('yao_glyph_${line.position}'),
@@ -123,16 +127,6 @@ class ReviewHexagramLineRow extends StatelessWidget {
               ),
             ),
           ),
-          if (line.displayExtra != null && line.displayExtra!.isNotEmpty)
-            _naYinText(
-              BoardColumnLayout.mainTextLeft,
-              line.displayExtra!,
-              '主卦',
-              _naYinStyle,
-              _naYinBaseline,
-              width: BoardColumnLayout.mainTextWidth,
-            ),
-
           // 动爻标记
           if (line.movementType.isMoving)
             Positioned(
@@ -156,6 +150,10 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 key: Key('changed_line_cell_${line.position}'),
                 text: line.changed?.primaryLabel ?? '',
                 identity: line.changed?.identity,
+                naYin: line.changed?.displayExtra,
+                naYinKey: Key('changed_nayin_${line.position}'),
+                onNaYinTap: onTap,
+                textContentKey: Key('changed_text_${line.position}'),
                 shiYing: null,
                 shiYingKey: null,
                 yaoKey: Key('changed_yao_glyph_${line.position}'),
@@ -178,16 +176,6 @@ class ReviewHexagramLineRow extends StatelessWidget {
               _spiritBaseline,
               width: 14,
               textKey: Key('changed_shi_ying_${line.position}'),
-            ),
-          if (line.changed?.displayExtra != null &&
-              line.changed!.displayExtra!.isNotEmpty)
-            _naYinText(
-              BoardColumnLayout.changedTextLeft,
-              line.changed!.displayExtra!,
-              '变卦',
-              _naYinStyle,
-              _naYinBaseline,
-              width: BoardColumnLayout.changedTextWidth,
             ),
         ],
       ),
@@ -240,76 +228,47 @@ class ReviewHexagramLineRow extends StatelessWidget {
     );
   }
 
-  Widget _naYinText(
+  Widget _hiddenIdentity(
     double left,
-    String text,
-    String source,
-    TextStyle style,
-    double baseline, {
-    double? width,
+    FushenResult result, {
+    required int index,
+    Key? key,
   }) {
-    return Positioned(
-      left: left,
-      width: width,
-      top: 0,
-      bottom: 0,
-      child: Semantics(
-        label: '纳音：$text',
-        hint: '$source ${line.position}爻，可点击查看备注',
-        button: true,
-        onTap: onTap,
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Baseline(
-            baseline: baseline,
-            baselineType: TextBaseline.alphabetic,
-            child: Text(text, maxLines: 1, style: style),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _hiddenIdentity(double left, FushenResult result, {Key? key}) {
     return Positioned(
       key: key,
       left: left,
       width: 42,
       top: 0,
       bottom: 0,
-      child: Stack(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            child: Baseline(
-              baseline: _spiritBaseline,
-              baselineType: TextBaseline.alphabetic,
-              child: LineIdentityText.buildText(
-                ReviewLineIdentity(
-                  relative: result.relative.label,
-                  ganZhi: result.ganZhi,
-                  element: result.element.label,
-                  naYin: result.naYin,
-                ),
-                compact: true,
-                style: _hiddenStyle,
+          Baseline(
+            key: Key('hidden_text_slot_${line.position}_$index'),
+            baseline: _spiritBaseline,
+            baselineType: TextBaseline.alphabetic,
+            child: LineIdentityText.buildText(
+              ReviewLineIdentity(
+                relative: result.relative.label,
+                ganZhi: result.ganZhi,
+                element: result.element.label,
               ),
+              compact: true,
+              style: _hiddenStyle,
             ),
           ),
-          Positioned(
-            top: 0,
-            left: 0,
-            child: Semantics(
-              label: '纳音：${result.naYin}',
-              hint: '伏神 ${line.position}爻，可点击查看备注',
-              button: true,
-              onTap: onTap,
-              child: Baseline(
-                baseline: _naYinBaseline,
-                baselineType: TextBaseline.alphabetic,
-                child: Text(result.naYin, style: _naYinStyle),
-              ),
+          const SizedBox(height: 2),
+          Semantics(
+            key: Key('hidden_nayin_${line.position}_$index'),
+            label: '纳音：${result.naYin}',
+            hint: '伏神 ${line.position}爻，可点击查看备注',
+            button: true,
+            onTap: onTap,
+            child: Baseline(
+              baseline: 10,
+              baselineType: TextBaseline.alphabetic,
+              child: Text(result.naYin, style: _naYinStyle),
             ),
           ),
         ],
@@ -324,39 +283,35 @@ class ReviewHexagramLineRow extends StatelessWidget {
       width: 42,
       top: 0,
       bottom: 0,
-      child: Stack(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            child: Baseline(
-              baseline: _spiritBaseline,
-              baselineType: TextBaseline.alphabetic,
-              child: LineIdentityText.buildText(
-                ReviewLineIdentity(
-                  relative: line.relative.label,
-                  ganZhi: line.ganZhi,
-                  element: line.element.label,
-                  naYin: line.naYin,
-                ),
-                compact: true,
-                style: _hiddenStyle,
+          Baseline(
+            key: Key('hidden_text_slot_${this.line.position}_palace'),
+            baseline: _spiritBaseline,
+            baselineType: TextBaseline.alphabetic,
+            child: LineIdentityText.buildText(
+              ReviewLineIdentity(
+                relative: line.relative.label,
+                ganZhi: line.ganZhi,
+                element: line.element.label,
               ),
+              compact: true,
+              style: _hiddenStyle,
             ),
           ),
-          Positioned(
-            top: 0,
-            left: 0,
-            child: Semantics(
-              label: '纳音：${line.naYin}',
-              hint: '伏藏 ${this.line.position}爻，可点击查看备注',
-              button: true,
-              onTap: onTap,
-              child: Baseline(
-                baseline: _naYinBaseline,
-                baselineType: TextBaseline.alphabetic,
-                child: Text(line.naYin, style: _naYinStyle),
-              ),
+          const SizedBox(height: 2),
+          Semantics(
+            key: Key('hidden_nayin_${this.line.position}_palace'),
+            label: '纳音：${line.naYin}',
+            hint: '伏藏 ${this.line.position}爻，可点击查看备注',
+            button: true,
+            onTap: onTap,
+            child: Baseline(
+              baseline: 10,
+              baselineType: TextBaseline.alphabetic,
+              child: Text(line.naYin, style: _naYinStyle),
             ),
           ),
         ],

@@ -1,5 +1,17 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX5.1 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/widgets/hexagram_line_cell.dart` | 将主卦、变卦文本与纳音纳入同一列流式布局，避免固定定位重叠 |
+| `lib/presentation/review/widgets/review_hexagram_line_row.dart` | 将伏神/伏藏文本与纳音纳入同一列，并保留纳音语义点击节点 |
+| `lib/presentation/review/widgets/line_identity_text.dart` | 支持为身份文本注入回归测试定位键 |
+| `test/presentation/review/nayin_layout_test.dart` | 三类纳音在 360/390/430 DIP 下的非重叠与无溢出回归 |
+| `file-tree.md` | 记录 FIX5.1 纳音排版修复的文件职责 |
+
+- Last edited: 2026-09-18 14:54:48
+
 ## Relation Semantics and Router 2.0 — 2026-09-18
 
 | 文件/目录 | 职责 |

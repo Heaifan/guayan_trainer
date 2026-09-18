@@ -23,6 +23,7 @@ class LineIdentityText extends StatelessWidget {
 
   static Text buildText(
     ReviewLineIdentity identity, {
+    Key? key,
     bool compact = false,
     TextStyle style = const TextStyle(
       fontSize: 12,
@@ -31,6 +32,7 @@ class LineIdentityText extends StatelessWidget {
       height: 1.2,
     ),
   }) => Text.rich(
+    key: key,
     TextSpan(
       children: [
         TextSpan(

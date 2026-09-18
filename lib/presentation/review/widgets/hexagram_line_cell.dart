@@ -9,6 +9,10 @@ class HexagramLineCell extends StatelessWidget {
   const HexagramLineCell({
     super.key,
     required this.text,
+    this.naYin,
+    this.naYinKey,
+    this.onNaYinTap,
+    this.textContentKey,
     required this.yaoKind,
     this.yaoKey,
     this.shiYingKey,
@@ -28,6 +32,10 @@ class HexagramLineCell extends StatelessWidget {
   });
 
   final String text;
+  final String? naYin;
+  final Key? naYinKey;
+  final VoidCallback? onNaYinTap;
+  final Key? textContentKey;
   final ReviewLineIdentity? identity;
   final YaoKind? yaoKind;
   final Key? yaoKey;
@@ -48,17 +56,53 @@ class HexagramLineCell extends StatelessWidget {
     final textSlot = SizedBox(
       key: textKey,
       width: textWidth,
-      child: Baseline(
-        baseline: 16,
-        baselineType: TextBaseline.alphabetic,
-        child: identity == null
-            ? Text(
-                text,
-                maxLines: 1,
-                overflow: TextOverflow.clip,
-                style: textStyle,
-              )
-            : LineIdentityText.buildText(identity!, style: textStyle),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Baseline(
+            baseline: 16,
+            baselineType: TextBaseline.alphabetic,
+            child: identity == null
+                ? Text(
+                    text,
+                    key: textContentKey,
+                    maxLines: 1,
+                    overflow: TextOverflow.clip,
+                    style: textStyle,
+                  )
+                : LineIdentityText.buildText(
+                    identity!,
+                    key: textContentKey,
+                    style: textStyle,
+                  ),
+          ),
+          if (naYin != null && naYin!.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Semantics(
+              key: naYinKey,
+              label: '纳音：$naYin',
+              hint: '可点击查看备注',
+              button: true,
+              onTap: onNaYinTap,
+              child: Baseline(
+                baseline: 10,
+                baselineType: TextBaseline.alphabetic,
+                child: Text(
+                  naYin!,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF71838B),
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
     final shiYingSlot = SizedBox(
