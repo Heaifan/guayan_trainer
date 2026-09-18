@@ -9,6 +9,7 @@ import 'navigation/main_tabs.dart';
 import '../presentation/casting/casting_page.dart';
 import '../presentation/cases/cases_page.dart';
 import '../presentation/review/review_page.dart';
+import '../presentation/rules/rule_library_page.dart';
 import '../presentation/relations/relations_page.dart';
 import '../services/calendar/casting_calendar_service.dart';
 import '../services/cases/case_repository.dart';
@@ -69,10 +70,12 @@ class AppShellState extends State<AppShell> {
           ? null
           : AppBar(
               title: Text(mainTabs[selectedIndex].title),
-              actions: [MoreMenuButton(
-                latestCase: _latestCase,
-                caseRepository: _caseRepository,
-              )],
+              actions: [
+                MoreMenuButton(
+                  latestCase: _latestCase,
+                  caseRepository: _caseRepository,
+                ),
+              ],
             ),
       body: IndexedStack(
         index: selectedIndex,
@@ -99,6 +102,14 @@ class AppShellState extends State<AppShell> {
             useDemoFallback: false,
             shenShaNoteStore: _shenShaNoteStore,
             onRecompute: _recomputeActiveCase,
+            onOpenRules: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => RuleLibraryPage(
+                  latestCase: _latestCase,
+                  caseRepository: _caseRepository,
+                ),
+              ),
+            ),
             onOpenRelations: () => setState(() => selectedIndex = 2),
           ),
           RelationsPage(

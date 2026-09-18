@@ -39,6 +39,7 @@ class ReviewPage extends StatelessWidget {
     this.useDemoFallback = true,
     this.shenShaNoteStore,
     this.onRecompute,
+    this.onOpenRules,
   });
 
   /// App Shell 传入的最近排盘结果；null 时回退演示排盘。
@@ -57,6 +58,7 @@ class ReviewPage extends StatelessWidget {
   final bool useDemoFallback;
   final ShenShaNoteStore? shenShaNoteStore;
   final VoidCallback? onRecompute;
+  final VoidCallback? onOpenRules;
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +81,7 @@ class ReviewPage extends StatelessWidget {
       onOpenRelations: onOpenRelations,
       shenShaNoteStore: shenShaNoteStore ?? ShenShaNoteStore(),
       onRecompute: onRecompute,
+      onOpenRules: onOpenRules,
     );
   }
 }
@@ -89,12 +92,14 @@ class _ReviewWorkbench extends StatefulWidget {
     this.onOpenRelations,
     required this.shenShaNoteStore,
     this.onRecompute,
+    this.onOpenRules,
   });
 
   final ReviewPageState state;
   final VoidCallback? onOpenRelations;
   final ShenShaNoteStore shenShaNoteStore;
   final VoidCallback? onRecompute;
+  final VoidCallback? onOpenRules;
 
   @override
   State<_ReviewWorkbench> createState() => _ReviewWorkbenchState();
@@ -177,7 +182,10 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
         bottom: false,
         child: Column(
           children: [
-            ReviewAppBar(onRecompute: widget.onRecompute),
+            ReviewAppBar(
+              onRecompute: widget.onRecompute,
+              onOpenRules: widget.onOpenRules,
+            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.fromLTRB(
@@ -242,10 +250,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                       onOpen: _showEvidence,
                     ),
                     const SizedBox(height: 6),
-                    ReviewRuleRunsCard(
-                      state: widget.state,
-                      onOpen: _showTrace,
-                    ),
+                    ReviewRuleRunsCard(state: widget.state, onOpen: _showTrace),
                   ],
                 ),
               ),
