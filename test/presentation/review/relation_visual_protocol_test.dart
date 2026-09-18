@@ -28,6 +28,8 @@ void main() {
     expect(RelationVisualTokens.strokeFocused, 1.40);
     expect(RelationVisualTokens.arrowSize, 4.20);
     expect(RelationVisualTokens.anchorRadius, 2.20);
+    expect(RelationVisualTokens.opacityAll, 1.00);
+    expect(RelationVisualTokens.opacityFocused, 1.00);
   });
 
   test('only symmetric actions use double arrow protocol', () {

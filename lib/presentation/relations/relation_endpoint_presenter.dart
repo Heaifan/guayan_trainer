@@ -58,6 +58,10 @@ class RelationEndpointPresenter {
       RelationType.liuHe => '地支六合',
       RelationType.huiTouSheng => '回头生',
       RelationType.huiTouKe => '回头克',
+      RelationType.monthGenerate => '月建生爻',
+      RelationType.monthControl => '月建克爻',
+      RelationType.dayGenerate => '日辰生爻',
+      RelationType.dayControl => '日辰克爻',
       RelationType.dongBian => '动爻变卦',
     };
   }
@@ -67,6 +71,10 @@ class RelationEndpointPresenter {
     RelationType.ke ||
     RelationType.huiTouSheng ||
     RelationType.huiTouKe => '生克',
+    RelationType.monthGenerate ||
+    RelationType.monthControl ||
+    RelationType.dayGenerate ||
+    RelationType.dayControl => '月日',
     RelationType.liuChong || RelationType.liuHe => '冲合',
     RelationType.dongBian => '动变',
     null => '状态',

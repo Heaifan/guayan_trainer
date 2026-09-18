@@ -57,16 +57,16 @@ void main() {
   group('R4 · 月建 / 日辰基础作用', () {
     test('月建寅木：生午火、克辰土与丑土，共 3 条', () {
       expect(canonicalsOf(all, SystemRuleIds.monthBranch), {
-        'sheng|sys.month_branch|v1|-|month->yao:original:4',
-        'ke|sys.month_branch|v1|-|month->yao:original:2',
-        'ke|sys.month_branch|v1|-|month->yao:original:6',
+        'month_generate|sys.month_branch|v1|-|month->yao:original:4',
+        'month_control|sys.month_branch|v1|-|month->yao:original:2',
+        'month_control|sys.month_branch|v1|-|month->yao:original:6',
       });
     });
 
     test('日辰甲子（日支子水）：生卯木、克午火，共 2 条', () {
       expect(canonicalsOf(all, SystemRuleIds.dayBranch), {
-        'sheng|sys.day_branch|v1|-|day->yao:original:3',
-        'ke|sys.day_branch|v1|-|day->yao:original:4',
+        'day_generate|sys.day_branch|v1|-|day->yao:original:3',
+        'day_control|sys.day_branch|v1|-|day->yao:original:4',
       });
     });
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/relation_endpoint.dart';
 import '../../../domain/relation_type.dart';
 import '../../../domain/relations/relation_record.dart';
+import '../relation_route_layout.dart';
 import '../relation_visual_tokens.dart';
 import '../review_relation_filter.dart';
 
@@ -73,22 +74,28 @@ class _Painter extends CustomPainter {
   final BuildContext context;
   @override
   void paint(Canvas canvas, Size size) {
-    final lanes = <_Route, int>{};
-    for (var i = 0; i < records.length; i++) {
-      final r = records[i];
+    final placements = {
+      for (final placement in RelationRouteLayout.layout(records))
+        placement.id: placement,
+    };
+    for (final r in records) {
       final type = r.relationType!;
       final route = _route(r);
-      final lane = lanes[route] ?? 0;
-      lanes[route] = lane + 1;
-      final slotOffset = (lane - (lanes[route]! / 2)) * 3.0;
+      final placement = placements[r.id];
+      if (placement == null) continue;
+      final lane = placement.lane;
+      final slotOffset = placement.branchIndex * 3.0;
       final from = _anchor(r.fromRef!, route, slotOffset);
       final to = _anchor(r.toRef!, route, -slotOffset);
       if (from == null || to == null) continue;
       final active = selectedId == r.id;
+      final color = RelationVisualTokens.colorFor(type);
       final paint = Paint()
-        ..color = RelationVisualTokens.colorFor(
-          type,
-        ).withValues(alpha: active ? 1 : RelationVisualTokens.opacityAll)
+        ..color = color.withValues(
+          alpha: active
+              ? RelationVisualTokens.opacityFocused
+              : RelationVisualTokens.opacityAll,
+        )
         ..style = PaintingStyle.stroke
         ..strokeWidth = active
             ? RelationVisualTokens.strokeFocused
@@ -108,6 +115,18 @@ class _Painter extends CustomPainter {
       _drawPathArrow(canvas, path, paint.color, atEnd: true);
       if (RelationVisualTokens.isBidirectional(type)) {
         _drawPathArrow(canvas, path, paint.color, atEnd: false);
+      }
+      if (active) {
+        canvas.drawCircle(
+          from,
+          RelationVisualTokens.anchorRadius,
+          Paint()..color = color,
+        );
+        canvas.drawCircle(
+          to,
+          RelationVisualTokens.anchorRadius,
+          Paint()..color = color,
+        );
       }
       _label(canvas, type.displayName, _labelCenter(path, route), paint.color);
     }

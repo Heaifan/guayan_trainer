@@ -15,14 +15,18 @@ abstract final class RelationVisualTokens {
   static const stateLabelRadius = 7.0;
   static const stateLabelBorderWidth = 0.70;
   static const stateLabelFillOpacity = 0.12;
-  static const opacityAll = 0.33;
-  static const opacityFocused = 0.90;
+  static const opacityAll = 1.00;
+  static const opacityFocused = 1.00;
   static const opacitySelected = 1.00;
   static const opacityDeemphasized = 0.20;
 
   static Color colorFor(RelationType type) => switch (type) {
-    RelationType.sheng => const Color(0xFF119E57),
-    RelationType.ke => const Color(0xFFD9342B),
+    RelationType.sheng ||
+    RelationType.monthGenerate ||
+    RelationType.dayGenerate => const Color(0xFF119E57),
+    RelationType.ke ||
+    RelationType.monthControl ||
+    RelationType.dayControl => const Color(0xFFD9342B),
     RelationType.liuChong => const Color(0xFFF57C00),
     RelationType.liuHe => const Color(0xFF1565C0),
     RelationType.huiTouSheng => const Color(0xFF00796B),

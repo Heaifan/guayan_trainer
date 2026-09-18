@@ -1,5 +1,18 @@
 # GUAYAN Trainer file tree
 
+## Relation Semantics and Router 2.0 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/relation_type.dart` | 区分五行生克与月建/日辰作用的稳定关系类型 |
+| `lib/domain/relation_rules/month_day.dart` | 生成 `month_*` / `day_*` 月日事实，不伪装成通用生克 |
+| `lib/presentation/review/relation_route_layout.dart` | 为关系 Overlay 计算确定性的来源轨道、主干组与分叉顺序 |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 使用分轨布局绘制关系线，并以加粗/端点强化聚焦关系 |
+| `test/domain/relation_semantics_regression_test.dart` | 当前 Case 的月日关系语义回归 |
+| `test/presentation/review/relation_route_layout_test.dart` | 同源主干分叉与多轨布局回归 |
+| `test/presentation/review/relation_visual_protocol_test.dart` | 原色、不透明关系线视觉协议回归 |
+| `docs/superpowers/plans/2026-09-18-relation-semantics-router.md` | 本次修复实施计划 |
+
 ## v2.0.6 — 2026-09-18
 
 - Last edited: 2026-09-18 11:34:52
@@ -1915,4 +1928,4 @@ theme/  data/  閳? models/  閳? services/  閳? pages/  +  widgets/
 - `test/services/cases/rule_run_persistence_test.dart`：RuleRun 历史 Evidence/Trace 重载回归。
 - `test/presentation/review/review_evidence_presentation_test.dart`：审卦取象与规则运行最小 UI 回归。
 
-最后编辑时间：2026-09-18
+最后编辑时间：2026-09-18 11:42:50

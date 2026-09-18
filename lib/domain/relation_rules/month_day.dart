@@ -2,11 +2,11 @@
 ///
 /// 口径（第一批只做基础作用，不含旺衰 / 墓库 / 空破）：
 /// ```text
-/// 月建五行生爻五行 → month -> 本卦某爻 · sheng
-/// 月建五行克爻五行 → month -> 本卦某爻 · ke
-/// 日辰同上门（day）
+/// 月建五行生爻五行 → month -> 本卦某爻 · month_generate
+/// 月建五行克爻五行 → month -> 本卦某爻 · month_control
+/// 日辰同上门（day），对应 `day_generate` / `day_control`。
 /// ```
-/// 只产出「生」「克」两种：比和（同五行）与「爻生月日 / 爻克月日」
+/// 只产出月日语义的四种作用类型：比和（同五行）与「爻生月日 / 爻克月日」
 /// 属后续高级规则层，本层不产出，避免把「客观五行关系」与
 /// 「断卦作用力」混为一谈。
 ///
@@ -71,7 +71,9 @@ void _effects(
     out.add(
       systemRelation(
         c: c,
-        type: RelationType.sheng,
+        type: from is MonthEndpoint
+            ? RelationType.monthGenerate
+            : RelationType.dayGenerate,
         ruleId: ruleId,
         source: from,
         target: to,
@@ -81,7 +83,9 @@ void _effects(
     out.add(
       systemRelation(
         c: c,
-        type: RelationType.ke,
+        type: from is MonthEndpoint
+            ? RelationType.monthControl
+            : RelationType.dayControl,
         ruleId: ruleId,
         source: from,
         target: to,

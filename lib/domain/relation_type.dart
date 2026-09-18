@@ -20,6 +20,10 @@ enum RelationType {
   huiTouKe('hui_tou_ke', RelationDirectionKind.directed, '回头克'),
   sheng('sheng', RelationDirectionKind.directed, '生'),
   ke('ke', RelationDirectionKind.directed, '克'),
+  monthGenerate('month_generate', RelationDirectionKind.directed, '月生'),
+  monthControl('month_control', RelationDirectionKind.directed, '月克'),
+  dayGenerate('day_generate', RelationDirectionKind.directed, '日生'),
+  dayControl('day_control', RelationDirectionKind.directed, '日克'),
   liuChong('liu_chong', RelationDirectionKind.symmetric, '六冲'),
   liuHe('liu_he', RelationDirectionKind.symmetric, '六合');
 
@@ -39,9 +43,8 @@ enum RelationType {
 
 /// 系统计算规则的稳定 RuleId（机器名，非展示标题）。
 ///
-/// 同一种 [RelationType]（如「生」）可以由不同规则产生：
-/// 爻与爻的五行相生用 [sheng]，月建对爻的生用 [monthBranch] ——
-/// 因此 key 里 ruleId 承担「谁作用于谁」的区分，type 只表示作用方向类别。
+/// 五行生克、月建/日辰作用使用不同类型，避免把不同事实类别压成同一个 UI 筛选项。
+/// `ruleId` 仍承担「谁作用于谁」的规则来源区分。
 ///
 /// 自定义规则（JSON `id` 字段）后续接入，key 机制不变。
 abstract final class SystemRuleIds {
