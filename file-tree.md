@@ -2,8 +2,14 @@
 
 ## v2.0.6 — 2026-09-18
 
-- Last edited: 2026-09-18 11:05:00
+- Last edited: 2026-09-18 11:20:00
 - FIX4.2 增加真实 Case 选择器与会话上下文，并修复 Quantified/Dynamic/Tag 的编辑器可视化回显；审卦页增加直达规则测试入口。
+
+## GUAYAN-R5-FIX4.3 DESIGN (2026-09-18)
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| docs/superpowers/specs/2026-09-18-fix4-3-custom-rule-and-nayin-design.md | 正式 CUSTOM Rule 执行闭环、Trace 审计与三类纳音恢复设计 |
 
 ## GUAYAN-R5-FIX4.2 EDITOR CONTEXT AND RENDERING (2026-09-18)
 
