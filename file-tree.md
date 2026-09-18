@@ -1,5 +1,16 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX6.4 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/relation_rules/changed_lines.dart` | 统一回头生克分类入口，冻结动爻、同位、变→主方向与爻地支五行判定 |
+| `test/domain/back_relation_freeze_matrix_test.dart` | 五种回生/回克方向 × 六爻位 60 案例及负向矩阵 |
+| `test/domain/back_relation_pipeline_freeze_test.dart` | 上爻回克、Review State/筛选、历史 Case 恢复等价性回归 |
+| `file-tree.md` | 记录 FIX6.4 Domain 算法冻结的文件职责 |
+
+- Last edited: 2026-09-18 16:50:00
+
 ## GUAYAN-R5-FIX6.2-R1 — 2026-09-18
 
 | 文件/目录 | 职责 |

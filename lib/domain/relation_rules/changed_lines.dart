@@ -13,6 +13,7 @@
 library;
 
 import '../hexagram_case.dart';
+import '../line_state.dart';
 import '../relation_instance.dart';
 import '../relation_type.dart';
 import 'rule_support.dart';
@@ -32,19 +33,46 @@ List<RelationInstance> changedLineRelations(HexagramCase c) {
         target: changedYao(p),
       ),
     );
-    final original = zhiOf(line.branch);
-    final changed = zhiOf(line.changedBranch);
-    if (original == null || changed == null) continue;
-    if (changed.wuXing.generates == original.wuXing) {
-      out.add(
-        _huiTou(c, p, RelationType.huiTouSheng, SystemRuleIds.huiTouSheng),
-      );
-    } else if (changed.wuXing.controls == original.wuXing) {
-      out.add(_huiTou(c, p, RelationType.huiTouKe, SystemRuleIds.huiTouKe));
-    }
+    final type = classifyBackRelation(
+      original: line,
+      changedPosition: p,
+      changedBranch: line.changedBranch,
+    );
+    if (type == null) continue;
+    out.add(_huiTou(c, p, type, _ruleIdFor(type)));
   }
   return out;
 }
+
+/// 唯一的回头生克分类入口。
+///
+/// 方向永远是 `changed.element → original.element`；[changedPosition] 只
+/// 接受与原动爻相同的 Domain line number，绝不使用 UI 行号或列表反转。
+RelationType? classifyBackRelation({
+  required LineState original,
+  required int changedPosition,
+  required String? changedBranch,
+}) {
+  if (!original.movementType.isMoving || original.position != changedPosition) {
+    return null;
+  }
+  final originalZhi = zhiOf(original.branch);
+  final changedZhi = zhiOf(changedBranch);
+  if (originalZhi == null || changedZhi == null) return null;
+  if (changedZhi.wuXing.generates == originalZhi.wuXing) {
+    return RelationType.huiTouSheng;
+  }
+  if (changedZhi.wuXing.controls == originalZhi.wuXing) {
+    return RelationType.huiTouKe;
+  }
+  return null;
+}
+
+String _ruleIdFor(RelationType type) => switch (type) {
+  RelationType.huiTouSheng => SystemRuleIds.huiTouSheng,
+  RelationType.huiTouKe => SystemRuleIds.huiTouKe,
+  _ => throw StateError('不是回头生克类型：${type.machineName}'),
+};
 
 RelationInstance _huiTou(
   HexagramCase c,
