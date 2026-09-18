@@ -14,9 +14,16 @@ import '../presentation/relations/relations_page.dart';
 import '../services/calendar/casting_calendar_service.dart';
 import '../services/cases/case_repository.dart';
 import '../services/cases/json_case_repository.dart';
-import '../services/cases/case_recompute_service.dart';
+import '../services/cases/formal_case_recompute_service.dart';
 import '../services/relation_annotation_store.dart';
 import '../services/manual_relation_store.dart';
+import '../../domain/rules/core/rule_definition.dart';
+import '../../domain/rules/editor/custom_rule_service.dart';
+import '../../domain/rules/editor/custom_rule_store.dart';
+import '../../domain/rules/editor/user_governance_state.dart';
+import '../../domain/rules/engine/runtime_rule_set_assembler.dart';
+import '../../domain/rules/packs/rule_pack.dart';
+import '../../domain/rules/packs/rule_pack_id.dart';
 
 /// 卦眼 2.0 应用壳。
 ///
@@ -42,6 +49,9 @@ class AppShellState extends State<AppShell> {
   CaseRecord? _activeRecord;
   final ShenShaNoteStore _shenShaNoteStore = ShenShaNoteStore();
   CaseRepository? _caseRepository;
+  final CustomRuleStore _customRuleStore = CustomRuleStore();
+  late final CustomRuleService _customRuleService =
+      CustomRuleService(_customRuleStore, UserGovernanceState());
   final RelationAnnotationStore _relationAnnotations =
       RelationAnnotationStore();
   final ManualRelationStore _manualRelations = ManualRelationStore();
@@ -49,6 +59,7 @@ class AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();
+    _customRuleService.load();
     JsonCaseRepository.open().then((repository) {
       if (mounted) setState(() => _caseRepository = repository);
     });
@@ -138,13 +149,16 @@ class AppShellState extends State<AppShell> {
   Future<void> _recomputeActiveCase() async {
     final record = _activeRecord;
     final repository = _caseRepository;
-    if (record == null || repository == null || record.ruleRuns.isEmpty) return;
-    final latest = record.ruleRuns.last;
-    await CaseRecomputeService(repository).recompute(
-      caseId: record.id,
-      ruleContext: latest.ruleContext,
-      result: latest.result,
-      evidence: latest.evidence,
+    if (record == null || repository == null) return;
+    await _customRuleService.load();
+    final assembler = RuntimeRuleSetAssembler(
+      customRuleService: _customRuleService,
+      availableTopics: const <RulePack>[],
+      topicRulesMap: const <RulePackId, List<RuleDefinition>>{},
+    );
+    await FormalCaseRecomputeService(repository).recompute(
+      record: record,
+      rules: assembler.assemble(const []).activeRules,
     );
     if (!mounted) return;
     final refreshed = await repository.read(record.id);

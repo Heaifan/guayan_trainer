@@ -65,7 +65,7 @@ class StageRunner {
     final allEvidenceNodes = <EvidenceNode>[];
     final allEvidenceEdges = <EvidenceEdge>[];
     final allDerivedEvidence = <DerivedEvidence>[];
-    final allRuleTraces = <RuleTrace>[];
+    var finalIterationTraces = <RuleTrace>[];
     int iterations = 0;
     bool stageChanged = true;
 
@@ -75,15 +75,17 @@ class StageRunner {
       iterations++;
       if (iterations > maxIterations) { throw RuleEngineNonConvergence(stage, iterations); }
       final newFactsInIteration = <FactRecord>[];
+      final iterationTraces = <RuleTrace>[];
 
       stageChanged = iter.runIteration(
         stageRules, currentSnapshot, newFactsInIteration,
         allDerivedFacts, allDerivedStates, allTags, allStructures, allRecords,
         allRuleHits, allEvidenceNodes, allEvidenceEdges, allDerivedEvidence,
-        allRuleTraces,
+        iterationTraces,
         caseId: caseId,
         ruleRunId: ruleRunId,
       );
+      finalIterationTraces = iterationTraces;
 
       if (newFactsInIteration.isNotEmpty) {
         currentSnapshot = FactSnapshot.build(
@@ -95,7 +97,7 @@ class StageRunner {
     return StageRunnerResult(
       allDerivedFacts, allDerivedStates, allTags, allStructures, allRecords,
       allRuleHits, allEvidenceNodes, allEvidenceEdges, iterations,
-      allRuleTraces,
+      finalIterationTraces,
       allDerivedEvidence,
     );
   }
