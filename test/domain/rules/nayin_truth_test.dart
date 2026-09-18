@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/domain/calendar/day/ganzhi_day.dart';
 import 'package:guayan_trainer/domain/rules/vocabulary/nayin_catalog.dart';
 import 'package:guayan_trainer/domain/rules/vocabulary/nayin_id.dart';
+import 'package:guayan_trainer/domain/di_zhi.dart';
+import 'package:guayan_trainer/domain/tian_gan.dart';
 
 void main() {
   group('Full JiaZi Truth 60/60', () {
@@ -52,6 +54,15 @@ void main() {
         expect(label, expected[0]);
         expect(entry.id, expected[1]);
         expect(entry.name, expected[2]);
+      }
+    });
+
+    test('GanZhi lookup uses the same 60-cycle source', () {
+      for (var i = 0; i < 60; i++) {
+        final gan = TianGan.fromCycleIndex(i);
+        final branch = DiZhi.values[i % 12];
+        expect(NaYinCatalog.getByGanZhi(gan, branch),
+            NaYinCatalog.getByJiaZiIndex(i));
       }
     });
   });

@@ -3,6 +3,7 @@ import '../tian_gan.dart';
 import '../wu_xing.dart';
 import 'bagua.dart';
 import 'six_relative.dart';
+import '../rules/vocabulary/nayin_catalog.dart';
 
 enum HiddenPalaceRole { primary, opposite }
 
@@ -32,6 +33,8 @@ class HiddenPalaceLine {
   String get label => '${relative.label}$ganZhi${element.label}';
 
   String get compactLabel => '${relative.shortLabel}$ganZhi';
+
+  String get naYin => NaYinCatalog.getByGanZhi(stem, branch).name;
 }
 
 class DoubleFucangResult {

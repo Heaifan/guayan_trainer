@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../casting/casting_tokens.dart';
 import '../../rules/rule_library_page.dart';
+import '../../../domain/rules/editor/rule_tag_catalog.dart';
 import '../review_page_state.dart';
 
 /// 点爻关系焦点弹层（审卦一屏版交互：点击某爻 → 高亮 → Bottom Sheet）。
@@ -113,7 +114,8 @@ class ReviewLineDetailSheet extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Text(
-                      '✓ ${item.value} · ${item.ruleOrigin.name == 'CUSTOM' ? '自定义规则' : '系统规则'}',
+                      '✓ ${RuleTagCatalog.display(item.value)} · '
+                      '${item.ruleOrigin.name == 'CUSTOM' ? '自定义规则' : '系统规则'}',
                       style: const TextStyle(fontSize: 11, color: CastingTokens.textBody),
                     ),
                   ),

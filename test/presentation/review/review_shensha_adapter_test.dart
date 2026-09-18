@@ -62,7 +62,9 @@ void main() {
     final state = ReviewCaseAdapter.adapt(hexagramCase);
 
     expect(state.lineAt(3).primaryHidden!.label, '妻财戊午火');
+    expect(state.lineAt(3).primaryHidden!.naYin, '天上火');
     expect(state.lineAt(3).oppositeHidden!.label, '官鬼己亥水');
+    expect(state.lineAt(3).oppositeHidden!.naYin, '平地木');
     expect(state.lineAt(3).identity!.element, '水');
   });
 }

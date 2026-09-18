@@ -51,6 +51,7 @@ class ReviewChangedLine {
     this.movementType,
     this.isVoid = false,
     this.identity,
+    this.naYin,
   });
 
   final String? sixRelative;
@@ -67,6 +68,7 @@ class ReviewChangedLine {
 
   /// 变卦纳甲身份的结构化展示事实。
   final ReviewLineIdentity? identity;
+  final String? naYin;
 
   bool get isYang =>
       movementType == MovementType.shaoYang ||
@@ -85,11 +87,13 @@ class ReviewLineIdentity {
     required this.relative,
     required this.ganZhi,
     required this.element,
+    this.naYin,
   });
 
   final String relative;
   final String ganZhi;
   final String element;
+  final String? naYin;
 }
 
 /// 审卦页单行爻展示模型（§7 每行至少能渲染的字段）。

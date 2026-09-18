@@ -255,7 +255,9 @@ void main() {
       expect(state.lineAt(3).changed, isNotNull);
       expect(state.rulePackId, 'sys.default');
       expect(state.ruleVersion, 3);
-      expect(state.lines.first.displayExtra, isNull);
+      expect(state.lines.first.displayExtra, isNotNull);
+      expect(state.lines.first.identity!.naYin, state.lines.first.displayExtra);
+      expect(state.lines.first.changed!.naYin, isNotNull);
       expect(state.lines.first.sixRelative, contains('水'));
     });
 
@@ -402,6 +404,13 @@ void main() {
   });
 
   group('最终卦盘（一屏版）', () {
+    testWidgets('三类纳音进入可点击语义节点', (tester) async {
+      await pumpDemo(tester);
+
+      expect(find.bySemanticsLabel(RegExp(r'^纳音：')), findsWidgets);
+      expect(find.text('天河水'), findsWidgets);
+    });
+
     testWidgets('内嵌主/变卦标题：无重复 Header、卦名正确', (tester) async {
       await pumpDemo(tester);
 

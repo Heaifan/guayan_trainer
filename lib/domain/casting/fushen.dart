@@ -3,6 +3,7 @@ import '../tian_gan.dart';
 import '../wu_xing.dart';
 import 'bagua.dart';
 import 'six_relative.dart';
+import '../rules/vocabulary/nayin_catalog.dart';
 
 /// 一条由本宫首卦推导出的伏神事实。
 class FushenResult {
@@ -36,4 +37,6 @@ class FushenResult {
   String get ganZhi => '${stem.label}${branch.label}';
 
   String get label => '${relative.label}$ganZhi${element.label}';
+
+  String get naYin => NaYinCatalog.getByGanZhi(stem, branch).name;
 }

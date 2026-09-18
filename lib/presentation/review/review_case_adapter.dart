@@ -26,6 +26,7 @@ import '../../domain/calendar/calendar_pillars.dart';
 import '../../domain/calendar/lunar_calendar.dart';
 import '../../domain/di_zhi.dart';
 import '../../domain/tian_gan.dart';
+import '../../domain/rules/vocabulary/nayin_catalog.dart';
 import 'review_page_state.dart';
 
 /// 单爻传统排盘附加档案（六神/伏神/六亲/世应/空亡等）。
@@ -309,12 +310,14 @@ class ReviewCaseAdapter {
               relative: castLine.relative.label,
               ganZhi: castLine.ganZhi,
               element: castLine.branch.wuXing.label,
+              naYin: NaYinCatalog.getByGanZhi(castLine.gan, castLine.branch).name,
             )
           : null,
       sixRelative: t == null
           ? '${castLine.relative.label}${castLine.ganZhi}${castLine.branch.wuXing.label}'
           : t.sixRelative,
-      displayExtra: t?.displayExtra,
+      displayExtra: t?.displayExtra ??
+          NaYinCatalog.getByGanZhi(castLine.gan, castLine.branch).name,
       shiYing: t == null
           ? (castLine.shiYingLabel.isEmpty ? null : castLine.shiYingLabel)
           : t.shiYing,
@@ -333,18 +336,25 @@ class ReviewCaseAdapter {
   }
 
   static ReviewChangedLine? _changedLine(CastLine line) {
-    final branch = line.changedBranch ?? line.branch;
+    if (line.changedGan == null || line.changedBranch == null) return null;
+    final branch = line.changedBranch!;
     final relative = line.changedRelative ?? line.relative;
-    final ganZhi = line.changedGanZhi ?? line.ganZhi;
+    final ganZhi = line.changedGanZhi!;
     return ReviewChangedLine(
       sixRelative: '${relative.label}$ganZhi${branch.wuXing.label}',
       earthlyBranch: branch.label,
-      displayExtra: null,
+      displayExtra: NaYinCatalog.getByGanZhi(line.changedGan!, branch).name,
       identity: ReviewLineIdentity(
         relative: relative.label,
         ganZhi: ganZhi,
         element: branch.wuXing.label,
+        naYin: line.changedGan == null || line.changedBranch == null
+            ? null
+            : NaYinCatalog.getByGanZhi(line.changedGan!, line.changedBranch!).name,
       ),
+      naYin: line.changedGan == null || line.changedBranch == null
+          ? null
+          : NaYinCatalog.getByGanZhi(line.changedGan!, line.changedBranch!).name,
       movementType: line.changedIsYang == null
           ? (line.isYang ? MovementType.shaoYang : MovementType.shaoYin)
           : line.isMoving

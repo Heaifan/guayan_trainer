@@ -2,6 +2,8 @@ library;
 
 import 'nayin_id.dart';
 import 'nayin_entry.dart';
+import '../../di_zhi.dart';
+import '../../tian_gan.dart';
 
 /// 六十甲子 -> 三十纳音 映射
 class NaYinCatalog {
@@ -49,6 +51,16 @@ class NaYinCatalog {
       throw ArgumentError.value(index, 'index', '六十甲子序号必须在 0..59 之间');
     }
     return _entries[index ~/ 2];
+  }
+
+  static NaYinEntry getByGanZhi(TianGan gan, DiZhi branch) {
+    for (var index = 0; index < 60; index++) {
+      if (TianGan.fromCycleIndex(index) == gan &&
+          DiZhi.values[index % 12] == branch) {
+        return getByJiaZiIndex(index);
+      }
+    }
+    throw ArgumentError('天干地支不是合法六十甲子组合');
   }
 
   static Iterable<NaYinEntry> get all => _entries;
