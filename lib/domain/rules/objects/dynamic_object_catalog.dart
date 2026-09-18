@@ -1,6 +1,7 @@
 library;
 
 import 'dynamic_object_definition.dart';
+import '../ast/binding_selector.dart';
 
 class DynamicObjectCatalog {
   static const all = [
@@ -44,4 +45,23 @@ class DynamicObjectCatalog {
     }
     return null;
   }
+
+  static String displayNameFor(DynamicBindingSelector selector) {
+    final definition = find(selector.selectorId);
+    if (definition == null) return selector.selectorId;
+    if (selector.selectorId == 'dynamic.line.by_spirit') {
+      final spirit = _spiritNames[selector.parameters['spirit']];
+      if (spirit != null) return '$spirit所临之爻';
+    }
+    return definition.displayName;
+  }
+
+  static const _spiritNames = {
+    'spirit.qing_long': '青龙',
+    'spirit.zhu_que': '朱雀',
+    'spirit.gou_chen': '勾陈',
+    'spirit.teng_she': '螣蛇',
+    'spirit.bai_hu': '白虎',
+    'spirit.xuan_wu': '玄武',
+  };
 }

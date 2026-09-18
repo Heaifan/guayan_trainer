@@ -10,9 +10,73 @@ import 'package:guayan_trainer/domain/rules/core/rule_origin.dart';
 import 'package:guayan_trainer/domain/rules/core/rule_stage.dart';
 import 'package:guayan_trainer/domain/rules/core/rule_version.dart';
 import 'package:guayan_trainer/domain/rules/editor/rule_visual_renderer.dart';
+import 'package:guayan_trainer/domain/rules/editor/rule_editor_draft.dart';
+import 'package:guayan_trainer/domain/rules/editor/portable_rule_codec.dart';
 import 'package:guayan_trainer/domain/rules/facts/rule_value.dart';
 
 void main() {
+  test('renders quantified dynamic AST and stable tag labels without placeholders', () {
+    final rule = RuleDefinition(
+      ruleId: RuleId('r5-road-clashes-home'),
+      version: RuleVersion('1.0.0'),
+      origin: RuleOrigin.CUSTOM,
+      namespace: 'r5',
+      categoryId: 'image',
+      stage: RuleStage.tag,
+      title: '有路冲家',
+      description: '',
+      provenance: 'test',
+      bindings: const [
+        RuleBinding(name: 'B', selector: DirectSelector('line/3')),
+        RuleBinding(name: 'C', selector: DynamicBindingSelector(
+          selectorId: 'dynamic.line.by_spirit',
+          parameters: {'spirit': 'spirit.bai_hu'},
+        )),
+      ],
+      condition: AnyExpr([
+        QuantifiedExpr(
+          bindingName: 'X',
+          selector: const DynamicBindingSelector(selectorId: 'dynamic.line.all'),
+          kind: QuantifierKind.any,
+          node: AllExpr([
+            PredicateExpr(operatorId: 'relative', operands: [
+              const BindingRefOperand('X'),
+              LiteralOperand(RuleValue.string('relative.child')),
+            ]),
+            PredicateExpr(operatorId: 'branch_clashes', operands: [
+              const BindingRefOperand('X'),
+              const BindingRefOperand('B'),
+            ]),
+          ]),
+        ),
+        PredicateExpr(operatorId: 'branch_clashes', operands: [
+          const BindingRefOperand('C'),
+          const BindingRefOperand('B'),
+        ]),
+      ]),
+      actions: const [TagAction(
+        categoryId: 'image',
+        tagId: 'road_clash_home',
+      )],
+    );
+    final texts = const RuleVisualRenderer()
+        .render(rule)
+        .expand((line) => line.tokens)
+        .map((token) => token.text)
+        .toList();
+
+    expect(texts, containsAll(['任一爻', '六亲', '子孙', '白虎所临之爻', '有路冲家']));
+    expect(texts, isNot(contains('[选择条件]')));
+    expect(texts, isNot(contains('[选择对象]')));
+    expect(texts, isNot(contains('road_clash_home')));
+
+    final saved = RuleEditorDraft.fromDefinition(rule).toDefinition();
+    expect(
+      PortableRuleCodec.encode(saved),
+      PortableRuleCodec.encode(rule),
+    );
+  });
+
   test('renders AST as numbered indented tokens without technical ids', () {
     final rule = RuleDefinition(
       ruleId: RuleId('custom.test'),

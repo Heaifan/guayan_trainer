@@ -6,6 +6,8 @@ import '../ast/rule_operand.dart';
 import '../facts/rule_value.dart';
 import '../core/rule_definition.dart';
 import 'rule_value_catalog.dart';
+import 'rule_tag_catalog.dart';
+import '../objects/dynamic_object_catalog.dart';
 
 enum VisualTokenKind {
   keyword,
@@ -84,13 +86,18 @@ class RuleVisualRenderer {
       return;
     }
     if (expr is QuantifiedExpr) {
-      final rendered = _predicate(expr.node, bindings);
       lines.add(
         VisualRuleLine(indent, [
           if (joiner != null) VisualToken(joiner, VisualTokenKind.keyword),
-          VisualToken(_quantifierText(expr), VisualTokenKind.operator),
-          ...rendered,
+          VisualToken(_quantifierText(expr), VisualTokenKind.object),
         ]),
+      );
+      _renderExpr(
+        expr.node,
+        [...bindings, RuleBinding(name: expr.bindingName, selector: expr.selector)],
+        lines,
+        indent + 1,
+        null,
       );
       return;
     }
@@ -170,6 +177,9 @@ class RuleVisualRenderer {
         ][int.parse(match.group(1)!) - 1];
       }
     }
+    if (binding?.selector case final DynamicBindingSelector selector) {
+      return DynamicObjectCatalog.displayNameFor(selector);
+    }
     return '[选择对象]';
   }
 
@@ -213,13 +223,16 @@ class RuleVisualRenderer {
     _ => '有',
   };
 
-  String _quantifierText(QuantifiedExpr expr) => switch (expr.kind) {
-    QuantifierKind.any => '任一',
-    QuantifierKind.all => '全部',
-    QuantifierKind.none => '不存在',
+  String _quantifierText(QuantifiedExpr expr) {
+    final object = DynamicObjectCatalog.displayNameFor(expr.selector);
+    return switch (expr.kind) {
+      QuantifierKind.any => object,
+      QuantifierKind.all => '全部$object',
+      QuantifierKind.none => '不存在$object',
     QuantifierKind.atLeast => '至少 ${expr.count} 个',
     QuantifierKind.exactly => '恰好 ${expr.count} 个',
-  };
+    };
+  }
 
   bool _unary(String id) =>
       const {'empty', 'xun_kong', 'yue_po', 'ri_po', 'in_tomb'}.contains(id);
@@ -269,13 +282,7 @@ class RuleVisualRenderer {
 
   String _tagText(String id) => id == 'custom'
       ? '[自定义填写]'
-      : id == 'road'
-      ? '道路'
-      : id == 'career'
-      ? '事业'
-      : id == 'relationship'
-      ? '感情'
-      : _textOrPlaceholder(id);
+      : RuleTagCatalog.display(id);
 
   String _textOrPlaceholder(String text) =>
       text.isEmpty || text == 'custom.state' ? '[自定义填写]' : text;

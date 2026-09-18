@@ -7,12 +7,14 @@ import '../../domain/rules/editor/user_governance_state.dart';
 import 'rule_center_page.dart';
 import 'system_rule_list_page.dart';
 import '../../domain/hexagram_case.dart';
+import '../../services/cases/case_repository.dart';
 
 class RuleCenterPageLoader extends StatefulWidget {
-  const RuleCenterPageLoader({super.key, this.openCustomRules = false, this.testCase});
+  const RuleCenterPageLoader({super.key, this.openCustomRules = false, this.testCase, this.caseRepository});
 
   final bool openCustomRules;
   final HexagramCase? testCase;
+  final CaseRepository? caseRepository;
   @override
   State<RuleCenterPageLoader> createState() => _State();
 }
@@ -40,8 +42,10 @@ class _State extends State<RuleCenterPageLoader> {
     }
     final systemRules = [...CommonRuleCorpus.v1(), ...ExamRuleCorpus.v1()];
     if (widget.openCustomRules) {
-      return RuleCenterPage(service: service, systemRules: systemRules, testCase: widget.testCase);
+      return RuleCenterPage(service: service, systemRules: systemRules,
+          testCase: widget.testCase, caseRepository: widget.caseRepository);
     }
-    return SystemRuleListPage(service: service, systemRules: systemRules, testCase: widget.testCase);
+    return SystemRuleListPage(service: service, systemRules: systemRules,
+        testCase: widget.testCase, caseRepository: widget.caseRepository);
   }
 }

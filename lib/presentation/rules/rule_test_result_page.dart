@@ -23,7 +23,7 @@ class RuleTestResultPage extends StatelessWidget {
         children: [
           const Text('测试规则（不会修改正式卦例或 RuleRun）',
               style: TextStyle(color: Colors.grey)),
-          Text('测试卦例：${_hexagramName(testCase)} · ${testCase.createdAt.toLocal().toString().split('.').first}'),
+          Text('测试卦例：${testCase.question.isEmpty ? '当前卦例' : testCase.question} · ${_hexagramName(testCase)} · ${testCase.createdAt.toLocal().toString().split('.').first}'),
           const SizedBox(height: 12),
           for (final trace in run.traces) RuleTraceTree(trace: trace),
           if (run.traces.isEmpty) const Text('规则未参与执行'),

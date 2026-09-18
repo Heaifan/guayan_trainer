@@ -2,7 +2,20 @@
 
 ## v2.0.6 — 2026-09-18
 
-- Last edited: 2026-09-18 10:28:50
+- Last edited: 2026-09-18 10:52:05
+- FIX4.2 增加真实 Case 选择器与会话上下文，并修复 Quantified/Dynamic/Tag 的编辑器可视化回显。
+
+## GUAYAN-R5-FIX4.2 EDITOR CONTEXT AND RENDERING (2026-09-18)
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/presentation/rules/rule_editor_page.dart | 选择/记忆真实测试卦例，展示上下文并只读运行规则 |
+| lib/presentation/rules/rule_test_result_page.dart | 展示测试卦例问事、卦名、时间与临时 Trace |
+| lib/domain/rules/editor/rule_visual_renderer.dart | QuantifiedExpr、嵌套逻辑、动态绑定的 AST 可视化投影 |
+| lib/domain/rules/objects/dynamic_object_catalog.dart | 动态选择器稳定展示名格式化 |
+| lib/domain/rules/editor/rule_tag_catalog.dart | 稳定 Tag ID 到用户文案的领域映射 |
+| test/presentation/rules/rule_editor_page_test.dart | Case 选择、上下文记忆与只读测试回归 |
+| test/domain/rules/editor/rule_visual_renderer_test.dart | 复杂 AST、动态对象、Tag 文案与语义 round-trip 回归 |
 - FIX4.1 测试规则现统一读取真实 Case 的 Canonical FactSnapshot；无 Case 或缺事实时显式阻止测试。
 
 ## GUAYAN-R5-FIX4.1 TEST CONTEXT (2026-09-18)

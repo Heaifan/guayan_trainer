@@ -33,6 +33,10 @@ import '../../domain/rules/facts/fact_snapshot.dart';
 import '../../domain/hexagram_case.dart';
 import '../../domain/casting/casting_engine.dart';
 import '../../domain/rules/facts/canonical_fact_snapshot_builder.dart';
+import '../../domain/cases/case_record.dart';
+import '../../services/cases/case_query.dart';
+import '../../services/cases/case_repository.dart';
+import '../../services/cases/json_case_repository.dart';
 import 'rule_test_result_page.dart';
 
 class RuleEditorPage extends StatefulWidget {
@@ -42,11 +46,13 @@ class RuleEditorPage extends StatefulWidget {
     this.initialRule,
     this.isCopy = false,
     this.testCase,
+    this.caseRepository,
   });
   final CustomRuleService service;
   final RuleDefinition? initialRule;
   final bool isCopy;
   final HexagramCase? testCase;
+  final CaseRepository? caseRepository;
   @override
   State<RuleEditorPage> createState() => _RuleEditorPageState();
 }
@@ -57,11 +63,13 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
   final _history = <RuleDefinition>[];
   int _historyIndex = -1;
   final _customShenShaStore = CustomShenShaStore();
+  HexagramCase? _testCase;
 
   @override
   void initState() {
     super.initState();
     _draft = RuleEditorDraft.fromDefinition(widget.initialRule ?? _newRule());
+    _testCase = widget.testCase;
     _customShenShaStore.load();
     if (widget.isCopy) {
       _draft.ruleId = RuleId('custom_${const Uuid().v4().substring(0, 8)}');
@@ -781,17 +789,54 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
   }
 
   void _testRule() {
-    final hexagramCase = widget.testCase;
+    final hexagramCase = _testCase;
     if (hexagramCase == null) {
-      showDialog<void>(
+      _chooseTestCase();
+      return;
+    }
+    _openTestResult(hexagramCase);
+  }
+
+  Future<void> _chooseTestCase() async {
+    final repository = widget.caseRepository ?? await JsonCaseRepository.open();
+    final page = await repository.list(const CaseQuery(limit: 20));
+    if (!mounted) return;
+    if (page.items.isEmpty) {
+      await showDialog<void>(
         context: context,
         builder: (_) => const AlertDialog(
-          title: Text('无法测试规则'),
-          content: Text('暂无测试卦例，请先选择或创建一个卦例。'),
+          title: Text('暂无可用于测试的卦例'),
+          content: Text('规则测试需要真实卦象事实，请先创建一个卦例。'),
         ),
       );
       return;
     }
+    final selected = await showModalBottomSheet<CaseRecord>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const ListTile(title: Text('选择测试卦例')),
+            for (final record in page.items)
+              ListTile(
+                title: Text(record.subjectDisplay),
+                subtitle: Text(
+                  '${record.snapshot.originalHexagramName} · ${record.snapshot.castingTime.toLocal().toString().split('.').first}',
+                ),
+                onTap: () => Navigator.pop(context, record),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || selected == null) return;
+    setState(() => _testCase = selected.toHexagramCase());
+    _openTestResult(_testCase!);
+  }
+
+  void _openTestResult(HexagramCase hexagramCase) {
     late final FactSnapshot snapshot;
     try {
       snapshot = CanonicalFactSnapshotBuilder.build(hexagramCase);
@@ -920,7 +965,7 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
           ],
           ),
           const SizedBox(height: 12),
-          _TestCaseSummary(testCase: widget.testCase),
+          _TestCaseSummary(testCase: _testCase, onChange: _chooseTestCase),
           const SizedBox(height: 16),
         ],
       ),
@@ -951,9 +996,10 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
 }
 
 class _TestCaseSummary extends StatelessWidget {
-  const _TestCaseSummary({required this.testCase});
+  const _TestCaseSummary({required this.testCase, required this.onChange});
 
   final HexagramCase? testCase;
+  final VoidCallback onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -968,8 +1014,9 @@ class _TestCaseSummary extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: const Text('测试卦例'),
       subtitle: Text(
-        '${_hexagramName(testCase!)}\n${testCase!.createdAt.toLocal().toString().split('.').first}\n只读，不会修改正式卦例或 RuleRun',
+        '${testCase!.question.isEmpty ? '当前卦例' : testCase!.question} · ${_hexagramName(testCase!)}\n${testCase!.createdAt.toLocal().toString().split('.').first}\n只读，不会修改正式卦例或 RuleRun',
       ),
+      trailing: TextButton(onPressed: onChange, child: const Text('更换')),
     );
   }
 

@@ -6,16 +6,19 @@ import 'rule_editor_page.dart';
 import '../../domain/rules/editor/rule_editor_draft.dart';
 import 'rule_list_item.dart';
 import '../../domain/hexagram_case.dart';
+import '../../services/cases/case_repository.dart';
 
 class RuleCenterPage extends StatefulWidget {
   final CustomRuleService service;
   final List<RuleDefinition> systemRules;
   final HexagramCase? testCase;
+  final CaseRepository? caseRepository;
   const RuleCenterPage({
     super.key,
     required this.service,
     required this.systemRules,
     this.testCase,
+    this.caseRepository,
   });
   @override
   State<RuleCenterPage> createState() => _State();
@@ -50,6 +53,7 @@ class _State extends State<RuleCenterPage> {
           initialRule: r,
           isCopy: isCopy,
           testCase: widget.testCase,
+          caseRepository: widget.caseRepository,
         ),
       ),
     ).then((_) => _refresh());
