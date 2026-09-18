@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'casting_snapshot.dart';
 import 'rule_run.dart';
 import '../hexagram_case.dart';
+import '../line_state.dart';
 import '../rule_execution_context.dart';
+import '../casting/casting_engine.dart';
 
 /// 一次真实生成的排盘事实档案。
 class CaseRecord {
@@ -47,16 +49,19 @@ class CaseRecord {
   String get subjectDisplay => subject.trim().isEmpty ? '未填写事项' : subject;
 
   /// 将历史 Snapshot 投影给现有审卦页；不读取当前排卦草稿。
-  HexagramCase toHexagramCase() => HexagramCase(
+  HexagramCase toHexagramCase() {
+    final lines = _restoreChangedBranches(snapshot.lines);
+    return HexagramCase(
     id: id,
     question: subject,
-    lines: snapshot.lines,
+    lines: lines,
     createdAt: snapshot.castingTime,
     ruleContext: ruleRuns.isEmpty ? const RuleExecutionContext.empty() : ruleRuns.first.ruleContext,
     calendar: snapshot.calendar,
     category: snapshot.category,
     ruleRuns: ruleRuns,
-  );
+    );
+  }
 
   CaseRecord copyWith({
     String? subject,
@@ -109,4 +114,28 @@ class CaseRecord {
 
   @override
   int get hashCode => jsonEncode(toJson()).hashCode;
+}
+
+/// 早期 Case 只保存了动静与本卦地支；回读时按同一排盘事实补齐变爻地支。
+///
+/// 只填充动爻缺失字段，绝不覆盖新版本已经冻结的 changedBranch，
+/// 也不把静爻伪造成变爻。这样历史 Case 可以重新进入回头生克管线。
+List<LineState> _restoreChangedBranches(List<LineState> stored) {
+  if (!stored.any((line) => line.movementType.isMoving && line.changedBranch == null)) {
+    return stored;
+  }
+  final chart = CastingEngine.cast([
+    for (final line in stored) line.movementType,
+  ]);
+  return [
+    for (final line in stored)
+      line.movementType.isMoving && line.changedBranch == null
+          ? LineState(
+              position: line.position,
+              movementType: line.movementType,
+              branch: line.branch,
+              changedBranch: chart.lineAt(line.position).changedBranch?.label,
+            )
+          : line,
+  ];
 }

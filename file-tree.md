@@ -1,5 +1,15 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX6.3 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/cases/case_record.dart` | 回读早期 Case 时按冻结动静事实补齐缺失的变爻地支，恢复回头生克输入链 |
+| `test/services/cases/back_relation_runtime_pipeline_test.dart` | 覆盖历史 Case 回读、真实 CastingEngine 动爻、回头生 Relation、Review State、筛选与 Overlay 管线 |
+| `file-tree.md` | 记录 FIX6.3 运行链路修复的文件职责 |
+
+- Last edited: 2026-09-18 16:10:00
+
 ## GUAYAN-R5-FIX6.1 — 2026-09-18
 
 | 文件/目录 | 职责 |

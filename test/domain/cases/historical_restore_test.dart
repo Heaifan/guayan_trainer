@@ -38,6 +38,14 @@ void main() {
     expect(restored.id, 'historical');
     expect(restored.createdAt, snapshot.castingTime);
     expect(restored.question, '历史事项');
-    expect(restored.lines, snapshot.lines);
+    expect(
+      restored.lines.map((line) => line.position),
+      snapshot.lines.map((line) => line.position),
+    );
+    expect(
+      restored.lines.map((line) => line.movementType),
+      snapshot.lines.map((line) => line.movementType),
+    );
+    expect(restored.lineAt(1).changedBranch, isNotNull);
   });
 }
