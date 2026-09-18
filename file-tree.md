@@ -1,5 +1,16 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX6.2-R1 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/back_relation_glyph.dart` | 根据主/变爻 Geometry 生成开放式 U 型回头关系路径、左向实心三角与边界 |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 将回头关系接入独立 Glyph，并隔离同爻位动变旧路径，避免竖向箭头叠加 |
+| `test/presentation/review/back_relation_glyph_test.dart` | 回头 Glyph 开放路径、左向箭头、边界与颜色/标签协议回归 |
+| `file-tree.md` | 记录 FIX6.2-R1 视觉纠偏的文件职责 |
+
+- Last edited: 2026-09-18 16:30:00
+
 ## GUAYAN-R5-FIX6.3 — 2026-09-18
 
 | 文件/目录 | 职责 |

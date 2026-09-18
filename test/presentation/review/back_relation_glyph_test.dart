@@ -1,0 +1,45 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
+
+import 'package:guayan_trainer/domain/relation_type.dart';
+import 'package:guayan_trainer/presentation/review/back_relation_glyph.dart';
+import 'package:guayan_trainer/presentation/review/relation_visual_tokens.dart';
+
+void main() {
+  final row = Rect.fromLTWH(0, 0, 360, 32);
+  final main = Rect.fromLTWH(60, 6, 72, 20);
+  final changed = Rect.fromLTWH(228, 6, 72, 20);
+
+  test('back glyph is an open left-facing U-turn with a filled triangle', () {
+    final geometry = BackRelationGlyph.layout(
+      rowRect: row,
+      mainLineRect: main,
+      changedLineRect: changed,
+    );
+    final metric = geometry.path.computeMetrics().single;
+    final start = metric.getTangentForOffset(0)!.position;
+    final end = metric.getTangentForOffset(metric.length)!.position;
+
+    expect(start, isNot(end));
+    expect(geometry.arrowTip.dx, lessThan(geometry.arrowBaseCenter.dx));
+    expect(geometry.arrow.contains(geometry.arrowTip), isTrue);
+    expect(geometry.bounds.left, greaterThanOrEqualTo(row.left));
+    expect(geometry.bounds.right, lessThanOrEqualTo(row.right));
+    expect(geometry.bounds.top, greaterThanOrEqualTo(row.top));
+    expect(geometry.bounds.bottom, lessThanOrEqualTo(row.bottom));
+  });
+
+  test('back glyph keeps relation-specific color and label semantics', () {
+    expect(
+      RelationVisualTokens.colorFor(RelationType.huiTouSheng),
+      RelationVisualTokens.colorFor(RelationType.sheng),
+    );
+    expect(
+      RelationVisualTokens.colorFor(RelationType.huiTouKe),
+      RelationVisualTokens.colorFor(RelationType.ke),
+    );
+    expect(RelationVisualTokens.backHookLabel(RelationType.huiTouSheng), '回生');
+    expect(RelationVisualTokens.backHookLabel(RelationType.huiTouKe), '回克');
+    expect(RelationVisualTokens.backHookLabel(RelationType.dongBian), '动变');
+  });
+}
