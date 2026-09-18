@@ -56,7 +56,7 @@ void main() {
     expect(result.matched, isFalse);
     expect(result.trace!.status, RuleTraceStatus.notMatched);
     expect(result.trace!.expected, 'spirit.bai_hu');
-    expect(result.trace!.actual, 'spirit.xuan_wu');
+    expect(result.trace!.actual, '玄武');
   });
 
   test('engine exposes matched, not matched, skipped, and error statuses', () {

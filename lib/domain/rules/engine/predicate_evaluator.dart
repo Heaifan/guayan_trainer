@@ -309,18 +309,40 @@ class PredicateEvaluator {
       'branch_is' => 'branch',
       'spirit' => 'spirit',
       'element_is' => 'element',
-      'relative_is' => 'relative',
+      'relative' || 'relative_is' => 'relative',
       'stem_is' => 'stem',
       _ => null,
     };
     if (predicate == null) return null;
-    return snapshot.facts
+    final value = snapshot.facts
         .where((fact) =>
             fact.subject == operands.first.reference &&
             fact.predicateId == predicate)
         .map((fact) => fact.value.value)
         .firstOrNull;
+    return _displayActual(predicate, value);
   }
+
+  Object? _displayActual(String predicate, Object? value) => switch (predicate) {
+        'relative' => switch (value) {
+            'relative.parent' => '父母',
+            'relative.sibling' => '兄弟',
+            'relative.child' => '子孙',
+            'relative.official' => '官鬼',
+            'relative.spouse' => '妻财',
+            _ => value,
+          },
+        'spirit' => switch (value) {
+            'spirit.qing_long' => '青龙',
+            'spirit.zhu_que' => '朱雀',
+            'spirit.gou_chen' => '勾陈',
+            'spirit.teng_she' => '螣蛇',
+            'spirit.bai_hu' => '白虎',
+            'spirit.xuan_wu' => '玄武',
+            _ => value,
+          },
+        _ => value,
+      };
 
   Object? _factValue(
     String operatorId,

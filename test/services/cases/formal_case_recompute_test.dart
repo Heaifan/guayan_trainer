@@ -35,6 +35,13 @@ import 'package:guayan_trainer/services/cases/case_recompute_service.dart';
 import 'package:guayan_trainer/services/cases/formal_case_recompute_service.dart';
 import 'package:guayan_trainer/services/cases/json_case_repository.dart';
 
+Iterable<RuleTrace> _flatten(RuleTrace trace) sync* {
+  yield trace;
+  for (final child in trace.children) {
+    yield* _flatten(child);
+  }
+}
+
 RuleDefinition _roadRule() => RuleDefinition(
       ruleId: RuleId('custom.first-line-road'),
       version: RuleVersion('1.0.0'),
@@ -154,6 +161,17 @@ void main() {
     expect(
       run.traces.where((trace) => trace.label == '初爻子孙临青龙测试'),
       hasLength(1),
+    );
+    final smokeTrace = run.traces.singleWhere(
+      (trace) => trace.label == '初爻子孙临青龙测试',
+    );
+    final relativeTrace = _flatten(smokeTrace).singleWhere(
+      (trace) => trace.operatorId == ConditionId.relative,
+    );
+    expect(relativeTrace.actual, '子孙');
+    expect(
+      _flatten(smokeTrace).any((trace) => trace.label == '取象「道路」'),
+      isTrue,
     );
   });
 }

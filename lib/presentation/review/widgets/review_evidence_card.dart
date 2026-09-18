@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/rules/evidence/derived_evidence.dart';
+import '../../../domain/rules/editor/rule_tag_catalog.dart';
 import '../review_page_state.dart';
 
 class ReviewEvidenceCard extends StatelessWidget {
@@ -32,7 +33,7 @@ class ReviewEvidenceCard extends StatelessWidget {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  title: Text(evidence.value),
+                  title: Text(RuleTagCatalog.display(evidence.value)),
                   subtitle: Text(
                     '${evidence.targetKind.name == 'relation' ? '关系' : '对象'} · '
                     '${evidence.targetRefs.map((ref) => '${ref.kind}/${ref.key}').join(' → ')} · '

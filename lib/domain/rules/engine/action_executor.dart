@@ -12,6 +12,7 @@ import 'action_output_factory.dart';
 import 'rule_trace.dart';
 import '../ast/rule_action.dart';
 import '../evidence/derived_evidence.dart';
+import '../editor/rule_tag_catalog.dart';
 
 /// 执行规则动作并生成新的推导事实和 Evidence
 class ActionExecutor {
@@ -156,7 +157,9 @@ class ActionExecutor {
 
   String _actionLabel(RuleAction action, String fallback) {
     if (action case TagAction(:final categoryId, :final tagId)) {
-      if (categoryId == 'image') return '取象「$tagId」';
+      if (categoryId == 'image') {
+        return '取象「${RuleTagCatalog.display(tagId)}」';
+      }
     }
     return fallback;
   }
