@@ -74,17 +74,22 @@ class _Painter extends CustomPainter {
   final BuildContext context;
   @override
   void paint(Canvas canvas, Size size) {
+    for (final r in records.where(_isBackRelation)) {
+      _drawBackHook(canvas, r);
+    }
     final placements = {
-      for (final placement in RelationRouteLayout.layout(records))
+      for (final placement in RelationRouteLayout.layout(
+        records.where((record) => !_isBackRelation(record)),
+      ))
         placement.id: placement,
     };
     for (final r in records) {
+      if (_isBackRelation(r)) continue;
       final type = r.relationType!;
       final route = _route(r);
       final placement = placements[r.id];
       if (placement == null) continue;
-      final lane = placement.lane;
-      final slotOffset = placement.branchIndex * 3.0;
+      final slotOffset = placement.branchOffset;
       final from = _anchor(r.fromRef!, route, slotOffset);
       final to = _anchor(r.toRef!, route, -slotOffset);
       if (from == null || to == null) continue;
@@ -100,7 +105,14 @@ class _Painter extends CustomPainter {
         ..strokeWidth = active
             ? RelationVisualTokens.strokeFocused
             : RelationVisualTokens.strokeNormal;
-      final path = _path(from, to, route, lane, size);
+      final path = _path(
+        from,
+        to,
+        route,
+        placement.trunkLane,
+        placement.branchOffset,
+        size,
+      );
       if (type == RelationType.liuChong) {
         final metric = path.computeMetrics().first;
         for (var d = 0.0; d < metric.length; d += 10) {
@@ -130,6 +142,73 @@ class _Painter extends CustomPainter {
       }
       _label(canvas, type.displayName, _labelCenter(path, route), paint.color);
     }
+  }
+
+  bool _isBackRelation(RelationRecord record) =>
+      record.relationType != null &&
+      RelationVisualTokens.isBackRelation(record.relationType!);
+
+  void _drawBackHook(Canvas canvas, RelationRecord record) {
+    final type = record.relationType!;
+    final from = _endpointRect(record.fromRef!);
+    final to = _endpointRect(record.toRef!);
+    if (from == null || to == null) return;
+    final start = Offset(from.left, from.center.dy);
+    final end = Offset(to.right, to.center.dy);
+    final direction = end.dx < start.dx ? -1.0 : 1.0;
+    const hookDepth = 8.0;
+    final path = Path()
+      ..moveTo(start.dx, start.dy)
+      ..lineTo(start.dx + direction * 5, start.dy + hookDepth)
+      ..lineTo(end.dx - direction * 5, end.dy + hookDepth)
+      ..lineTo(end.dx, end.dy);
+    final active = selectedId == record.id;
+    final color = RelationVisualTokens.colorFor(type);
+    final paint = Paint()
+      ..color = color.withValues(alpha: RelationVisualTokens.opacityAll)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = active
+          ? RelationVisualTokens.backHookStroke + .4
+          : RelationVisualTokens.backHookStroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, paint);
+    _drawArrowAtEnd(
+      canvas,
+      path,
+      color,
+      RelationVisualTokens.backHookArrowSize,
+    );
+    if (active) {
+      canvas.drawCircle(
+        start,
+        RelationVisualTokens.anchorRadius,
+        Paint()..color = color,
+      );
+      canvas.drawCircle(
+        end,
+        RelationVisualTokens.anchorRadius,
+        Paint()..color = color,
+      );
+    }
+    final metric = path.computeMetrics().first;
+    final tangent = metric.getTangentForOffset(metric.length * .5)!;
+    _label(
+      canvas,
+      RelationVisualTokens.backHookLabel(type),
+      tangent.position + Offset(0, 4),
+      color,
+      fontSize: 10,
+    );
+  }
+
+  Rect? _endpointRect(RelationEndpoint endpoint) {
+    final key = anchorKeys[endpoint.semanticId];
+    final box = key?.currentContext?.findRenderObject() as RenderBox?;
+    final overlay = context.findRenderObject() as RenderBox?;
+    if (box == null || overlay == null || !box.hasSize) return null;
+    final topLeft = overlay.globalToLocal(box.localToGlobal(Offset.zero));
+    return topLeft & box.size;
   }
 
   _Route _route(RelationRecord r) {
@@ -171,10 +250,17 @@ class _Painter extends CustomPainter {
     );
   }
 
-  Path _path(Offset from, Offset to, _Route route, int lane, Size size) {
+  Path _path(
+    Offset from,
+    Offset to,
+    _Route route,
+    int trunkLane,
+    double branchOffset,
+    Size size,
+  ) {
     final spacing = 12.0;
     if (route == _Route.mainToChanged) {
-      final bow = (lane - 1) * 8.0;
+      final bow = branchOffset + trunkLane * 8.0;
       return Path()
         ..moveTo(from.dx, from.dy)
         ..cubicTo(
@@ -187,7 +273,7 @@ class _Painter extends CustomPainter {
         );
     }
     final right = route == _Route.changedToChanged;
-    final gutter = math.min(110.0, 18.0 + lane * spacing);
+    final gutter = math.min(110.0, 18.0 + trunkLane * spacing);
     final outer = route == _Route.calendarToYao
         ? (from.dx < to.dx ? 8.0 : size.width - 8.0)
         : right
@@ -215,13 +301,19 @@ class _Painter extends CustomPainter {
     return tangent.position + normal * (10 * direction);
   }
 
-  void _label(Canvas canvas, String text, Offset center, Color color) {
+  void _label(
+    Canvas canvas,
+    String text,
+    Offset center,
+    Color color, {
+    double fontSize = RelationVisualTokens.relationLabelFontSize,
+  }) {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
         style: TextStyle(
           color: color,
-          fontSize: RelationVisualTokens.relationLabelFontSize,
+          fontSize: fontSize,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -240,6 +332,29 @@ class _Painter extends CustomPainter {
       Paint()..color = const Color(0xFFFAF7F2).withValues(alpha: .08),
     );
     tp.paint(canvas, Offset(rect.left + 6, rect.top + 3));
+  }
+
+  void _drawArrowAtEnd(Canvas canvas, Path path, Color color, double size) {
+    final metric = path.computeMetrics().first;
+    final tangent = metric.getTangentForOffset(metric.length);
+    if (tangent == null) return;
+    final tip = tangent.position;
+    final angle = math.atan2(tangent.vector.dy, tangent.vector.dx);
+    final p = Paint()..color = color;
+    final a =
+        tip -
+        Offset(math.cos(angle - .55) * size, math.sin(angle - .55) * size);
+    final b =
+        tip -
+        Offset(math.cos(angle + .55) * size, math.sin(angle + .55) * size);
+    canvas.drawPath(
+      Path()
+        ..moveTo(tip.dx, tip.dy)
+        ..lineTo(a.dx, a.dy)
+        ..lineTo(b.dx, b.dy)
+        ..close(),
+      p,
+    );
   }
 
   void _drawPathArrow(

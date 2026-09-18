@@ -19,6 +19,8 @@ abstract final class RelationVisualTokens {
   static const opacityFocused = 1.00;
   static const opacitySelected = 1.00;
   static const opacityDeemphasized = 0.20;
+  static const backHookStroke = 1.80;
+  static const backHookArrowSize = 5.00;
 
   static Color colorFor(RelationType type) => switch (type) {
     RelationType.sheng ||
@@ -29,11 +31,20 @@ abstract final class RelationVisualTokens {
     RelationType.dayControl => const Color(0xFFD9342B),
     RelationType.liuChong => const Color(0xFFF57C00),
     RelationType.liuHe => const Color(0xFF1565C0),
-    RelationType.huiTouSheng => const Color(0xFF00796B),
-    RelationType.huiTouKe => const Color(0xFF8E244D),
+    RelationType.huiTouSheng => const Color(0xFF119E57),
+    RelationType.huiTouKe => const Color(0xFFD9342B),
     RelationType.dongBian => const Color(0xFF2E7D32),
   };
 
   static bool isBidirectional(RelationType type) =>
       type.directionKind == RelationDirectionKind.symmetric;
+
+  static bool isBackRelation(RelationType type) =>
+      type == RelationType.huiTouSheng || type == RelationType.huiTouKe;
+
+  static String backHookLabel(RelationType type) => switch (type) {
+    RelationType.huiTouSheng => '回生',
+    RelationType.huiTouKe => '回克',
+    _ => type.displayName,
+  };
 }

@@ -1,5 +1,19 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX6 — 2026-09-18
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/relation_visual_tokens.dart` | 定义回头生/克与普通生/克一致的颜色，以及微型回钩尺寸和标签协议 |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 将回头生/克从普通 Router 绘制中分流为同爻位局部微型回钩 |
+| `lib/presentation/review/widgets/hexagram_line_cell.dart` | 让主卦、变卦文本与纳音共享文本槽水平中心线 |
+| `test/domain/relation_back_relations_test.dart` | 回头关系方向、五行判定、本位、静爻与多动爻回归 |
+| `test/presentation/review/relation_visual_protocol_test.dart` | 回头关系颜色、尺寸、标签与普通关系视觉协议回归 |
+| `test/presentation/review/nayin_layout_test.dart` | 主卦/变卦纳音与所属正文中心线对齐回归 |
+| `file-tree.md` | 记录 FIX6 关系与纳音修复的文件职责 |
+
+- Last edited: 2026-09-18 15:02:00
+
 ## GUAYAN-R5-FIX5.1 — 2026-09-18
 
 | 文件/目录 | 职责 |

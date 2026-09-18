@@ -58,4 +58,18 @@ void main() {
     expect(main.top, changed.top);
     expect(main.bottom, changed.bottom);
   });
+
+  testWidgets('main and changed NaYin share their text center line', (
+    tester,
+  ) async {
+    await pumpReview(tester);
+    for (final pair in [
+      ('main_text_6', 'main_nayin_6'),
+      ('changed_text_6', 'changed_nayin_6'),
+    ]) {
+      final text = tester.getRect(find.byKey(Key(pair.$1)));
+      final naYin = tester.getRect(find.byKey(Key(pair.$2)));
+      expect(naYin.center.dx, closeTo(text.center.dx, 0.5));
+    }
+  });
 }

@@ -24,12 +24,33 @@ void main() {
       RelationVisualTokens.colorFor(RelationType.liuHe),
       const Color(0xFF1565C0),
     );
+    expect(
+      RelationVisualTokens.colorFor(RelationType.huiTouSheng),
+      RelationVisualTokens.colorFor(RelationType.sheng),
+    );
+    expect(
+      RelationVisualTokens.colorFor(RelationType.huiTouKe),
+      RelationVisualTokens.colorFor(RelationType.ke),
+    );
     expect(RelationVisualTokens.strokeNormal, 1.15);
     expect(RelationVisualTokens.strokeFocused, 1.40);
     expect(RelationVisualTokens.arrowSize, 4.20);
     expect(RelationVisualTokens.anchorRadius, 2.20);
     expect(RelationVisualTokens.opacityAll, 1.00);
     expect(RelationVisualTokens.opacityFocused, 1.00);
+  });
+
+  test('back relations use the compact hook protocol', () {
+    expect(
+      RelationVisualTokens.isBackRelation(RelationType.huiTouSheng),
+      isTrue,
+    );
+    expect(RelationVisualTokens.isBackRelation(RelationType.huiTouKe), isTrue);
+    expect(RelationVisualTokens.isBackRelation(RelationType.sheng), isFalse);
+    expect(RelationVisualTokens.backHookStroke, closeTo(1.8, 0.01));
+    expect(RelationVisualTokens.backHookArrowSize, closeTo(5.0, 0.01));
+    expect(RelationVisualTokens.backHookLabel(RelationType.huiTouSheng), '回生');
+    expect(RelationVisualTokens.backHookLabel(RelationType.huiTouKe), '回克');
   });
 
   test('only symmetric actions use double arrow protocol', () {

@@ -58,7 +58,7 @@ class HexagramLineCell extends StatelessWidget {
       width: textWidth,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Baseline(
             baseline: 16,
