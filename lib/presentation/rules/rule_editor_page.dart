@@ -29,6 +29,8 @@ import '../../domain/rules/templates/template_compiler_registry.dart';
 import '../../domain/rules/templates/template_invocation.dart';
 import '../../domain/rules/facts/rule_value.dart';
 import '../../domain/rules/topics/exam/exam_rule_corpus.dart';
+import '../../domain/rules/facts/fact_snapshot.dart';
+import 'rule_test_result_page.dart';
 
 class RuleEditorPage extends StatefulWidget {
   const RuleEditorPage({
@@ -773,6 +775,18 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
     if (mounted) Navigator.pop(context);
   }
 
+  void _testRule() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RuleTestResultPage(
+          rule: _definition,
+          snapshot: FactSnapshot.build(const []),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final lines = _renderer.render(_definition);
@@ -884,7 +898,7 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: _testRule,
                 icon: const Icon(Icons.play_arrow),
                 label: const Text('测试规则'),
               ),

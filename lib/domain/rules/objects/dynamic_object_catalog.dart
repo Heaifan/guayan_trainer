@@ -5,6 +5,11 @@ import 'dynamic_object_definition.dart';
 class DynamicObjectCatalog {
   static const all = [
     DynamicObjectDefinition(
+      selectorId: 'dynamic.line.all',
+      displayName: '任一爻',
+      cardinality: DynamicCardinality.many,
+    ),
+    DynamicObjectDefinition(
       selectorId: 'dynamic.line.by_spirit',
       displayName: '六神所临之爻',
       cardinality: DynamicCardinality.exactlyOne,

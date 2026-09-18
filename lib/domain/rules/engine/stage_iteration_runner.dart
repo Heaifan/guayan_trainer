@@ -7,6 +7,7 @@ import '../evidence/evidence_edge.dart';
 import 'action_executor.dart';
 import 'binding_resolver.dart';
 import 'predicate_evaluator.dart';
+import 'rule_trace.dart';
 
 class StageIterationRunner {
   final BindingResolver bindingResolver;
@@ -40,14 +41,49 @@ class StageIterationRunner {
     List<RuleHit> allRuleHits,
     List<EvidenceNode> allEvidenceNodes,
     List<EvidenceEdge> allEvidenceEdges,
+    List<RuleTrace> allRuleTraces,
   ) {
     bool stageChanged = false;
     for (final rule in stageRules) {
-      final context = bindingResolver.resolve(rule.bindings, currentSnapshot);
-      final result = predicateEvaluator.evaluate(rule.condition, context, currentSnapshot);
+      final bindingResult = bindingResolver.resolveWithTrace(
+        rule.bindings,
+        currentSnapshot,
+      );
+      if (bindingResult.traces.any((t) => t.status == RuleTraceStatus.error)) {
+        allRuleTraces.add(RuleTrace(
+          kind: RuleTraceKind.rule,
+          label: rule.title,
+          status: RuleTraceStatus.error,
+          children: bindingResult.traces,
+          reason: 'Binding 无法解析',
+        ));
+        continue;
+      }
+      final context = bindingResult.context;
+      final result = predicateEvaluator.evaluate(
+        rule.condition,
+        context,
+        currentSnapshot,
+      );
 
       if (result.matched) {
-        final actionResult = actionExecutor.execute(rule, context, result.supports);
+        final contexts = result.matchedBindings.isEmpty
+            ? [context]
+            : [for (final bindings in result.matchedBindings) BindingContext(bindings)];
+        final actionResults = [
+          for (final scoped in contexts)
+            actionExecutor.execute(rule, scoped, result.supports),
+        ];
+        allRuleTraces.add(RuleTrace(
+          kind: RuleTraceKind.rule,
+          label: rule.title,
+          status: RuleTraceStatus.matched,
+          children: [
+            ...bindingResult.traces,
+            if (result.trace != null) result.trace!,
+            for (final actionResult in actionResults) ...actionResult.actionTraces,
+          ],
+        ));
         bool anyNewFact = false;
 
         void processFacts(List<FactRecord> sourceList, List<FactRecord> targetList) {
@@ -64,19 +100,33 @@ class StageIterationRunner {
           }
         }
 
-        processFacts(actionResult.derivedFacts, allDerivedFacts);
-        processFacts(actionResult.derivedStates, allDerivedStates);
-        processFacts(actionResult.tags, allTags);
-        processFacts(actionResult.structures, allStructures);
-        processFacts(actionResult.records, allRecords);
+        for (final actionResult in actionResults) {
+          processFacts(actionResult.derivedFacts, allDerivedFacts);
+          processFacts(actionResult.derivedStates, allDerivedStates);
+          processFacts(actionResult.tags, allTags);
+          processFacts(actionResult.structures, allStructures);
+          processFacts(actionResult.records, allRecords);
+        }
 
         if (anyNewFact) {
-          for (final hit in actionResult.ruleHits) {
-            if (!allRuleHits.any((h) => h.hitId == hit.hitId)) { allRuleHits.add(hit); }
+          for (final actionResult in actionResults) {
+            for (final hit in actionResult.ruleHits) {
+              if (!allRuleHits.any((h) => h.hitId == hit.hitId)) { allRuleHits.add(hit); }
+            }
+            allEvidenceNodes.addAll(actionResult.evidenceNodes);
+            allEvidenceEdges.addAll(actionResult.evidenceEdges);
           }
-          allEvidenceNodes.addAll(actionResult.evidenceNodes);
-          allEvidenceEdges.addAll(actionResult.evidenceEdges);
         }
+      } else {
+        allRuleTraces.add(RuleTrace(
+          kind: RuleTraceKind.rule,
+          label: rule.title,
+          status: RuleTraceStatus.notMatched,
+          children: [
+            ...bindingResult.traces,
+            if (result.trace != null) result.trace!,
+          ],
+        ));
       }
     }
     return stageChanged;

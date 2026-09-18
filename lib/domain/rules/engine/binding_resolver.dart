@@ -5,6 +5,13 @@ import '../ast/rule_binding.dart';
 import '../facts/fact_snapshot.dart';
 import '../facts/semantic_ref.dart';
 import '../objects/dynamic_object_resolver.dart';
+import 'rule_trace.dart';
+
+class BindingResolutionResult {
+  const BindingResolutionResult(this.context, this.traces);
+  final BindingContext context;
+  final List<RuleTrace> traces;
+}
 
 class BindingResolutionException implements Exception {
   final String message;
@@ -26,6 +33,35 @@ class BindingContext {
 
 class BindingResolver {
   const BindingResolver();
+
+  BindingResolutionResult resolveWithTrace(
+    List<RuleBinding> bindings,
+    FactSnapshot snapshot,
+  ) {
+    final context = BindingContext();
+    final traces = <RuleTrace>[];
+    for (final binding in bindings) {
+      try {
+        final ref = _resolveSelector(binding.selector, context, snapshot);
+        if (ref == null) throw BindingResolutionException('未解析到对象');
+        context.add(binding.name, ref);
+        traces.add(RuleTrace(
+          kind: RuleTraceKind.binding,
+          label: '${binding.name} ${_selectorLabel(binding.selector)}',
+          status: RuleTraceStatus.matched,
+          resolvedObjects: [ref],
+        ));
+      } catch (error) {
+        traces.add(RuleTrace(
+          kind: RuleTraceKind.binding,
+          label: '${binding.name} ${_selectorLabel(binding.selector)}',
+          status: RuleTraceStatus.error,
+          reason: error.toString(),
+        ));
+      }
+    }
+    return BindingResolutionResult(context, List.unmodifiable(traces));
+  }
 
   BindingContext resolve(List<RuleBinding> bindings, FactSnapshot snapshot) {
     final context = BindingContext();
@@ -84,7 +120,17 @@ class BindingResolver {
 
   SemanticRef _parseSemanticRef(String targetStr) {
     final parts = targetStr.split('/');
-    if (parts.length != 2) return SemanticRef('unknown', targetStr);
+    if (parts.length != 2 || parts.any((part) => part.isEmpty)) {
+      throw BindingResolutionException('非法 SemanticRef: $targetStr');
+    }
     return SemanticRef(parts[0], parts[1]);
   }
+
+  String _selectorLabel(BindingSelector selector) => switch (selector) {
+        DirectSelector(:final target) => 'DirectSelector($target)',
+        RelativeSelector(:final baseBinding, :final path) =>
+          'RelativeSelector($baseBinding.$path)',
+        DynamicBindingSelector(:final selectorId) => selectorId,
+        _ => selector.runtimeType.toString(),
+      };
 }

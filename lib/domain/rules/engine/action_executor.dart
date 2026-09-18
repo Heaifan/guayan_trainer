@@ -8,6 +8,7 @@ import 'binding_resolver.dart';
 import 'evidence_emitter.dart';
 import 'engine_types.dart';
 import 'action_output_factory.dart';
+import 'rule_trace.dart';
 
 /// 执行规则动作并生成新的推导事实和 Evidence
 class ActionExecutor {
@@ -27,12 +28,29 @@ class ActionExecutor {
     final ruleHits = <RuleHit>[];
     final evidenceNodes = <EvidenceNode>[];
     final evidenceEdges = <EvidenceEdge>[];
+    final actionTraces = <RuleTrace>[];
 
     for (final action in rule.actions) {
       final res = ActionOutputFactory.build(action, rule, context);
       final newFact = res.output;
 
-      if (newFact != null) {
+      if (newFact == null) {
+        actionTraces.add(RuleTrace(
+          kind: RuleTraceKind.action,
+          label: action.runtimeType.toString(),
+          status: RuleTraceStatus.error,
+          reason: 'Action 无法解析 subject 或输出',
+        ));
+        continue;
+      }
+      actionTraces.add(RuleTrace(
+        kind: RuleTraceKind.action,
+        label: res.conclusion,
+        status: RuleTraceStatus.success,
+        resolvedObjects: [newFact.subject],
+      ));
+
+      {
         if (res.kind == 'fact') {
           derivedFacts.add(newFact);
         } else if (res.kind == 'tag') {
@@ -86,6 +104,7 @@ class ActionExecutor {
       ruleHits,
       evidenceNodes,
       evidenceEdges,
+      actionTraces,
     );
   }
 }

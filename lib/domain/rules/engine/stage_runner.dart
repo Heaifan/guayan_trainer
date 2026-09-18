@@ -10,6 +10,7 @@ import 'binding_resolver.dart';
 import 'predicate_evaluator.dart';
 import 'engine_types.dart';
 import 'stage_iteration_runner.dart';
+import 'rule_trace.dart';
 
 class StageRunnerResult {
   final List<FactRecord> derivedFacts;
@@ -21,10 +22,12 @@ class StageRunnerResult {
   final List<EvidenceNode> evidenceNodes;
   final List<EvidenceEdge> evidenceEdges;
   final int iterations;
+  final List<RuleTrace> ruleTraces;
   const StageRunnerResult(
     this.derivedFacts, this.derivedStates, this.tags, this.structures,
-    this.records, this.ruleHits, this.evidenceNodes, this.evidenceEdges, this.iterations,
-  );
+    this.records, this.ruleHits, this.evidenceNodes, this.evidenceEdges, this.iterations, [
+    this.ruleTraces = const [],
+  ]);
   List<FactRecord> get allNewFacts => [
     ...derivedFacts, ...derivedStates, ...tags, ...structures, ...records,
   ];
@@ -52,6 +55,7 @@ class StageRunner {
     final allRuleHits = <RuleHit>[];
     final allEvidenceNodes = <EvidenceNode>[];
     final allEvidenceEdges = <EvidenceEdge>[];
+    final allRuleTraces = <RuleTrace>[];
     int iterations = 0;
     bool stageChanged = true;
 
@@ -65,7 +69,7 @@ class StageRunner {
       stageChanged = iter.runIteration(
         stageRules, currentSnapshot, newFactsInIteration,
         allDerivedFacts, allDerivedStates, allTags, allStructures, allRecords,
-        allRuleHits, allEvidenceNodes, allEvidenceEdges
+        allRuleHits, allEvidenceNodes, allEvidenceEdges, allRuleTraces
       );
 
       if (newFactsInIteration.isNotEmpty) {
@@ -78,6 +82,7 @@ class StageRunner {
     return StageRunnerResult(
       allDerivedFacts, allDerivedStates, allTags, allStructures, allRecords,
       allRuleHits, allEvidenceNodes, allEvidenceEdges, iterations,
+      allRuleTraces,
     );
   }
 }

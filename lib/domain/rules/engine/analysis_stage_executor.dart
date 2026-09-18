@@ -7,6 +7,7 @@ import '../evidence/evidence_node.dart';
 import '../evidence/evidence_edge.dart';
 import 'stage_runner.dart';
 import 'engine_types.dart';
+import 'rule_trace.dart';
 
 class AnalysisStageExecutor {
   final StageRunner stageRunner;
@@ -29,10 +30,19 @@ class AnalysisStageExecutor {
     final allRuleHits = <RuleHit>[];
     final allEvidenceNodes = <EvidenceNode>[];
     final allEvidenceEdges = <EvidenceEdge>[];
+    final allRuleTraces = <RuleTrace>[];
     int totalIterations = 0;
 
     for (final stage in stages) {
       final stageRules = rules.where((r) => r.stage == stage && r.enabled).toList();
+      for (final rule in rules.where((r) => r.stage == stage && !r.enabled)) {
+        allRuleTraces.add(RuleTrace(
+          kind: RuleTraceKind.rule,
+          label: rule.title,
+          status: RuleTraceStatus.skipped,
+          reason: '规则未启用',
+        ));
+      }
       if (stageRules.isEmpty) continue;
 
       final stageResult = stageRunner.runStage(stage, stageRules, currentSnapshot);
@@ -50,6 +60,7 @@ class AnalysisStageExecutor {
       allRuleHits.addAll(stageResult.ruleHits);
       allEvidenceNodes.addAll(stageResult.evidenceNodes);
       allEvidenceEdges.addAll(stageResult.evidenceEdges);
+      allRuleTraces.addAll(stageResult.ruleTraces);
       totalIterations += stageResult.iterations;
     }
 
@@ -64,6 +75,7 @@ class AnalysisStageExecutor {
       evidenceNodes: List.unmodifiable(allEvidenceNodes),
       evidenceEdges: List.unmodifiable(allEvidenceEdges),
       iterations: totalIterations,
+      traces: List.unmodifiable(allRuleTraces),
     );
   }
 }

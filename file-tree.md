@@ -1826,4 +1826,16 @@ theme/  data/  閳? models/  閳? services/  閳? pages/  +  widgets/
 - `docs/superpowers/specs/2026-09-18-relation-graph-ledger-design.md`：R7 设计文档。
 - `docs/superpowers/plans/2026-09-18-relation-graph-ledger.md`：R7 实现计划。
 
+## R5 Rule Trace and Scoped Runtime（2026-09-18）
+
+- `lib/domain/rules/engine/rule_trace.dart`：规则、表达式、Binding、Action 的不可变运行追踪模型。
+- `lib/domain/rules/engine/predicate_result.dart`：谓词结果增加 Trace 与量词命中 Binding 上下文。
+- `lib/domain/rules/engine/*`：执行链收集 MATCHED / NOT_MATCHED / SKIPPED / ERROR 与 Action 结果。
+- `lib/domain/rules/objects/*`：增加通用六爻范围 `dynamic.line.all`。
+- `lib/presentation/rules/rule_test_result_page.dart`：只读规则测试结果页。
+- `lib/presentation/rules/widgets/rule_trace_tree.dart`：递归 Trace 树展示组件。
+- `test/domain/rules/engine/*trace*`、`scoped_runtime_test.dart`：Trace 与多命中对象验收测试。
+- `docs/superpowers/specs/2026-09-18-rule-trace-and-scoped-runtime-design.md`：R5 设计说明。
+- `docs/superpowers/plans/2026-09-18-rule-trace-and-scoped-runtime.md`：R5 实施计划。
+
 最后编辑时间：2026-09-18

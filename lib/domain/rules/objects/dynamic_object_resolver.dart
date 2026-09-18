@@ -28,6 +28,7 @@ class DynamicObjectResolver {
       throw ArgumentError('未知动态对象: ${selector.selectorId}');
     }
     final candidates = switch (selector.selectorId) {
+      'dynamic.line.all' => _allLines(snapshot),
       'dynamic.line.by_spirit' => _bySpirit(selector, snapshot),
       'dynamic.line.shi' => _byMarker('shi', snapshot),
       'dynamic.line.ying' => _byMarker('ying', snapshot),
@@ -66,6 +67,16 @@ class DynamicObjectResolver {
         .where((ref) => ref.kind == 'line')
         .toSet()
         .toList();
+  }
+
+  List<SemanticRef> _allLines(FactSnapshot snapshot) {
+    final refs = snapshot.facts
+        .map((fact) => fact.subject)
+        .where((ref) => ref.kind == 'line')
+        .toSet()
+        .toList();
+    refs.sort((a, b) => int.parse(a.key).compareTo(int.parse(b.key)));
+    return refs;
   }
 
   List<SemanticRef> _byMarker(String marker, FactSnapshot snapshot) => snapshot
