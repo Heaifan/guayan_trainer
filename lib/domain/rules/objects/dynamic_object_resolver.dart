@@ -27,6 +27,7 @@ class DynamicObjectResolver {
     if (definition == null) {
       throw ArgumentError('未知动态对象: ${selector.selectorId}');
     }
+    _validateParameters(selector);
     final candidates = switch (selector.selectorId) {
       'dynamic.line.all' => _allLines(snapshot),
       'dynamic.line.by_spirit' => _bySpirit(selector, snapshot),
@@ -67,6 +68,19 @@ class DynamicObjectResolver {
         .where((ref) => ref.kind == 'line')
         .toSet()
         .toList();
+  }
+
+  void _validateParameters(DynamicBindingSelector selector) {
+    if (selector.selectorId == 'dynamic.line.by_spirit' &&
+        (selector.parameters['spirit'] == null ||
+            selector.parameters['spirit']!.isEmpty)) {
+      throw ArgumentError('dynamic.line.by_spirit 缺少 spirit 参数');
+    }
+    if (selector.selectorId == 'dynamic.line.by_branch_relation' &&
+        (selector.parameters['referenceObject'] == null ||
+            selector.parameters['relation'] == null)) {
+      throw ArgumentError('dynamic.line.by_branch_relation 参数不完整');
+    }
   }
 
   List<SemanticRef> _allLines(FactSnapshot snapshot) {

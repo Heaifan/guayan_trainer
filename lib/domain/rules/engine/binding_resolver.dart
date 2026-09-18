@@ -22,11 +22,17 @@ class BindingResolutionException implements Exception {
 
 class BindingContext {
   final Map<String, SemanticRef> _resolvedBindings = {};
+  final Set<String> _emptyBindings = {};
   BindingContext([Map<String, SemanticRef>? initialBindings]) {
     if (initialBindings != null) _resolvedBindings.addAll(initialBindings);
   }
   void add(String name, SemanticRef ref) => _resolvedBindings[name] = ref;
+  void addEmpty(String name) => _emptyBindings.add(name);
   SemanticRef? get(String name) => _resolvedBindings[name];
+  bool contains(String name) =>
+      _resolvedBindings.containsKey(name) || _emptyBindings.contains(name);
+  bool isEmpty(String name) => _emptyBindings.contains(name);
+  Iterable<String> get emptyBindingNames => _emptyBindings;
   Map<String, SemanticRef> get allBindings =>
       Map.unmodifiable(_resolvedBindings);
 }
@@ -42,6 +48,36 @@ class BindingResolver {
     final traces = <RuleTrace>[];
     for (final binding in bindings) {
       try {
+        if (binding.selector case final DynamicBindingSelector selector) {
+          final resolution = const DynamicObjectResolver().resolve(
+            selector,
+            snapshot,
+          );
+          if (resolution.candidates.isEmpty) {
+            context.addEmpty(binding.name);
+            traces.add(RuleTrace(
+              kind: RuleTraceKind.binding,
+              label: '${binding.name} ${_selectorLabel(selector)}',
+              status: RuleTraceStatus.notMatched,
+              reason: 'NO_MATCH',
+            ));
+            continue;
+          }
+          if (resolution.candidates.length > 1 || resolution.isMany) {
+            throw BindingResolutionException(
+              '${resolution.definition.displayName}可能包含多个对象，需要范围/量词',
+            );
+          }
+          final ref = resolution.candidates.single;
+          context.add(binding.name, ref);
+          traces.add(RuleTrace(
+            kind: RuleTraceKind.binding,
+            label: '${binding.name} ${_selectorLabel(selector)}',
+            status: RuleTraceStatus.matched,
+            resolvedObjects: [ref],
+          ));
+          continue;
+        }
         final ref = _resolveSelector(binding.selector, context, snapshot);
         if (ref == null) throw BindingResolutionException('未解析到对象');
         context.add(binding.name, ref);

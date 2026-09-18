@@ -140,6 +140,9 @@ class PredicateEvaluator {
         final scoped = BindingContext(
           Map.of(bindingContext.allBindings)..[expr.bindingName] = candidate,
         );
+        for (final name in bindingContext.emptyBindingNames) {
+          scoped.addEmpty(name);
+        }
         final result = evaluate(expr.node, scoped, snapshot);
         results.add(result);
         if (result.trace != null) traces.add(result.trace!);
@@ -191,6 +194,22 @@ class PredicateEvaluator {
       if (op is BindingRefOperand) {
         final ref = bindingContext.get(op.bindingName);
         if (ref == null) {
+          if (bindingContext.isEmpty(op.bindingName)) {
+            return PredicateResult(
+              matched: false,
+              trace: RuleTrace(
+                kind: RuleTraceKind.predicate,
+                label: expr.operatorId,
+                status: RuleTraceStatus.notMatched,
+                reason: 'NO_MATCH',
+              ),
+            );
+          }
+          if (!bindingContext.contains(op.bindingName)) {
+            throw EvaluationException(
+              'Unresolved binding reference in predicate: ${op.bindingName}',
+            );
+          }
           throw EvaluationException(
             'Unresolved binding reference in predicate: ${op.bindingName}',
           );

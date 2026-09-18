@@ -1845,4 +1845,11 @@ theme/  data/  閳? models/  閳? services/  閳? pages/  +  widgets/
 - `test/domain/rules/engine/rule_test_runner_test.dart`：命中、未命中、测试隔离与 Portable envelope 回归测试。
 - `test/presentation/rules/rule_editor_page_test.dart`：编辑器测试入口 schema 错误回归测试。
 
+## Dynamic Binding Empty Hotfix（2026-09-18）
+
+- `lib/domain/rules/objects/dynamic_object_resolver.dart`：合法动态选择器的参数校验与空候选语义。
+- `lib/domain/rules/engine/binding_resolver.dart`：保留 EMPTY Binding，并输出 NO_MATCH Trace。
+- `lib/domain/rules/engine/predicate_evaluator.dart`：复合条件中 EMPTY Binding 按 false 参与计算。
+- `test/domain/rules/engine/dynamic_binding_empty_test.dart`：ANY/ALL、非法 selector 与“有路冲家”回归测试。
+
 最后编辑时间：2026-09-18
