@@ -6,11 +6,13 @@ import '../../domain/rules/editor/custom_rule_store.dart';
 import '../../domain/rules/editor/user_governance_state.dart';
 import 'rule_center_page.dart';
 import 'system_rule_list_page.dart';
+import '../../domain/hexagram_case.dart';
 
 class RuleCenterPageLoader extends StatefulWidget {
-  const RuleCenterPageLoader({super.key, this.openCustomRules = false});
+  const RuleCenterPageLoader({super.key, this.openCustomRules = false, this.testCase});
 
   final bool openCustomRules;
+  final HexagramCase? testCase;
   @override
   State<RuleCenterPageLoader> createState() => _State();
 }
@@ -38,8 +40,8 @@ class _State extends State<RuleCenterPageLoader> {
     }
     final systemRules = [...CommonRuleCorpus.v1(), ...ExamRuleCorpus.v1()];
     if (widget.openCustomRules) {
-      return RuleCenterPage(service: service, systemRules: systemRules);
+      return RuleCenterPage(service: service, systemRules: systemRules, testCase: widget.testCase);
     }
-    return SystemRuleListPage(service: service, systemRules: systemRules);
+    return SystemRuleListPage(service: service, systemRules: systemRules, testCase: widget.testCase);
   }
 }

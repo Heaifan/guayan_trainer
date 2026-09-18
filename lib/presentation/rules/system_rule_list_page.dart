@@ -8,6 +8,7 @@ import 'presentation/knowledge_rule_display_model.dart';
 import 'presentation/knowledge_rule_presentation_mapper.dart';
 import 'rule_center_page.dart';
 import 'widgets/rule_search_bar.dart';
+import '../../domain/hexagram_case.dart';
 
 class SystemRuleListPage extends StatefulWidget {
   const SystemRuleListPage({
@@ -15,11 +16,13 @@ class SystemRuleListPage extends StatefulWidget {
     required this.service,
     required this.systemRules,
     this.knowledgeRules,
+    this.testCase,
   });
 
   final CustomRuleService service;
   final List<RuleDefinition> systemRules;
   final List<KnowledgeRule>? knowledgeRules;
+  final HexagramCase? testCase;
 
   @override
   State<SystemRuleListPage> createState() => _SystemRuleListPageState();
@@ -97,6 +100,7 @@ class _SystemRuleListPageState extends State<SystemRuleListPage> {
         builder: (_) => RuleCenterPage(
           service: widget.service,
           systemRules: widget.systemRules,
+          testCase: widget.testCase,
         ),
       ),
     );

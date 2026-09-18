@@ -69,7 +69,7 @@ class AppShellState extends State<AppShell> {
           ? null
           : AppBar(
               title: Text(mainTabs[selectedIndex].title),
-              actions: const [MoreMenuButton()],
+              actions: [MoreMenuButton(latestCase: _latestCase)],
             ),
       body: IndexedStack(
         index: selectedIndex,

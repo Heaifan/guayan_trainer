@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import '../presentation/about/about_page.dart';
 import '../presentation/rules/rule_library_page.dart';
 import '../presentation/settings/settings_page.dart';
+import '../domain/hexagram_case.dart';
 
 /// AppBar 右上角「更多」入口。
 ///
 /// 规则库位于此处，而不是底部主导航。
 class MoreMenuButton extends StatelessWidget {
-  const MoreMenuButton({super.key, this.icon});
+  const MoreMenuButton({super.key, this.icon, this.latestCase});
 
   /// 自定义图标（排卦页使用 XYUI 三点样式时传入）。
   final Widget? icon;
+  final HexagramCase? latestCase;
 
   void _open(BuildContext context, Widget page) {
     Navigator.of(context).push(
@@ -27,7 +29,7 @@ class MoreMenuButton extends StatelessWidget {
       onSelected: (value) {
         switch (value) {
           case 'rules':
-            _open(context, const RuleLibraryPage());
+            _open(context, RuleLibraryPage(latestCase: latestCase));
           case 'settings':
             _open(context, const SettingsPage());
           case 'about':

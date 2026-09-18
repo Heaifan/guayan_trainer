@@ -3,9 +3,12 @@ import 'rule_center_page_loader.dart';
 import 'rule_folder_tree_page.dart';
 import 'widgets/rule_entry_card.dart';
 import 'widgets/rule_search_bar.dart';
+import '../../domain/hexagram_case.dart';
 
 class RuleLibraryPage extends StatefulWidget {
-  const RuleLibraryPage({super.key});
+  const RuleLibraryPage({super.key, this.latestCase});
+
+  final HexagramCase? latestCase;
 
   @override
   State<RuleLibraryPage> createState() => _RuleLibraryPageState();
@@ -40,7 +43,7 @@ class _RuleLibraryPageState extends State<RuleLibraryPage> {
             description: '查看内置规则与说明',
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const RuleCenterPageLoader()),
+              MaterialPageRoute(builder: (_) => RuleCenterPageLoader(testCase: widget.latestCase)),
             ),
           ),
           RuleEntryCard(

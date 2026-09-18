@@ -2,7 +2,19 @@
 
 ## v2.0.6 — 2026-09-18
 
-- Last edited: 2026-09-18 05:03:34
+- Last edited: 2026-09-18 10:28:50
+- FIX4.1 测试规则现统一读取真实 Case 的 Canonical FactSnapshot；无 Case 或缺事实时显式阻止测试。
+
+## GUAYAN-R5-FIX4.1 TEST CONTEXT (2026-09-18)
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| lib/domain/rules/facts/canonical_fact_snapshot_builder.dart | 从真实 HexagramCase 重建六爻、地支、六亲、六神、动静与世应事实 |
+| lib/domain/rules/engine/rule_test_runner.dart | 只读执行 RuleDefinition，并通过 Canonical Builder 支持真实 Case 测试 |
+| lib/presentation/rules/rule_editor_page.dart | 接收测试卦例，禁止空 Snapshot 静默执行并展示测试上下文 |
+| lib/presentation/rules/rule_test_result_page.dart | 展示当前只读测试卦例与临时 Trace |
+| test/domain/rules/facts/canonical_fact_snapshot_builder_test.dart | Canonical Builder 六爻完整性、白虎与缺事实回归 |
+
 - `docs/superpowers/specs/2026-09-18-rule-package-import-design.md` — G2-R3 JSON RulePack import and activation design.
 - `docs/superpowers/plans/2026-09-18-g2-r3-rule-package-import.md` — G2-R3 implementation plan.
 

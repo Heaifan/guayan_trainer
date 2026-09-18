@@ -39,9 +39,8 @@ void main() {
     await tester.tap(find.text('测试规则'));
     await tester.pumpAndSettle();
 
-    expect(find.text('测试：白虎道路'), findsNothing);
-    expect(find.textContaining('测试：'), findsOneWidget);
-    expect(find.textContaining('Unsupported portable rule schema'), findsNothing);
+    expect(find.text('无法测试规则'), findsOneWidget);
+    expect(find.textContaining('暂无测试卦例'), findsOneWidget);
   });
 
   testWidgets('result token opens result choices', (tester) async {

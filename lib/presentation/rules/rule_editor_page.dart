@@ -30,6 +30,9 @@ import '../../domain/rules/templates/template_invocation.dart';
 import '../../domain/rules/facts/rule_value.dart';
 import '../../domain/rules/topics/exam/exam_rule_corpus.dart';
 import '../../domain/rules/facts/fact_snapshot.dart';
+import '../../domain/hexagram_case.dart';
+import '../../domain/casting/casting_engine.dart';
+import '../../domain/rules/facts/canonical_fact_snapshot_builder.dart';
 import 'rule_test_result_page.dart';
 
 class RuleEditorPage extends StatefulWidget {
@@ -38,10 +41,12 @@ class RuleEditorPage extends StatefulWidget {
     required this.service,
     this.initialRule,
     this.isCopy = false,
+    this.testCase,
   });
   final CustomRuleService service;
   final RuleDefinition? initialRule;
   final bool isCopy;
+  final HexagramCase? testCase;
   @override
   State<RuleEditorPage> createState() => _RuleEditorPageState();
 }
@@ -776,12 +781,37 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
   }
 
   void _testRule() {
+    final hexagramCase = widget.testCase;
+    if (hexagramCase == null) {
+      showDialog<void>(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text('无法测试规则'),
+          content: Text('暂无测试卦例，请先选择或创建一个卦例。'),
+        ),
+      );
+      return;
+    }
+    late final FactSnapshot snapshot;
+    try {
+      snapshot = CanonicalFactSnapshotBuilder.build(hexagramCase);
+    } catch (error) {
+      showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('测试卦例数据不完整'),
+          content: Text('$error'),
+        ),
+      );
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => RuleTestResultPage(
           rule: _definition,
-          snapshot: FactSnapshot.build(const []),
+          snapshot: snapshot,
+          testCase: hexagramCase,
         ),
       ),
     );
@@ -887,8 +917,10 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
                 icon: const Icon(Icons.auto_awesome),
                 label: const Text('新建神煞'),
               ),
-            ],
+          ],
           ),
+          const SizedBox(height: 12),
+          _TestCaseSummary(testCase: widget.testCase),
           const SizedBox(height: 16),
         ],
       ),
@@ -916,6 +948,34 @@ class _RuleEditorPageState extends State<RuleEditorPage> {
       ),
     );
   }
+}
+
+class _TestCaseSummary extends StatelessWidget {
+  const _TestCaseSummary({required this.testCase});
+
+  final HexagramCase? testCase;
+
+  @override
+  Widget build(BuildContext context) {
+    if (testCase == null) {
+      return const ListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text('测试卦例'),
+        subtitle: Text('请选择测试卦例'),
+      );
+    }
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: const Text('测试卦例'),
+      subtitle: Text(
+        '${_hexagramName(testCase!)}\n${testCase!.createdAt.toLocal().toString().split('.').first}\n只读，不会修改正式卦例或 RuleRun',
+      ),
+    );
+  }
+
+  String _hexagramName(HexagramCase value) => CastingEngine.cast([
+        for (final line in value.lines) line.movementType,
+      ]).original.name;
 }
 
 class _VisualLine extends StatelessWidget {
