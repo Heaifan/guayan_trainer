@@ -51,27 +51,35 @@ void main() {
       );
     });
 
-    test('静爻不能主动作用动爻或静爻，但仍可作为 target', () {
+    test('静爻之间保留五行事实，但不得升级为实际作用', () {
       final result = resolveRelationResult(buildR4Case(withMoving: false));
-      final suppressed = result.suppressed;
 
+      final ordinaryFacts = result.entries.where(
+        (e) =>
+            e.relation.type == RelationType.sheng ||
+            e.relation.type == RelationType.ke,
+      );
+
+      // 乙口径：静爻之间的五行生克仍属于事实账本，供学习、解释和规则匹配。
+      expect(ordinaryFacts, isNotEmpty);
+
+      // 但静爻没有主动作用资格，因此这些事实不能进入有效作用集合，
+      // 更不能成为审卦页关系曲线的数据源。
       expect(
-        suppressed.where(
+        ordinaryFacts.every(
+          (e) =>
+              !e.effective &&
+              e.reason == RelationResolutionReason.staticSource,
+        ),
+        isTrue,
+      );
+      expect(
+        result.effective.where(
           (e) =>
               e.relation.type == RelationType.sheng ||
               e.relation.type == RelationType.ke,
         ),
-        isNotEmpty,
-      );
-      expect(
-        suppressed
-            .where(
-              (e) =>
-                  e.relation.type == RelationType.sheng ||
-                  e.relation.type == RelationType.ke,
-            )
-            .every((e) => e.reason == RelationResolutionReason.staticSource),
-        isTrue,
+        isEmpty,
       );
     });
 
