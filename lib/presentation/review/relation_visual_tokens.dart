@@ -22,6 +22,7 @@ abstract final class RelationVisualTokens {
   static const opacityDeemphasized = 0.20;
   static const backHookStroke = 1.80;
   static const backHookArrowSize = 5.00;
+  static const safePadding = 5.0;
 
   static Color colorFor(RelationType type) => switch (type) {
     RelationType.sheng ||
@@ -32,7 +33,7 @@ abstract final class RelationVisualTokens {
     RelationType.dayControl => const Color(0xFFD9342B),
     RelationType.liuChong => const Color(0xFFF57C00),
     RelationType.liuHe => const Color(0xFF1565C0),
-    RelationType.huiTouSheng => const Color(0xFF2864C7),
+    RelationType.huiTouSheng => const Color(0xFF119E57),
     RelationType.huiTouKe => const Color(0xFFD9342B),
     RelationType.flyingGeneratesHidden ||
     RelationType.hiddenGeneratesFlying ||

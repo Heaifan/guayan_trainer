@@ -26,7 +26,7 @@ void main() {
     );
     expect(
       RelationVisualTokens.colorFor(RelationType.huiTouSheng),
-      const Color(0xFF2864C7),
+      const Color(0xFF119E57),
     );
     expect(
       RelationVisualTokens.colorFor(RelationType.huiTouKe),
