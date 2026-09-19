@@ -4,7 +4,6 @@ import 'package:guayan_trainer/domain/line_state.dart';
 import 'package:guayan_trainer/domain/relation_calculator.dart';
 import 'package:guayan_trainer/domain/relation_endpoint.dart';
 import 'package:guayan_trainer/domain/relation_resolution.dart';
-import 'package:guayan_trainer/domain/relation_resolution_model.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
 
 void main() {
