@@ -145,6 +145,35 @@ void main() {
       }
     });
 
+    test('已入卦月日六合动爻形成合绊，动爻停止普通向外生克', () {
+      final result = resolveRelationResult(_calendarLiuHeMovingCase());
+
+      for (final position in [1, 2]) {
+        expect(
+          result.effective.any(
+            (e) =>
+                e.relation.type == RelationType.liuHe &&
+                e.relation.target ==
+                    YaoEndpoint(LineScope.original, position) &&
+                (e.relation.source is MonthEndpoint ||
+                    e.relation.source is DayEndpoint),
+          ),
+          isTrue,
+        );
+        expect(
+          result.suppressed.any(
+            (e) =>
+                e.relation.source ==
+                    YaoEndpoint(LineScope.original, position) &&
+                (e.relation.type == RelationType.sheng ||
+                    e.relation.type == RelationType.ke) &&
+                e.reason == RelationResolutionReason.calendarCombinedSource,
+          ),
+          isTrue,
+        );
+      }
+    });
+
     test('静爻之间保留五行事实，但不得升级为实际作用', () {
       final result = resolveRelationResult(buildR4Case(withMoving: false));
 
@@ -397,6 +426,24 @@ HexagramCase _movingLiuHeCase() => HexagramCase(
     LineState(position: 3, movementType: MovementType.shaoYang, branch: '寅'),
     LineState(position: 4, movementType: MovementType.shaoYin, branch: '午'),
     LineState(position: 5, movementType: MovementType.shaoYang, branch: '申'),
+    LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
+  ],
+);
+
+
+HexagramCase _calendarLiuHeMovingCase() => HexagramCase(
+  id: 'calendar-liuhe-moving',
+  question: '月日合绊动爻',
+  createdAt: DateTime(2026, 9, 20),
+  calendar: const CalendarSnapshot(monthBranch: '子', dayGanZhi: '甲寅'),
+  lines: [
+    // 丑动与月子六合；亥动与日寅六合。
+    LineState(position: 1, movementType: MovementType.laoYang, branch: '丑'),
+    LineState(position: 2, movementType: MovementType.laoYin, branch: '亥'),
+    // 子、寅明现，使月建与日建都满足本轮“入卦后取得作用资格”的门槛。
+    LineState(position: 3, movementType: MovementType.shaoYang, branch: '子'),
+    LineState(position: 4, movementType: MovementType.shaoYin, branch: '寅'),
+    LineState(position: 5, movementType: MovementType.shaoYang, branch: '午'),
     LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
   ],
 );
