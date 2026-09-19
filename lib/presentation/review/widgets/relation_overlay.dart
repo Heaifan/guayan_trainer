@@ -8,11 +8,12 @@ import '../relation_geometry.dart';
 import '../relation_label_placer.dart';
 import '../relation_debug_painter.dart';
 import '../relation_render_plan.dart';
+import '../relation_route_cache.dart';
 import '../relation_visual_tokens.dart';
 import '../return_relation_glyph.dart';
 import '../review_relation_filter.dart';
 
-class RelationOverlay extends StatelessWidget {
+class RelationOverlay extends StatefulWidget {
   const RelationOverlay({
     super.key,
     required this.records,
@@ -75,18 +76,30 @@ class RelationOverlay extends StatelessWidget {
   );
 
   @override
+  State<RelationOverlay> createState() => _RelationOverlayState();
+}
+
+class _RelationOverlayState extends State<RelationOverlay> {
+  final _cache = RelationRouteCache();
+
+  @override
   Widget build(BuildContext context) => Positioned.fill(
     child: IgnorePointer(
-      ignoring: onRelationTap == null,
+      ignoring: widget.onRelationTap == null,
       child: CustomPaint(
         painter: _RelationPainter(
-          records: visibleRecords(records, focus: focus, category: category),
-          selectedId: selectedId,
-          anchorKeys: anchorKeys,
-          rowKeys: rowKeys,
-          obstacleKeys: obstacleKeys,
+          records: RelationOverlay.visibleRecords(
+            widget.records,
+            focus: widget.focus,
+            category: widget.category,
+          ),
+          selectedId: widget.selectedId,
+          anchorKeys: widget.anchorKeys,
+          rowKeys: widget.rowKeys,
+          obstacleKeys: widget.obstacleKeys,
           context: context,
-          debugMode: debugMode,
+          debugMode: widget.debugMode,
+          cache: _cache,
         ),
       ),
     ),
@@ -102,6 +115,7 @@ class _RelationPainter extends CustomPainter {
     required this.obstacleKeys,
     required this.context,
     required this.debugMode,
+    required this.cache,
   });
 
   final List<RelationRecord> records;
@@ -111,6 +125,7 @@ class _RelationPainter extends CustomPainter {
   final Map<String, GlobalKey> obstacleKeys;
   final BuildContext context;
   final bool debugMode;
+  final RelationRouteCache cache;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -119,11 +134,18 @@ class _RelationPainter extends CustomPainter {
       ...anchorBounds,
       ..._collect(obstacleKeys),
     };
-    final plan = RelationOverlay.planForBounds(
+    final key = RelationRouteCacheKey(_fingerprint(
+      records,
+      obstacleBounds,
+      anchorBounds,
+      size,
+    ));
+    final plan = cache.resolve(key, () => RelationOverlay.planForBounds(
       records: records,
       bounds: obstacleBounds,
       anchorBounds: anchorBounds,
       viewportSize: size,
+      )
     );
     for (var i = 0; i < plan.routes.length; i++) {
       final record = plan.records[i];
@@ -146,6 +168,19 @@ class _RelationPainter extends CustomPainter {
     }
     if (debugMode) _drawDebug(canvas, size, anchorBounds, obstacleBounds, plan);
   }
+
+  String _fingerprint(
+    List<RelationRecord> records,
+    Map<String, Rect> obstacles,
+    Map<String, Rect> anchors,
+    Size size,
+  ) => [
+    size.width,
+    size.height,
+    for (final record in records) record.id,
+    for (final entry in obstacles.entries) '${entry.key}:${entry.value}',
+    for (final entry in anchors.entries) '${entry.key}:${entry.value}',
+  ].join('|');
 
   Map<String, Rect> _collect(Map<String, GlobalKey> keys) {
     final result = <String, Rect>{};

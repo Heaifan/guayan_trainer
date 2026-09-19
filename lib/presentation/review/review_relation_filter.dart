@@ -12,7 +12,7 @@ List<RelationRecord> filterReviewRelationRecords(
   for (final record in records)
     if (record.kind == RelationKind.relation &&
         record.relationType != null &&
-        record.relationType != RelationType.dongBian &&
+        _isReviewRendererType(record.relationType!) &&
         (focus == null || record.participants.contains(focus)) &&
         _matchesCategory(record, category))
       record,
@@ -25,3 +25,11 @@ bool _matchesCategory(RelationRecord record, String category) {
   if (category == '特殊') return model.isSpecial;
   return record.category == category;
 }
+
+bool _isReviewRendererType(RelationType type) => switch (type) {
+  RelationType.sheng ||
+  RelationType.ke ||
+  RelationType.huiTouSheng ||
+  RelationType.huiTouKe => true,
+  _ => false,
+};

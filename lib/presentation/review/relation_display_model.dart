@@ -56,13 +56,27 @@ List<RelationDisplayModel> buildRelationDisplayModels(
 bool _isVisibleType(RelationType type) => type != RelationType.dongBian;
 
 Map<String, int> relationFilterCounts(Iterable<RelationRecord> records) {
-  final models = buildRelationDisplayModels(records);
+  final models = buildRelationDisplayModels(
+    records.where(
+      (record) =>
+          record.relationType != null &&
+          _isReviewRendererType(record.relationType!),
+    ),
+  );
   return {
     '全部': models.length,
     '生克': models.where((model) => model.isOrdinaryWuxing).length,
     '特殊': models.where((model) => model.isSpecial).length,
   };
 }
+
+bool _isReviewRendererType(RelationType type) => switch (type) {
+  RelationType.sheng ||
+  RelationType.ke ||
+  RelationType.huiTouSheng ||
+  RelationType.huiTouKe => true,
+  _ => false,
+};
 
 String _category(RelationType type) => switch (type) {
   RelationType.sheng || RelationType.ke => '生克',

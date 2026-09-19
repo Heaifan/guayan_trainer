@@ -46,13 +46,13 @@ void main() {
       );
       expect(
         filterReviewRelationRecords(records, category: '特殊'),
-        hasLength(6),
+        hasLength(2),
       );
 
       final counts = relationFilterCounts(records);
-      expect(counts['全部'], 8);
+      expect(counts['全部'], 4);
       expect(counts['生克'], 2);
-      expect(counts['特殊'], 6);
+      expect(counts['特殊'], 2);
     },
   );
 
@@ -61,7 +61,7 @@ void main() {
     final models = buildRelationDisplayModels(withMovingTransform);
 
     expect(models.any((model) => model.type == RelationType.dongBian), isFalse);
-    expect(relationFilterCounts(withMovingTransform)['全部'], 8);
+    expect(relationFilterCounts(withMovingTransform)['全部'], 4);
   });
 }
 
