@@ -71,6 +71,8 @@ String? _suppressionFor(
     return null;
   }
   final position = candidate.candidateSourcePosition!;
+  // 普通五行事实可以完整保留在候选账本中，但静爻没有主动作用资格。
+  // 因此这里只压制“实际作用”，不删除事实本身。
   if (!activeOriginalPositions.contains(position) &&
       (candidate.relation.type == RelationType.sheng ||
           candidate.relation.type == RelationType.ke)) {
