@@ -17,12 +17,17 @@
 - Every node exposes eight anchors derived from real layout bounds; no fixed endpoint selection.
 - Every visible board element is a hard obstacle inflated by the centralized 5dp safe-padding token.
 - No Bezier, giant C/U detour, fixed text-width estimate, or Widget-side wuxing calculation.
+- Register every actually visible board element with a real RenderBox bound as a Hard Obstacle; when uncertain, register it rather than omit it.
+- A router with no legal candidate returns `NoRoute` and draws nothing; it never falls back to an illegal or guessed path.
+- Route and label processing uses stable Relation identity ordering; repeated calculation of the same input produces an identical `RelationRenderPlan`.
 - Pure logic Dart files remain under 150 lines; oversized Widget pages are allowed by `AGENTS.md`.
 - Update `file-tree.md` for every file addition/deletion/responsibility change.
 
 ## Review Focus
 
 - Missing RenderBox during the first frame must produce no route, not guessed coordinates — test overlay geometry collection with incomplete keys in Task 5.
+- Every visible board element, including all fushen/main/changed text, nayin, yao bodies, X/O, Shi/Ying and state text, must be registered as an obstacle — test complete bound registration in Task 5.
+- No legal route must produce `NoRoute` and no drawing — test the hard failure in Task 3.
 - A relation label must become an obstacle before the next relation is routed — test sequential label placement in Task 4.
 - A same-position moving relation with no wuxing relation must not create a return glyph — test projection and glyph filtering in Task 1 and Task 3.
 - Selection and repaint must not invoke routing again — test cache counters in Task 6.
@@ -91,7 +96,7 @@
 - [ ] **Step 1: Write failing router tests** for the three-earth-to-six-water Golden Case, HV/VH candidate generation, obstacle rejection, endpoint preservation, no cubic segments, no giant C/U outer detour, and shortest legal route selection.
 - [ ] **Step 2: Run router tests and confirm they fail because the new router is absent.**
 - [ ] **Step 3: Implement candidate generation and rounded-corner path construction** for HV, VH, H-V-H and V-H-V; reject any candidate intersecting hard obstacles; score legal candidates using length, bends, crossings, detour, and anchor-direction penalties.
-- [ ] **Step 4: Run router tests and verify the Golden Case reports source anchor, target anchor, obstacle count, bend count, and route length within assertions.**
+- [ ] **Step 4: Run router tests and verify the Golden Case reports source anchor, target anchor, obstacle count, bend count, and route length within assertions; verify all-illegal candidates return `NoRoute` and never draw.**
 - [ ] **Step 5: Write failing return-glyph tests** for mirrored HuiTouSheng/HuiTouKe local hooks, labels, arrow direction, same row, obstacle bounds, and no long-distance route.
 - [ ] **Step 6: Implement `ReturnRelationGlyph`** using local row geometry and obstacle checks; do not accept `dongBian` as a drawable type.
 - [ ] **Step 7: Run router and glyph tests plus relation visual protocol tests; commit `feat: replace review routes with orthogonal geometry`.**
@@ -130,7 +135,7 @@
 
 - [ ] **Step 1: Write failing widget tests** with real keys for main/changed/hidden/nayin/yao/shi-ying nodes; assert excluded relations render no route, four allowed labels render, and a missing first-frame RenderBox renders no guessed route.
 - [ ] **Step 2: Run the widget test and confirm the expected failure from the old overlay behavior/imports.**
-- [ ] **Step 3: Add keys/Bounds registration to every visible board element** and pass a unified `Map<String, GlobalKey>`/row map into the overlay; collect RenderBox bounds after layout in overlay coordinates.
+- [ ] **Step 3: Add keys/Bounds registration to every actually visible board element** — fushen six-relative/branch/wuxing/nayin, main and changed six-relative/branch/wuxing/nayin, yin/yang yao body, X/O, Shi/Ying and every visible state/status label — and pass a unified `Map<String, GlobalKey>`/row map into the overlay; collect RenderBox bounds after layout in overlay coordinates. If a visible element has no relation, it is still registered as an obstacle.
 - [ ] **Step 4: Implement the new overlay painter**: projection filter → obstacle map → anchors → route/glyph → label placement → debug layer. Keep relation taps and selection opacity-only.
 - [ ] **Step 5: Run the widget tests and verify all visible board elements are treated as hard obstacles and no old route APIs remain.**
 - [ ] **Step 6: Run review page tests and commit `feat: connect the rebuilt relation renderer to review`.**
@@ -151,7 +156,7 @@
 - [ ] **Step 1: Write failing cache tests** for first calculation, cache hit on repaint, cache hit on selection, and invalidation on Bounds/effective-set/size/visibility changes.
 - [ ] **Step 2: Run tests and observe the missing cache failure.**
 - [ ] **Step 3: Implement immutable fingerprinted cache and route-plan storage; separate `shouldRepaint` selection changes from route-plan invalidation.**
-- [ ] **Step 4: Run cache tests and verify repaint Route Calculation count remains zero on hits.**
+- [ ] **Step 4: Run cache tests and verify repaint Route Calculation count remains zero on hits; calculate the same input repeatedly and assert byte-for-byte-equivalent route/label plans.**
 - [ ] **Step 5: Simplify toolbar statistics** to `全部 N / 生克 N / 特殊 N`, counting only the four renderer types and leaving other Domain records available to the relation page.
 - [ ] **Step 6: Run cache, toolbar, review-page and relation-page tests; commit `perf: cache review relation routes`.**
 
@@ -164,7 +169,7 @@
 - Create: `docs/reports/2026-09-19-guayan-r5-relation-rebuild-r1.md`
 
 - [ ] **Step 1: Update `file-tree.md`** with all new/deleted files, responsibilities, version/update log and current system time.
-- [ ] **Step 2: Write the completion report** with old deletion list, relation-page regression result, Domain Candidate/Effective/Reason for 三爻土 → 六爻水, Golden Route anchors/obstacles/bends/length, four relation test evidence, obstacle/relation counts, first-route/cache-hit counts, verification commands and git state.
+- [ ] **Step 2: Write the completion report** with old deletion list, relation-page regression result, Domain Candidate/Effective/Reason for 三爻土 → 六爻水, Golden Route anchors/obstacles/bends/length, four relation test evidence, obstacle count, projected relation count, initial render-plan calculation duration, cache hit count, selection-triggered route calculation count (0), verification commands and git state.
 - [ ] **Step 3: Run `flutter analyze`, all targeted Domain/geometry/router/review/relation-page tests, and `flutter test`; read exit codes and failures.**
 - [ ] **Step 4: Run `git diff --check` and `flutter build apk --release`; record exact outputs in the report.
 - [ ] **Step 5: Commit `feat: rebuild review relation renderer r1` only after all gates pass; inspect `git status`, `git log`, remote and ahead/behind.
