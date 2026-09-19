@@ -11,7 +11,7 @@ import 'domain_test_utils.dart';
 
 void main() {
   group('FIX7 · 作用资格结算', () {
-    test('变爻金可以同时克木、生水，不在同位回头检查后提前返回', () {
+    test('变爻先判本位回头生克；无回头关系时才可外放到原卦动静爻', () {
       final result = resolveRelationResult(_changedMetalCase());
       final effective = result.effective.map((entry) => entry.relation);
 
@@ -37,6 +37,37 @@ void main() {
           ),
         ),
       );
+      expect(
+        effective.where(
+          (relation) =>
+              relation.source == YaoEndpoint(LineScope.changed, 1) &&
+              relation.target is YaoEndpoint &&
+              (relation.target as YaoEndpoint).scope == LineScope.changed,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('一旦构成回头生或回头克，变爻不得再外放生克其他原卦爻', () {
+      final result = resolveRelationResult(buildR4Case());
+      final effective = result.effective.map((entry) => entry.relation).toList();
+
+      for (final returnRelation in effective.where(
+        (relation) =>
+            relation.type == RelationType.huiTouSheng ||
+            relation.type == RelationType.huiTouKe,
+      )) {
+        final source = returnRelation.source;
+        expect(
+          effective.where(
+            (relation) =>
+                relation.source == source &&
+                (relation.type == RelationType.sheng ||
+                    relation.type == RelationType.ke),
+          ),
+          isEmpty,
+        );
+      }
     });
 
     test('月日可以作用多个目标，并且可以作用静爻', () {
