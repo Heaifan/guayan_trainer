@@ -31,6 +31,9 @@ RelationResolutionResult resolveRelationCandidates(
           candidate.relation.target is YaoEndpoint)
         (candidate.relation.target as YaoEndpoint).position,
   };
+  // 关系与状态分层：空、破、墓、绝、合等状态不得反向删除
+  // 已经成立的生克事实。状态只负责追加修正/解释；是否能主动发力，
+  // 仍由来源自身的作用资格单独裁决。
   final entries = <RelationResolutionEntry>[];
   final states = <RelationDerivedState>[];
 
