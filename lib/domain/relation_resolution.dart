@@ -78,6 +78,9 @@ String? _suppressionFor(
           candidate.relation.type == RelationType.ke)) {
     return RelationResolutionReason.staticSource;
   }
+  // 原动爻也必须先接受本位回头关系裁决：
+  // - 被回头克：失去普通主动生克资格；
+  // - 被回头生：不压制，仍可继续生克其他合法目标。
   if (returnOvercomePositions.contains(position) &&
       (candidate.relation.type == RelationType.sheng ||
           candidate.relation.type == RelationType.ke)) {
