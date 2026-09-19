@@ -15,6 +15,10 @@ import '../relation_type.dart';
 import 'rule_support.dart';
 
 /// 六冲 / 六合关系（对称，端点为本卦两支）。
+///
+/// 本层只记录“地支存在六合/六冲”的客观关系，不直接推出合住/合绊。
+/// 特别是“静爻 + 动爻”形成六合时，静爻没有主动作用资格，不能仅凭
+/// 这条六合事实把动爻合住、取消动爻对其他爻的主动生克资格。
 List<RelationInstance> chongHeRelations(HexagramCase c) {
   final out = <RelationInstance>[];
   final lines = c.lines;
