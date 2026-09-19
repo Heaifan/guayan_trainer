@@ -5,6 +5,10 @@
 /// 回头生  变爻 -> 本爻，变爻五行生本爻五行
 /// 回头克  变爻 -> 本爻，变爻五行克本爻五行
 /// ```
+///
+/// 作用顺序：先判同位回头生克；若成立，变爻不再外放。
+/// 若同位既不回头生也不回头克，变爻才可生克其他原卦动爻或静爻。
+/// 变爻之间永不相互作用。
 /// 端点方向取 `changed-p -> original-p`（与既有 RelationKey 文档样例一致）。
 ///
 /// 回头生 / 回头克需要**变爻地支**（[LineState.changedBranch]）。
@@ -33,14 +37,16 @@ List<RelationInstance> changedLineRelations(HexagramCase c) {
         target: changedYao(p),
       ),
     );
-    out.addAll(_changedLineWuxingRelations(c, line));
     final type = classifyBackRelation(
       original: line,
       changedPosition: p,
       changedBranch: line.changedBranch,
     );
-    if (type == null) continue;
-    out.add(_huiTou(c, p, type, _ruleIdFor(type)));
+    if (type != null) {
+      out.add(_huiTou(c, p, type, _ruleIdFor(type)));
+      continue;
+    }
+    out.addAll(_changedLineWuxingRelations(c, line));
   }
   return out;
 }
