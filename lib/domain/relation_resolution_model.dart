@@ -10,6 +10,7 @@ abstract final class RelationResolutionReason {
   static const effective = 'EFFECTIVE';
   static const staticSource = 'STATIC_SOURCE_CANNOT_ACT';
   static const returnOvercomeSource = 'RETURN_OVERCOME_SUPPRESSED_SOURCE';
+  static const movingPairCombinedSource = 'MOVING_PAIR_COMBINED_SOURCE';
 }
 
 class RelationCandidate {
