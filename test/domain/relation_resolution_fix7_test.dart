@@ -153,11 +153,22 @@ void main() {
         ),
         isTrue,
       );
+      // 回头克只取消“这个动爻主动向外作用”的资格，
+      // 绝不让它失去作为目标被月、日或其他合法来源作用的资格。
       expect(
         result.effective.any(
           (e) =>
               e.relation.target == YaoEndpoint(LineScope.original, 3) &&
               e.relation.source != YaoEndpoint(LineScope.original, 3),
+        ),
+        isTrue,
+      );
+      expect(
+        result.effective.any(
+          (e) =>
+              e.relation.target == YaoEndpoint(LineScope.original, 3) &&
+              (e.relation.source is MonthEndpoint ||
+                  e.relation.source is DayEndpoint),
         ),
         isTrue,
       );
