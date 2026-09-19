@@ -51,6 +51,20 @@ RelationResolutionResult resolveRelationCandidates(
       }
     }
   }
+  final calendarCombinedPositions = <int>{};
+  if (activeOriginalPositions != null) {
+    for (final candidate in list) {
+      if (candidate.relation.type != RelationType.liuHe) continue;
+      final source = candidate.relation.source;
+      final target = candidate.relation.target;
+      if ((source is MonthEndpoint || source is DayEndpoint) &&
+          target is YaoEndpoint &&
+          target.scope == LineScope.original &&
+          activeOriginalPositions.contains(target.position)) {
+        calendarCombinedPositions.add(target.position);
+      }
+    }
+  }
   // 关系与状态分层：空、破、墓、绝、合等状态不得反向删除
   // 已经成立的生克事实。状态只负责追加修正/解释；是否能主动发力，
   // 仍由来源自身的作用资格单独裁决。
@@ -63,6 +77,7 @@ RelationResolutionResult resolveRelationCandidates(
       activeOriginalPositions,
       returnOvercomePositions,
       movingPairCombinedPositions,
+      calendarCombinedPositions,
     );
     entries.add(
       RelationResolutionEntry(
@@ -89,6 +104,7 @@ String? _suppressionFor(
   Set<int>? activeOriginalPositions,
   Set<int> returnOvercomePositions,
   Set<int> movingPairCombinedPositions,
+  Set<int> calendarCombinedPositions,
 ) {
   if (activeOriginalPositions == null ||
       candidate.candidateSourcePosition == null ||
@@ -109,6 +125,13 @@ String? _suppressionFor(
       (candidate.relation.type == RelationType.sheng ||
           candidate.relation.type == RelationType.ke)) {
     return RelationResolutionReason.movingPairCombinedSource;
+  }
+  // 已取得作用资格的月建/日辰与动爻六合时形成合绊。
+  // 被合绊的动爻保留原有生克事实，但暂停主动向其他爻外放。
+  if (calendarCombinedPositions.contains(position) &&
+      (candidate.relation.type == RelationType.sheng ||
+          candidate.relation.type == RelationType.ke)) {
+    return RelationResolutionReason.calendarCombinedSource;
   }
   // 原动爻也必须先接受本位回头关系裁决：
   // - 被回头克：失去普通主动生克资格；
