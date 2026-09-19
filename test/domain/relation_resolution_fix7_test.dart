@@ -149,8 +149,15 @@ void main() {
       expect(fromMoving, contains(RelationType.ke));
     });
 
-    test('回头生保留原动爻主动资格，回头克抑制其主动生克', () {
-      final result = resolveRelationResult(buildR4Case());
+    test('回头生保留主动资格；回头克只压制自身外放，不妨碍月建继续作用它', () {
+      final result = resolveRelationResult(
+        buildR4Case(
+          calendar: const CalendarSnapshot(
+            monthBranch: '酉',
+            dayGanZhi: '甲子',
+          ),
+        ),
+      );
 
       expect(
         result.effective.any(
@@ -189,8 +196,7 @@ void main() {
         result.effective.any(
           (e) =>
               e.relation.target == YaoEndpoint(LineScope.original, 3) &&
-              (e.relation.source is MonthEndpoint ||
-                  e.relation.source is DayEndpoint),
+              e.relation.source is MonthEndpoint,
         ),
         isTrue,
       );
