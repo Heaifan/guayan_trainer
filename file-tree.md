@@ -1,19 +1,26 @@
 # GUAYAN Trainer file tree
 
-## GUAYAN-R5-FIX7.2 — 2026-09-19
+## GUAYAN-R5-RELATION-REBUILD-R1 — 2026-09-19
 
 | 文件/目录 | 职责 |
 | --- | --- |
-| `lib/domain/relation_rules/changed_lines.dart` | 变爻扫描其他本卦目标，产出多目标生克事实，同时保留回头生克判定 |
-| `lib/presentation/review/relation_route_path.dart` | 局部短路径策略；远距离关系才回退到外围路径 |
-| `lib/presentation/review/relation_route_layout.dart` | 复用 track/trunk 分组与同源分支偏移，为最小路径提供 lane 数据 |
-| `lib/presentation/review/relation_display_model.dart` | 将动变结构事实排除出可见关系集合 |
-| `lib/presentation/review/widgets/relation_overlay.dart` | 使用局部短路径、关系视觉线型与按选中状态放大的箭头 |
-| `test/domain/relation_resolution_fix7_test.dart` | 变金同时克木、生水与 Golden 候选结算回归 |
-| `test/presentation/review/relation_route_path_test.dart` | 相邻关系不得走外围大弧线 |
-| `test/presentation/review/relation_display_model_test.dart` | 动变不进入 UI 可见关系与实时计数 |
+| `lib/presentation/review/relation_render_plan.dart` | 以真实 Bounds、稳定 Relation ID 和四种关系生成确定性绘制计划 |
+| `lib/presentation/review/relation_geometry.dart` | 每个关系节点的 8 Anchor 与相对方向候选 |
+| `lib/presentation/review/relation_obstacle_map.dart` | 所有注册 Bounds 的安全边距、碰撞与路径判定 |
+| `lib/presentation/review/relation_orthogonal_router.dart` | 无非法 fallback 的圆角正交候选路由；无合法路径返回 NoRoute |
+| `lib/presentation/review/relation_label_placer.dart` | 基于真实 TextPainter Bounds 的关系标签避障 |
+| `lib/presentation/review/return_relation_glyph.dart` | 回生/回克同位局部回钩 |
+| `lib/presentation/review/relation_route_cache.dart` | Layout/关系输入不变时复用 RelationRenderPlan |
+| `lib/presentation/review/relation_debug_painter.dart` | Debug 模式绘制 Bounds、Anchor、Route 与 Label 边界 |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 收集真实挂盘 RenderBox Bounds 并绘制四种关系 |
+| `lib/presentation/review/review_relation_projection.dart` | EffectiveRelationSet 到审卦四种关系的纯投影 |
+| `test/domain/relation_wuxing_direction_test.dart` | 五组生、五组克与三爻土克六爻水 Golden Proof |
+| `test/presentation/review/relation_geometry_test.dart` | 8 Anchor、方向筛选与安全障碍协议 |
+| `test/presentation/review/relation_orthogonal_router_test.dart` | 正交路线、障碍淘汰、NoRoute 与短路径协议 |
+| `test/presentation/review/relation_route_cache_test.dart` | 首次计算、命中缓存与输入变化失效 |
+| `test/presentation/review/relation_overlay_test.dart` | 审卦只消费生/克/回生/回克并保持确定性 |
 
-- Last edited: 2026-09-19 09:34:12
+- Last edited: 2026-09-19 14:25:28
 
 ## GUAYAN-R5-FIX7-UI — 2026-09-18
 

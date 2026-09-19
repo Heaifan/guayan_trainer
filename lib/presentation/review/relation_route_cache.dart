@@ -19,6 +19,7 @@ class RelationRouteCache {
 
   int calculationCount = 0;
   int cacheHitCount = 0;
+  Duration? lastCalculationDuration;
 
   RelationRenderPlan resolve(
     RelationRouteCacheKey key,
@@ -30,7 +31,10 @@ class RelationRouteCache {
     }
     calculationCount++;
     _key = key;
+    final stopwatch = Stopwatch()..start();
     _plan = calculate();
+    stopwatch.stop();
+    lastCalculationDuration = stopwatch.elapsed;
     return _plan!;
   }
 
