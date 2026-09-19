@@ -55,6 +55,14 @@ void main() {
       expect(counts['特殊'], 6);
     },
   );
+
+  test('does not expose moving transform as a visible relation', () {
+    final withMovingTransform = [...records, _record(RelationType.dongBian)];
+    final models = buildRelationDisplayModels(withMovingTransform);
+
+    expect(models.any((model) => model.type == RelationType.dongBian), isFalse);
+    expect(relationFilterCounts(withMovingTransform)['全部'], 8);
+  });
 }
 
 RelationRecord _record(RelationType type) =>

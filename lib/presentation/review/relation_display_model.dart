@@ -49,8 +49,11 @@ List<RelationDisplayModel> buildRelationDisplayModels(
 ) => [
   for (final record in records)
     if (record.kind == RelationKind.relation && record.relationType != null)
+      if (_isVisibleType(record.relationType!))
       RelationDisplayModel.fromRecord(record),
 ];
+
+bool _isVisibleType(RelationType type) => type != RelationType.dongBian;
 
 Map<String, int> relationFilterCounts(Iterable<RelationRecord> records) {
   final models = buildRelationDisplayModels(records);

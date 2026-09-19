@@ -68,9 +68,8 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
     );
   }
 
-  int get _totalCount => widget.state.relationRecords
-      .where((record) => record.kind == RelationKind.relation)
-      .length;
+  int get _totalCount =>
+      relationFilterCounts(widget.state.relationRecords)['全部'] ?? 0;
 
   Map<String, int> get _counts =>
       relationFilterCounts(widget.state.relationRecords);

@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../../domain/relation_type.dart';
 
 abstract final class RelationVisualTokens {
-  static const strokeNormal = 1.15;
-  static const strokeFocused = 1.40;
-  static const arrowSize = 4.20;
+  static const strokeNormal = 2.0;
+  static const strokeFocused = 2.5;
+  static const arrowSize = 4.5;
+  static const arrowSizeFocused = 5.5;
   static const anchorRadius = 2.20;
   static const relationLabelFontSize = 9.0;
   static const relationLabelHeight = 16.0;

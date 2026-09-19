@@ -1,4 +1,5 @@
 import '../../domain/relation_endpoint.dart';
+import '../../domain/relation_type.dart';
 import '../../domain/relations/relation_record.dart';
 import 'relation_display_model.dart';
 
@@ -11,6 +12,7 @@ List<RelationRecord> filterReviewRelationRecords(
   for (final record in records)
     if (record.kind == RelationKind.relation &&
         record.relationType != null &&
+        record.relationType != RelationType.dongBian &&
         (focus == null || record.participants.contains(focus)) &&
         _matchesCategory(record, category))
       record,

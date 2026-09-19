@@ -1,5 +1,20 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-FIX7.2 — 2026-09-19
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/relation_rules/changed_lines.dart` | 变爻扫描其他本卦目标，产出多目标生克事实，同时保留回头生克判定 |
+| `lib/presentation/review/relation_route_path.dart` | 局部短路径策略；远距离关系才回退到外围路径 |
+| `lib/presentation/review/relation_route_layout.dart` | 复用 track/trunk 分组与同源分支偏移，为最小路径提供 lane 数据 |
+| `lib/presentation/review/relation_display_model.dart` | 将动变结构事实排除出可见关系集合 |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 使用局部短路径、关系视觉线型与按选中状态放大的箭头 |
+| `test/domain/relation_resolution_fix7_test.dart` | 变金同时克木、生水与 Golden 候选结算回归 |
+| `test/presentation/review/relation_route_path_test.dart` | 相邻关系不得走外围大弧线 |
+| `test/presentation/review/relation_display_model_test.dart` | 动变不进入 UI 可见关系与实时计数 |
+
+- Last edited: 2026-09-19 09:34:12
+
 ## GUAYAN-R5-FIX7-UI — 2026-09-18
 
 | 文件/目录 | 职责 |

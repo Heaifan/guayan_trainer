@@ -29,7 +29,9 @@ void main() {
       'month-3',
     ]);
     expect(placements.map((item) => item.trunkGroup).toSet(), {'month'});
+    expect(placements.map((item) => item.trunkLane).toSet(), {0});
     expect(placements.map((item) => item.branchIndex), [0, 1, 2]);
+    expect(placements.map((item) => item.branchOffset), [-4.0, 0.0, 4.0]);
   });
 
   test('route families keep independent lanes with fixed spacing', () {

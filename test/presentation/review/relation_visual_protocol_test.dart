@@ -36,9 +36,10 @@ void main() {
       RelationVisualTokens.colorFor(RelationType.flyingOvercomesHidden),
       const Color(0xFF7B3FA1),
     );
-    expect(RelationVisualTokens.strokeNormal, 1.15);
-    expect(RelationVisualTokens.strokeFocused, 1.40);
-    expect(RelationVisualTokens.arrowSize, 4.20);
+    expect(RelationVisualTokens.strokeNormal, 2.0);
+    expect(RelationVisualTokens.strokeFocused, 2.5);
+    expect(RelationVisualTokens.arrowSize, 4.5);
+    expect(RelationVisualTokens.arrowSizeFocused, 5.5);
     expect(RelationVisualTokens.anchorRadius, 2.20);
     expect(RelationVisualTokens.opacityAll, 1.00);
     expect(RelationVisualTokens.opacityFocused, 1.00);

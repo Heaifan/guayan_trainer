@@ -5,6 +5,7 @@ import '../../../domain/relation_type.dart';
 import '../../../domain/relations/relation_record.dart';
 import '../back_relation_glyph.dart';
 import '../relation_route_layout.dart';
+import '../relation_route_path.dart';
 import '../relation_visual_tokens.dart';
 import '../review_relation_filter.dart';
 
@@ -125,18 +126,18 @@ class _Painter extends CustomPainter {
         ..strokeWidth = active
             ? RelationVisualTokens.strokeFocused
             : RelationVisualTokens.strokeNormal;
-      final path = _path(
-        from,
-        to,
-        route,
-        placement.trunkLane,
-        placement.branchOffset,
-        size,
+      final path = buildRelationRoutePath(
+        from: from,
+        to: to,
+        route: _routeKind(route),
+        trunkLane: placement.trunkLane,
+        branchOffset: placement.branchOffset,
+        viewportWidth: size.width,
       );
       _drawStyledPath(canvas, path, type, paint);
-      _drawPathArrow(canvas, path, paint.color, atEnd: true);
+      _drawPathArrow(canvas, path, paint.color, atEnd: true, active: active);
       if (RelationVisualTokens.isBidirectional(type)) {
-        _drawPathArrow(canvas, path, paint.color, atEnd: false);
+        _drawPathArrow(canvas, path, paint.color, atEnd: false, active: active);
       }
       if (active) {
         canvas.drawCircle(
@@ -312,48 +313,12 @@ class _Painter extends CustomPainter {
     );
   }
 
-  Path _path(
-    Offset from,
-    Offset to,
-    _Route route,
-    int trunkLane,
-    double branchOffset,
-    Size size,
-  ) {
-    final spacing = 12.0;
-    if (route == _Route.mainToChanged) {
-      final bow = branchOffset + trunkLane * 8.0;
-      return Path()
-        ..moveTo(from.dx, from.dy)
-        ..cubicTo(
-          from.dx + (to.dx - from.dx) * .34,
-          from.dy + bow,
-          from.dx + (to.dx - from.dx) * .66,
-          to.dy + bow,
-          to.dx,
-          to.dy,
-        );
-    }
-    final right = route == _Route.changedToChanged;
-    final gutter = math.min(110.0, 18.0 + trunkLane * spacing);
-    final outer = route == _Route.calendarToYao
-        ? (from.dx < to.dx ? 8.0 : size.width - 8.0)
-        : right
-        ? size.width - gutter
-        : gutter;
-    final sign = outer < from.dx ? -1.0 : 1.0;
-    final bend = math.max(28.0, (from.dy - to.dy).abs() * .28);
-    return Path()
-      ..moveTo(from.dx, from.dy)
-      ..cubicTo(
-        from.dx + sign * bend,
-        from.dy,
-        outer + sign * bend,
-        to.dy,
-        to.dx,
-        to.dy,
-      );
-  }
+  RelationRouteKind _routeKind(_Route route) => switch (route) {
+    _Route.mainToMain => RelationRouteKind.mainToMain,
+    _Route.mainToChanged => RelationRouteKind.mainToChanged,
+    _Route.changedToChanged => RelationRouteKind.changedToChanged,
+    _Route.calendarToYao => RelationRouteKind.calendarToYao,
+  };
 
   Offset _labelCenter(Path path, _Route route) {
     final metric = path.computeMetrics().first;
@@ -401,6 +366,7 @@ class _Painter extends CustomPainter {
     Path path,
     Color color, {
     required bool atEnd,
+    required bool active,
   }) {
     final metric = path.computeMetrics().first;
     final tangent = metric.getTangentForOffset(atEnd ? metric.length : 0);
@@ -408,20 +374,23 @@ class _Painter extends CustomPainter {
     final tip = tangent.position;
     final vector = atEnd ? tangent.vector : -tangent.vector;
     final angle = math.atan2(vector.dy, vector.dx);
+    final arrowSize = active
+        ? RelationVisualTokens.arrowSizeFocused
+        : RelationVisualTokens.arrowSize;
     final p = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
     final a =
         tip -
         Offset(
-          math.cos(angle - .55) * RelationVisualTokens.arrowSize,
-          math.sin(angle - .55) * RelationVisualTokens.arrowSize,
+          math.cos(angle - .55) * arrowSize,
+          math.sin(angle - .55) * arrowSize,
         );
     final b =
         tip -
         Offset(
-          math.cos(angle + .55) * RelationVisualTokens.arrowSize,
-          math.sin(angle + .55) * RelationVisualTokens.arrowSize,
+          math.cos(angle + .55) * arrowSize,
+          math.sin(angle + .55) * arrowSize,
         );
     canvas.drawPath(
       Path()

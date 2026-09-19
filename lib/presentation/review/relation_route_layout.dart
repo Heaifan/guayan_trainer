@@ -8,21 +8,26 @@ class RelationRoutePlacement {
     required this.id,
     required this.track,
     required this.lane,
+    required this.trunkLane,
     required this.trackOffset,
     required this.trunkGroup,
     required this.branchIndex,
+    required this.branchOffset,
   });
 
   final String id;
   final RelationRouteTrack track;
   final int lane;
+  final int trunkLane;
   final double trackOffset;
   final String trunkGroup;
   final int branchIndex;
+  final double branchOffset;
 }
 
 abstract final class RelationRouteLayout {
   static const laneSpacing = 16.0;
+  static const branchSpacing = 4.0;
 
   static List<RelationRoutePlacement> layout(Iterable<RelationRecord> records) {
     final ordered = records.where(_isDrawable).toList()
@@ -37,22 +42,38 @@ abstract final class RelationRouteLayout {
       });
     final lanes = <RelationRouteTrack, int>{};
     final branches = <String, int>{};
+    final groupCounts = <String, int>{};
+    final trunkLanes = <String, int>{};
+    for (final record in ordered) {
+      final group = _groupKey(record);
+      groupCounts[group] = (groupCounts[group] ?? 0) + 1;
+      if (!trunkLanes.containsKey(group)) {
+        final track = _track(record);
+        trunkLanes[group] = trunkLanes.keys
+            .where((key) => key.startsWith('${track.name}:'))
+            .length;
+      }
+    }
     return [
       for (final record in ordered)
         (() {
           final track = _track(record);
           final group = _group(record);
+          final groupKey = _groupKey(record);
           final branch = branches[group] ?? 0;
           branches[group] = branch + 1;
           final lane = lanes[track] ?? 0;
           lanes[track] = lane + 1;
+          final count = groupCounts[groupKey]!;
           return RelationRoutePlacement(
             id: record.id,
             track: track,
             lane: lane,
+            trunkLane: trunkLanes[groupKey]!,
             trackOffset: track.index * laneSpacing,
             trunkGroup: group,
             branchIndex: branch,
+            branchOffset: (branch - (count - 1) / 2) * branchSpacing,
           );
         })(),
     ];
@@ -80,4 +101,7 @@ abstract final class RelationRouteLayout {
   }
 
   static String _group(RelationRecord record) => record.fromRef!.semanticId;
+
+  static String _groupKey(RelationRecord record) =>
+      '${_track(record).name}:${_group(record)}';
 }

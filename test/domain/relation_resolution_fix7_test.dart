@@ -4,11 +4,41 @@ import 'package:guayan_trainer/domain/relation_endpoint.dart';
 import 'package:guayan_trainer/domain/relation_instance.dart';
 import 'package:guayan_trainer/domain/relation_resolution.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
+import 'package:guayan_trainer/domain/hexagram_case.dart';
+import 'package:guayan_trainer/domain/line_state.dart';
 
 import 'domain_test_utils.dart';
 
 void main() {
   group('FIX7 · 作用资格结算', () {
+    test('变爻金可以同时克木、生水，不在同位回头检查后提前返回', () {
+      final result = resolveRelationResult(_changedMetalCase());
+      final effective = result.effective.map((entry) => entry.relation);
+
+      expect(
+        effective,
+        contains(
+          predicate<RelationInstance>(
+            (relation) =>
+                relation.type == RelationType.ke &&
+                relation.source == YaoEndpoint(LineScope.changed, 1) &&
+                relation.target == YaoEndpoint(LineScope.original, 2),
+          ),
+        ),
+      );
+      expect(
+        effective,
+        contains(
+          predicate<RelationInstance>(
+            (relation) =>
+                relation.type == RelationType.sheng &&
+                relation.source == YaoEndpoint(LineScope.changed, 1) &&
+                relation.target == YaoEndpoint(LineScope.original, 3),
+          ),
+        ),
+      );
+    });
+
     test('月日可以作用多个目标，并且可以作用静爻', () {
       final result = resolveRelationResult(buildR4Case(withMoving: false));
       final effective = result.effective.map((e) => e.relation).toList();
@@ -98,9 +128,8 @@ void main() {
   group('FIX7 · 特殊关系身份与可解释性', () {
     test('Golden Case：Candidate → Effective / Suppressed 可逐条核对', () {
       final result = resolveRelationResult(buildR4Case());
-
-      expect(result.entries, hasLength(25));
-      expect(result.effective, hasLength(13));
+      expect(result.entries, hasLength(27));
+      expect(result.effective, hasLength(15));
       expect(result.suppressed, hasLength(12));
       expect(
         result.suppressed.where(
@@ -165,4 +194,34 @@ RelationInstance _special(RelationType type) => RelationInstance.from(
   ruleId: 'test.$type',
   source: YaoEndpoint(LineScope.original, 1),
   target: YaoEndpoint(LineScope.original, 2),
+);
+
+HexagramCase _changedMetalCase() => HexagramCase(
+  id: 'changed-metal-multi-target',
+  question: 'changed metal multi target',
+  createdAt: DateTime(2026, 9, 19),
+  lines: [
+    LineState(
+      position: 1,
+      movementType: MovementType.laoYang,
+      branch: '午',
+      changedBranch: '申',
+    ),
+    LineState(
+      position: 2,
+      movementType: MovementType.shaoYang,
+      branch: '寅',
+    ),
+    LineState(
+      position: 3,
+      movementType: MovementType.shaoYang,
+      branch: '子',
+    ),
+    for (var position = 4; position <= 6; position++)
+      LineState(
+        position: position,
+        movementType: MovementType.shaoYang,
+        branch: '辰',
+      ),
+  ],
 );

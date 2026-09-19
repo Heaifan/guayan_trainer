@@ -13,20 +13,24 @@ import 'domain_test_utils.dart';
 
 void main() {
   final all = calculateRelations(buildR4Case());
+  final originalWuxing = all.where(
+    (relation) =>
+        relation.source is YaoEndpoint &&
+        relation.target is YaoEndpoint &&
+        (relation.source as YaoEndpoint).scope == LineScope.original &&
+        (relation.target as YaoEndpoint).scope == LineScope.original &&
+        (relation.type == RelationType.sheng ||
+            relation.type == RelationType.ke),
+  );
 
   group('R4 · 五行事实关系（本卦六爻两两穷举）', () {
     test('C(6,2)=15 对中，除同五行一对外全部产出，共 14 条', () {
-      final total =
-          canonicalsOf(all, SystemRuleIds.sheng).length +
-          canonicalsOf(all, SystemRuleIds.ke).length;
+      final total = originalWuxing.length;
       expect(total, 14);
     });
 
     test('同五行的一对（辰土 / 丑土）不产生生克', () {
-      for (final c in [
-        ...canonicalsOf(all, SystemRuleIds.sheng),
-        ...canonicalsOf(all, SystemRuleIds.ke),
-      ]) {
+      for (final c in originalWuxing.map((relation) => relation.key.canonical)) {
         expect(
           c.contains('yao:original:2') && c.contains('yao:original:6'),
           isFalse,

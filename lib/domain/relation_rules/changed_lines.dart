@@ -33,6 +33,7 @@ List<RelationInstance> changedLineRelations(HexagramCase c) {
         target: changedYao(p),
       ),
     );
+    out.addAll(_changedLineWuxingRelations(c, line));
     final type = classifyBackRelation(
       original: line,
       changedPosition: p,
@@ -40,6 +41,38 @@ List<RelationInstance> changedLineRelations(HexagramCase c) {
     );
     if (type == null) continue;
     out.add(_huiTou(c, p, type, _ruleIdFor(type)));
+  }
+  return out;
+}
+
+List<RelationInstance> _changedLineWuxingRelations(
+  HexagramCase c,
+  LineState source,
+) {
+  final changed = zhiOf(source.changedBranch);
+  if (changed == null) return const [];
+  final out = <RelationInstance>[];
+  for (final target in c.lines) {
+    if (target.position == source.position) continue;
+    final targetZhi = zhiOf(target.branch);
+    if (targetZhi == null) continue;
+    final type = changed.wuXing.generates == targetZhi.wuXing
+        ? RelationType.sheng
+        : changed.wuXing.controls == targetZhi.wuXing
+        ? RelationType.ke
+        : null;
+    if (type == null) continue;
+    out.add(
+      systemRelation(
+        c: c,
+        type: type,
+        ruleId: type == RelationType.sheng
+            ? SystemRuleIds.sheng
+            : SystemRuleIds.ke,
+        source: changedYao(source.position),
+        target: originalYao(target.position),
+      ),
+    );
   }
   return out;
 }
