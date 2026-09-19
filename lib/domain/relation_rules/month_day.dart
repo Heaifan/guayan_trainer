@@ -81,6 +81,21 @@ void _effects(
 ) {
   if (ruler == null) return;
   final to = originalYao(position);
+
+  // 月建/日辰取得本层作用资格后，与主卦明爻六合同样属于真实作用。
+  // 若目标是动爻，结算层会据此派生“合绊”，压制该动爻继续向外发力。
+  if (ruler.he == target) {
+    out.add(
+      systemRelation(
+        c: c,
+        type: RelationType.liuHe,
+        ruleId: ruleId,
+        source: from,
+        target: to,
+      ),
+    );
+  }
+
   if (ruler.wuXing.generates == target.wuXing) {
     out.add(
       systemRelation(
