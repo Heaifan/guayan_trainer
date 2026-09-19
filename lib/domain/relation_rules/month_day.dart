@@ -24,33 +24,47 @@ import '../relation_type.dart';
 import 'rule_support.dart';
 
 /// 月建 / 日辰对六爻的基础作用关系。
+///
+/// “入卦”严格只看主卦六个明爻的 [LineState.branch]：
+/// 月支/日支与任一主卦明爻同支，才取得本层的主动生克资格。
+/// 变爻、伏神即使临月/临日，也不作为“月建入卦/日建入卦”的依据。
 List<RelationInstance> monthDayRelations(HexagramCase c) {
   final calendar = c.calendar;
   if (calendar == null) return const <RelationInstance>[];
   final out = <RelationInstance>[];
   final month = zhiOf(calendar.monthBranch);
   final day = zhiOf(calendar.dayBranch);
+  final originalBranches = {
+    for (final line in c.lines)
+      if (line.branch != null) line.branch,
+  };
+  final monthEntered = originalBranches.contains(calendar.monthBranch);
+  final dayEntered = originalBranches.contains(calendar.dayBranch);
   for (final line in c.lines) {
     final z = zhiOf(line.branch);
     if (z == null) continue;
-    _effects(
-      out,
-      c,
-      month,
-      const MonthEndpoint(),
-      SystemRuleIds.monthBranch,
-      z,
-      line.position,
-    );
-    _effects(
-      out,
-      c,
-      day,
-      const DayEndpoint(),
-      SystemRuleIds.dayBranch,
-      z,
-      line.position,
-    );
+    if (monthEntered) {
+      _effects(
+        out,
+        c,
+        month,
+        const MonthEndpoint(),
+        SystemRuleIds.monthBranch,
+        z,
+        line.position,
+      );
+    }
+    if (dayEntered) {
+      _effects(
+        out,
+        c,
+        day,
+        const DayEndpoint(),
+        SystemRuleIds.dayBranch,
+        z,
+        line.position,
+      );
+    }
   }
   return out;
 }
