@@ -128,6 +128,18 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
   late final _rowKeys = <int, GlobalKey>{
     for (var position = 1; position <= 6; position++) position: GlobalKey(),
   };
+  late final _obstacleKeys = <String, GlobalKey>{
+    for (var position = 1; position <= 6; position++) ...{
+      'six_spirit_slot_$position': GlobalKey(),
+      'hidden_slot_${position}_0': GlobalKey(),
+      'hidden_slot_${position}_1': GlobalKey(),
+      'main_hidden_slot_$position': GlobalKey(),
+      'opposite_hidden_slot_$position': GlobalKey(),
+      'main_line_cell_$position': GlobalKey(),
+      'moving_marker_$position': GlobalKey(),
+      'changed_line_cell_$position': GlobalKey(),
+    },
+  };
 
   void _onLineTap(int position) {
     if (_selectedPosition == position) {
@@ -261,6 +273,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                               onLineTap: _onLineTap,
                               anchorKeys: _anchorKeys,
                               rowKeys: _rowKeys,
+                              obstacleKeys: _obstacleKeys,
                             ),
                           ],
                         ),
@@ -268,6 +281,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                           records: widget.state.relationRecords,
                           anchorKeys: _anchorKeys,
                           rowKeys: _rowKeys,
+                          obstacleKeys: _obstacleKeys,
                           selectedId: _selectedRelationId,
                           category: _relationFilter,
                           focus: _selectedPosition == null

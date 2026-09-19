@@ -17,6 +17,7 @@ class ReviewHexagramResultTable extends StatelessWidget {
     this.onLineTap,
     this.anchorKeys = const {},
     this.rowKeys = const {},
+    this.obstacleKeys = const {},
   });
 
   final ReviewPageState state;
@@ -24,6 +25,7 @@ class ReviewHexagramResultTable extends StatelessWidget {
   final ValueChanged<int>? onLineTap;
   final Map<String, GlobalKey> anchorKeys;
   final Map<int, GlobalKey> rowKeys;
+  final Map<String, GlobalKey> obstacleKeys;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +54,7 @@ class ReviewHexagramResultTable extends StatelessWidget {
               changedAnchorKey:
                 anchorKeys['yao:changed:${state.displayLines[i].position}'],
               rowKey: rowKeys[state.displayLines[i].position],
+              obstacleKeys: obstacleKeys,
             ),
             if (i < state.displayLines.length - 1)
               Container(

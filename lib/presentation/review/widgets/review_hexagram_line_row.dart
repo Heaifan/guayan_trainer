@@ -30,6 +30,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
     this.mainAnchorKey,
     this.changedAnchorKey,
     this.rowKey,
+    this.obstacleKeys = const {},
   });
 
   final ReviewLineView line;
@@ -38,6 +39,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
   final GlobalKey? mainAnchorKey;
   final GlobalKey? changedAnchorKey;
   final GlobalKey? rowKey;
+  final Map<String, GlobalKey> obstacleKeys;
 
   static const double _designW = BoardColumnLayout.width;
   static const double _rowH = 44;
@@ -66,6 +68,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
             _spiritBaseline,
             width: BoardColumnLayout.sixSpiritWidth,
             slotKey: Key('six_spirit_slot_${line.position}'),
+            obstacleKey: obstacleKeys['six_spirit_slot_${line.position}'],
           ),
           if (line.hiddenSpirit1 != null || line.hiddenSpirit2 != null) ...[
             if (line.hiddenSpirit1 != null)
@@ -89,20 +92,24 @@ class ReviewHexagramLineRow extends StatelessWidget {
             _hiddenIdentity(
               BoardColumnLayout.primaryHiddenLeft + i * 44,
               line.hiddenSpiritFacts[i],
-              index: i,
-              key: Key('hidden_slot_${line.position}_$i'),
+                index: i,
+                key: Key('hidden_slot_${line.position}_$i'),
+                obstacleKey: obstacleKeys['hidden_slot_${line.position}_$i'],
             ),
           if (line.primaryHidden != null)
             _hiddenPalaceIdentity(
               BoardColumnLayout.primaryHiddenLeft,
               line.primaryHidden!,
               key: Key('main_hidden_slot_${line.position}'),
+              obstacleKey: obstacleKeys['main_hidden_slot_${line.position}'],
             ),
           if (line.oppositeHidden != null)
             _hiddenPalaceIdentity(
               BoardColumnLayout.oppositeHiddenLeft,
               line.oppositeHidden!,
               key: Key('opposite_hidden_slot_${line.position}'),
+              obstacleKey:
+                  obstacleKeys['opposite_hidden_slot_${line.position}'],
             ),
 
           // 主卦与变卦复用同一固定 Cell，避免弹性空白改变爻象位置。
@@ -111,7 +118,9 @@ class ReviewHexagramLineRow extends StatelessWidget {
             top: 0,
             child: SizedBox(
               key: mainAnchorKey,
-              child: HexagramLineCell(
+              child: KeyedSubtree(
+                key: obstacleKeys['main_line_cell_${line.position}'],
+                child: HexagramLineCell(
                 key: Key('main_line_cell_${line.position}'),
                 text: line.mainPrimary,
                 identity: line.identity,
@@ -126,6 +135,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 shiYingSlotKey: Key('main_shi_ying_slot_${line.position}'),
                 yaoSlotKey: Key('main_yao_slot_${line.position}'),
                 yaoKind: _mainYaoKind,
+                ),
               ),
             ),
           ),
@@ -136,10 +146,13 @@ class ReviewHexagramLineRow extends StatelessWidget {
               top: _yaoCenterY - MovingMarker.markerSize / 2,
               width: MovingMarker.markerSize,
               height: MovingMarker.markerSize,
+            child: KeyedSubtree(
+              key: obstacleKeys['moving_marker_${line.position}'],
               child: MovingMarker(
-                key: Key('moving_marker_${line.position}'),
-                isYin: line.movementType == MovementType.laoYang,
+              key: Key('moving_marker_${line.position}'),
+              isYin: line.movementType == MovementType.laoYang,
               ),
+            ),
             ),
 
           Positioned(
@@ -148,7 +161,9 @@ class ReviewHexagramLineRow extends StatelessWidget {
             top: 0,
             child: SizedBox(
               key: changedAnchorKey,
-              child: HexagramLineCell(
+              child: KeyedSubtree(
+                key: obstacleKeys['changed_line_cell_${line.position}'],
+                child: HexagramLineCell(
                 key: Key('changed_line_cell_${line.position}'),
                 text: line.changed?.primaryLabel ?? '',
                 identity: line.changed?.identity,
@@ -168,6 +183,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                     : line.changed!.isVoid
                     ? YaoKind.voidYao
                     : (line.changed!.isYang ? YaoKind.yang : YaoKind.yin),
+                ),
               ),
             ),
           ),
@@ -206,6 +222,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
     double? width,
     Key? textKey,
     Key? slotKey,
+    Key? obstacleKey,
   }) {
     return Positioned(
       key: slotKey,
@@ -213,13 +230,16 @@ class ReviewHexagramLineRow extends StatelessWidget {
       width: width,
       top: 0,
       bottom: 0,
-      child: Align(
-        // 有列宽封顶时左对齐（列左缘即文本起点），否则按内容自适应。
-        alignment: width == null ? Alignment.topCenter : Alignment.topLeft,
-        child: Baseline(
-          baseline: baseline,
-          baselineType: TextBaseline.alphabetic,
-          child: Text(text, key: textKey, maxLines: 1, style: style),
+      child: KeyedSubtree(
+        key: obstacleKey,
+        child: Align(
+          // 有列宽封顶时左对齐（列左缘即文本起点），否则按内容自适应。
+          alignment: width == null ? Alignment.topCenter : Alignment.topLeft,
+          child: Baseline(
+            baseline: baseline,
+            baselineType: TextBaseline.alphabetic,
+            child: Text(text, key: textKey, maxLines: 1, style: style),
+          ),
         ),
       ),
     );
@@ -230,6 +250,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
     FushenResult result, {
     required int index,
     Key? key,
+    Key? obstacleKey,
   }) {
     return Positioned(
       key: key,
@@ -237,7 +258,9 @@ class ReviewHexagramLineRow extends StatelessWidget {
       width: 42,
       top: 0,
       bottom: 0,
-      child: Column(
+      child: KeyedSubtree(
+        key: obstacleKey,
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -269,18 +292,26 @@ class ReviewHexagramLineRow extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }
 
-  Widget _hiddenPalaceIdentity(double left, HiddenPalaceLine line, {Key? key}) {
+  Widget _hiddenPalaceIdentity(
+    double left,
+    HiddenPalaceLine line, {
+    Key? key,
+    Key? obstacleKey,
+  }) {
     return Positioned(
       key: key,
       left: left,
       width: 42,
       top: 0,
       bottom: 0,
-      child: Column(
+      child: KeyedSubtree(
+        key: obstacleKey,
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -312,6 +343,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

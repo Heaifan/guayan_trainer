@@ -1,15 +1,16 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+
 import '../../../domain/relation_endpoint.dart';
 import '../../../domain/relation_type.dart';
 import '../../../domain/relations/relation_record.dart';
-import '../back_relation_glyph.dart';
-import '../relation_route_layout.dart';
-import '../relation_route_path.dart';
+import '../relation_geometry.dart';
+import '../relation_label_placer.dart';
+import '../relation_debug_painter.dart';
+import '../relation_render_plan.dart';
 import '../relation_visual_tokens.dart';
+import '../return_relation_glyph.dart';
 import '../review_relation_filter.dart';
-
-enum _Route { mainToMain, mainToChanged, changedToChanged, calendarToYao }
 
 class RelationOverlay extends StatelessWidget {
   const RelationOverlay({
@@ -20,176 +21,286 @@ class RelationOverlay extends StatelessWidget {
     this.onRelationTap,
     this.anchorKeys = const {},
     this.rowKeys = const {},
+    this.obstacleKeys = const {},
     this.category,
+    this.debugMode = false,
   });
+
   final List<RelationRecord> records;
   final RelationEndpoint? focus;
   final String? selectedId;
   final ValueChanged<String>? onRelationTap;
   final Map<String, GlobalKey> anchorKeys;
   final Map<int, GlobalKey> rowKeys;
+  final Map<String, GlobalKey> obstacleKeys;
   final String? category;
+  final bool debugMode;
+
   static List<RelationRecord> visibleRecords(
     Iterable<RelationRecord> records, {
     RelationEndpoint? focus,
     String? category,
   }) {
     if (focus == null) return const [];
-    final result = filterReviewRelationRecords(
+    return drawableRecords(filterReviewRelationRecords(
       records,
       focus: focus,
       category: category ?? '全部',
-    );
-    result.sort((a, b) => _rank(a) - _rank(b));
+    ));
+  }
+
+  static List<RelationRecord> drawableRecords(Iterable<RelationRecord> records) {
+    final result = records.where((record) {
+      final type = record.relationType;
+      return record.kind == RelationKind.relation &&
+          type != null &&
+          (type == RelationType.sheng ||
+              type == RelationType.ke ||
+              type == RelationType.huiTouSheng ||
+              type == RelationType.huiTouKe);
+    }).toList()..sort((a, b) => a.id.compareTo(b.id));
     return result;
   }
 
-  static int _rank(RelationRecord r) => r.fromRef is MonthEndpoint
-      ? 0
-      : r.fromRef is DayEndpoint
-      ? 1
-      : r.sourceKind == RelationSourceKind.user
-      ? 6
-      : r.fromRef is YaoEndpoint &&
-            (r.fromRef! as YaoEndpoint).scope == LineScope.changed
-      ? 5
-      : 4;
+  static RelationRenderPlan planForBounds({
+    required Iterable<RelationRecord> records,
+    required Map<String, Rect> bounds,
+    required Map<String, Rect> anchorBounds,
+    required Size viewportSize,
+  }) => RelationRenderPlanner.build(
+    records: drawableRecords(records),
+    bounds: bounds,
+    anchorBounds: anchorBounds,
+    viewportSize: viewportSize,
+  );
+
   @override
   Widget build(BuildContext context) => Positioned.fill(
     child: IgnorePointer(
       ignoring: onRelationTap == null,
       child: CustomPaint(
-        painter: _Painter(
-          visibleRecords(records, focus: focus, category: category),
-          selectedId,
-          anchorKeys,
-          rowKeys,
-          context,
+        painter: _RelationPainter(
+          records: visibleRecords(records, focus: focus, category: category),
+          selectedId: selectedId,
+          anchorKeys: anchorKeys,
+          rowKeys: rowKeys,
+          obstacleKeys: obstacleKeys,
+          context: context,
+          debugMode: debugMode,
         ),
       ),
     ),
   );
 }
 
-class _Painter extends CustomPainter {
-  const _Painter(
-    this.records,
-    this.selectedId,
-    this.anchorKeys,
-    this.rowKeys,
-    this.context,
-  );
+class _RelationPainter extends CustomPainter {
+  const _RelationPainter({
+    required this.records,
+    required this.selectedId,
+    required this.anchorKeys,
+    required this.rowKeys,
+    required this.obstacleKeys,
+    required this.context,
+    required this.debugMode,
+  });
+
   final List<RelationRecord> records;
   final String? selectedId;
   final Map<String, GlobalKey> anchorKeys;
   final Map<int, GlobalKey> rowKeys;
+  final Map<String, GlobalKey> obstacleKeys;
   final BuildContext context;
+  final bool debugMode;
+
   @override
   void paint(Canvas canvas, Size size) {
-    for (final r in records.where(_isBackRelation)) {
-      _drawBackHook(canvas, r);
-    }
-    final backPositions = records
-        .where(_isBackRelation)
-        .map(_originalPosition)
-        .whereType<int>()
-        .toSet();
-    final placements = {
-      for (final placement in RelationRouteLayout.layout(
-        records.where(
-          (record) =>
-              !_isBackRelation(record) &&
-              !_isMovingRelationAt(record, backPositions),
-        ),
-      ))
-        placement.id: placement,
+    final anchorBounds = _collect(anchorKeys);
+    final obstacleBounds = <String, Rect>{
+      ...anchorBounds,
+      ..._collect(obstacleKeys),
     };
-    for (final r in records) {
-      if (_isBackRelation(r) || _isMovingRelationAt(r, backPositions)) continue;
-      final type = r.relationType!;
-      final route = _route(r);
-      final placement = placements[r.id];
-      if (placement == null) continue;
-      final slotOffset = placement.branchOffset;
-      final from = _anchor(r.fromRef!, route, slotOffset);
-      final to = _anchor(r.toRef!, route, -slotOffset);
-      if (from == null || to == null) continue;
-      final active = selectedId == r.id;
-      final color = RelationVisualTokens.colorFor(type);
+    final plan = RelationOverlay.planForBounds(
+      records: records,
+      bounds: obstacleBounds,
+      anchorBounds: anchorBounds,
+      viewportSize: size,
+    );
+    for (var i = 0; i < plan.routes.length; i++) {
+      final record = plan.records[i];
+      final active = selectedId == record.id;
+      final color = RelationVisualTokens.colorFor(record.relationType!);
       final paint = Paint()
-        ..color = color.withValues(
-          alpha: active
-              ? RelationVisualTokens.opacityFocused
-              : RelationVisualTokens.opacityAll,
-        )
+        ..color = color.withValues(alpha: active ? 1 : .82)
         ..style = PaintingStyle.stroke
         ..strokeWidth = active
             ? RelationVisualTokens.strokeFocused
-            : RelationVisualTokens.strokeNormal;
-      final path = buildRelationRoutePath(
-        from: from,
-        to: to,
-        route: _routeKind(route),
-        trunkLane: placement.trunkLane,
-        branchOffset: placement.branchOffset,
-        viewportWidth: size.width,
-      );
-      _drawStyledPath(canvas, path, type, paint);
-      _drawPathArrow(canvas, path, paint.color, atEnd: true, active: active);
-      if (RelationVisualTokens.isBidirectional(type)) {
-        _drawPathArrow(canvas, path, paint.color, atEnd: false, active: active);
-      }
-      if (active) {
-        canvas.drawCircle(
-          from,
-          RelationVisualTokens.anchorRadius,
-          Paint()..color = color,
-        );
-        canvas.drawCircle(
-          to,
-          RelationVisualTokens.anchorRadius,
-          Paint()..color = color,
-        );
-      }
-      _label(canvas, type.displayName, _labelCenter(path, route), paint.color);
+            : RelationVisualTokens.strokeNormal
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+      canvas.drawPath(plan.routes[i].path, paint);
+      _drawArrow(canvas, plan.routes[i].path, color);
+      _drawLabel(canvas, plan.labels[i], color);
     }
+    for (final record in records.where(_isReturn)) {
+      _drawReturn(canvas, record, anchorBounds);
+    }
+    if (debugMode) _drawDebug(canvas, size, anchorBounds, obstacleBounds, plan);
   }
 
-  void _drawStyledPath(
-    Canvas canvas,
-    Path path,
-    RelationType type,
-    Paint paint,
-  ) {
+  Map<String, Rect> _collect(Map<String, GlobalKey> keys) {
+    final result = <String, Rect>{};
+    for (final entry in keys.entries) {
+      final rect = _rect(entry.value);
+      if (rect != null) result[entry.key] = rect;
+    }
+    return result;
+  }
+
+  Rect? _rect(GlobalKey key) {
+    final box = key.currentContext?.findRenderObject() as RenderBox?;
+    final overlay = context.findRenderObject() as RenderBox?;
+    if (box == null || overlay == null || !box.hasSize) return null;
+    final topLeft = overlay.globalToLocal(box.localToGlobal(Offset.zero));
+    return topLeft & box.size;
+  }
+
+  void _drawArrow(Canvas canvas, Path path, Color color) {
     final metric = path.computeMetrics().first;
-    if (type == RelationType.liuChong || RelationVisualTokens.isDashed(type)) {
-      for (var distance = 0.0; distance < metric.length; distance += 10) {
-        canvas.drawPath(
-          metric.extractPath(distance, math.min(distance + 5, metric.length)),
-          paint,
-        );
-      }
-      return;
-    }
-    if (RelationVisualTokens.isDotted(type)) {
-      for (var distance = 0.0; distance < metric.length; distance += 7) {
-        final tangent = metric.getTangentForOffset(distance);
-        if (tangent != null) canvas.drawCircle(tangent.position, 1.15, paint);
-      }
-      return;
-    }
-    canvas.drawPath(path, paint);
+    final tangent = metric.getTangentForOffset(metric.length);
+    if (tangent == null) return;
+    final tip = tangent.position;
+    final angle = math.atan2(tangent.vector.dy, tangent.vector.dx);
+    final arrowSize = RelationVisualTokens.arrowSizeFocused;
+    final arrow = Path()
+      ..moveTo(tip.dx, tip.dy)
+      ..lineTo(tip.dx - math.cos(angle - .55) * arrowSize,
+          tip.dy - math.sin(angle - .55) * arrowSize)
+      ..lineTo(tip.dx - math.cos(angle + .55) * arrowSize,
+          tip.dy - math.sin(angle + .55) * arrowSize)
+      ..close();
+    canvas.drawPath(arrow, Paint()..color = color);
   }
 
-  bool _isBackRelation(RelationRecord record) =>
-      record.relationType != null &&
-      RelationVisualTokens.isBackRelation(record.relationType!);
+  void _drawLabel(Canvas canvas, PlacedRelationLabel label, Color color) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: label.text,
+        style: TextStyle(
+          color: color,
+          fontSize: RelationVisualTokens.relationLabelFontSize,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    painter.paint(canvas, label.center - Offset(painter.width / 2, painter.height / 2));
+  }
 
-  bool _isMovingRelationAt(RelationRecord record, Set<int> positions) =>
-      record.relationType == RelationType.dongBian &&
-      positions.contains(_originalPosition(record));
+  void _drawReturn(Canvas canvas, RelationRecord record, Map<String, Rect> bounds) {
+    final source = bounds[record.fromRef!.semanticId];
+    final target = bounds[record.toRef!.semanticId];
+    final position = _position(record);
+    final row = position == null ? null : _rect(rowKeys[position]!);
+    if (source == null || target == null || row == null) return;
+    final original = record.fromRef is YaoEndpoint &&
+            (record.fromRef! as YaoEndpoint).scope == LineScope.original
+        ? source
+        : target;
+    final changed = identical(original, source) ? target : source;
+    final geometry = ReturnRelationGlyph.layout(
+      rowRect: row,
+      originalRect: original,
+      changedRect: changed,
+      type: record.relationType!,
+    );
+    final color = RelationVisualTokens.colorFor(record.relationType!);
+    canvas.drawPath(
+      geometry.path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = RelationVisualTokens.strokeNormal
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawPath(geometry.arrow, Paint()..color = color);
+    final labelPainter = TextPainter(
+      text: TextSpan(
+        text: geometry.label,
+        style: TextStyle(
+          color: color,
+          fontSize: RelationVisualTokens.relationLabelFontSize,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    labelPainter.paint(
+      canvas,
+      Offset(
+        (original.center.dx + changed.center.dx - labelPainter.width) / 2,
+        row.top + 2,
+      ),
+    );
+  }
 
-  int? _originalPosition(RelationRecord record) {
+  void _drawDebug(
+    Canvas canvas,
+    Size size,
+    Map<String, Rect> anchors,
+    Map<String, Rect> obstacles,
+    RelationRenderPlan plan,
+  ) {
+    final data = RelationDebugPainter.data(
+      enabled: true,
+      nodeBounds: anchors,
+      anchorBounds: {
+        for (final entry in anchors.entries)
+          entry.key: RelationAnchors.fromRect(entry.value).all
+              .map((anchor) => anchor.point)
+              .toList(),
+      },
+      obstacleBounds: obstacles,
+      selectedAnchors: [
+        for (final route in plan.routes)
+          route.sourceAnchor.point,
+        for (final route in plan.routes)
+          route.targetAnchor.point,
+      ],
+      routeSegments: [for (final route in plan.routes) route.points],
+      labelBounds: [for (final label in plan.labels) label.bounds],
+    );
+    final nodePaint = Paint()
+      ..color = const Color(0xFF1565C0).withValues(alpha: .35)
+      ..style = PaintingStyle.stroke;
+    final obstaclePaint = Paint()
+      ..color = const Color(0xFFD9342B).withValues(alpha: .35)
+      ..style = PaintingStyle.stroke;
+    for (final rect in data.nodeBounds.values) {
+      canvas.drawRect(rect, nodePaint);
+    }
+    for (final rect in data.obstacleBounds.values) {
+      canvas.drawRect(rect.inflate(RelationVisualTokens.safePadding), obstaclePaint);
+    }
+    for (final points in data.routeSegments) {
+      final path = Path()..moveTo(points.first.dx, points.first.dy);
+      for (final point in points.skip(1)) {
+        path.lineTo(point.dx, point.dy);
+      }
+      canvas.drawPath(path, nodePaint);
+    }
+    for (final point in data.selectedAnchors) {
+      canvas.drawCircle(point, RelationVisualTokens.anchorRadius, obstaclePaint);
+    }
+    for (final rect in data.labelBounds) {
+      canvas.drawRect(rect, obstaclePaint);
+    }
+  }
+
+  bool _isReturn(RelationRecord record) =>
+      record.relationType == RelationType.huiTouSheng ||
+      record.relationType == RelationType.huiTouKe;
+
+  int? _position(RelationRecord record) {
     for (final endpoint in record.participants) {
       if (endpoint is YaoEndpoint && endpoint.scope == LineScope.original) {
         return endpoint.position;
@@ -198,211 +309,7 @@ class _Painter extends CustomPainter {
     return null;
   }
 
-  void _drawBackHook(Canvas canvas, RelationRecord record) {
-    final type = record.relationType!;
-    final from = _endpointRect(record.fromRef!);
-    final to = _endpointRect(record.toRef!);
-    if (from == null || to == null) return;
-    final original =
-        record.fromRef is YaoEndpoint &&
-            (record.fromRef! as YaoEndpoint).scope == LineScope.original
-        ? from
-        : to;
-    final changed = identical(original, from) ? to : from;
-    final position = _originalPosition(record);
-    final row = position == null ? null : _rowRect(position);
-    if (row == null) return;
-    final geometry = BackRelationGlyph.layout(
-      rowRect: row,
-      mainLineRect: original,
-      changedLineRect: changed,
-    );
-    final active = selectedId == record.id;
-    final color = RelationVisualTokens.colorFor(type);
-    final paint = Paint()
-      ..color = color.withValues(alpha: RelationVisualTokens.opacityAll)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = active
-          ? RelationVisualTokens.backHookStroke + .4
-          : RelationVisualTokens.backHookStroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final metric = geometry.path.computeMetrics().first;
-    for (var distance = 0.0; distance < metric.length; distance += 10) {
-      canvas.drawPath(
-        metric.extractPath(distance, math.min(distance + 5, metric.length)),
-        paint,
-      );
-    }
-    canvas.drawPath(geometry.arrow, Paint()..color = color);
-    if (active) {
-      canvas.drawCircle(
-        geometry.arrowTip,
-        RelationVisualTokens.anchorRadius,
-        Paint()..color = color,
-      );
-      canvas.drawCircle(
-        geometry.arrowBaseCenter,
-        RelationVisualTokens.anchorRadius,
-        Paint()..color = color,
-      );
-    }
-    _label(
-      canvas,
-      RelationVisualTokens.backHookLabel(type),
-      geometry.labelCenter,
-      color,
-      fontSize: 10,
-    );
-  }
-
-  Rect? _endpointRect(RelationEndpoint endpoint) {
-    final key = anchorKeys[endpoint.semanticId];
-    final box = key?.currentContext?.findRenderObject() as RenderBox?;
-    final overlay = context.findRenderObject() as RenderBox?;
-    if (box == null || overlay == null || !box.hasSize) return null;
-    final topLeft = overlay.globalToLocal(box.localToGlobal(Offset.zero));
-    return topLeft & box.size;
-  }
-
-  Rect? _rowRect(int position) {
-    final key = rowKeys[position];
-    final box = key?.currentContext?.findRenderObject() as RenderBox?;
-    final overlay = context.findRenderObject() as RenderBox?;
-    if (box == null || overlay == null || !box.hasSize) return null;
-    final topLeft = overlay.globalToLocal(box.localToGlobal(Offset.zero));
-    return topLeft & box.size;
-  }
-
-  _Route _route(RelationRecord r) {
-    final a = r.fromRef!;
-    final b = r.toRef!;
-    if (a is MonthEndpoint ||
-        a is DayEndpoint ||
-        b is MonthEndpoint ||
-        b is DayEndpoint) {
-      return _Route.calendarToYao;
-    }
-    final ac = a is YaoEndpoint && a.scope == LineScope.changed;
-    final bc = b is YaoEndpoint && b.scope == LineScope.changed;
-    if (ac && bc) return _Route.changedToChanged;
-    if (!ac && !bc) return _Route.mainToMain;
-    return _Route.mainToChanged;
-  }
-
-  Offset? _anchor(RelationEndpoint endpoint, _Route route, double slotOffset) {
-    final key = anchorKeys[endpoint.semanticId];
-    final box = key?.currentContext?.findRenderObject() as RenderBox?;
-    final overlay = context.findRenderObject() as RenderBox?;
-    if (box == null || overlay == null || !box.hasSize) return null;
-    final topLeft = overlay.globalToLocal(box.localToGlobal(Offset.zero));
-    final rect = topLeft & box.size;
-    if (endpoint is MonthEndpoint || endpoint is DayEndpoint) {
-      return rect.center + Offset(0, slotOffset);
-    }
-    final changed =
-        endpoint is YaoEndpoint && endpoint.scope == LineScope.changed;
-    final useLeft = route == _Route.mainToMain
-        ? true
-        : route == _Route.changedToChanged
-        ? false
-        : changed;
-    return Offset(
-      useLeft ? rect.left : rect.right,
-      rect.center.dy + slotOffset,
-    );
-  }
-
-  RelationRouteKind _routeKind(_Route route) => switch (route) {
-    _Route.mainToMain => RelationRouteKind.mainToMain,
-    _Route.mainToChanged => RelationRouteKind.mainToChanged,
-    _Route.changedToChanged => RelationRouteKind.changedToChanged,
-    _Route.calendarToYao => RelationRouteKind.calendarToYao,
-  };
-
-  Offset _labelCenter(Path path, _Route route) {
-    final metric = path.computeMetrics().first;
-    final tangent = metric.getTangentForOffset(metric.length * .5)!;
-    final normal = Offset(-tangent.vector.dy, tangent.vector.dx);
-    final direction = route == _Route.changedToChanged ? 1.0 : -1.0;
-    return tangent.position + normal * (10 * direction);
-  }
-
-  void _label(
-    Canvas canvas,
-    String text,
-    Offset center,
-    Color color, {
-    double fontSize = RelationVisualTokens.relationLabelFontSize,
-  }) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(
-          color: color,
-          fontSize: fontSize,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    final rect = Rect.fromCenter(
-      center: center,
-      width: tp.width + 12,
-      height: RelationVisualTokens.relationLabelHeight,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        rect,
-        const Radius.circular(RelationVisualTokens.relationLabelRadius),
-      ),
-      Paint()..color = const Color(0xFFFAF7F2).withValues(alpha: .08),
-    );
-    tp.paint(canvas, Offset(rect.left + 6, rect.top + 3));
-  }
-
-  void _drawPathArrow(
-    Canvas canvas,
-    Path path,
-    Color color, {
-    required bool atEnd,
-    required bool active,
-  }) {
-    final metric = path.computeMetrics().first;
-    final tangent = metric.getTangentForOffset(atEnd ? metric.length : 0);
-    if (tangent == null) return;
-    final tip = tangent.position;
-    final vector = atEnd ? tangent.vector : -tangent.vector;
-    final angle = math.atan2(vector.dy, vector.dx);
-    final arrowSize = active
-        ? RelationVisualTokens.arrowSizeFocused
-        : RelationVisualTokens.arrowSize;
-    final p = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    final a =
-        tip -
-        Offset(
-          math.cos(angle - .55) * arrowSize,
-          math.sin(angle - .55) * arrowSize,
-        );
-    final b =
-        tip -
-        Offset(
-          math.cos(angle + .55) * arrowSize,
-          math.sin(angle + .55) * arrowSize,
-        );
-    canvas.drawPath(
-      Path()
-        ..moveTo(tip.dx, tip.dy)
-        ..lineTo(a.dx, a.dy)
-        ..lineTo(b.dx, b.dy)
-        ..close(),
-      p,
-    );
-  }
-
   @override
-  bool shouldRepaint(covariant _Painter oldDelegate) =>
+  bool shouldRepaint(covariant _RelationPainter oldDelegate) =>
       oldDelegate.records != records || oldDelegate.selectedId != selectedId;
 }
