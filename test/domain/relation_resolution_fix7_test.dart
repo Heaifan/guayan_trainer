@@ -104,6 +104,47 @@ void main() {
       expect(effective.where((r) => r.source is DayEndpoint), isEmpty);
     });
 
+    test('两个动爻六合时双方互相合住，普通向外生克均被压制', () {
+      final result = resolveRelationResult(_movingLiuHeCase());
+
+      expect(
+        result.effective.any(
+          (e) =>
+              e.relation.type == RelationType.liuHe &&
+              {e.relation.source, e.relation.target}.containsAll({
+                YaoEndpoint(LineScope.original, 1),
+                YaoEndpoint(LineScope.original, 2),
+              }),
+        ),
+        isTrue,
+      );
+
+      for (final position in [1, 2]) {
+        expect(
+          result.suppressed.any(
+            (e) =>
+                e.relation.source ==
+                    YaoEndpoint(LineScope.original, position) &&
+                (e.relation.type == RelationType.sheng ||
+                    e.relation.type == RelationType.ke) &&
+                e.reason ==
+                    RelationResolutionReason.movingPairCombinedSource,
+          ),
+          isTrue,
+        );
+        expect(
+          result.effective.where(
+            (e) =>
+                e.relation.source ==
+                    YaoEndpoint(LineScope.original, position) &&
+                (e.relation.type == RelationType.sheng ||
+                    e.relation.type == RelationType.ke),
+          ),
+          isEmpty,
+        );
+      }
+    });
+
     test('静爻之间保留五行事实，但不得升级为实际作用', () {
       final result = resolveRelationResult(buildR4Case(withMoving: false));
 
@@ -340,6 +381,21 @@ HexagramCase _monthDayOnlyChangedCase() => HexagramCase(
     ),
     LineState(position: 3, movementType: MovementType.shaoYang, branch: '辰'),
     LineState(position: 4, movementType: MovementType.shaoYin, branch: '巳'),
+    LineState(position: 5, movementType: MovementType.shaoYang, branch: '申'),
+    LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
+  ],
+);
+
+
+HexagramCase _movingLiuHeCase() => HexagramCase(
+  id: 'moving-liuhe',
+  question: '动动六合',
+  createdAt: DateTime(2026, 9, 20),
+  lines: [
+    LineState(position: 1, movementType: MovementType.laoYang, branch: '子'),
+    LineState(position: 2, movementType: MovementType.laoYin, branch: '丑'),
+    LineState(position: 3, movementType: MovementType.shaoYang, branch: '寅'),
+    LineState(position: 4, movementType: MovementType.shaoYin, branch: '午'),
     LineState(position: 5, movementType: MovementType.shaoYang, branch: '申'),
     LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
   ],
