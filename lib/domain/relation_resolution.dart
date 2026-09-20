@@ -8,6 +8,7 @@ import 'di_zhi.dart';
 import 'hexagram_case.dart';
 import 'relation_calculator.dart';
 import 'relation_endpoint.dart';
+import 'relation_instance.dart';
 import 'relation_resolution_model.dart';
 import 'relation_type.dart';
 
@@ -40,6 +41,7 @@ RelationResolutionResult resolveRelationCandidates(
   if (activeOriginalPositions != null) {
     for (final candidate in list) {
       if (candidate.relation.type != RelationType.liuHe) continue;
+      if (_hasEmptyOriginalEndpoint(candidate.relation, emptyOriginalPositions)) continue;
       final source = candidate.relation.source;
       final target = candidate.relation.target;
       if (source is! YaoEndpoint ||
