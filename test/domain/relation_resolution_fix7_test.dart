@@ -174,6 +174,34 @@ void main() {
       }
     });
 
+    test('旬空参与六合只记空合，不形成合绊，也不压制动爻外放', () {
+      final result = resolveRelationResult(_emptyLiuHeMovingCase());
+
+      expect(
+        result.suppressed.any(
+          (e) =>
+              e.relation.type == RelationType.liuHe &&
+              e.reason == RelationResolutionReason.emptyCombination,
+        ),
+        isTrue,
+      );
+      expect(
+        result.suppressed.any(
+          (e) => e.reason == RelationResolutionReason.movingPairCombinedSource,
+        ),
+        isFalse,
+      );
+      expect(
+        result.effective.any(
+          (e) =>
+              e.relation.source == YaoEndpoint(LineScope.original, 1) &&
+              (e.relation.type == RelationType.sheng ||
+                  e.relation.type == RelationType.ke),
+        ),
+        isTrue,
+      );
+    });
+
     test('静爻之间保留五行事实，但不得升级为实际作用', () {
       final result = resolveRelationResult(buildR4Case(withMoving: false));
 
@@ -444,6 +472,22 @@ HexagramCase _calendarLiuHeMovingCase() => HexagramCase(
     LineState(position: 3, movementType: MovementType.shaoYang, branch: '子'),
     LineState(position: 4, movementType: MovementType.shaoYin, branch: '寅'),
     LineState(position: 5, movementType: MovementType.shaoYang, branch: '午'),
+    LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
+  ],
+);
+
+HexagramCase _emptyLiuHeMovingCase() => HexagramCase(
+  id: 'empty-liuhe-moving',
+  question: '空合不合绊',
+  createdAt: DateTime(2026, 9, 20),
+  // 甲子旬空戌亥；二爻亥空，与初爻寅六合。
+  calendar: const CalendarSnapshot(monthBranch: '辰', dayGanZhi: '甲子'),
+  lines: [
+    LineState(position: 1, movementType: MovementType.laoYang, branch: '寅'),
+    LineState(position: 2, movementType: MovementType.laoYin, branch: '亥'),
+    LineState(position: 3, movementType: MovementType.shaoYang, branch: '辰'),
+    LineState(position: 4, movementType: MovementType.shaoYin, branch: '午'),
+    LineState(position: 5, movementType: MovementType.shaoYang, branch: '申'),
     LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
   ],
 );
