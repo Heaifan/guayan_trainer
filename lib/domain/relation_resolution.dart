@@ -2,6 +2,9 @@ library;
 
 export 'relation_resolution_model.dart';
 
+import 'calendar/day/ganzhi_day.dart';
+import 'calendar/day/xun_kong.dart';
+import 'di_zhi.dart';
 import 'hexagram_case.dart';
 import 'relation_calculator.dart';
 import 'relation_endpoint.dart';
@@ -12,6 +15,7 @@ RelationResolutionResult resolveRelationResult(HexagramCase hexagramCase) {
   final facts = calculateRelations(hexagramCase);
   return resolveRelationCandidates(
     [for (final fact in facts) RelationCandidate.fromInstance(fact)],
+    emptyOriginalPositions: _emptyOriginalPositions(hexagramCase),
     activeOriginalPositions: {
       for (final line in hexagramCase.lines)
         if (line.movementType.isMoving) line.position,
@@ -22,6 +26,7 @@ RelationResolutionResult resolveRelationResult(HexagramCase hexagramCase) {
 RelationResolutionResult resolveRelationCandidates(
   Iterable<RelationCandidate> candidates, {
   Set<int>? activeOriginalPositions,
+  Set<int> emptyOriginalPositions = const {},
 }) {
   final list = candidates.toList(growable: false);
   final returnOvercomePositions = {
@@ -78,6 +83,7 @@ RelationResolutionResult resolveRelationCandidates(
       returnOvercomePositions,
       movingPairCombinedPositions,
       calendarCombinedPositions,
+      emptyOriginalPositions,
     );
     entries.add(
       RelationResolutionEntry(
@@ -105,6 +111,7 @@ String? _suppressionFor(
   Set<int> returnOvercomePositions,
   Set<int> movingPairCombinedPositions,
   Set<int> calendarCombinedPositions,
+  Set<int> emptyOriginalPositions,
 ) {
   if (activeOriginalPositions == null ||
       candidate.candidateSourcePosition == null ||
@@ -112,6 +119,12 @@ String? _suppressionFor(
     return null;
   }
   final position = candidate.candidateSourcePosition!;
+  // 合以双方真实参与为前提。旬空不删除六合事实，但空爻参与时
+  // 只能记为“空合”，不得升级成有效六合/合绊，也不得借此压制动爻。
+  if (candidate.relation.type == RelationType.liuHe &&
+      _hasEmptyOriginalEndpoint(candidate.relation, emptyOriginalPositions)) {
+    return RelationResolutionReason.emptyCombination;
+  }
   // 普通五行事实可以完整保留在候选账本中，但静爻没有主动作用资格。
   // 因此这里只压制“实际作用”，不删除事实本身。
   if (!activeOriginalPositions.contains(position) &&
@@ -181,4 +194,36 @@ extension on RelationCandidate {
     YaoEndpoint(:final position) => position,
     _ => null,
   };
+}
+
+Set<int> _emptyOriginalPositions(HexagramCase c) {
+  final calendar = c.calendar;
+  if (calendar == null) return const {};
+  final day = _ganZhiDayFromLabel(calendar.dayGanZhi);
+  if (day == null) return const {};
+  final kong = xunKongOf(day);
+  return {
+    for (final line in c.lines)
+      if (line.branch != null && kong.contains(DiZhi.fromLabel(line.branch!)))
+        line.position,
+  };
+}
+
+GanZhiDay? _ganZhiDayFromLabel(String label) {
+  for (var i = 0; i < 60; i++) {
+    final day = GanZhiDay.fromCycleIndex(i);
+    if (day.label == label) return day;
+  }
+  return null;
+}
+
+bool _hasEmptyOriginalEndpoint(
+  RelationInstance relation,
+  Set<int> emptyOriginalPositions,
+) {
+  bool isEmpty(RelationEndpoint endpoint) =>
+      endpoint is YaoEndpoint &&
+      endpoint.scope == LineScope.original &&
+      emptyOriginalPositions.contains(endpoint.position);
+  return isEmpty(relation.source) || isEmpty(relation.target);
 }
