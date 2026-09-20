@@ -62,6 +62,7 @@ RelationResolutionResult resolveRelationCandidates(
   if (activeOriginalPositions != null) {
     for (final candidate in list) {
       if (candidate.relation.type != RelationType.liuHe) continue;
+      if (_hasEmptyOriginalEndpoint(candidate.relation, emptyOriginalPositions)) continue;
       final source = candidate.relation.source;
       final target = candidate.relation.target;
       if ((source is MonthEndpoint || source is DayEndpoint) &&
