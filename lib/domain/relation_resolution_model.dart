@@ -12,6 +12,7 @@ abstract final class RelationResolutionReason {
   static const returnOvercomeSource = 'RETURN_OVERCOME_SUPPRESSED_SOURCE';
   static const movingPairCombinedSource = 'MOVING_PAIR_COMBINED_SOURCE';
   static const calendarCombinedSource = 'CALENDAR_COMBINED_SOURCE';
+  static const emptyCombination = 'EMPTY_COMBINATION';
 }
 
 class RelationCandidate {
