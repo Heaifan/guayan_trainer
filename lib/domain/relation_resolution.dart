@@ -116,18 +116,19 @@ String? _suppressionFor(
   Set<int> calendarCombinedPositions,
   Set<int> emptyOriginalPositions,
 ) {
+  // 合以双方真实参与为前提。旬空不删除六合事实，但空爻参与时
+  // 只能记为“空合”，不得升级成有效六合/合绊，也不得借此压制动爻。
+  // 此判断必须先于 sourceRole 过滤：月/日 -> 空爻的六合同样只能论空合。
+  if (candidate.relation.type == RelationType.liuHe &&
+      _hasEmptyOriginalEndpoint(candidate.relation, emptyOriginalPositions)) {
+    return RelationResolutionReason.emptyCombination;
+  }
   if (activeOriginalPositions == null ||
       candidate.candidateSourcePosition == null ||
       candidate.sourceRole != RelationSourceRole.original) {
     return null;
   }
   final position = candidate.candidateSourcePosition!;
-  // 合以双方真实参与为前提。旬空不删除六合事实，但空爻参与时
-  // 只能记为“空合”，不得升级成有效六合/合绊，也不得借此压制动爻。
-  if (candidate.relation.type == RelationType.liuHe &&
-      _hasEmptyOriginalEndpoint(candidate.relation, emptyOriginalPositions)) {
-    return RelationResolutionReason.emptyCombination;
-  }
   // 普通五行事实可以完整保留在候选账本中，但静爻没有主动作用资格。
   // 因此这里只压制“实际作用”，不删除事实本身。
   if (!activeOriginalPositions.contains(position) &&
