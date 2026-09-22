@@ -175,7 +175,7 @@ void main() {
     });
 
     test('空亡参与六合只记空合，不形成合绊，也不压制动爻外放', () {
-      final result = resolveRelationResult(_emptyLiuHeMovingCase());
+      final result = resolveRelationResult(_kongWangLiuHeMovingCase());
 
       expect(
         result.suppressed.any(
@@ -493,8 +493,8 @@ HexagramCase _calendarLiuHeMovingCase() => HexagramCase(
   ],
 );
 
-HexagramCase _emptyLiuHeMovingCase() => HexagramCase(
-  id: 'empty-liuhe-moving',
+HexagramCase _kongWangLiuHeMovingCase() => HexagramCase(
+  id: 'kong-wang-liuhe-moving',
   question: '空合不合绊',
   createdAt: DateTime(2026, 9, 20),
   // 甲子日所属旬空亡戌亥；二爻亥为空亡，与初爻寅六合。

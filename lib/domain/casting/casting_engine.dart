@@ -4,7 +4,7 @@
 ///
 /// 覆盖：八卦映射 / 六十四卦映射 / 动爻变化 / 本卦 / 变卦 /
 /// 纳甲（干支）/ 世应 / 六亲 / 六神。
-/// 四柱·月建·日辰·旬空需要干支历法，由 `gan_zhi_calendar.dart` 提供后接入。
+/// 四柱·月建·日辰·空亡需要干支历法，由 `gan_zhi_calendar.dart` 提供后接入。
 library;
 
 import '../line_state.dart';

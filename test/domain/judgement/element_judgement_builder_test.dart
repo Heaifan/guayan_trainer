@@ -132,7 +132,7 @@ void main() {
       isTrue,
     );
 
-    // 月、日是历法基准对象，不进入旬空标签判定。
+    // 月、日是历法基准对象，不进入空亡标签判定。
     expect(
       snapshot.of(SemanticRef.month)!.hasState(JudgementTagIds.kongWang),
       isFalse,

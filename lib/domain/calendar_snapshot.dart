@@ -11,7 +11,7 @@
 ///
 /// 只存 `dayGanZhi`（完整干支）而不是只存日支：日干还要供六神等后续能力使用，
 /// 既然是快照就不要只截取当前恰好要用的半个字段。
-/// 旬空**不重复存** —— 它可由 `dayGanZhi` 确定性推导。
+/// 空亡**不重复存** —— 它可由 `dayGanZhi` 确定性推导。
 library;
 
 import 'shensha/shensha_models.dart';
