@@ -142,7 +142,9 @@ class ReviewCaseAdapter {
     final changedProfile = chart.changed == null
         ? null
         : HexagramPalaceProfile.fromHexagram(chart.changed!);
-    final judgement = ElementJudgementBuilder.build(hexagramCase);
+    final judgement = ElementJudgementBuilder.build(
+      _canonicalJudgementCase(hexagramCase, chart),
+    );
     final lines = <ReviewLineView>[
       for (final line in hexagramCase.lines)
         _toLineView(
@@ -250,6 +252,35 @@ class ReviewCaseAdapter {
       focusSummary: profile?.focusSummaryOverride ?? buildFocusSummary(focused),
       rulePackId: ref?.ruleId,
       ruleVersion: ref?.version,
+    );
+  }
+
+  /// 状态判断必须使用与 Review 展示相同的排盘对象。
+  ///
+  /// [HexagramCase.lines] 是持久化的关系输入；[CastChart] 是本页的
+  /// canonical 展示输入。这里仅为状态投影建立统一输入，不改变关系计算
+  /// 所使用的原始卦例。
+  static HexagramCase _canonicalJudgementCase(
+    HexagramCase source,
+    CastChart chart,
+  ) {
+    return HexagramCase(
+      id: source.id,
+      question: source.question,
+      createdAt: source.createdAt,
+      ruleContext: source.ruleContext,
+      calendar: source.calendar,
+      category: source.category,
+      ruleRuns: source.ruleRuns,
+      lines: [
+        for (final line in source.lines)
+          LineState(
+            position: line.position,
+            movementType: line.movementType,
+            branch: chart.lineAt(line.position).branch.label,
+            changedBranch: chart.lineAt(line.position).changedBranch?.label,
+          ),
+      ],
     );
   }
 
