@@ -23,6 +23,11 @@ abstract final class JudgementTagIds {
 
   static const hidden = 'state.hidden';
   static const empty = 'state.empty';
+
+  static const chong = 'state.chong';
+  static const monthChong = 'state.month_chong';
+  static const dayChong = 'state.day_chong';
+  static const movingChong = 'state.moving_chong';
 }
 
 /// 单个卦盘对象的判定区。

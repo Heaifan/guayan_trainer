@@ -6,18 +6,24 @@ import '../casting/casting_engine.dart';
 import '../casting/fushen_engine.dart';
 import '../di_zhi.dart';
 import '../hexagram_case.dart';
+import '../line_state.dart';
 import '../rules/facts/semantic_ref.dart';
 import 'element_judgement.dart';
 
 /// 把 HexagramCase 投影成“对象 -> 判定区”快照。
 ///
-/// R2 在身份底座上追加旬空状态；仍不裁决冲合、生克或作用资格。
+/// R3 在身份/旬空底座上追加受冲事实；仍不裁决冲起、冲散、冲破合。
 class ElementJudgementBuilder {
   ElementJudgementBuilder._();
 
   static ElementJudgementSnapshot build(HexagramCase hexagramCase) {
     final elements = <ElementJudgement>[];
     final xunKong = _xunKongOf(hexagramCase);
+    final calendar = hexagramCase.calendar;
+    final movingLines = [
+      for (final line in hexagramCase.lines)
+        if (line.movementType.isMoving && line.branch != null) line,
+    ];
 
     for (final line in hexagramCase.lines) {
       elements.add(
@@ -32,7 +38,17 @@ class ElementJudgementBuilder {
                 ? JudgementTagIds.moving
                 : JudgementTagIds.still,
           },
-          stateTags: _emptyStateTags(line.branch, xunKong),
+          stateTags: {
+            ..._emptyStateTags(line.branch, xunKong),
+            ..._chongStateTags(
+              branch: line.branch,
+              monthBranch: calendar?.monthBranch,
+              dayBranch: calendar?.dayBranch,
+              movingLines: movingLines,
+              targetPosition: line.position,
+              includeMovingChong: true,
+            ),
+          },
           attributes: {
             'movementType': line.movementType.name,
             if (line.branch != null) 'branch': line.branch!,
@@ -48,7 +64,16 @@ class ElementJudgementBuilder {
             position: line.position,
             branch: line.changedBranch,
             identityTags: const {JudgementTagIds.changedLine},
-            stateTags: _emptyStateTags(line.changedBranch, xunKong),
+            stateTags: {
+              ..._emptyStateTags(line.changedBranch, xunKong),
+              ..._chongStateTags(
+                branch: line.changedBranch,
+                monthBranch: calendar?.monthBranch,
+                dayBranch: calendar?.dayBranch,
+                movingLines: const [],
+                includeMovingChong: false,
+              ),
+            },
             attributes: {
               'originPosition': line.position.toString(),
               'branch': line.changedBranch!,
@@ -58,7 +83,6 @@ class ElementJudgementBuilder {
       }
     }
 
-    final calendar = hexagramCase.calendar;
     if (calendar != null) {
       elements
         ..add(
@@ -98,6 +122,13 @@ class ElementJudgementBuilder {
           stateTags: {
             JudgementTagIds.hidden,
             ..._emptyStateTags(fushen.branch.label, xunKong),
+            ..._chongStateTags(
+              branch: fushen.branch.label,
+              monthBranch: calendar?.monthBranch,
+              dayBranch: calendar?.dayBranch,
+              movingLines: const [],
+              includeMovingChong: false,
+            ),
           },
           attributes: {
             'branch': fushen.branch.label,
@@ -117,6 +148,41 @@ class ElementJudgementBuilder {
     final zhi = DiZhi.tryFromLabel(branch);
     if (zhi == null || !xunKong.contains(zhi)) return const {};
     return const {JudgementTagIds.empty};
+  }
+
+  static Set<String> _chongStateTags({
+    required String? branch,
+    required String? monthBranch,
+    required String? dayBranch,
+    required List<LineState> movingLines,
+    int? targetPosition,
+    required bool includeMovingChong,
+  }) {
+    final target = branch == null ? null : DiZhi.tryFromLabel(branch);
+    if (target == null) return const {};
+
+    final tags = <String>{};
+    final month = monthBranch == null ? null : DiZhi.tryFromLabel(monthBranch);
+    final day = dayBranch == null ? null : DiZhi.tryFromLabel(dayBranch);
+
+    if (month != null && month.chong == target) {
+      tags.add(JudgementTagIds.monthChong);
+    }
+    if (day != null && day.chong == target) {
+      tags.add(JudgementTagIds.dayChong);
+    }
+    if (includeMovingChong) {
+      for (final source in movingLines) {
+        if (source.position == targetPosition) continue;
+        final sourceBranch = DiZhi.tryFromLabel(source.branch!);
+        if (sourceBranch != null && sourceBranch.chong == target) {
+          tags.add(JudgementTagIds.movingChong);
+          break;
+        }
+      }
+    }
+    if (tags.isNotEmpty) tags.add(JudgementTagIds.chong);
+    return tags;
   }
 
   static XunKong? _xunKongOf(HexagramCase hexagramCase) {

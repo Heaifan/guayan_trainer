@@ -142,4 +142,59 @@ void main() {
       isFalse,
     );
   });
+  test('records month day and moving chong as independent state tags', () {
+    final lines = [
+      LineState(position: 1, movementType: MovementType.shaoYang, branch: '子'),
+      LineState(
+        position: 2,
+        movementType: MovementType.laoYang,
+        branch: '午',
+        changedBranch: '子',
+      ),
+      LineState(position: 3, movementType: MovementType.shaoYin, branch: '丑'),
+      LineState(position: 4, movementType: MovementType.shaoYang, branch: '寅'),
+      LineState(position: 5, movementType: MovementType.shaoYin, branch: '卯'),
+      LineState(position: 6, movementType: MovementType.shaoYang, branch: '辰'),
+    ];
+    final hexagramCase = HexagramCase(
+      id: 'judgement-chong-r3',
+      question: '受冲判定区测试',
+      lines: lines,
+      createdAt: DateTime(2026, 9, 22),
+      calendar: const CalendarSnapshot(
+        monthBranch: '午',
+        dayGanZhi: '甲午',
+      ),
+    );
+
+    final snapshot = ElementJudgementBuilder.build(hexagramCase);
+    final target = snapshot.of(SemanticRef.line(1))!;
+
+    expect(target.hasState(JudgementTagIds.monthChong), isTrue);
+    expect(target.hasState(JudgementTagIds.dayChong), isTrue);
+    expect(target.hasState(JudgementTagIds.movingChong), isTrue);
+    expect(target.hasState(JudgementTagIds.chong), isTrue);
+
+    // 动爻不以自己作为“动爻冲”的来源。
+    final movingSource = snapshot.of(SemanticRef.line(2))!;
+    expect(movingSource.hasState(JudgementTagIds.movingChong), isFalse);
+
+    // 变爻当前只记录月冲/日冲，不扩展“动爻 -> 变爻”的未冻结语义。
+    final changed = snapshot.of(SemanticRef.changedLine(2))!;
+    expect(changed.hasState(JudgementTagIds.monthChong), isTrue);
+    expect(changed.hasState(JudgementTagIds.dayChong), isTrue);
+    expect(changed.hasState(JudgementTagIds.movingChong), isFalse);
+    expect(changed.hasState(JudgementTagIds.chong), isTrue);
+
+    // 月、日是冲的历法来源，不给自身打“受冲”状态。
+    expect(
+      snapshot.of(SemanticRef.month)!.hasState(JudgementTagIds.chong),
+      isFalse,
+    );
+    expect(
+      snapshot.of(SemanticRef.day)!.hasState(JudgementTagIds.chong),
+      isFalse,
+    );
+  });
+
 }
