@@ -280,6 +280,13 @@ void main() {
         ),
         isTrue,
       );
+      // 回头生/回头克是关系事实与行为裁决，不再伪装成 DerivedState。
+      expect(
+        result.derivedStates.where(
+          (state) => state.name == '得助' || state.name == '受制',
+        ),
+        isEmpty,
+      );
       expect(
         result.effective.any(
           (e) =>

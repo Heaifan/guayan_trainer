@@ -2,6 +2,7 @@ library;
 
 export 'relation_resolution_model.dart';
 
+import 'action_resolution.dart';
 import 'calendar/day/ganzhi_day.dart';
 import 'calendar/day/xun_kong.dart';
 import 'di_zhi.dart';
@@ -30,13 +31,10 @@ RelationResolutionResult resolveRelationCandidates(
   Set<int> emptyOriginalPositions = const {},
 }) {
   final list = candidates.toList(growable: false);
-  final returnOvercomePositions = {
-    for (final candidate in list)
-      if (candidate.relation.type == RelationType.huiTouKe &&
-          candidate.relation.source is YaoEndpoint &&
-          candidate.relation.target is YaoEndpoint)
-        (candidate.relation.target as YaoEndpoint).position,
-  };
+  final returnActions = resolveReturnActionResolution([
+    for (final candidate in list) candidate.relation,
+  ]);
+  final returnOvercomePositions = returnActions.blockedOriginalPositions;
   final movingPairCombinedPositions = <int>{};
   if (activeOriginalPositions != null) {
     for (final candidate in list) {
@@ -150,9 +148,10 @@ String? _suppressionFor(
           candidate.relation.type == RelationType.ke)) {
     return RelationResolutionReason.calendarCombinedSource;
   }
-  // 原动爻也必须先接受本位回头关系裁决：
-  // - 被回头克：失去普通主动生克资格；
-  // - 被回头生：不压制，仍可继续生克其他合法目标。
+  // 回头生克本身属于关系事实；对主动行为资格的影响由
+  // ActionResolution 独立裁决：
+  // - 回头克：阻断普通主动生克；
+  // - 回头生：保留普通主动生克。
   if (returnOvercomePositions.contains(position) &&
       (candidate.relation.type == RelationType.sheng ||
           candidate.relation.type == RelationType.ke)) {
@@ -166,15 +165,7 @@ void _appendState(
   RelationCandidate candidate,
 ) {
   final type = candidate.relation.type;
-  if (type == RelationType.huiTouSheng) {
-    states.add(
-      RelationDerivedState(name: '得助', evidence: [candidate.relation]),
-    );
-  } else if (type == RelationType.huiTouKe) {
-    states.add(
-      RelationDerivedState(name: '受制', evidence: [candidate.relation]),
-    );
-  } else if (type == RelationType.hiddenOvercomesFlying) {
+  if (type == RelationType.hiddenOvercomesFlying) {
     states.add(
       RelationDerivedState(
         name: '飞神压制解除证据',
