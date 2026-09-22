@@ -482,7 +482,7 @@ HexagramCase _calendarLiuHeMovingCase() => HexagramCase(
   id: 'calendar-liuhe-moving',
   question: '月日合绊动爻',
   createdAt: DateTime(2026, 9, 20),
-  calendar: const CalendarSnapshot(monthBranch: '子', dayGanZhi: '甲寅'),
+  calendar: const CalendarSnapshot(monthBranch: '子', dayGanZhi: '戊寅'),
   lines: [
     // 丑动与月子六合；亥动与日寅六合。
     LineState(position: 1, movementType: MovementType.laoYang, branch: '丑'),
@@ -526,4 +526,3 @@ HexagramCase _kongWangMovingShengKeCase() => HexagramCase(
     LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
   ],
 );
-
