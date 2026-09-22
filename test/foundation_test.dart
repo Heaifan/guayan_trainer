@@ -6,6 +6,10 @@ import 'package:guayan_trainer/app/app.dart';
 import 'package:guayan_trainer/app/navigation/guayan_main_tab_bar.dart';
 import 'package:guayan_trainer/app/navigation/main_tabs.dart';
 import 'package:guayan_trainer/presentation/casting/casting_tokens.dart';
+import 'package:guayan_trainer/presentation/cases/cases_page.dart';
+import 'package:guayan_trainer/presentation/relations/relations_page.dart';
+import 'package:guayan_trainer/presentation/review/review_page.dart';
+import 'package:guayan_trainer/presentation/training/training_page.dart';
 
 /// 卦眼 2.0 App Shell + 排卦页 XYUI 工作台基础验收测试。
 ///
@@ -123,6 +127,25 @@ void main() {
   });
 
   group('状态保持（IndexedStack）', () {
+    testWidgets('未访问页面不在首帧构造，首次访问后出现', (tester) async {
+      await pumpApp(tester);
+
+      expect(find.byType(ReviewPage, skipOffstage: false), findsNothing);
+      expect(find.byType(RelationsPage, skipOffstage: false), findsNothing);
+      expect(find.byType(CasesPage, skipOffstage: false), findsNothing);
+      expect(find.byType(TrainingPage, skipOffstage: false), findsNothing);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(GuayanMainTabBar),
+          matching: find.text('卦例'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CasesPage), findsOneWidget);
+    });
+
     testWidgets('录入一爻后切走再切回不丢失', (tester) async {
       await pumpApp(tester);
 

@@ -30,7 +30,7 @@ import '../../domain/rules/packages/rule_package_store.dart';
 /// 卦眼 2.0 应用壳。
 ///
 /// 持有唯一权威的底部导航状态 [AppShellState.selectedIndex]，
-/// 通过 IndexedStack 保持五个主页面在切换时不被销毁。
+/// 通过 IndexedStack 保持已访问主页面在切换时不被销毁；未访问页面延迟构造。
 /// 排卦页与审卦页自带 XYUI TopBar（无全局 AppBar）；其余页面沿用全局 AppBar。
 /// 排卦生成结果经 [AppShellState._latestCase] 桥接给审卦页（T12 数据接入）。
 class AppShell extends StatefulWidget {
@@ -45,6 +45,7 @@ class AppShell extends StatefulWidget {
 class AppShellState extends State<AppShell> {
   /// 底部导航唯一权威来源；默认进入排卦（Index 0）。
   int selectedIndex = 0;
+  final Set<int> _initializedTabs = {0};
 
   /// 最近一次排卦生成结果（排卦 → 审卦 数据桥接）。
   HexagramCase? _latestCase;
@@ -74,6 +75,7 @@ class AppShellState extends State<AppShell> {
   }
 
   void _openCase(CaseRecord record) {
+    _ensureTabInitialized(1);
     setState(() {
       _activeRecord = record;
       _latestCase = record.toHexagramCase();
@@ -99,60 +101,79 @@ class AppShellState extends State<AppShell> {
       body: IndexedStack(
         index: selectedIndex,
         children: [
-          CastingPage(
-            calendarService: widget.calendarService,
-            caseRepository: _caseRepository,
-            useDemoDraft: false,
-            onGenerated: (case_) {
-              setState(() {
-                _latestCase = case_;
-                _activeRecord = null;
-                selectedIndex = 1;
-              });
-              _caseRepository?.read(case_.id).then((record) {
-                if (mounted && record != null) {
-                  setState(() => _activeRecord = record);
-                }
-              });
-            },
-          ),
-          ReviewPage(
-            latestCase: _latestCase,
-            useDemoFallback: false,
-            shenShaNoteStore: _shenShaNoteStore,
-            relationAnnotationStore: _relationAnnotations,
-            onRecompute: _recomputeActiveCase,
-            onOpenRules: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => RuleLibraryPage(
-                  latestCase: _latestCase,
-                  caseRepository: _caseRepository,
-                ),
-              ),
-            ),
-            onOpenRelations: () => setState(() => selectedIndex = 2),
-          ),
-          RelationsPage(
-            latestCase: _latestCase,
-            annotationStore: _relationAnnotations,
-            manualStore: _manualRelations,
-          ),
-          CasesPage(
-            repository: _caseRepository,
-            onOpenCase: _openCase,
-            showAppBar: false,
-          ),
-          mainTabs[4].builder(context),
+          for (var i = 0; i < mainTabs.length; i++) _tabPage(context, i),
         ],
       ),
       bottomNavigationBar: GuayanMainTabBar(
         tabs: mainTabs,
         selectedIndex: selectedIndex,
         onSelect: (index) {
+          _ensureTabInitialized(index);
           setState(() => selectedIndex = index);
         },
       ),
     );
+  }
+
+  void _ensureTabInitialized(int index) {
+    _initializedTabs.add(index);
+  }
+
+  Widget _tabPage(BuildContext context, int index) {
+    if (!_initializedTabs.contains(index)) {
+      return SizedBox.shrink(key: ValueKey('uninitialized-tab-$index'));
+    }
+
+    return switch (index) {
+      0 => CastingPage(
+        calendarService: widget.calendarService,
+        caseRepository: _caseRepository,
+        useDemoDraft: false,
+        onGenerated: (case_) {
+          _ensureTabInitialized(1);
+          setState(() {
+            _latestCase = case_;
+            _activeRecord = null;
+            selectedIndex = 1;
+          });
+          _caseRepository?.read(case_.id).then((record) {
+            if (mounted && record != null) {
+              setState(() => _activeRecord = record);
+            }
+          });
+        },
+      ),
+      1 => ReviewPage(
+        latestCase: _latestCase,
+        useDemoFallback: false,
+        shenShaNoteStore: _shenShaNoteStore,
+        relationAnnotationStore: _relationAnnotations,
+        onRecompute: _recomputeActiveCase,
+        onOpenRules: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => RuleLibraryPage(
+              latestCase: _latestCase,
+              caseRepository: _caseRepository,
+            ),
+          ),
+        ),
+        onOpenRelations: () {
+          _ensureTabInitialized(2);
+          setState(() => selectedIndex = 2);
+        },
+      ),
+      2 => RelationsPage(
+        latestCase: _latestCase,
+        annotationStore: _relationAnnotations,
+        manualStore: _manualRelations,
+      ),
+      3 => CasesPage(
+        repository: _caseRepository,
+        onOpenCase: _openCase,
+        showAppBar: false,
+      ),
+      _ => mainTabs[4].builder(context),
+    };
   }
 
   Future<void> _recomputeActiveCase() async {
