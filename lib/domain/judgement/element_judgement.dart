@@ -11,7 +11,7 @@ enum JudgementElementKind {
   day,
 }
 
-/// 第一阶段冻结的标签 ID。后续状态/关系/资格只追加，不覆盖身份标签。
+/// 判定区标签 ID。后续状态/关系/资格只追加，不覆盖身份标签。
 abstract final class JudgementTagIds {
   static const originalLine = 'identity.original_line';
   static const changedLine = 'identity.changed_line';
@@ -22,6 +22,7 @@ abstract final class JudgementTagIds {
   static const still = 'identity.still';
 
   static const hidden = 'state.hidden';
+  static const empty = 'state.empty';
 }
 
 /// 单个卦盘对象的判定区。

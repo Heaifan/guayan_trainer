@@ -1,19 +1,23 @@
 library;
 
+import '../calendar/day/ganzhi_day.dart';
+import '../calendar/day/xun_kong.dart';
 import '../casting/casting_engine.dart';
 import '../casting/fushen_engine.dart';
+import '../di_zhi.dart';
 import '../hexagram_case.dart';
 import '../rules/facts/semantic_ref.dart';
 import 'element_judgement.dart';
 
 /// 把 HexagramCase 投影成“对象 -> 判定区”快照。
 ///
-/// R1 只建立身份与伏藏状态，不裁决旬空、冲合、生克或作用资格。
+/// R2 在身份底座上追加旬空状态；仍不裁决冲合、生克或作用资格。
 class ElementJudgementBuilder {
   ElementJudgementBuilder._();
 
   static ElementJudgementSnapshot build(HexagramCase hexagramCase) {
     final elements = <ElementJudgement>[];
+    final xunKong = _xunKongOf(hexagramCase);
 
     for (final line in hexagramCase.lines) {
       elements.add(
@@ -28,6 +32,7 @@ class ElementJudgementBuilder {
                 ? JudgementTagIds.moving
                 : JudgementTagIds.still,
           },
+          stateTags: _emptyStateTags(line.branch, xunKong),
           attributes: {
             'movementType': line.movementType.name,
             if (line.branch != null) 'branch': line.branch!,
@@ -43,6 +48,7 @@ class ElementJudgementBuilder {
             position: line.position,
             branch: line.changedBranch,
             identityTags: const {JudgementTagIds.changedLine},
+            stateTags: _emptyStateTags(line.changedBranch, xunKong),
             attributes: {
               'originPosition': line.position.toString(),
               'branch': line.changedBranch!,
@@ -89,7 +95,10 @@ class ElementJudgementBuilder {
           position: fushen.lineIndex,
           branch: fushen.branch.label,
           identityTags: const {JudgementTagIds.hiddenSpirit},
-          stateTags: const {JudgementTagIds.hidden},
+          stateTags: {
+            JudgementTagIds.hidden,
+            ..._emptyStateTags(fushen.branch.label, xunKong),
+          },
           attributes: {
             'branch': fushen.branch.label,
             'relative': fushen.relative.name,
@@ -101,5 +110,27 @@ class ElementJudgementBuilder {
     }
 
     return ElementJudgementSnapshot(elements);
+  }
+
+  static Set<String> _emptyStateTags(String? branch, XunKong? xunKong) {
+    if (branch == null || xunKong == null) return const {};
+    final zhi = DiZhi.tryFromLabel(branch);
+    if (zhi == null || !xunKong.contains(zhi)) return const {};
+    return const {JudgementTagIds.empty};
+  }
+
+  static XunKong? _xunKongOf(HexagramCase hexagramCase) {
+    final label = hexagramCase.calendar?.dayGanZhi;
+    if (label == null) return null;
+    final day = _ganZhiDayFromLabel(label);
+    return day == null ? null : xunKongOf(day);
+  }
+
+  static GanZhiDay? _ganZhiDayFromLabel(String label) {
+    for (var i = 0; i < 60; i++) {
+      final day = GanZhiDay.fromCycleIndex(i);
+      if (day.label == label) return day;
+    }
+    return null;
   }
 }
