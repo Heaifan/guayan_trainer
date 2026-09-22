@@ -116,6 +116,9 @@ class _ReviewWorkbench extends StatefulWidget {
 
 class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
   int? _selectedPosition;
+
+  int? get _effectiveFocusedPosition =>
+      _selectedPosition ?? widget.state.focusedLine;
   String? _selectedRelationId;
   String _relationFilter = '全部';
   late final _anchorKeys = <String, GlobalKey>{
@@ -269,7 +272,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                             const SizedBox(height: 6),
                             ReviewHexagramResultTable(
                               state: widget.state,
-                              selectedPosition: _selectedPosition,
+                              selectedPosition: _effectiveFocusedPosition,
                               onLineTap: _onLineTap,
                               anchorKeys: _anchorKeys,
                               rowKeys: _rowKeys,
@@ -284,11 +287,11 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                           obstacleKeys: _obstacleKeys,
                           selectedId: _selectedRelationId,
                           category: _relationFilter,
-                          focus: _selectedPosition == null
+                          focus: _effectiveFocusedPosition == null
                               ? null
                               : YaoEndpoint(
                                   LineScope.original,
-                                  _selectedPosition!,
+                                  _effectiveFocusedPosition!,
                                 ),
                         ),
                       ],
@@ -296,7 +299,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                     const SizedBox(height: 6),
                     ReviewRelationToolbar(
                       state: widget.state,
-                      focusedPosition: _selectedPosition,
+                      focusedPosition: _effectiveFocusedPosition,
                       selectedFilter: _relationFilter,
                       onFilterChanged: (filter) =>
                           setState(() => _relationFilter = filter),

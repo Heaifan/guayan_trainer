@@ -146,10 +146,10 @@ void main() {
   });
 
   group('Test B · 四柱', () {
-    testWidgets('年 月 日 时 旬空 完整且顺序固定', (tester) async {
+    testWidgets('年 月 日 时 空亡 完整且顺序固定', (tester) async {
       await pumpDemo(tester);
 
-      for (final text in ['丙午年', '丙申月', '丙子日', '丁酉时', '(申酉空)']) {
+      for (final text in ['丙午年', '丙申月', '丙子日', '丁酉时', '空亡', '申酉']) {
         expect(find.text(text), findsOneWidget, reason: text);
       }
       final order = [
@@ -157,7 +157,7 @@ void main() {
         tester.getTopLeft(find.text('丙申月')).dx,
         tester.getTopLeft(find.text('丙子日')).dx,
         tester.getTopLeft(find.text('丁酉时')).dx,
-        tester.getTopLeft(find.text('(申酉空)')).dx,
+        tester.getTopLeft(find.text('空亡')).dx,
       ];
       for (var i = 0; i < order.length - 1; i++) {
         expect(order[i] < order[i + 1], isTrue, reason: '第 $i 列顺序错误');
@@ -259,6 +259,29 @@ void main() {
       expect(state.lines.first.identity!.naYin, state.lines.first.displayExtra);
       expect(state.lines.first.changed!.naYin, isNotNull);
       expect(state.lines.first.sixRelative, contains('水'));
+    });
+
+    test('状态来自 ElementJudgement，关系账本不再承载状态记录', () {
+      final base = ReviewDemoData.hexagramCase();
+      final state = ReviewCaseAdapter.adapt(
+        HexagramCase(
+          id: 'ui-state-sync',
+          question: '状态接线',
+          lines: base.lines,
+          createdAt: base.createdAt,
+          ruleContext: base.ruleContext,
+          calendar: const CalendarSnapshot(
+            monthBranch: '午',
+            dayGanZhi: '甲申',
+          ),
+        ),
+      );
+
+      expect(state.lines.any((line) => line.stateIds.isNotEmpty), isTrue);
+      expect(
+        state.relationRecords.every((record) => record.kind.name == 'relation'),
+        isTrue,
+      );
     });
 
     test('适配器：焦点关系来自 Domain 计算（RelationInstance），非字符串重算', () {
@@ -586,8 +609,12 @@ void main() {
   });
 
   group('Focus 卦盘内关系展示（FIX3）', () {
-    testWidgets('点击某爻 → 直接 Focus，不自动弹 Bottom Sheet', (tester) async {
+    testWidgets('首次打开使用 focusedLine；点击某爻直接切换 Focus', (tester) async {
       await pumpDemo(tester);
+
+      expect(find.text('当前聚焦：三爻'), findsOneWidget);
+      expect(find.byKey(const Key('focused_state_summary')), findsOneWidget);
+      expect(find.text('状态 空亡'), findsOneWidget);
 
       await tester.ensureVisible(find.byKey(const Key('review_line_3')));
       await tester.pumpAndSettle();
@@ -598,7 +625,7 @@ void main() {
       expect(find.text('当前聚焦：三爻'), findsOneWidget);
     });
 
-    testWidgets('再次点击同一爻 → 清除 Focus', (tester) async {
+    testWidgets('再次点击同一爻 → 回到默认 focusedLine', (tester) async {
       var opened = false;
       await pumpDemo(tester, onOpenRelations: () => opened = true);
 
@@ -611,6 +638,7 @@ void main() {
 
       expect(opened, isFalse);
       expect(find.text('当前聚焦：上爻'), findsNothing);
+      expect(find.text('当前聚焦：三爻'), findsOneWidget);
       expect(find.byKey(const Key('line_detail_sheet')), findsNothing);
     });
   });

@@ -4,7 +4,7 @@ import '../review_page_state.dart';
 
 /// 时间卡（四柱，包含纳音，紧凑高度 50）。
 ///
-/// 顺序固定：年 → 月 → 日 → 时 → 旬空（右对齐）。
+/// 顺序固定：年 → 月 → 日 → 时 → 空亡（右对齐）。
 class ReviewTimeCard extends StatelessWidget {
   const ReviewTimeCard({
     super.key,
@@ -61,10 +61,10 @@ class ReviewTimeCard extends StatelessWidget {
           ),
           Expanded(
             child: _PillarText(
-              text: state.xunKong == null
+              text: state.kongWang == null ? '' : '空亡',
+              naYin: state.kongWang == null
                   ? ''
-                  : '(${_xunKongLabel(state.xunKong!)})',
-              naYin: '',
+                  : _kongWangBranches(state.kongWang!),
               color: const Color(0xFF4F8A8B),
             ),
           ),
@@ -74,7 +74,11 @@ class ReviewTimeCard extends StatelessWidget {
   }
 }
 
-String _xunKongLabel(String value) => value.endsWith('空') ? value : '$value空';
+String _kongWangBranches(String value) {
+  if (value.endsWith('空亡')) return value.substring(0, value.length - 2);
+  if (value.endsWith('空')) return value.substring(0, value.length - 1);
+  return value;
+}
 
 class _PillarText extends StatelessWidget {
   const _PillarText({

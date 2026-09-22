@@ -7,6 +7,9 @@ library;
 
 import '../../domain/hexagram_case.dart';
 import '../../domain/line_state.dart';
+import '../../domain/judgement/element_judgement.dart';
+import '../../domain/judgement/element_judgement_builder.dart';
+import '../../domain/rules/facts/semantic_ref.dart';
 import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_instance.dart';
 import '../../domain/relation_resolution.dart';
@@ -52,7 +55,7 @@ class ReviewLineTraditional {
   final String? changedShiYing;
   final ReviewChangedLine? changed;
 
-  /// 主卦侧空亡（UI 表现专用，Widget 不计算旬空）。
+  /// 主卦侧空亡（UI 表现专用，Widget 不计算空亡）。
   final bool isVoid;
 }
 
@@ -71,7 +74,8 @@ class ReviewTraditionalProfile {
     this.dayNaYin,
     this.hourPillar,
     this.hourNaYin,
-    this.xunKong,
+    String? kongWang,
+    @Deprecated('Use kongWang') String? xunKong,
     this.originalHexagramName,
     this.changedHexagramName,
     this.originalPalaceInfo,
@@ -80,7 +84,7 @@ class ReviewTraditionalProfile {
     this.lineTraditional = const {},
     this.focusedLine,
     this.focusSummaryOverride,
-  });
+  }) : kongWang = kongWang ?? xunKong;
 
   final String? castingMethod;
   final String? lunarDateTime;
@@ -93,7 +97,11 @@ class ReviewTraditionalProfile {
   final String? dayNaYin;
   final String? hourPillar;
   final String? hourNaYin;
-  final String? xunKong;
+  final String? kongWang;
+
+  @Deprecated('Use kongWang')
+  String? get xunKong => kongWang;
+
   final String? originalHexagramName;
   final String? changedHexagramName;
   final String? originalPalaceInfo;
@@ -134,10 +142,10 @@ class ReviewCaseAdapter {
     final changedProfile = chart.changed == null
         ? null
         : HexagramPalaceProfile.fromHexagram(chart.changed!);
+    final judgement = ElementJudgementBuilder.build(hexagramCase);
     final lines = <ReviewLineView>[
       for (final line in hexagramCase.lines)
         _toLineView(
-          hexagramCase,
           line,
           chart.lineAt(line.position),
           fushens.where((fushen) => fushen.lineIndex == line.position).toList(),
@@ -145,6 +153,8 @@ class ReviewCaseAdapter {
           doubleFucang.opposite[line.position - 1],
           changedProfile,
           profile?.lineTraditional[line.position],
+          judgement.of(SemanticRef.line(line.position)),
+          judgement.of(SemanticRef.changedLine(line.position)),
         ),
     ];
 
@@ -169,17 +179,6 @@ class ReviewCaseAdapter {
 
     final relationRecords = [
       ...RelationProjection.projectRelationInstances(relations),
-      for (final line in lines)
-        if (line.isVoid)
-          RelationRecord.state(
-            id: 'fact:state:xun_kong:yao:original:${line.position}',
-            sourceKind: RelationSourceKind.fact,
-            stateType: RelationStateType.xunKong,
-            participants: [YaoEndpoint(LineScope.original, line.position)],
-            title: '${reviewLinePositionName(line.position)}旬空',
-            subtitle: '旬空 · ${reviewLinePositionName(line.position)}',
-            category: '状态',
-          ),
       for (final evidence in [
         for (final run in hexagramCase.ruleRuns) ...run.derivedEvidence,
       ])
@@ -223,7 +222,7 @@ class ReviewCaseAdapter {
       dayNaYin: profile?.dayNaYin ?? _dayNaYin(hexagramCase),
       hourPillar: profile?.hourPillar ?? _hourPillar(hexagramCase),
       hourNaYin: profile?.hourNaYin ?? _hourNaYin(hexagramCase),
-      xunKong: profile?.xunKong ?? _xunKong(hexagramCase),
+      kongWang: profile?.kongWang ?? _kongWang(hexagramCase),
       originalHexagramName:
           profile?.originalHexagramName ?? chart.original.name,
       changedHexagramName:
@@ -289,7 +288,6 @@ class ReviewCaseAdapter {
   }
 
   static ReviewLineView _toLineView(
-    HexagramCase hexagramCase,
     LineState line,
     CastLine castLine,
     List<FushenResult> fushens,
@@ -297,6 +295,8 @@ class ReviewCaseAdapter {
     HiddenPalaceLine oppositeHidden,
     HexagramPalaceProfile? changedProfile,
     ReviewLineTraditional? t,
+    ElementJudgement? originalJudgement,
+    ElementJudgement? changedJudgement,
   ) {
     return ReviewLineView(
       position: line.position,
@@ -326,8 +326,11 @@ class ReviewCaseAdapter {
           : t.shiYing,
       changedShiYing:
           t?.changedShiYing ?? _positionMarker(changedProfile, line.position),
-      changed: t == null ? _changedLine(castLine) : t.changed,
-      isVoid: t?.isVoid ?? _isXunKong(hexagramCase, castLine.branch),
+      changed: t == null ? _changedLine(castLine, changedJudgement) : t.changed,
+      stateIds: {
+        ...?originalJudgement?.states,
+        if (t?.isVoid == true) JudgementStateIds.kongWang,
+      },
     );
   }
 
@@ -338,7 +341,10 @@ class ReviewCaseAdapter {
     return null;
   }
 
-  static ReviewChangedLine? _changedLine(CastLine line) {
+  static ReviewChangedLine? _changedLine(
+    CastLine line,
+    ElementJudgement? judgement,
+  ) {
     if (line.changedGan == null || line.changedBranch == null) return null;
     final branch = line.changedBranch!;
     final relative = line.changedRelative ?? line.relative;
@@ -358,6 +364,7 @@ class ReviewCaseAdapter {
       naYin: line.changedGan == null || line.changedBranch == null
           ? null
           : NaYinCatalog.getByGanZhi(line.changedGan!, line.changedBranch!).name,
+      stateIds: judgement?.states ?? const {},
       movementType: line.changedIsYang == null
           ? (line.isYang ? MovementType.shaoYang : MovementType.shaoYin)
           : line.isMoving
@@ -368,21 +375,13 @@ class ReviewCaseAdapter {
     );
   }
 
-  static String? _xunKong(HexagramCase hexagramCase) {
+  static String? _kongWang(HexagramCase hexagramCase) {
     if (hexagramCase.calendar == null) return null;
     return xunKongOf(
       GanZhiDay.fromCycleIndex(
         _cycleIndexFor(hexagramCase.calendar!.dayGanZhi),
       ),
     ).label;
-  }
-
-  static bool _isXunKong(HexagramCase hexagramCase, DiZhi branch) {
-    final calendar = hexagramCase.calendar;
-    if (calendar == null) return false;
-    return xunKongOf(
-      GanZhiDay.fromCycleIndex(_cycleIndexFor(calendar.dayGanZhi)),
-    ).contains(branch);
   }
 
   static String? _monthPillar(HexagramCase hexagramCase) =>

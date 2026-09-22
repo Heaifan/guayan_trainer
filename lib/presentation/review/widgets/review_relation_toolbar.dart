@@ -74,6 +74,12 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
   Map<String, int> get _counts =>
       relationFilterCounts(widget.state.relationRecords);
 
+  List<String> get _stateLabels {
+    final position = widget.focusedPosition;
+    if (position == null) return const [];
+    return widget.state.lineAt(position).stateLabels;
+  }
+
   @override
   Widget build(BuildContext context) {
     final filters = ['全部', '生克', '特殊'];
@@ -175,11 +181,32 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
               height: 25,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: _relations.length,
+                itemCount: _relations.length + (_stateLabels.isEmpty ? 0 : 1),
                 separatorBuilder: (context, index) => const SizedBox(width: 6),
                 itemBuilder: (context, index) {
+                  if (_stateLabels.isNotEmpty && index == 0) {
+                    return Container(
+                      key: const Key('focused_state_summary'),
+                      padding: const EdgeInsets.symmetric(horizontal: 9),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F4F8),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFD5DEE7)),
+                      ),
+                      child: Text(
+                        '状态 ${_stateLabels.join(' · ')}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF536575),
+                        ),
+                      ),
+                    );
+                  }
+                  final relationIndex =
+                      index - (_stateLabels.isEmpty ? 0 : 1);
                   final model = RelationDisplayModel.fromRecord(
-                    _relations[index],
+                    _relations[relationIndex],
                   );
                   return InkWell(
                     onTap: () => widget.onRelationTap?.call(model.record.id),

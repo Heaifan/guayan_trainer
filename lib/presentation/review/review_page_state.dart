@@ -1,12 +1,13 @@
 /// 审卦页状态模型（纯 Dart，无 Flutter 依赖）。
 ///
 /// 提供任务书 §7 要求的全部字段：question / castingMethod / solarDateTime /
-/// lunarDateTime / shenShaItems / 四柱 / xunKong / 主变卦名 / lines[6] /
+/// lunarDateTime / shenShaItems / 四柱 / kongWang / 主变卦名 / lines[6] /
 /// focusedLine / focusedRelations / rulePackId / ruleVersion。
 /// Domain 尚未提供的传统排盘字段一律显式 nullable，不偷偷猜测。
 library;
 
 import '../../domain/line_state.dart';
+import '../../domain/judgement/element_judgement.dart';
 import '../../domain/casting/fushen.dart';
 import '../../domain/casting/double_fucang.dart';
 import '../../domain/casting/hexagram_palace_profile.dart';
@@ -49,10 +50,11 @@ class ReviewChangedLine {
     this.earthlyBranch,
     this.displayExtra,
     this.movementType,
-    this.isVoid = false,
+    this.stateIds = const {},
+    bool isVoid = false,
     this.identity,
     this.naYin,
-  });
+  }) : _legacyIsVoid = isVoid;
 
   final String? sixRelative;
   final String? earthlyBranch;
@@ -63,8 +65,18 @@ class ReviewChangedLine {
   /// 变爻爻象（排盘引擎未落地时可为空）。
   final MovementType? movementType;
 
-  /// 变卦侧空亡（旬空，UI 表现专用；由排盘引擎提供 isVoid，Widget 不计算）。
-  final bool isVoid;
+  /// 变爻状态只来自状态判断；关系/行为不得混入。
+  final Set<String> stateIds;
+
+  /// 仅保留给视觉演示档案兼容；真实卦例由 [stateIds] 决定。
+  final bool _legacyIsVoid;
+
+  bool get isVoid =>
+      _legacyIsVoid || stateIds.contains(JudgementStateIds.kongWang);
+  List<String> get stateLabels => reviewStateLabels({
+        ...stateIds,
+        if (_legacyIsVoid) JudgementStateIds.kongWang,
+      });
 
   /// 变卦纳甲身份的结构化展示事实。
   final ReviewLineIdentity? identity;
@@ -114,8 +126,9 @@ class ReviewLineView {
     this.shiYing,
     this.changedShiYing,
     this.changed,
-    this.isVoid = false,
-  });
+    this.stateIds = const {},
+    bool isVoid = false,
+  }) : _legacyIsVoid = isVoid;
 
   /// 爻位：1 = 初爻 … 6 = 上爻（稳定身份）。
   final int position;
@@ -159,8 +172,18 @@ class ReviewLineView {
   /// 变卦信息。
   final ReviewChangedLine? changed;
 
-  /// 主卦侧空亡（旬空，UI 表现专用；由排盘引擎提供 isVoid，Widget 不计算）。
-  final bool isVoid;
+  /// 原爻状态只来自状态判断；关系/行为不得混入。
+  final Set<String> stateIds;
+
+  /// 仅保留给视觉演示档案兼容；真实卦例由 [stateIds] 决定。
+  final bool _legacyIsVoid;
+
+  bool get isVoid =>
+      _legacyIsVoid || stateIds.contains(JudgementStateIds.kongWang);
+  List<String> get stateLabels => reviewStateLabels({
+        ...stateIds,
+        if (_legacyIsVoid) JudgementStateIds.kongWang,
+      });
 
   bool get isYang =>
       movementType == MovementType.shaoYang ||
@@ -201,7 +224,8 @@ class ReviewPageState {
     this.dayNaYin,
     this.hourPillar,
     this.hourNaYin,
-    this.xunKong,
+    String? kongWang,
+    @Deprecated('Use kongWang') String? xunKong,
     this.originalHexagramName,
     this.changedHexagramName,
     this.originalPalaceInfo,
@@ -214,7 +238,7 @@ class ReviewPageState {
     this.rulePackId,
     this.ruleVersion,
     this.caseId,
-  });
+  }) : kongWang = kongWang ?? xunKong;
 
   final String question;
 
@@ -243,8 +267,11 @@ class ReviewPageState {
   final String? hourPillar;
   final String? hourNaYin;
 
-  /// 旬空文本（如 申酉空）。
-  final String? xunKong;
+  /// 空亡文本（如 申酉空）。
+  final String? kongWang;
+
+  @Deprecated('Use kongWang')
+  String? get xunKong => kongWang;
 
   final String? originalHexagramName;
   final String? changedHexagramName;
@@ -315,7 +342,8 @@ class ReviewPageState {
   /// 展示顺序：上爻在最上、初爻在最下（§22 C）。
   List<ReviewLineView> get displayLines => lines.reversed.toList();
 
-  ReviewLineView lineAt(int position) => lines[position - 1];
+  ReviewLineView lineAt(int position) =>
+      lines.firstWhere((line) => line.position == position);
 
   /// 某爻相关的全部关系实例（点爻弹层使用；数据来自 Domain，非字符串重算）。
   ///
@@ -381,6 +409,25 @@ bool _matchesReviewFilter(RelationInstance relation, String filter) =>
       '库' => false,
       _ => true,
     };
+
+
+List<String> reviewStateLabels(Iterable<String> stateIds) {
+  final states = stateIds.toSet();
+  final labels = <String>[];
+  if (states.contains(JudgementStateIds.kongWang)) labels.add('空亡');
+  if (states.contains(JudgementStateIds.monthChong)) labels.add('月冲');
+  if (states.contains(JudgementStateIds.dayChong)) labels.add('日冲');
+  if (states.contains(JudgementStateIds.movingChong)) labels.add('动爻冲');
+  final hasSpecificChong =
+      states.contains(JudgementStateIds.monthChong) ||
+      states.contains(JudgementStateIds.dayChong) ||
+      states.contains(JudgementStateIds.movingChong);
+  if (!hasSpecificChong && states.contains(JudgementStateIds.chong)) {
+    labels.add('受冲');
+  }
+  if (states.contains(JudgementStateIds.hidden)) labels.add('伏藏');
+  return List.unmodifiable(labels);
+}
 
 /// 阳历展示（如 2026-08-30 17:59）。
 String formatSolar(DateTime time) {

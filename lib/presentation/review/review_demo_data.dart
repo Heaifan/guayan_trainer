@@ -4,7 +4,7 @@
 /// 排盘引擎（R3）落地前仅作为演示档案，真实卦例不带这些字段。
 /// 演示六爻来自现有 Domain：LineState + 地支，动爻与六合可经
 /// calculateRelations 真实计算（辰酉合、午未合、二/三爻动变）。
-/// 空亡（isVoid）仅 UI 表现：旬空申酉 → 五爻丁酉、三爻丙申。
+/// 空亡（isVoid）仅 UI 表现：空亡申酉 → 五爻丁酉、三爻丙申。
 library;
 
 import '../../domain/hexagram_case.dart';
@@ -69,7 +69,7 @@ abstract final class ReviewDemoData {
     dayNaYin: '涧下水',
     hourPillar: '丁酉时',
     hourNaYin: '山下火',
-    xunKong: '申酉空',
+    kongWang: '申酉空',
     originalHexagramName: '泽山咸',
     changedHexagramName: '泽水困',
     originalPalaceInfo: '兑4',

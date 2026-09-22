@@ -6,7 +6,7 @@ enum RelationKind { relation, state }
 enum RelationSourceKind { fact, rule, user }
 
 enum RelationStateType {
-  xunKong('旬空'),
+  xunKong('空亡'),
   monthBreak('月破'),
   dayBreak('日破'),
   inTomb('在库'),
