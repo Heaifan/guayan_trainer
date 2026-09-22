@@ -10,9 +10,10 @@ import '../line_state.dart';
 import '../rules/facts/semantic_ref.dart';
 import 'element_judgement.dart';
 
-/// 把 HexagramCase 投影成“对象 -> 判定区”快照。
+/// 把 HexagramCase 投影成“对象身份 + 属性 + 状态判断结果”快照。
 ///
-/// R4 在身份/空亡底座上追加受冲事实；空亡只记录状态，不削弱普通生克。
+/// 本层只产出单个对象的状态判断结果。
+/// 关系与作用行为不写入 ElementJudgement。
 class ElementJudgementBuilder {
   ElementJudgementBuilder._();
 
@@ -28,19 +29,16 @@ class ElementJudgementBuilder {
     for (final line in hexagramCase.lines) {
       elements.add(
         ElementJudgement(
-          ref: SemanticRef.line(line.position),
-          kind: JudgementElementKind.originalLine,
-          position: line.position,
+          identity: ElementIdentity(
+            ref: SemanticRef.line(line.position),
+            kind: JudgementElementKind.originalLine,
+            position: line.position,
+            movementType: line.movementType,
+          ),
           branch: line.branch,
-          identityTags: {
-            JudgementTagIds.originalLine,
-            line.movementType.isMoving
-                ? JudgementTagIds.moving
-                : JudgementTagIds.still,
-          },
-          stateTags: {
-            ..._kongWangStateTags(line.branch, kongWang),
-            ..._chongStateTags(
+          states: {
+            ..._kongWangStates(line.branch, kongWang),
+            ..._chongStates(
               branch: line.branch,
               monthBranch: calendar?.monthBranch,
               dayBranch: calendar?.dayBranch,
@@ -50,7 +48,6 @@ class ElementJudgementBuilder {
             ),
           },
           attributes: {
-            'movementType': line.movementType.name,
             if (line.branch != null) 'branch': line.branch!,
           },
         ),
@@ -59,14 +56,15 @@ class ElementJudgementBuilder {
       if (line.movementType.isMoving && line.changedBranch != null) {
         elements.add(
           ElementJudgement(
-            ref: SemanticRef.changedLine(line.position),
-            kind: JudgementElementKind.changedLine,
-            position: line.position,
+            identity: ElementIdentity(
+              ref: SemanticRef.changedLine(line.position),
+              kind: JudgementElementKind.changedLine,
+              position: line.position,
+            ),
             branch: line.changedBranch,
-            identityTags: const {JudgementTagIds.changedLine},
-            stateTags: {
-              ..._kongWangStateTags(line.changedBranch, kongWang),
-              ..._chongStateTags(
+            states: {
+              ..._kongWangStates(line.changedBranch, kongWang),
+              ..._chongStates(
                 branch: line.changedBranch,
                 monthBranch: calendar?.monthBranch,
                 dayBranch: calendar?.dayBranch,
@@ -75,7 +73,6 @@ class ElementJudgementBuilder {
               ),
             },
             attributes: {
-              'originPosition': line.position.toString(),
               'branch': line.changedBranch!,
             },
           ),
@@ -87,19 +84,21 @@ class ElementJudgementBuilder {
       elements
         ..add(
           ElementJudgement(
-            ref: SemanticRef.month,
-            kind: JudgementElementKind.month,
+            identity: const ElementIdentity(
+              ref: SemanticRef.month,
+              kind: JudgementElementKind.month,
+            ),
             branch: calendar.monthBranch,
-            identityTags: const {JudgementTagIds.month},
             attributes: {'branch': calendar.monthBranch},
           ),
         )
         ..add(
           ElementJudgement(
-            ref: SemanticRef.day,
-            kind: JudgementElementKind.day,
+            identity: const ElementIdentity(
+              ref: SemanticRef.day,
+              kind: JudgementElementKind.day,
+            ),
             branch: calendar.dayBranch,
-            identityTags: const {JudgementTagIds.day},
             attributes: {
               'branch': calendar.dayBranch,
               'ganZhi': calendar.dayGanZhi,
@@ -114,15 +113,16 @@ class ElementJudgementBuilder {
     for (final fushen in FushenEngine.calculate(chart)) {
       elements.add(
         ElementJudgement(
-          ref: SemanticRef.hiddenSpirit(fushen.lineIndex),
-          kind: JudgementElementKind.hiddenSpirit,
-          position: fushen.lineIndex,
+          identity: ElementIdentity(
+            ref: SemanticRef.hiddenSpirit(fushen.lineIndex),
+            kind: JudgementElementKind.hiddenSpirit,
+            position: fushen.lineIndex,
+          ),
           branch: fushen.branch.label,
-          identityTags: const {JudgementTagIds.hiddenSpirit},
-          stateTags: {
-            JudgementTagIds.hidden,
-            ..._kongWangStateTags(fushen.branch.label, kongWang),
-            ..._chongStateTags(
+          states: {
+            JudgementStateIds.hidden,
+            ..._kongWangStates(fushen.branch.label, kongWang),
+            ..._chongStates(
               branch: fushen.branch.label,
               monthBranch: calendar?.monthBranch,
               dayBranch: calendar?.dayBranch,
@@ -143,14 +143,14 @@ class ElementJudgementBuilder {
     return ElementJudgementSnapshot(elements);
   }
 
-  static Set<String> _kongWangStateTags(String? branch, XunKong? kongWang) {
+  static Set<String> _kongWangStates(String? branch, XunKong? kongWang) {
     if (branch == null || kongWang == null) return const {};
     final zhi = DiZhi.tryFromLabel(branch);
     if (zhi == null || !kongWang.contains(zhi)) return const {};
-    return const {JudgementTagIds.kongWang};
+    return const {JudgementStateIds.kongWang};
   }
 
-  static Set<String> _chongStateTags({
+  static Set<String> _chongStates({
     required String? branch,
     required String? monthBranch,
     required String? dayBranch,
@@ -161,28 +161,28 @@ class ElementJudgementBuilder {
     final target = branch == null ? null : DiZhi.tryFromLabel(branch);
     if (target == null) return const {};
 
-    final tags = <String>{};
+    final states = <String>{};
     final month = monthBranch == null ? null : DiZhi.tryFromLabel(monthBranch);
     final day = dayBranch == null ? null : DiZhi.tryFromLabel(dayBranch);
 
     if (month != null && month.chong == target) {
-      tags.add(JudgementTagIds.monthChong);
+      states.add(JudgementStateIds.monthChong);
     }
     if (day != null && day.chong == target) {
-      tags.add(JudgementTagIds.dayChong);
+      states.add(JudgementStateIds.dayChong);
     }
     if (includeMovingChong) {
       for (final source in movingLines) {
         if (source.position == targetPosition) continue;
         final sourceBranch = DiZhi.tryFromLabel(source.branch!);
         if (sourceBranch != null && sourceBranch.chong == target) {
-          tags.add(JudgementTagIds.movingChong);
+          states.add(JudgementStateIds.movingChong);
           break;
         }
       }
     }
-    if (tags.isNotEmpty) tags.add(JudgementTagIds.chong);
-    return tags;
+    if (states.isNotEmpty) states.add(JudgementStateIds.chong);
+    return states;
   }
 
   static XunKong? _kongWangOf(HexagramCase hexagramCase) {

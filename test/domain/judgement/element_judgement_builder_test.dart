@@ -9,7 +9,7 @@ import 'package:guayan_trainer/domain/line_state.dart';
 import 'package:guayan_trainer/domain/rules/facts/semantic_ref.dart';
 
 void main() {
-  test('builds independent original changed calendar and hidden objects', () {
+  test('身份使用结构字段，不再使用身份标签', () {
     final lines = [
       LineState(
         position: 1,
@@ -24,8 +24,8 @@ void main() {
       LineState(position: 6, movementType: MovementType.shaoYin, branch: '巳'),
     ];
     final hexagramCase = HexagramCase(
-      id: 'judgement-r1',
-      question: '判定区测试',
+      id: 'judgement-identity-r5',
+      question: '身份结构测试',
       lines: lines,
       createdAt: DateTime(2026, 9, 22),
       calendar: const CalendarSnapshot(
@@ -37,21 +37,26 @@ void main() {
     final snapshot = ElementJudgementBuilder.build(hexagramCase);
 
     final original1 = snapshot.of(SemanticRef.line(1))!;
-    expect(original1.kind, JudgementElementKind.originalLine);
-    expect(original1.hasIdentity(JudgementTagIds.originalLine), isTrue);
-    expect(original1.hasIdentity(JudgementTagIds.moving), isTrue);
+    expect(original1.identity.kind, JudgementElementKind.originalLine);
+    expect(original1.identity.position, 1);
+    expect(original1.identity.movementType, MovementType.laoYang);
+    expect(original1.identity.isMovingOriginal, isTrue);
+    expect(original1.states.where((state) => state.startsWith('identity.')), isEmpty);
 
     final original2 = snapshot.of(SemanticRef.line(2))!;
-    expect(original2.hasIdentity(JudgementTagIds.still), isTrue);
+    expect(original2.identity.movementType, MovementType.shaoYin);
+    expect(original2.identity.isStillOriginal, isTrue);
 
     final changed1 = snapshot.of(SemanticRef.changedLine(1))!;
-    expect(changed1.kind, JudgementElementKind.changedLine);
+    expect(changed1.identity.kind, JudgementElementKind.changedLine);
+    expect(changed1.identity.position, 1);
+    expect(changed1.identity.movementType, isNull);
     expect(changed1.branch, '未');
     expect(changed1.ref, isNot(original1.ref));
     expect(snapshot.of(SemanticRef.changedLine(2)), isNull);
 
-    expect(snapshot.of(SemanticRef.month)!.branch, '酉');
-    expect(snapshot.of(SemanticRef.day)!.branch, '子');
+    expect(snapshot.of(SemanticRef.month)!.kind, JudgementElementKind.month);
+    expect(snapshot.of(SemanticRef.day)!.kind, JudgementElementKind.day);
 
     final chart = CastingEngine.cast([
       for (final line in lines) line.movementType,
@@ -64,26 +69,30 @@ void main() {
     for (final hidden in expectedHidden) {
       final element = snapshot.of(SemanticRef.hiddenSpirit(hidden.lineIndex));
       expect(element, isNotNull);
-      expect(element!.hasIdentity(JudgementTagIds.hiddenSpirit), isTrue);
-      expect(element.hasState(JudgementTagIds.hidden), isTrue);
+      expect(element!.kind, JudgementElementKind.hiddenSpirit);
+      expect(element.hasState(JudgementStateIds.hidden), isTrue);
     }
   });
 
-  test('identity and state areas remain separate', () {
+  test('状态集合只承载状态判断结果', () {
     final element = ElementJudgement(
-      ref: SemanticRef.line(3),
-      kind: JudgementElementKind.originalLine,
-      position: 3,
-      identityTags: const {
-        JudgementTagIds.originalLine,
-        JudgementTagIds.moving,
+      identity: ElementIdentity(
+        ref: SemanticRef.line(3),
+        kind: JudgementElementKind.originalLine,
+        position: 3,
+        movementType: MovementType.laoYang,
+      ),
+      states: const {
+        JudgementStateIds.kongWang,
+        JudgementStateIds.dayChong,
+        JudgementStateIds.chong,
       },
-      stateTags: const {JudgementTagIds.hidden},
     );
 
-    expect(element.hasIdentity(JudgementTagIds.moving), isTrue);
-    expect(element.hasState(JudgementTagIds.hidden), isTrue);
-    expect(element.hasIdentity(JudgementTagIds.hidden), isFalse);
+    expect(element.identity.isMovingOriginal, isTrue);
+    expect(element.hasState(JudgementStateIds.kongWang), isTrue);
+    expect(element.hasState(JudgementStateIds.dayChong), isTrue);
+    expect(element.states.every((state) => state.startsWith('state.')), isTrue);
   });
 
   test('空亡标记原爻、变爻与伏神，不标记月日基准对象', () {
@@ -103,7 +112,7 @@ void main() {
       LineState(position: 6, movementType: MovementType.shaoYin, branch: '巳'),
     ];
     final hexagramCase = HexagramCase(
-      id: 'judgement-kong-wang-r4',
+      id: 'judgement-kong-wang-r5',
       question: '空亡判定区测试',
       lines: lines,
       createdAt: DateTime(2026, 9, 22),
@@ -116,33 +125,33 @@ void main() {
     final snapshot = ElementJudgementBuilder.build(hexagramCase);
 
     expect(
-      snapshot.of(SemanticRef.line(1))!.hasState(JudgementTagIds.kongWang),
+      snapshot.of(SemanticRef.line(1))!.hasState(JudgementStateIds.kongWang),
       isTrue,
     );
     expect(
       snapshot
           .of(SemanticRef.changedLine(1))!
-          .hasState(JudgementTagIds.kongWang),
+          .hasState(JudgementStateIds.kongWang),
       isTrue,
     );
     expect(
       snapshot
           .of(SemanticRef.hiddenSpirit(3))!
-          .hasState(JudgementTagIds.kongWang),
+          .hasState(JudgementStateIds.kongWang),
       isTrue,
     );
 
-    // 月、日是历法基准对象，不进入空亡标签判定。
     expect(
-      snapshot.of(SemanticRef.month)!.hasState(JudgementTagIds.kongWang),
+      snapshot.of(SemanticRef.month)!.hasState(JudgementStateIds.kongWang),
       isFalse,
     );
     expect(
-      snapshot.of(SemanticRef.day)!.hasState(JudgementTagIds.kongWang),
+      snapshot.of(SemanticRef.day)!.hasState(JudgementStateIds.kongWang),
       isFalse,
     );
   });
-  test('records month day and moving chong as independent state tags', () {
+
+  test('月冲日冲动爻冲只作为状态判断结果记录', () {
     final lines = [
       LineState(position: 1, movementType: MovementType.shaoYang, branch: '子'),
       LineState(
@@ -157,8 +166,8 @@ void main() {
       LineState(position: 6, movementType: MovementType.shaoYang, branch: '辰'),
     ];
     final hexagramCase = HexagramCase(
-      id: 'judgement-chong-r3',
-      question: '受冲判定区测试',
+      id: 'judgement-chong-r5',
+      question: '受冲状态测试',
       lines: lines,
       createdAt: DateTime(2026, 9, 22),
       calendar: const CalendarSnapshot(
@@ -170,31 +179,27 @@ void main() {
     final snapshot = ElementJudgementBuilder.build(hexagramCase);
     final target = snapshot.of(SemanticRef.line(1))!;
 
-    expect(target.hasState(JudgementTagIds.monthChong), isTrue);
-    expect(target.hasState(JudgementTagIds.dayChong), isTrue);
-    expect(target.hasState(JudgementTagIds.movingChong), isTrue);
-    expect(target.hasState(JudgementTagIds.chong), isTrue);
+    expect(target.hasState(JudgementStateIds.monthChong), isTrue);
+    expect(target.hasState(JudgementStateIds.dayChong), isTrue);
+    expect(target.hasState(JudgementStateIds.movingChong), isTrue);
+    expect(target.hasState(JudgementStateIds.chong), isTrue);
 
-    // 动爻不以自己作为“动爻冲”的来源。
     final movingSource = snapshot.of(SemanticRef.line(2))!;
-    expect(movingSource.hasState(JudgementTagIds.movingChong), isFalse);
+    expect(movingSource.hasState(JudgementStateIds.movingChong), isFalse);
 
-    // 变爻当前只记录月冲/日冲，不扩展“动爻 -> 变爻”的未冻结语义。
     final changed = snapshot.of(SemanticRef.changedLine(2))!;
-    expect(changed.hasState(JudgementTagIds.monthChong), isTrue);
-    expect(changed.hasState(JudgementTagIds.dayChong), isTrue);
-    expect(changed.hasState(JudgementTagIds.movingChong), isFalse);
-    expect(changed.hasState(JudgementTagIds.chong), isTrue);
+    expect(changed.hasState(JudgementStateIds.monthChong), isTrue);
+    expect(changed.hasState(JudgementStateIds.dayChong), isTrue);
+    expect(changed.hasState(JudgementStateIds.movingChong), isFalse);
+    expect(changed.hasState(JudgementStateIds.chong), isTrue);
 
-    // 月、日是冲的历法来源，不给自身打“受冲”状态。
     expect(
-      snapshot.of(SemanticRef.month)!.hasState(JudgementTagIds.chong),
+      snapshot.of(SemanticRef.month)!.hasState(JudgementStateIds.chong),
       isFalse,
     );
     expect(
-      snapshot.of(SemanticRef.day)!.hasState(JudgementTagIds.chong),
+      snapshot.of(SemanticRef.day)!.hasState(JudgementStateIds.chong),
       isFalse,
     );
   });
-
 }
