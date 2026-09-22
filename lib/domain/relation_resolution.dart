@@ -16,7 +16,7 @@ RelationResolutionResult resolveRelationResult(HexagramCase hexagramCase) {
   final facts = calculateRelations(hexagramCase);
   return resolveRelationCandidates(
     [for (final fact in facts) RelationCandidate.fromInstance(fact)],
-    emptyOriginalPositions: _emptyOriginalPositions(hexagramCase),
+    emptyOriginalPositions: _kongWangOriginalPositions(hexagramCase),
     activeOriginalPositions: {
       for (final line in hexagramCase.lines)
         if (line.movementType.isMoving) line.position,
@@ -73,7 +73,7 @@ RelationResolutionResult resolveRelationCandidates(
       }
     }
   }
-  // 关系与状态分层：空、破、墓、绝、合等状态不得反向删除
+  // 关系与状态分层：空亡、破、墓、绝、合等状态不得反向删除
   // 已经成立的生克事实。状态只负责追加修正/解释；是否能主动发力，
   // 仍由来源自身的作用资格单独裁决。
   final entries = <RelationResolutionEntry>[];
@@ -116,7 +116,7 @@ String? _suppressionFor(
   Set<int> calendarCombinedPositions,
   Set<int> emptyOriginalPositions,
 ) {
-  // 合以双方真实参与为前提。旬空不删除六合事实，但空爻参与时
+  // 合以双方真实参与为前提。空亡不删除六合事实，但空亡爻参与时
   // 只能记为“空合”，不得升级成有效六合/合绊，也不得借此压制动爻。
   // 此判断必须先于 sourceRole 过滤：月/日 -> 空爻的六合同样只能论空合。
   if (candidate.relation.type == RelationType.liuHe &&
@@ -200,7 +200,7 @@ extension on RelationCandidate {
   };
 }
 
-Set<int> _emptyOriginalPositions(HexagramCase c) {
+Set<int> _kongWangOriginalPositions(HexagramCase c) {
   final calendar = c.calendar;
   if (calendar == null) return const {};
   final day = _ganZhiDayFromLabel(calendar.dayGanZhi);

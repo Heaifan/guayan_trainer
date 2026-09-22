@@ -12,13 +12,13 @@ import 'element_judgement.dart';
 
 /// 把 HexagramCase 投影成“对象 -> 判定区”快照。
 ///
-/// R3 在身份/旬空底座上追加受冲事实；仍不裁决冲起、冲散、冲破合。
+/// R4 在身份/空亡底座上追加受冲事实；空亡只记录状态，不削弱普通生克。
 class ElementJudgementBuilder {
   ElementJudgementBuilder._();
 
   static ElementJudgementSnapshot build(HexagramCase hexagramCase) {
     final elements = <ElementJudgement>[];
-    final xunKong = _xunKongOf(hexagramCase);
+    final kongWang = _kongWangOf(hexagramCase);
     final calendar = hexagramCase.calendar;
     final movingLines = [
       for (final line in hexagramCase.lines)
@@ -39,7 +39,7 @@ class ElementJudgementBuilder {
                 : JudgementTagIds.still,
           },
           stateTags: {
-            ..._emptyStateTags(line.branch, xunKong),
+            ..._kongWangStateTags(line.branch, kongWang),
             ..._chongStateTags(
               branch: line.branch,
               monthBranch: calendar?.monthBranch,
@@ -65,7 +65,7 @@ class ElementJudgementBuilder {
             branch: line.changedBranch,
             identityTags: const {JudgementTagIds.changedLine},
             stateTags: {
-              ..._emptyStateTags(line.changedBranch, xunKong),
+              ..._kongWangStateTags(line.changedBranch, kongWang),
               ..._chongStateTags(
                 branch: line.changedBranch,
                 monthBranch: calendar?.monthBranch,
@@ -121,7 +121,7 @@ class ElementJudgementBuilder {
           identityTags: const {JudgementTagIds.hiddenSpirit},
           stateTags: {
             JudgementTagIds.hidden,
-            ..._emptyStateTags(fushen.branch.label, xunKong),
+            ..._kongWangStateTags(fushen.branch.label, kongWang),
             ..._chongStateTags(
               branch: fushen.branch.label,
               monthBranch: calendar?.monthBranch,
@@ -143,11 +143,11 @@ class ElementJudgementBuilder {
     return ElementJudgementSnapshot(elements);
   }
 
-  static Set<String> _emptyStateTags(String? branch, XunKong? xunKong) {
-    if (branch == null || xunKong == null) return const {};
+  static Set<String> _kongWangStateTags(String? branch, XunKong? kongWang) {
+    if (branch == null || kongWang == null) return const {};
     final zhi = DiZhi.tryFromLabel(branch);
-    if (zhi == null || !xunKong.contains(zhi)) return const {};
-    return const {JudgementTagIds.empty};
+    if (zhi == null || !kongWang.contains(zhi)) return const {};
+    return const {JudgementTagIds.kongWang};
   }
 
   static Set<String> _chongStateTags({
@@ -185,7 +185,7 @@ class ElementJudgementBuilder {
     return tags;
   }
 
-  static XunKong? _xunKongOf(HexagramCase hexagramCase) {
+  static XunKong? _kongWangOf(HexagramCase hexagramCase) {
     final label = hexagramCase.calendar?.dayGanZhi;
     if (label == null) return null;
     final day = _ganZhiDayFromLabel(label);

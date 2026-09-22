@@ -174,7 +174,7 @@ void main() {
       }
     });
 
-    test('旬空参与六合只记空合，不形成合绊，也不压制动爻外放', () {
+    test('空亡参与六合只记空合，不形成合绊，也不压制动爻外放', () {
       final result = resolveRelationResult(_emptyLiuHeMovingCase());
 
       expect(
@@ -199,6 +199,23 @@ void main() {
                   e.relation.type == RelationType.ke),
         ),
         isTrue,
+      );
+    });
+
+    test('空亡不影响原动爻普通生克资格', () {
+      final result = resolveRelationResult(_kongWangMovingShengKeCase());
+
+      final fromKongWang = result.effective.where(
+        (e) =>
+            e.relation.source == YaoEndpoint(LineScope.original, 1) &&
+            (e.relation.type == RelationType.sheng ||
+                e.relation.type == RelationType.ke),
+      );
+
+      expect(fromKongWang, isNotEmpty);
+      expect(
+        fromKongWang.map((e) => e.relation.type),
+        containsAll([RelationType.sheng, RelationType.ke]),
       );
     });
 
@@ -480,7 +497,7 @@ HexagramCase _emptyLiuHeMovingCase() => HexagramCase(
   id: 'empty-liuhe-moving',
   question: '空合不合绊',
   createdAt: DateTime(2026, 9, 20),
-  // 甲子旬空戌亥；二爻亥空，与初爻寅六合。
+  // 甲子日所属旬空亡戌亥；二爻亥为空亡，与初爻寅六合。
   calendar: const CalendarSnapshot(monthBranch: '辰', dayGanZhi: '甲子'),
   lines: [
     LineState(position: 1, movementType: MovementType.laoYang, branch: '寅'),
@@ -491,3 +508,20 @@ HexagramCase _emptyLiuHeMovingCase() => HexagramCase(
     LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
   ],
 );
+HexagramCase _kongWangMovingShengKeCase() => HexagramCase(
+  id: 'kong-wang-moving-sheng-ke',
+  question: '空亡不影响生克',
+  createdAt: DateTime(2026, 9, 22),
+  // 甲子日所属旬空亡戌亥；初爻亥为空亡且发动。
+  calendar: const CalendarSnapshot(monthBranch: '丑', dayGanZhi: '甲子'),
+  lines: [
+    LineState(position: 1, movementType: MovementType.laoYang, branch: '亥'),
+    // 亥水生卯木，克午火；两条普通作用都应继续有效。
+    LineState(position: 2, movementType: MovementType.shaoYin, branch: '卯'),
+    LineState(position: 3, movementType: MovementType.shaoYang, branch: '午'),
+    LineState(position: 4, movementType: MovementType.shaoYin, branch: '辰'),
+    LineState(position: 5, movementType: MovementType.shaoYang, branch: '申'),
+    LineState(position: 6, movementType: MovementType.shaoYin, branch: '酉'),
+  ],
+);
+

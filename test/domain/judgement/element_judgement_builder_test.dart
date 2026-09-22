@@ -86,9 +86,9 @@ void main() {
     expect(element.hasIdentity(JudgementTagIds.hidden), isFalse);
   });
 
-  test('xun kong tags original changed and hidden objects only', () {
+  test('空亡标记原爻、变爻与伏神，不标记月日基准对象', () {
     // 水雷屯的原卦阴阳结构；伏神为三爻妻财午火。
-    // 甲申旬空午未，因此原1午、变1未、伏神3午都应标记旬空。
+    // 甲申日所属旬的空亡为午未，因此原1午、变1未、伏神3午都应标记空亡。
     final lines = [
       LineState(
         position: 1,
@@ -103,8 +103,8 @@ void main() {
       LineState(position: 6, movementType: MovementType.shaoYin, branch: '巳'),
     ];
     final hexagramCase = HexagramCase(
-      id: 'judgement-empty-r2',
-      question: '旬空判定区测试',
+      id: 'judgement-kong-wang-r4',
+      question: '空亡判定区测试',
       lines: lines,
       createdAt: DateTime(2026, 9, 22),
       calendar: const CalendarSnapshot(
@@ -116,29 +116,29 @@ void main() {
     final snapshot = ElementJudgementBuilder.build(hexagramCase);
 
     expect(
-      snapshot.of(SemanticRef.line(1))!.hasState(JudgementTagIds.empty),
+      snapshot.of(SemanticRef.line(1))!.hasState(JudgementTagIds.kongWang),
       isTrue,
     );
     expect(
       snapshot
           .of(SemanticRef.changedLine(1))!
-          .hasState(JudgementTagIds.empty),
+          .hasState(JudgementTagIds.kongWang),
       isTrue,
     );
     expect(
       snapshot
           .of(SemanticRef.hiddenSpirit(3))!
-          .hasState(JudgementTagIds.empty),
+          .hasState(JudgementTagIds.kongWang),
       isTrue,
     );
 
     // 月、日是历法基准对象，不进入旬空标签判定。
     expect(
-      snapshot.of(SemanticRef.month)!.hasState(JudgementTagIds.empty),
+      snapshot.of(SemanticRef.month)!.hasState(JudgementTagIds.kongWang),
       isFalse,
     );
     expect(
-      snapshot.of(SemanticRef.day)!.hasState(JudgementTagIds.empty),
+      snapshot.of(SemanticRef.day)!.hasState(JudgementTagIds.kongWang),
       isFalse,
     );
   });

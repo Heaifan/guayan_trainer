@@ -22,7 +22,7 @@ abstract final class JudgementTagIds {
   static const still = 'identity.still';
 
   static const hidden = 'state.hidden';
-  static const empty = 'state.empty';
+  static const kongWang = 'state.kong_wang';
 
   static const chong = 'state.chong';
   static const monthChong = 'state.month_chong';
