@@ -9,9 +9,9 @@
 /// 本模块只识别关系事实，不把“回头生 / 回头克”写成状态标签。
 /// 对原动爻主动行为资格的影响，由 action_resolution.dart 单独裁决。
 ///
-/// 现有 R4 边界仍保留：先判同位回头生克；若成立，变爻不再外放；
-/// 若同位既不回头生也不回头克，才沿用既有变爻外放关系生成逻辑。
-/// 变爻之间永不相互作用。
+/// 冻结边界：变爻只参与同位“回头生 / 回头克”判定。
+/// 无论本位是否形成回头关系，变爻都不得向其他原卦爻外放普通生克，
+/// 也不得与其他变爻发生普通生克。
 /// 端点方向取 `changed-p -> original-p`（与既有 RelationKey 文档样例一致）。
 ///
 /// 回头生 / 回头克需要**变爻地支**（[LineState.changedBranch]）。
@@ -47,41 +47,7 @@ List<RelationInstance> changedLineRelations(HexagramCase c) {
     );
     if (type != null) {
       out.add(_huiTou(c, p, type, _ruleIdFor(type)));
-      continue;
     }
-    out.addAll(_changedLineWuxingRelations(c, line));
-  }
-  return out;
-}
-
-List<RelationInstance> _changedLineWuxingRelations(
-  HexagramCase c,
-  LineState source,
-) {
-  final changed = zhiOf(source.changedBranch);
-  if (changed == null) return const [];
-  final out = <RelationInstance>[];
-  for (final target in c.lines) {
-    if (target.position == source.position) continue;
-    final targetZhi = zhiOf(target.branch);
-    if (targetZhi == null) continue;
-    final type = changed.wuXing.generates == targetZhi.wuXing
-        ? RelationType.sheng
-        : changed.wuXing.controls == targetZhi.wuXing
-        ? RelationType.ke
-        : null;
-    if (type == null) continue;
-    out.add(
-      systemRelation(
-        c: c,
-        type: type,
-        ruleId: type == RelationType.sheng
-            ? SystemRuleIds.sheng
-            : SystemRuleIds.ke,
-        source: changedYao(source.position),
-        target: originalYao(target.position),
-      ),
-    );
   }
   return out;
 }

@@ -12,40 +12,35 @@ import 'domain_test_utils.dart';
 
 void main() {
   group('FIX7 · 作用资格结算', () {
-    test('变爻先判本位回头生克；无回头关系时才可外放到原卦动静爻', () {
-      final result = resolveRelationResult(_changedMetalCase());
-      final effective = result.effective.map((entry) => entry.relation);
+    test('无回头关系时，变爻也不得向其他原卦爻外放普通生克', () {
+      final result = resolveRelationResult(_changedNoReturnCase());
+      final relations = result.entries.map((entry) => entry.relation).toList();
 
       expect(
-        effective,
-        contains(
-          predicate<RelationInstance>(
-            (relation) =>
-                relation.type == RelationType.ke &&
-                relation.source == YaoEndpoint(LineScope.changed, 1) &&
-                relation.target == YaoEndpoint(LineScope.original, 2),
-          ),
-        ),
-      );
-      expect(
-        effective,
-        contains(
-          predicate<RelationInstance>(
-            (relation) =>
-                relation.type == RelationType.sheng &&
-                relation.source == YaoEndpoint(LineScope.changed, 1) &&
-                relation.target == YaoEndpoint(LineScope.original, 3),
-          ),
-        ),
-      );
-      expect(
-        effective.where(
+        relations.where(
           (relation) =>
               relation.source == YaoEndpoint(LineScope.changed, 1) &&
-              relation.target is YaoEndpoint &&
-              (relation.target as YaoEndpoint).scope == LineScope.changed,
+              (relation.type == RelationType.sheng ||
+                  relation.type == RelationType.ke),
         ),
         isEmpty,
+      );
+      expect(
+        relations.any(
+          (relation) =>
+              relation.type == RelationType.huiTouSheng ||
+              relation.type == RelationType.huiTouKe,
+        ),
+        isFalse,
+      );
+      expect(
+        relations.any(
+          (relation) =>
+              relation.type == RelationType.dongBian &&
+              relation.source == YaoEndpoint(LineScope.original, 1) &&
+              relation.target == YaoEndpoint(LineScope.changed, 1),
+        ),
+        isTrue,
       );
     });
 
@@ -396,9 +391,9 @@ RelationInstance _special(RelationType type) => RelationInstance.from(
   target: YaoEndpoint(LineScope.original, 2),
 );
 
-HexagramCase _changedMetalCase() => HexagramCase(
-  id: 'changed-metal-multi-target',
-  question: 'changed metal multi target',
+HexagramCase _changedNoReturnCase() => HexagramCase(
+  id: 'changed-no-return-no-outbound',
+  question: '变爻无回头关系也不得外放',
   createdAt: DateTime(2026, 9, 19),
   lines: [
     LineState(
