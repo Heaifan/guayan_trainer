@@ -269,12 +269,22 @@ class _RelationPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
+    final labelRect = Rect.fromCenter(
+      center: geometry.labelCenter,
+      width: labelPainter.width + 12,
+      height: RelationVisualTokens.relationLabelHeight,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        labelRect,
+        const Radius.circular(RelationVisualTokens.relationLabelRadius),
+      ),
+      Paint()..color = color.withValues(alpha: .12),
+    );
     labelPainter.paint(
       canvas,
-      Offset(
-        (original.center.dx + changed.center.dx - labelPainter.width) / 2,
-        row.top + 2,
-      ),
+      geometry.labelCenter -
+          Offset(labelPainter.width / 2, labelPainter.height / 2),
     );
   }
 
