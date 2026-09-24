@@ -9,6 +9,7 @@ class ReturnRelationGlyphGeometry {
     required this.arrowTip,
     required this.arrowBase,
     required this.label,
+    required this.labelCenter,
     required this.pathBounds,
     required this.bounds,
   });
@@ -18,6 +19,7 @@ class ReturnRelationGlyphGeometry {
   final Offset arrowTip;
   final Offset arrowBase;
   final String label;
+  final Offset labelCenter;
   final Rect pathBounds;
   final Set<Rect> bounds;
 }
@@ -62,6 +64,7 @@ abstract final class ReturnRelationGlyph {
       arrowTip: arrowTip,
       arrowBase: arrowBase,
       label: type == RelationType.huiTouSheng ? '回头生' : '回头克',
+      labelCenter: Offset((start.dx + end.dx) / 2, hookY),
       pathBounds: pathBounds,
       bounds: {pathBounds, arrow.getBounds()},
     );
