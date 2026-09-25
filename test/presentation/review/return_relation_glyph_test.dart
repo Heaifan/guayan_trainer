@@ -5,11 +5,14 @@ import 'package:guayan_trainer/domain/relation_type.dart';
 import 'package:guayan_trainer/presentation/review/return_relation_glyph.dart';
 
 void main() {
+  const originalRect = Rect.fromLTWH(212, 12, 24, 20);
+  const changedRect = Rect.fromLTWH(278, 12, 24, 20);
+
   test('回头生固定从变爻向下回折并进入原爻', () {
     final geometry = ReturnRelationGlyph.layout(
       rowRect: const Rect.fromLTWH(0, 0, 402, 44),
-      originalRect: const Rect.fromLTWH(212, 12, 24, 20),
-      changedRect: const Rect.fromLTWH(278, 12, 24, 20),
+      originalRect: originalRect,
+      changedRect: changedRect,
       type: RelationType.huiTouSheng,
     );
 
@@ -24,8 +27,8 @@ void main() {
   test('回头克与回头生使用同一局部U形方向', () {
     final geometry = ReturnRelationGlyph.layout(
       rowRect: const Rect.fromLTWH(0, 0, 402, 44),
-      originalRect: const Rect.fromLTWH(212, 12, 24, 20),
-      changedRect: const Rect.fromLTWH(278, 12, 24, 20),
+      originalRect: originalRect,
+      changedRect: changedRect,
       type: RelationType.huiTouKe,
     );
 
