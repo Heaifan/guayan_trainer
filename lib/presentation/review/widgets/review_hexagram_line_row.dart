@@ -29,6 +29,8 @@ class ReviewHexagramLineRow extends StatelessWidget {
     this.onTap,
     this.mainAnchorKey,
     this.changedAnchorKey,
+    this.mainYaoAnchorKey,
+    this.changedYaoAnchorKey,
     this.rowKey,
     this.obstacleKeys = const {},
   });
@@ -36,8 +38,11 @@ class ReviewHexagramLineRow extends StatelessWidget {
   final ReviewLineView line;
   final bool selected;
   final VoidCallback? onTap;
+  /// 普通生克使用正文锚点；回头生克单独使用真实爻象锚点。
   final GlobalKey? mainAnchorKey;
   final GlobalKey? changedAnchorKey;
+  final GlobalKey? mainYaoAnchorKey;
+  final GlobalKey? changedYaoAnchorKey;
   final GlobalKey? rowKey;
   final Map<String, GlobalKey> obstacleKeys;
 
@@ -131,9 +136,10 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 shiYingKey: Key('shi_ying_${line.position}'),
                 yaoKey: Key('yao_glyph_${line.position}'),
                 textKey: Key('main_text_slot_${line.position}'),
+                textAnchorKey: mainAnchorKey,
                 shiYingSlotKey: Key('main_shi_ying_slot_${line.position}'),
                 yaoSlotKey: Key('main_yao_slot_${line.position}'),
-                yaoAnchorKey: mainAnchorKey,
+                yaoAnchorKey: mainYaoAnchorKey,
                 yaoKind: _mainYaoKind,
                 ),
               ),
@@ -174,9 +180,10 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 shiYingKey: Key('changed_shi_ying_${line.position}'),
                 yaoKey: Key('changed_yao_glyph_${line.position}'),
                 textKey: Key('changed_text_slot_${line.position}'),
+                textAnchorKey: changedAnchorKey,
                 shiYingSlotKey: Key('changed_shi_ying_slot_${line.position}'),
                 yaoSlotKey: Key('changed_yao_slot_${line.position}'),
-                yaoAnchorKey: changedAnchorKey,
+                yaoAnchorKey: changedYaoAnchorKey,
                 reverse: true,
                 yaoKind: line.changed?.movementType == null
                     ? null

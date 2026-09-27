@@ -128,6 +128,10 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
     'day': GlobalKey(),
     'hour': GlobalKey(),
   };
+  late final _returnAnchorKeys = <String, GlobalKey>{
+    for (var i = 1; i <= 6; i++) 'yao:original:$i': GlobalKey(),
+    for (var i = 1; i <= 6; i++) 'yao:changed:$i': GlobalKey(),
+  };
   late final _rowKeys = <int, GlobalKey>{
     for (var position = 1; position <= 6; position++) position: GlobalKey(),
   };
@@ -275,6 +279,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                               selectedPosition: _effectiveFocusedPosition,
                               onLineTap: _onLineTap,
                               anchorKeys: _anchorKeys,
+                              returnAnchorKeys: _returnAnchorKeys,
                               rowKeys: _rowKeys,
                               obstacleKeys: _obstacleKeys,
                             ),
@@ -283,6 +288,7 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                         RelationOverlay(
                           records: widget.state.relationRecords,
                           anchorKeys: _anchorKeys,
+                          returnAnchorKeys: _returnAnchorKeys,
                           rowKeys: _rowKeys,
                           obstacleKeys: _obstacleKeys,
                           selectedId: _selectedRelationId,

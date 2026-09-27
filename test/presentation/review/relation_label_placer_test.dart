@@ -5,6 +5,7 @@ import 'package:guayan_trainer/presentation/review/relation_geometry.dart';
 import 'package:guayan_trainer/presentation/review/relation_label_placer.dart';
 import 'package:guayan_trainer/presentation/review/relation_obstacle_map.dart';
 import 'package:guayan_trainer/presentation/review/relation_orthogonal_router.dart';
+import 'package:guayan_trainer/presentation/review/relation_visual_tokens.dart';
 
 void main() {
   test('label uses measured text bounds and avoids obstacles and prior labels', () {
@@ -32,5 +33,16 @@ void main() {
     expect(placed.bounds.height, greaterThan(16));
     expect(placed.bounds.overlaps(const Rect.fromLTWH(40, 75, 30, 18)), isFalse);
     expect(placed.bounds.overlaps(const Rect.fromLTWH(120, 100, 35, 24)), isFalse);
+
+    final sourceGuard = Rect.fromCircle(
+      center: route.points.first,
+      radius: RelationVisualTokens.relationLabelArrowClearance,
+    );
+    final targetGuard = Rect.fromCircle(
+      center: route.points.last,
+      radius: RelationVisualTokens.relationLabelArrowClearance,
+    );
+    expect(placed.bounds.overlaps(sourceGuard), isFalse);
+    expect(placed.bounds.overlaps(targetGuard), isFalse);
   });
 }

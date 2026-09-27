@@ -1,5 +1,6 @@
 import 'package:flutter/painting.dart';
 
+import 'relation_label_visual.dart';
 import 'relation_obstacle_map.dart';
 import 'relation_orthogonal_router.dart';
 import 'relation_visual_tokens.dart';
@@ -25,21 +26,26 @@ abstract final class RelationLabelPlacer {
     required RelationObstacleMap obstacles,
     Iterable<Rect> placedLabels = const [],
   }) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: const TextStyle(
-          fontSize: RelationVisualTokens.relationLabelFontSize,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    final size = Size(painter.width + 12, RelationVisualTokens.relationLabelHeight);
+    final size = RelationLabelVisual.sizeFor(text);
     final occupied = [...placedLabels];
+    final endpointGuards = [
+      Rect.fromCircle(
+        center: route.points.first,
+        radius: RelationVisualTokens.relationLabelArrowClearance,
+      ),
+      Rect.fromCircle(
+        center: route.points.last,
+        radius: RelationVisualTokens.relationLabelArrowClearance,
+      ),
+    ];
     for (final center in _candidateCenters(route.points)) {
-      final raw = Rect.fromCenter(center: center, width: size.width, height: size.height);
+      final raw = Rect.fromCenter(
+        center: center,
+        width: size.width,
+        height: size.height,
+      );
       final safe = raw.inflate(RelationVisualTokens.safePadding);
+      if (endpointGuards.any((guard) => guard.overlaps(safe))) continue;
       if (obstacles.obstacles.any((obstacle) => obstacle.bounds.overlaps(safe))) {
         continue;
       }
@@ -63,8 +69,10 @@ abstract final class RelationLabelPlacer {
       final length = delta.distance;
       if (length == 0) continue;
       final normal = Offset(-delta.dy / length, delta.dx / length);
-      yield midpoint + normal * 12;
-      yield midpoint - normal * 12;
+      yield midpoint + normal * 14;
+      yield midpoint - normal * 14;
+      yield midpoint + normal * 20;
+      yield midpoint - normal * 20;
       yield midpoint;
     }
   }

@@ -8,9 +8,14 @@ abstract final class RelationVisualTokens {
   static const arrowSize = 4.5;
   static const arrowSizeFocused = 5.5;
   static const anchorRadius = 2.20;
-  static const relationLabelFontSize = 9.0;
-  static const relationLabelHeight = 16.0;
-  static const relationLabelRadius = 8.0;
+  static const relationLabelFontSize = 8.0;
+  static const relationLabelHeight = 14.0;
+  static const relationLabelRadius = 7.0;
+  static const relationLabelHorizontalPadding = 8.0;
+  static const relationLabelBorderWidth = 0.7;
+  static const relationLabelFillOpacity = 0.10;
+  static const relationLabelBorderOpacity = 0.28;
+  static const relationLabelArrowClearance = 10.0;
   static const stateLabelFontSize = 8.0;
   static const stateLabelHeight = 14.0;
   static const stateLabelRadius = 7.0;

@@ -71,8 +71,18 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
   int get _totalCount =>
       relationFilterCounts(widget.state.relationRecords)['全部'] ?? 0;
 
-  Map<String, int> get _counts =>
-      relationFilterCounts(widget.state.relationRecords);
+  Map<String, int> get _counts {
+    final position = widget.focusedPosition;
+    if (position == null) {
+      return const {'全部': 0, '生克': 0, '特殊': 0};
+    }
+    final focused = filterReviewRelationRecords(
+      widget.state.relationRecords,
+      focus: YaoEndpoint(LineScope.original, position),
+      category: '全部',
+    );
+    return relationFilterCounts(focused);
+  }
 
   List<String> get _stateLabels {
     final position = widget.focusedPosition;
@@ -111,7 +121,7 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
               Expanded(
                 child: Text(
                   widget.focusedPosition == null
-                      ? '当前卦共 $_totalCount 条关系，点击某一爻后显示相关关系'
+                      ? '点击某一爻，仅显示该爻相关关系'
                       : '当前聚焦：${reviewLinePositionName(widget.focusedPosition!)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -125,7 +135,7 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
               const Spacer(),
               Text(
                 widget.focusedPosition == null
-                    ? '$_totalCount 条'
+                    ? '—'
                     : '${_relations.length} 条',
                 style: const TextStyle(fontSize: 10, color: Color(0xFF71838B)),
               ),
@@ -154,27 +164,28 @@ class _RelationFilterPanelState extends State<_RelationFilterPanel> {
             ],
           ),
           const Spacer(),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            child: Row(
-              children: [
-                for (var i = 0; i < filters.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {});
-                      widget.onFilterChanged?.call(filters[i]);
-                    },
-                    child: _FilterChip(
-                      label: '${filters[i]} ${_counts[filters[i]] ?? 0}',
-                      isActive: _selected == filters[i],
+          if (widget.focusedPosition != null)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child: Row(
+                children: [
+                  for (var i = 0; i < filters.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {});
+                        widget.onFilterChanged?.call(filters[i]);
+                      },
+                      child: _FilterChip(
+                        label: '${filters[i]} ${_counts[filters[i]] ?? 0}',
+                        isActive: _selected == filters[i],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
           if (widget.focusedPosition != null) ...[
             const SizedBox(height: 8),
             SizedBox(

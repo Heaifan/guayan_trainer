@@ -69,7 +69,11 @@ abstract final class ReturnRelationGlyph {
       arrowTip: arrowTip,
       arrowBase: arrowBase,
       label: type == RelationType.huiTouSheng ? '回头生' : '回头克',
-      labelCenter: Offset((start.dx + end.dx) / 2, hookY),
+      // 标签向变爻侧轻移，给原爻箭头留出明确呼吸区。
+      labelCenter: Offset(
+        (start.dx + end.dx) / 2 - direction * 4,
+        hookY,
+      ),
       pathBounds: pathBounds,
       bounds: {pathBounds, arrow.getBounds()},
     );

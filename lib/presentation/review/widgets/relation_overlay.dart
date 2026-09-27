@@ -6,6 +6,7 @@ import '../../../domain/relation_type.dart';
 import '../../../domain/relations/relation_record.dart';
 import '../relation_geometry.dart';
 import '../relation_label_placer.dart';
+import '../relation_label_visual.dart';
 import '../relation_debug_painter.dart';
 import '../relation_render_plan.dart';
 import '../relation_route_cache.dart';
@@ -21,6 +22,7 @@ class RelationOverlay extends StatefulWidget {
     this.selectedId,
     this.onRelationTap,
     this.anchorKeys = const {},
+    this.returnAnchorKeys = const {},
     this.rowKeys = const {},
     this.obstacleKeys = const {},
     this.category,
@@ -31,7 +33,9 @@ class RelationOverlay extends StatefulWidget {
   final RelationEndpoint? focus;
   final String? selectedId;
   final ValueChanged<String>? onRelationTap;
+  /// 普通生克锚在主卦正文；回头生克锚在真实爻象，二者禁止共用。
   final Map<String, GlobalKey> anchorKeys;
+  final Map<String, GlobalKey> returnAnchorKeys;
   final Map<int, GlobalKey> rowKeys;
   final Map<String, GlobalKey> obstacleKeys;
   final String? category;
@@ -95,6 +99,7 @@ class _RelationOverlayState extends State<RelationOverlay> {
           ),
           selectedId: widget.selectedId,
           anchorKeys: widget.anchorKeys,
+          returnAnchorKeys: widget.returnAnchorKeys,
           rowKeys: widget.rowKeys,
           obstacleKeys: widget.obstacleKeys,
           context: context,
@@ -111,6 +116,7 @@ class _RelationPainter extends CustomPainter {
     required this.records,
     required this.selectedId,
     required this.anchorKeys,
+    required this.returnAnchorKeys,
     required this.rowKeys,
     required this.obstacleKeys,
     required this.context,
@@ -121,6 +127,7 @@ class _RelationPainter extends CustomPainter {
   final List<RelationRecord> records;
   final String? selectedId;
   final Map<String, GlobalKey> anchorKeys;
+  final Map<String, GlobalKey> returnAnchorKeys;
   final Map<int, GlobalKey> rowKeys;
   final Map<String, GlobalKey> obstacleKeys;
   final BuildContext context;
@@ -130,6 +137,7 @@ class _RelationPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final anchorBounds = _collect(anchorKeys);
+    final returnAnchorBounds = _collect(returnAnchorKeys);
     final obstacleBounds = <String, Rect>{
       ...anchorBounds,
       ..._collect(obstacleKeys),
@@ -138,6 +146,7 @@ class _RelationPainter extends CustomPainter {
       records,
       obstacleBounds,
       anchorBounds,
+      returnAnchorBounds,
       size,
     ));
     final plan = cache.resolve(key, () => RelationOverlay.planForBounds(
@@ -160,11 +169,12 @@ class _RelationPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
       canvas.drawPath(plan.routes[i].path, paint);
-      _drawArrow(canvas, plan.routes[i].path, color);
+      // 标签先画、箭头最后画：文字胶囊不能盖住箭头。
       _drawLabel(canvas, plan.labels[i], color);
+      _drawArrow(canvas, plan.routes[i].path, color);
     }
     for (final record in records.where(_isReturn)) {
-      _drawReturn(canvas, record, anchorBounds);
+      _drawReturn(canvas, record, returnAnchorBounds);
     }
     if (debugMode) _drawDebug(canvas, size, anchorBounds, obstacleBounds, plan);
   }
@@ -173,6 +183,7 @@ class _RelationPainter extends CustomPainter {
     List<RelationRecord> records,
     Map<String, Rect> obstacles,
     Map<String, Rect> anchors,
+    Map<String, Rect> returnAnchors,
     Size size,
   ) => [
     size.width,
@@ -180,6 +191,8 @@ class _RelationPainter extends CustomPainter {
     for (final record in records) record.id,
     for (final entry in obstacles.entries) '${entry.key}:${entry.value}',
     for (final entry in anchors.entries) '${entry.key}:${entry.value}',
+    for (final entry in returnAnchors.entries)
+      'return:${entry.key}:${entry.value}',
   ].join('|');
 
   Map<String, Rect> _collect(Map<String, GlobalKey> keys) {
@@ -217,18 +230,12 @@ class _RelationPainter extends CustomPainter {
   }
 
   void _drawLabel(Canvas canvas, PlacedRelationLabel label, Color color) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: label.text,
-        style: TextStyle(
-          color: color,
-          fontSize: RelationVisualTokens.relationLabelFontSize,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    painter.paint(canvas, label.center - Offset(painter.width / 2, painter.height / 2));
+    RelationLabelVisual.paint(
+      canvas,
+      text: label.text,
+      center: label.center,
+      color: color,
+    );
   }
 
   void _drawReturn(Canvas canvas, RelationRecord record, Map<String, Rect> bounds) {
@@ -257,49 +264,14 @@ class _RelationPainter extends CustomPainter {
         ..strokeWidth = RelationVisualTokens.strokeNormal
         ..strokeCap = StrokeCap.round,
     );
-    canvas.drawPath(geometry.arrow, Paint()..color = color);
-    final labelPainter = TextPainter(
-      text: TextSpan(
-        text: geometry.label,
-        style: TextStyle(
-          color: color,
-          fontSize: RelationVisualTokens.relationLabelFontSize,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    final labelRect = Rect.fromCenter(
-      center: geometry.labelCenter,
-      width: labelPainter.width + 12,
-      height: RelationVisualTokens.relationLabelHeight,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        labelRect,
-        const Radius.circular(RelationVisualTokens.relationLabelRadius),
-      ),
-      Paint()
-        ..color = Color.alphaBlend(
-          color.withValues(alpha: .10),
-          Theme.of(context).colorScheme.surface.withValues(alpha: .96),
-        ),
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        labelRect,
-        const Radius.circular(RelationVisualTokens.relationLabelRadius),
-      ),
-      Paint()
-        ..color = color.withValues(alpha: .30)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = .8,
-    );
-    labelPainter.paint(
+    RelationLabelVisual.paint(
       canvas,
-      geometry.labelCenter -
-          Offset(labelPainter.width / 2, labelPainter.height / 2),
+      text: geometry.label,
+      center: geometry.labelCenter,
+      color: color,
     );
+    // 箭头最后绘制，永远压在胶囊之上。
+    canvas.drawPath(geometry.arrow, Paint()..color = color);
   }
 
   void _drawDebug(

@@ -21,6 +21,7 @@ class HexagramLineCell extends StatelessWidget {
     this.textWidth = 64,
     this.reverse = false,
     this.textKey,
+    this.textAnchorKey,
     this.shiYingSlotKey,
     this.yaoSlotKey,
     this.yaoAnchorKey,
@@ -46,6 +47,7 @@ class HexagramLineCell extends StatelessWidget {
   final TextStyle textStyle;
   final bool reverse;
   final Key? textKey;
+  final Key? textAnchorKey;
   final Key? shiYingSlotKey;
   final Key? yaoSlotKey;
   final Key? yaoAnchorKey;
@@ -63,6 +65,7 @@ class HexagramLineCell extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Baseline(
+            key: textAnchorKey,
             baseline: 16,
             baselineType: TextBaseline.alphabetic,
             child: identity == null

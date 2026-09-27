@@ -25,6 +25,10 @@ void main() {
     expect(geometry.pathBounds.bottom, lessThanOrEqualTo(rowRect.bottom - 9));
     expect(geometry.pathBounds.width, lessThan(60));
     expect(geometry.labelCenter.dy, lessThan(rowRect.bottom - 8));
+    expect(
+      geometry.labelCenter.dx,
+      greaterThan((originalRect.center.dx + changedRect.center.dx) / 2),
+    );
   });
 
   test('回头克与回头生使用同一局部U形方向且不跨行', () {
