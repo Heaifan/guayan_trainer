@@ -57,6 +57,33 @@ void main() {
     expect(plan.records.single.id, record.id);
   });
 
+  test('null focus renders whole-hexagram relations', () {
+    final records = [
+      RelationRecord.relation(
+        id: 'sheng-global',
+        sourceKind: RelationSourceKind.fact,
+        relationType: RelationType.sheng,
+        fromRef: YaoEndpoint(LineScope.original, 2),
+        toRef: YaoEndpoint(LineScope.original, 5),
+        title: '生',
+      ),
+      RelationRecord.relation(
+        id: 'ke-global',
+        sourceKind: RelationSourceKind.fact,
+        relationType: RelationType.ke,
+        fromRef: YaoEndpoint(LineScope.original, 4),
+        toRef: YaoEndpoint(LineScope.original, 1),
+        title: '克',
+      ),
+    ];
+
+    expect(
+      RelationOverlay.visibleRecords(records, focus: null, category: '全部')
+          .map((record) => record.id),
+      ['ke-global', 'sheng-global'],
+    );
+  });
+
   test('review projection excludes non-renderer records but preserves four labels', () {
     final records = [
       for (final type in [
