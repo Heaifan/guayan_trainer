@@ -77,14 +77,31 @@ abstract final class RelationOrthogonalRouter {
     final target = pair.target.point;
     yield [source, Offset(target.dx, source.dy), target];
     yield [source, Offset(source.dx, target.dy), target];
-    final left = math.max(viewport.left + 12, math.min(source.dx, target.dx) - 20);
-    final right = math.min(viewport.right - 12, math.max(source.dx, target.dx) + 20);
-    yield [source, Offset(left, source.dy), Offset(left, target.dy), target];
-    yield [source, Offset(right, source.dy), Offset(right, target.dy), target];
-    final top = math.max(viewport.top + 12, math.min(source.dy, target.dy) - 20);
-    final bottom = math.min(viewport.bottom - 12, math.max(source.dy, target.dy) + 20);
-    yield [source, Offset(source.dx, top), Offset(target.dx, top), target];
-    yield [source, Offset(source.dx, bottom), Offset(target.dx, bottom), target];
+    // 单一 ±20 lane 对真实卦盘不够：正文、爻象、动爻标记会把它堵死。
+    // 多级 lane 仍保持最多 2 个弯，但允许 Router 主动换到更外侧走廊。
+    for (final offset in const [20.0, 32.0, 44.0, 56.0, 72.0]) {
+      final left = math.max(
+        viewport.left + 12,
+        math.min(source.dx, target.dx) - offset,
+      );
+      final right = math.min(
+        viewport.right - 12,
+        math.max(source.dx, target.dx) + offset,
+      );
+      yield [source, Offset(left, source.dy), Offset(left, target.dy), target];
+      yield [source, Offset(right, source.dy), Offset(right, target.dy), target];
+
+      final top = math.max(
+        viewport.top + 12,
+        math.min(source.dy, target.dy) - offset,
+      );
+      final bottom = math.min(
+        viewport.bottom - 12,
+        math.max(source.dy, target.dy) + offset,
+      );
+      yield [source, Offset(source.dx, top), Offset(target.dx, top), target];
+      yield [source, Offset(source.dx, bottom), Offset(target.dx, bottom), target];
+    }
   }
 
   static List<Offset> _normalize(List<Offset> points) {

@@ -88,7 +88,8 @@ void main() {
       title: '初生二',
     );
 
-    expect(RelationOverlay.visibleRecords([state, relation]), isEmpty);
+    // R1：无 focus 即全卦总览；有 focus 仍可作为未来筛选能力复用。
+    expect(RelationOverlay.visibleRecords([state, relation]), [relation]);
     expect(RelationOverlay.visibleRecords([state, relation], focus: line), [
       relation,
     ]);

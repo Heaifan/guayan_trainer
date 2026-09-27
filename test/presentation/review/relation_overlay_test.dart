@@ -84,6 +84,45 @@ void main() {
     );
   });
 
+  test('real board text anchors keep five ordinary relations paintable', () {
+    final records = [
+      for (final pair in const [(1, 4), (2, 5), (3, 6), (6, 2), (5, 1)])
+        RelationRecord.relation(
+          id: 'sheng-${pair.$1}-${pair.$2}',
+          sourceKind: RelationSourceKind.fact,
+          relationType: RelationType.sheng,
+          fromRef: YaoEndpoint(LineScope.original, pair.$1),
+          toRef: YaoEndpoint(LineScope.original, pair.$2),
+          title: '生',
+        ),
+    ];
+
+    final anchors = <String, Rect>{
+      for (var p = 1; p <= 6; p++)
+        'yao:original:$p': Rect.fromLTWH(136, (6 - p) * 45.0 + 8, 64, 16),
+    };
+    final bounds = <String, Rect>{
+      ...anchors,
+      for (var p = 1; p <= 6; p++)
+        'yao_glyph:yao:original:$p':
+            Rect.fromLTWH(226, (6 - p) * 45.0 + 19, 24, 6),
+      for (final p in const [1, 3, 5])
+        'moving_marker_$p':
+            Rect.fromLTWH(254, (6 - p) * 45.0 + 16, 12, 12),
+    };
+
+    final plan = RelationOverlay.planForBounds(
+      records: records,
+      bounds: bounds,
+      anchorBounds: anchors,
+      viewportSize: const Size(402, 270),
+    );
+
+    expect(plan.routes, hasLength(5));
+    expect(plan.records, hasLength(5));
+    expect(plan.labels, hasLength(5));
+  });
+
   test('review projection excludes non-renderer records but preserves four labels', () {
     final records = [
       for (final type in [

@@ -139,6 +139,10 @@ class _RelationPainter extends CustomPainter {
     final returnAnchorBounds = _collect(returnAnchorKeys);
     final obstacleBounds = <String, Rect>{
       ...anchorBounds,
+      // 回头关系的真实爻象也参与普通 Router 避障，但使用独立 ID，
+      // 不能覆盖同 semanticId 的“正文锚点”。
+      for (final entry in returnAnchorBounds.entries)
+        'yao_glyph:${entry.key}': entry.value,
       ..._collect(obstacleKeys),
     };
     final key = RelationRouteCacheKey(_fingerprint(

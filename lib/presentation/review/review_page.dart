@@ -137,9 +137,9 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
       'hidden_slot_${position}_1': GlobalKey(),
       'main_hidden_slot_$position': GlobalKey(),
       'opposite_hidden_slot_$position': GlobalKey(),
-      'main_line_cell_$position': GlobalKey(),
+      // 禁止再把整块 114×44 主/变卦 Cell 当硬障碍：
+      // 六行叠加后会形成连续“墙”，普通生克从正文锚点根本出不来。
       'moving_marker_$position': GlobalKey(),
-      'changed_line_cell_$position': GlobalKey(),
     },
   };
 

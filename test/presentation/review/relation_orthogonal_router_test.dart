@@ -41,6 +41,28 @@ void main() {
     expect(route.path.toString(), isNot(contains('cubic')));
   });
 
+  test('router can switch beyond the first blocked 20dp lane', () {
+    final source = RelationAnchors.fromRect(
+      const Rect.fromLTWH(136, 210, 64, 16),
+    );
+    final target = RelationAnchors.fromRect(
+      const Rect.fromLTWH(136, 30, 64, 16),
+    );
+    final obstacles = RelationObstacleMap.fromBounds({
+      'block-20-lane': const Rect.fromLTWH(206, 70, 28, 110),
+    });
+
+    final result = RelationOrthogonalRouter.route(
+      source: source,
+      target: target,
+      obstacles: obstacles,
+      viewport: const Rect.fromLTWH(0, 0, 402, 270),
+    );
+
+    expect(result.isNoRoute, isFalse);
+    expect(obstacles.isClearPath(result.route!.points), isTrue);
+  });
+
   test('all illegal candidates return NoRoute instead of an unsafe fallback', () {
     final source = RelationAnchors.fromRect(Rect.fromLTWH(40, 80, 40, 20));
     final target = RelationAnchors.fromRect(Rect.fromLTWH(40, 20, 40, 20));
