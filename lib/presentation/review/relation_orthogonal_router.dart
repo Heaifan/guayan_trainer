@@ -106,11 +106,11 @@ abstract final class RelationOrthogonalRouter {
     for (final offset in const [14.0, 28.0]) {
       final leftX = math.max(
         viewport.left + 4,
-        math.min(source.bounds.left, target.bounds.left) - offset,
+        math.min(s.dx, t.dx) - offset,
       );
       final rightX = math.min(
         viewport.right - 4,
-        math.max(source.bounds.right, target.bounds.right) + offset,
+        math.max(s.dx, t.dx) + offset,
       );
       yield [s, Offset(leftX, s.dy), Offset(leftX, t.dy), t];
       yield [s, Offset(rightX, s.dy), Offset(rightX, t.dy), t];

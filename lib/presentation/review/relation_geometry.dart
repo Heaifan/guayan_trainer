@@ -68,6 +68,12 @@ class AnchorPair {
 }
 
 abstract final class AnchorPairCandidates {
+  /// 兼容旧调用名；V2 后它与普通生克候选完全一致。
+  static List<AnchorPair> forNodes(
+    RelationAnchors source,
+    RelationAnchors target,
+  ) => ordinary(source, target);
+
   /// 普通生克只产生 L/R × L/R 四组候选。
   static List<AnchorPair> ordinary(
     RelationAnchors source,
