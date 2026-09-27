@@ -608,37 +608,24 @@ void main() {
     });
   });
 
-  group('Focus 卦盘内关系展示（FIX3）', () {
-    testWidgets('首次打开使用 focusedLine；点击某爻直接切换 Focus', (tester) async {
+  group('全卦关系展示', () {
+    testWidgets('首次打开直接展示全卦关系，不进入单爻聚焦模式', (tester) async {
       await pumpDemo(tester);
 
-      expect(find.text('当前聚焦：三爻'), findsOneWidget);
-      expect(find.byKey(const Key('focused_state_summary')), findsOneWidget);
-      expect(find.text('状态 空亡'), findsOneWidget);
-
-      await tester.ensureVisible(find.byKey(const Key('review_line_3')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('review_line_3')));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('line_detail_sheet')), findsNothing);
-      expect(find.text('当前聚焦：三爻'), findsOneWidget);
+      expect(find.text('全卦关系'), findsOneWidget);
+      expect(find.textContaining('当前聚焦：'), findsNothing);
+      expect(find.byKey(const Key('focused_state_summary')), findsNothing);
+      expect(find.text('全部 12'), findsOneWidget);
+      expect(find.text('生克 10'), findsOneWidget);
+      expect(find.text('特殊 2'), findsOneWidget);
     });
 
-    testWidgets('再次点击同一爻 → 回到默认 focusedLine', (tester) async {
-      var opened = false;
-      await pumpDemo(tester, onOpenRelations: () => opened = true);
+    testWidgets('卦盘行不再承担关系过滤入口', (tester) async {
+      await pumpDemo(tester);
 
-      await tester.ensureVisible(find.byKey(const Key('review_line_6')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('review_line_6')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('review_line_6')));
-      await tester.pumpAndSettle();
-
-      expect(opened, isFalse);
-      expect(find.text('当前聚焦：上爻'), findsNothing);
-      expect(find.text('当前聚焦：三爻'), findsOneWidget);
+      expect(find.text('全卦关系'), findsOneWidget);
+      expect(find.textContaining('当前聚焦：'), findsNothing);
+      expect(find.byType(InkWell), findsWidgets);
       expect(find.byKey(const Key('line_detail_sheet')), findsNothing);
     });
   });
