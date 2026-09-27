@@ -30,7 +30,7 @@ jobs:
         run: flutter analyze
 
       - name: Return relation tests
-        run: flutter test test/presentation/review/return_relation_glyph_test.dart test/presentation/review/relation_overlay_test.dart
+        run: flutter test test/presentation/review/return_relation_glyph_test.dart test/presentation/review/relation_overlay_test.dart test/presentation/review/hexagram_line_cell_anchor_test.dart
 
       - name: Build release APK
         run: flutter build apk --release

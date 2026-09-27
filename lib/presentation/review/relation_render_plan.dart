@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import '../../domain/relation_endpoint.dart';
 import '../../domain/relation_type.dart';
 import '../../domain/relations/relation_record.dart';
 import 'relation_label_placer.dart';
@@ -71,13 +72,23 @@ abstract final class RelationRenderPlanner {
     RelationObstacleMap map,
     RelationRecord record,
   ) {
-    final excluded = {
+    final excluded = <String?>{
       record.fromRef?.semanticId,
       record.toRef?.semanticId,
+      ..._endpointCellObstacleIds(record.fromRef),
+      ..._endpointCellObstacleIds(record.toRef),
     };
     return RelationObstacleMap([
       for (final obstacle in map.obstacles)
         if (!excluded.contains(obstacle.id)) obstacle,
     ]);
+  }
+
+  static Iterable<String> _endpointCellObstacleIds(RelationEndpoint? endpoint) sync* {
+    if (endpoint is! YaoEndpoint) return;
+    yield switch (endpoint.scope) {
+      LineScope.original => 'main_line_cell_${endpoint.position}',
+      LineScope.changed => 'changed_line_cell_${endpoint.position}',
+    };
   }
 }

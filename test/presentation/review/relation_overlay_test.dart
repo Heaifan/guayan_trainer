@@ -28,6 +28,35 @@ void main() {
     expect(plan.labels, isEmpty);
   });
 
+  test('ordinary route can leave endpoint cells after endpoint obstacles are excluded', () {
+    final record = RelationRecord.relation(
+      id: 'sheng-endpoint-cells',
+      sourceKind: RelationSourceKind.fact,
+      relationType: RelationType.sheng,
+      fromRef: YaoEndpoint(LineScope.original, 3),
+      toRef: YaoEndpoint(LineScope.original, 6),
+      title: '生',
+    );
+
+    final plan = RelationOverlay.planForBounds(
+      records: [record],
+      bounds: const {
+        'yao:original:3': Rect.fromLTWH(226, 119, 24, 6),
+        'yao:original:6': Rect.fromLTWH(226, 19, 24, 6),
+        'main_line_cell_3': Rect.fromLTWH(136, 100, 114, 44),
+        'main_line_cell_6': Rect.fromLTWH(136, 0, 114, 44),
+      },
+      anchorBounds: const {
+        'yao:original:3': Rect.fromLTWH(226, 119, 24, 6),
+        'yao:original:6': Rect.fromLTWH(226, 19, 24, 6),
+      },
+      viewportSize: const Size(402, 264),
+    );
+
+    expect(plan.routes, hasLength(1));
+    expect(plan.records.single.id, record.id);
+  });
+
   test('review projection excludes non-renderer records but preserves four labels', () {
     final records = [
       for (final type in [

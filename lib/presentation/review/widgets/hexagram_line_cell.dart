@@ -23,6 +23,7 @@ class HexagramLineCell extends StatelessWidget {
     this.textKey,
     this.shiYingSlotKey,
     this.yaoSlotKey,
+    this.yaoAnchorKey,
     this.textStyle = const TextStyle(
       fontSize: 12,
       fontWeight: FontWeight.w700,
@@ -47,6 +48,7 @@ class HexagramLineCell extends StatelessWidget {
   final Key? textKey;
   final Key? shiYingSlotKey;
   final Key? yaoSlotKey;
+  final Key? yaoAnchorKey;
 
   static const _shiYingWidth = 14.0;
   static const _yaoWidth = 24.0;
@@ -123,17 +125,18 @@ class HexagramLineCell extends StatelessWidget {
         ),
       ),
     );
+    final yaoAnchor = SizedBox(
+      key: yaoAnchorKey,
+      width: YaoGlyph.slotWidth,
+      height: YaoGlyph.slotHeight,
+      child: yaoKind == null
+          ? const SizedBox.expand()
+          : YaoGlyph(key: yaoKey, kind: yaoKind!),
+    );
     final yaoSlot = SizedBox(
       key: yaoSlotKey,
       width: _yaoWidth,
-      child: Center(
-        child: yaoKind == null
-            ? const SizedBox(
-                width: YaoGlyph.slotWidth,
-                height: YaoGlyph.slotHeight,
-              )
-            : YaoGlyph(key: yaoKey, kind: yaoKind!),
-      ),
+      child: Center(child: yaoAnchor),
     );
     return SizedBox(
       width: textWidth + 8 + _shiYingWidth + 4 + _yaoWidth,

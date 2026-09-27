@@ -117,7 +117,6 @@ class ReviewHexagramLineRow extends StatelessWidget {
             left: BoardColumnLayout.mainTextLeft,
             top: 0,
             child: SizedBox(
-              key: mainAnchorKey,
               child: KeyedSubtree(
                 key: obstacleKeys['main_line_cell_${line.position}'],
                 child: HexagramLineCell(
@@ -134,6 +133,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 textKey: Key('main_text_slot_${line.position}'),
                 shiYingSlotKey: Key('main_shi_ying_slot_${line.position}'),
                 yaoSlotKey: Key('main_yao_slot_${line.position}'),
+                yaoAnchorKey: mainAnchorKey,
                 yaoKind: _mainYaoKind,
                 ),
               ),
@@ -160,7 +160,6 @@ class ReviewHexagramLineRow extends StatelessWidget {
             left: BoardColumnLayout.changedYaoLeft,
             top: 0,
             child: SizedBox(
-              key: changedAnchorKey,
               child: KeyedSubtree(
                 key: obstacleKeys['changed_line_cell_${line.position}'],
                 child: HexagramLineCell(
@@ -177,6 +176,7 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 textKey: Key('changed_text_slot_${line.position}'),
                 shiYingSlotKey: Key('changed_shi_ying_slot_${line.position}'),
                 yaoSlotKey: Key('changed_yao_slot_${line.position}'),
+                yaoAnchorKey: changedAnchorKey,
                 reverse: true,
                 yaoKind: line.changed?.movementType == null
                     ? null

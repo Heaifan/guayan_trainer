@@ -32,13 +32,18 @@ abstract final class ReturnRelationGlyph {
     required RelationType type,
   }) {
     // 回头生/克语义方向固定：变爻 -> 原爻。
-    // 只在本行下方走一个紧凑 U 形，不进入普通关系 Router。
+    // 锚点必须是真实 24x6 爻象；U 形只占本行中央走廊，不跨行、不进正文。
     final start = Offset(changedRect.center.dx, changedRect.bottom);
     final end = Offset(originalRect.center.dx, originalRect.bottom);
-    final available = rowRect.bottom - (start.dy > end.dy ? start.dy : end.dy);
-    final hookDepth = available.clamp(8.0, 14.0).toDouble();
-    final hookY = (start.dy > end.dy ? start.dy : end.dy) + hookDepth;
-    const radius = 6.0;
+    final lowerAnchor = start.dy > end.dy ? start.dy : end.dy;
+    final labelHalfHeight = 8.0;
+    final maxHookY = rowRect.bottom - labelHalfHeight - 1.0;
+    final preferredHookY = lowerAnchor + 10.0;
+    final hookY = preferredHookY.clamp(
+      lowerAnchor + 6.0,
+      maxHookY > lowerAnchor + 6.0 ? maxHookY : lowerAnchor + 6.0,
+    ).toDouble();
+    const radius = 5.0;
     final direction = end.dx < start.dx ? -1.0 : 1.0;
 
     final path = Path()

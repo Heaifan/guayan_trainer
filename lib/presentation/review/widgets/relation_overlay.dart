@@ -279,7 +279,21 @@ class _RelationPainter extends CustomPainter {
         labelRect,
         const Radius.circular(RelationVisualTokens.relationLabelRadius),
       ),
-      Paint()..color = color.withValues(alpha: .12),
+      Paint()
+        ..color = Color.alphaBlend(
+          color.withValues(alpha: .10),
+          Theme.of(context).colorScheme.surface.withValues(alpha: .96),
+        ),
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        labelRect,
+        const Radius.circular(RelationVisualTokens.relationLabelRadius),
+      ),
+      Paint()
+        ..color = color.withValues(alpha: .30)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = .8,
     );
     labelPainter.paint(
       canvas,
