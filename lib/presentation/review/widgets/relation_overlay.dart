@@ -46,7 +46,6 @@ class RelationOverlay extends StatefulWidget {
     RelationEndpoint? focus,
     String? category,
   }) {
-    if (focus == null) return const [];
     return drawableRecords(filterReviewRelationRecords(
       records,
       focus: focus,

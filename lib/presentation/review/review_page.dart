@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../domain/hexagram_case.dart';
 import '../../domain/rules/evidence/derived_evidence.dart';
 import '../../domain/rules/engine/rule_trace.dart';
-import '../../domain/relation_endpoint.dart';
 import '../../domain/shensha/shensha_note_store.dart';
 import '../../services/relation_annotation_store.dart';
 import 'review_case_adapter.dart';
@@ -115,10 +114,6 @@ class _ReviewWorkbench extends StatefulWidget {
 }
 
 class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
-  int? _selectedPosition;
-
-  int? get _effectiveFocusedPosition =>
-      _selectedPosition ?? widget.state.focusedLine;
   String? _selectedRelationId;
   String _relationFilter = '全部';
   late final _anchorKeys = <String, GlobalKey>{
@@ -147,14 +142,6 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
       'changed_line_cell_$position': GlobalKey(),
     },
   };
-
-  void _onLineTap(int position) {
-    if (_selectedPosition == position) {
-      setState(() => _selectedPosition = null);
-      return;
-    }
-    setState(() => _selectedPosition = position);
-  }
 
   Future<void> _onShenShaTap(ReviewShenShaItem item) async {
     final id = item.id;
@@ -276,8 +263,8 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                             const SizedBox(height: 6),
                             ReviewHexagramResultTable(
                               state: widget.state,
-                              selectedPosition: _effectiveFocusedPosition,
-                              onLineTap: _onLineTap,
+                              selectedPosition: null,
+                              onLineTap: null,
                               anchorKeys: _anchorKeys,
                               returnAnchorKeys: _returnAnchorKeys,
                               rowKeys: _rowKeys,
@@ -293,19 +280,13 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                           obstacleKeys: _obstacleKeys,
                           selectedId: _selectedRelationId,
                           category: _relationFilter,
-                          focus: _effectiveFocusedPosition == null
-                              ? null
-                              : YaoEndpoint(
-                                  LineScope.original,
-                                  _effectiveFocusedPosition!,
-                                ),
+                          focus: null,
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     ReviewRelationToolbar(
                       state: widget.state,
-                      focusedPosition: _effectiveFocusedPosition,
                       selectedFilter: _relationFilter,
                       onFilterChanged: (filter) =>
                           setState(() => _relationFilter = filter),
