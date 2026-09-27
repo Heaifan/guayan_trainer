@@ -6,13 +6,17 @@ import 'package:guayan_trainer/presentation/review/relation_obstacle_map.dart';
 import 'package:guayan_trainer/presentation/review/relation_orthogonal_router.dart';
 
 void main() {
-  test('Golden Case routes three-line earth to six-line water around obstacles', () {
-    final source = RelationAnchors.fromRect(Rect.fromLTWH(100, 200, 60, 24));
-    final target = RelationAnchors.fromRect(Rect.fromLTWH(100, 20, 60, 24));
+  test('ordinary relations only use left/right text anchors', () {
+    final source = RelationAnchors.fromRect(
+      const Rect.fromLTWH(100, 200, 60, 24),
+    );
+    final target = RelationAnchors.fromRect(
+      const Rect.fromLTWH(100, 20, 60, 24),
+    );
     final obstacles = RelationObstacleMap.fromBounds({
-      'line-4': Rect.fromLTWH(92, 150, 76, 24),
-      'line-5': Rect.fromLTWH(92, 105, 76, 24),
-      'nayin': Rect.fromLTWH(92, 60, 76, 24),
+      'line-4': const Rect.fromLTWH(92, 150, 76, 24),
+      'line-5': const Rect.fromLTWH(92, 105, 76, 24),
+      'nayin': const Rect.fromLTWH(92, 60, 76, 24),
     });
 
     final result = RelationOrthogonalRouter.route(
@@ -24,69 +28,79 @@ void main() {
 
     expect(result.isNoRoute, isFalse);
     final route = result.route!;
-    expect(route.sourceAnchor.name, isIn([
-      RelationAnchorName.n,
-      RelationAnchorName.nw,
-      RelationAnchorName.ne,
-    ]));
-    expect(route.targetAnchor.name, isIn([
-      RelationAnchorName.s,
-      RelationAnchorName.sw,
-      RelationAnchorName.se,
-    ]));
-    expect(route.bendCount, lessThanOrEqualTo(2));
-    expect(route.length, lessThan(500));
-    expect(route.points.length, greaterThanOrEqualTo(3));
-    expect(obstacles.isClearPath(route.points), isTrue);
-    expect(route.path.toString(), isNot(contains('cubic')));
+    expect(
+      route.sourceAnchor.name,
+      isIn([RelationAnchorName.w, RelationAnchorName.e]),
+    );
+    expect(
+      route.targetAnchor.name,
+      isIn([RelationAnchorName.w, RelationAnchorName.e]),
+    );
+    expect(
+      route.sourceAnchor.name,
+      isNot(isIn([
+        RelationAnchorName.n,
+        RelationAnchorName.s,
+        RelationAnchorName.sw,
+        RelationAnchorName.se,
+      ])),
+    );
+    expect(route.length, greaterThan(0));
   });
 
-  test('router can switch beyond the first blocked 20dp lane', () {
+  test('facing side anchors win for a short cross-column relation', () {
     final source = RelationAnchors.fromRect(
-      const Rect.fromLTWH(136, 210, 64, 16),
+      const Rect.fromLTWH(20, 80, 40, 20),
     );
     final target = RelationAnchors.fromRect(
-      const Rect.fromLTWH(136, 30, 64, 16),
+      const Rect.fromLTWH(120, 80, 40, 20),
     );
-    final obstacles = RelationObstacleMap.fromBounds({
-      'block-20-lane': const Rect.fromLTWH(206, 70, 28, 110),
-    });
 
     final result = RelationOrthogonalRouter.route(
       source: source,
       target: target,
-      obstacles: obstacles,
-      viewport: const Rect.fromLTWH(0, 0, 402, 270),
+      obstacles: RelationObstacleMap(const []),
+      viewport: const Rect.fromLTWH(0, 0, 220, 180),
     );
 
     expect(result.isNoRoute, isFalse);
-    expect(obstacles.isClearPath(result.route!.points), isTrue);
+    expect(result.route!.sourceAnchor.name, RelationAnchorName.e);
+    expect(result.route!.targetAnchor.name, RelationAnchorName.w);
+    expect(result.route!.points, hasLength(2));
   });
 
-  test('all illegal candidates return NoRoute instead of an unsafe fallback', () {
-    final source = RelationAnchors.fromRect(Rect.fromLTWH(40, 80, 40, 20));
-    final target = RelationAnchors.fromRect(Rect.fromLTWH(40, 20, 40, 20));
+  test('protected elements are soft costs and never delete an anchored relation', () {
+    final source = RelationAnchors.fromRect(
+      const Rect.fromLTWH(40, 90, 40, 20),
+    );
+    final target = RelationAnchors.fromRect(
+      const Rect.fromLTWH(40, 20, 40, 20),
+    );
     final obstacles = RelationObstacleMap.fromBounds({
-      'block-left': Rect.fromLTWH(0, 0, 60, 120),
-      'block-right': Rect.fromLTWH(60, 0, 80, 120),
+      'full-wall': const Rect.fromLTWH(0, 0, 140, 130),
     });
 
     final result = RelationOrthogonalRouter.route(
       source: source,
       target: target,
       obstacles: obstacles,
-      viewport: const Rect.fromLTWH(0, 0, 140, 120),
+      viewport: const Rect.fromLTWH(0, 0, 140, 130),
     );
 
-    expect(result.isNoRoute, isTrue);
-    expect(result.route, isNull);
+    expect(result.isNoRoute, isFalse);
+    expect(result.route, isNotNull);
+    expect(obstacles.intersectionCount(result.route!.points), greaterThan(0));
   });
 
   test('same input produces the same selected anchors and points', () {
-    final source = RelationAnchors.fromRect(Rect.fromLTWH(30, 120, 40, 20));
-    final target = RelationAnchors.fromRect(Rect.fromLTWH(120, 20, 40, 20));
+    final source = RelationAnchors.fromRect(
+      const Rect.fromLTWH(30, 120, 40, 20),
+    );
+    final target = RelationAnchors.fromRect(
+      const Rect.fromLTWH(120, 20, 40, 20),
+    );
     final obstacles = RelationObstacleMap.fromBounds({
-      'center': Rect.fromLTWH(60, 50, 70, 20),
+      'center': const Rect.fromLTWH(60, 50, 70, 20),
     });
     final results = [
       for (var i = 0; i < 5; i++)
@@ -100,6 +114,14 @@ void main() {
 
     expect(
       results.map((result) => result.route?.points.join('|')).toSet(),
+      hasLength(1),
+    );
+    expect(
+      results.map((result) => result.route?.sourceAnchor.name).toSet(),
+      hasLength(1),
+    );
+    expect(
+      results.map((result) => result.route?.targetAnchor.name).toSet(),
       hasLength(1),
     );
   });

@@ -31,6 +31,8 @@ class RelationObstacleMap {
 
   RelationObstacle? obstacleFor(String id) => _byId[id];
 
+  /// 旧硬避障能力继续保留给标签与测试使用；普通关系 Router V2 不再把
+  /// “穿过元素”视为非法。
   bool isClearSegment(Offset start, Offset end) => obstacles.every(
     (obstacle) => !_intersectsRect(start, end, obstacle.bounds),
   );
@@ -40,6 +42,22 @@ class RelationObstacleMap {
       if (!isClearSegment(points[i], points[i + 1])) return false;
     }
     return true;
+  }
+
+  /// 返回一条折线穿越了多少个保护元素。每个元素最多计一次。
+  int intersectionCount(List<Offset> points) {
+    var count = 0;
+    for (final obstacle in obstacles) {
+      var hit = false;
+      for (var i = 0; i < points.length - 1; i++) {
+        if (_intersectsRect(points[i], points[i + 1], obstacle.bounds)) {
+          hit = true;
+          break;
+        }
+      }
+      if (hit) count++;
+    }
+    return count;
   }
 }
 

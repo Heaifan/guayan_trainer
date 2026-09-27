@@ -1,5 +1,10 @@
 import 'dart:ui';
 
+/// 正文几何锚点。V2 只开放四个物理锚点：
+/// TL / TR 是条件锚点，L / R 是普通生克主锚点。
+///
+/// 枚举保留旧方向名，避免调试/历史测试反序列化受影响；但 [RelationAnchors]
+/// 不再创建上中与三个底部锚点。
 enum RelationAnchorName { nw, n, ne, w, e, sw, s, se }
 
 class RelationAnchor {
@@ -10,23 +15,20 @@ class RelationAnchor {
 }
 
 class RelationAnchors {
-  RelationAnchors({required this.bounds, required Map<RelationAnchorName, Offset> points})
-      : _points = Map.unmodifiable(points);
+  RelationAnchors({
+    required this.bounds,
+    required Map<RelationAnchorName, Offset> points,
+  }) : _points = Map.unmodifiable(points);
 
   factory RelationAnchors.fromRect(Rect bounds) {
-    final cx = bounds.center.dx;
     final cy = bounds.center.dy;
     return RelationAnchors(
       bounds: bounds,
       points: {
         RelationAnchorName.nw: Offset(bounds.left, bounds.top),
-        RelationAnchorName.n: Offset(cx, bounds.top),
         RelationAnchorName.ne: Offset(bounds.right, bounds.top),
         RelationAnchorName.w: Offset(bounds.left, cy),
         RelationAnchorName.e: Offset(bounds.right, cy),
-        RelationAnchorName.sw: Offset(bounds.left, bounds.bottom),
-        RelationAnchorName.s: Offset(cx, bounds.bottom),
-        RelationAnchorName.se: Offset(bounds.right, bounds.bottom),
       },
     );
   }
@@ -36,9 +38,25 @@ class RelationAnchors {
 
   Offset at(RelationAnchorName name) => _points[name]!;
 
+  bool contains(RelationAnchorName name) => _points.containsKey(name);
+
+  /// 调试时只展示真正开放的四个物理锚点。
   Iterable<RelationAnchor> get all => [
     for (final entry in _points.entries)
       RelationAnchor(name: entry.key, point: entry.value),
+  ];
+
+  /// 普通爻间生克：只允许左右中点。
+  Iterable<RelationAnchor> get ordinary => [
+    RelationAnchor(name: RelationAnchorName.w, point: at(RelationAnchorName.w)),
+    RelationAnchor(name: RelationAnchorName.e, point: at(RelationAnchorName.e)),
+  ];
+
+  /// 月 / 日 / 时从上方进入时：顶部角点优先，左右中点仅 fallback。
+  Iterable<RelationAnchor> get externalTarget => [
+    RelationAnchor(name: RelationAnchorName.nw, point: at(RelationAnchorName.nw)),
+    RelationAnchor(name: RelationAnchorName.ne, point: at(RelationAnchorName.ne)),
+    ...ordinary,
   ];
 }
 
@@ -50,62 +68,23 @@ class AnchorPair {
 }
 
 abstract final class AnchorPairCandidates {
-  static List<AnchorPair> forNodes(
+  /// 普通生克只产生 L/R × L/R 四组候选。
+  static List<AnchorPair> ordinary(
     RelationAnchors source,
     RelationAnchors target,
-  ) {
-    final delta = target.bounds.center - source.bounds.center;
-    final sourceOrder = _orderedNames(delta, source: true);
-    final targetOrder = _orderedNames(delta, source: false);
-    final pairs = <AnchorPair>[];
-    for (final sourceName in sourceOrder) {
-      for (final targetName in targetOrder) {
-        pairs.add(AnchorPair(
-          source: RelationAnchor(name: sourceName, point: source.at(sourceName)),
-          target: RelationAnchor(name: targetName, point: target.at(targetName)),
-        ));
-      }
-    }
-    return pairs;
-  }
+  ) => [
+    for (final sourceAnchor in source.ordinary)
+      for (final targetAnchor in target.ordinary)
+        AnchorPair(source: sourceAnchor, target: targetAnchor),
+  ];
 
-  static List<RelationAnchorName> _orderedNames(
-    Offset delta, {
-    required bool source,
-  }) {
-    final vertical = delta.dy.abs() >= delta.dx.abs();
-    final towardTarget = source ? 1 : -1;
-    if (vertical && delta.dy.sign * towardTarget > 0) {
-      return [
-        RelationAnchorName.s,
-        RelationAnchorName.sw,
-        RelationAnchorName.se,
-        RelationAnchorName.w,
-        RelationAnchorName.e,
-        RelationAnchorName.n,
-        RelationAnchorName.nw,
-        RelationAnchorName.ne,
-      ];
-    }
-    if (vertical) {
-      return [
-        RelationAnchorName.n,
-        RelationAnchorName.nw,
-        RelationAnchorName.ne,
-        RelationAnchorName.w,
-        RelationAnchorName.e,
-        RelationAnchorName.s,
-        RelationAnchorName.sw,
-        RelationAnchorName.se,
-      ];
-    }
-    final right = delta.dx.sign * towardTarget > 0;
-    return right
-        ? [RelationAnchorName.e, RelationAnchorName.ne, RelationAnchorName.se,
-            RelationAnchorName.n, RelationAnchorName.s, RelationAnchorName.w,
-            RelationAnchorName.nw, RelationAnchorName.sw]
-        : [RelationAnchorName.w, RelationAnchorName.nw, RelationAnchorName.sw,
-            RelationAnchorName.n, RelationAnchorName.s, RelationAnchorName.e,
-            RelationAnchorName.ne, RelationAnchorName.se];
-  }
+  /// 为月/日/时等上方外部来源预留；当前普通生克 Router 不调用。
+  static List<AnchorPair> externalToNode(
+    RelationAnchors source,
+    RelationAnchors target,
+  ) => [
+    for (final sourceAnchor in source.all)
+      for (final targetAnchor in target.externalTarget)
+        AnchorPair(source: sourceAnchor, target: targetAnchor),
+  ];
 }

@@ -171,13 +171,28 @@ class _RelationPainter extends CustomPainter {
             : RelationVisualTokens.strokeNormal
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
-      canvas.drawPath(plan.routes[i].path, paint);
+      _drawSoftPath(
+        canvas,
+        plan.routes[i].path,
+        paint,
+        obstacleBounds.values,
+      );
       // 标签先画、箭头最后画：文字胶囊不能盖住箭头。
       _drawLabel(canvas, plan.labels[i], color);
-      _drawArrow(canvas, plan.routes[i].path, color);
+      _drawArrow(
+        canvas,
+        plan.routes[i].path,
+        color,
+        obstacleBounds.values,
+      );
     }
     for (final record in records.where(_isReturn)) {
-      _drawReturn(canvas, record, returnAnchorBounds);
+      _drawReturn(
+        canvas,
+        record,
+        returnAnchorBounds,
+        obstacleBounds.values,
+      );
     }
     if (debugMode) _drawDebug(canvas, size, anchorBounds, obstacleBounds, plan);
   }
@@ -215,8 +230,15 @@ class _RelationPainter extends CustomPainter {
     return topLeft & box.size;
   }
 
-  void _drawArrow(Canvas canvas, Path path, Color color) {
-    final metric = path.computeMetrics().first;
+  void _drawArrow(
+    Canvas canvas,
+    Path path,
+    Color color,
+    Iterable<Rect> protectedBounds,
+  ) {
+    final metrics = path.computeMetrics().toList();
+    if (metrics.isEmpty) return;
+    final metric = metrics.last;
     final tangent = metric.getTangentForOffset(metric.length);
     if (tangent == null) return;
     final tip = tangent.position;
@@ -224,12 +246,73 @@ class _RelationPainter extends CustomPainter {
     final arrowSize = RelationVisualTokens.arrowSizeFocused;
     final arrow = Path()
       ..moveTo(tip.dx, tip.dy)
-      ..lineTo(tip.dx - math.cos(angle - .55) * arrowSize,
-          tip.dy - math.sin(angle - .55) * arrowSize)
-      ..lineTo(tip.dx - math.cos(angle + .55) * arrowSize,
-          tip.dy - math.sin(angle + .55) * arrowSize)
+      ..lineTo(
+        tip.dx - math.cos(angle - .55) * arrowSize,
+        tip.dy - math.sin(angle - .55) * arrowSize,
+      )
+      ..lineTo(
+        tip.dx - math.cos(angle + .55) * arrowSize,
+        tip.dy - math.sin(angle + .55) * arrowSize,
+      )
       ..close();
-    canvas.drawPath(arrow, Paint()..color = color);
+    final overlapsProtected = protectedBounds.any(
+      (rect) => rect.overlaps(arrow.getBounds()),
+    );
+    canvas.drawPath(
+      arrow,
+      Paint()
+        ..color = color.withValues(alpha: overlapsProtected ? .48 : .96),
+    );
+  }
+
+  /// 关系线允许穿过卦盘元素。先整条画一层低透明底线，再把未覆盖元素
+  /// 的区段恢复正常透明度，因此“穿字”不会遮住正文，也不会把关系删掉。
+  void _drawSoftPath(
+    Canvas canvas,
+    Path path,
+    Paint normalPaint,
+    Iterable<Rect> protectedBounds,
+  ) {
+    final bounds = protectedBounds.toList(growable: false);
+    final dimPaint = Paint()
+      ..color = normalPaint.color.withValues(
+        alpha: normalPaint.color.a * RelationVisualTokens.opacityOccluded,
+      )
+      ..style = normalPaint.style
+      ..strokeWidth = normalPaint.strokeWidth
+      ..strokeCap = normalPaint.strokeCap
+      ..strokeJoin = normalPaint.strokeJoin;
+    canvas.drawPath(path, dimPaint);
+
+    final visible = Path();
+    const step = 1.75;
+    for (final metric in path.computeMetrics()) {
+      var drawing = false;
+      for (var distance = 0.0; distance <= metric.length; distance += step) {
+        final tangent = metric.getTangentForOffset(
+          math.min(distance, metric.length),
+        );
+        if (tangent == null) continue;
+        final point = tangent.position;
+        final occluded = bounds.any((rect) => rect.inflate(.75).contains(point));
+        if (occluded) {
+          drawing = false;
+          continue;
+        }
+        if (!drawing) {
+          visible.moveTo(point.dx, point.dy);
+          drawing = true;
+        } else {
+          visible.lineTo(point.dx, point.dy);
+        }
+      }
+      final end = metric.getTangentForOffset(metric.length)?.position;
+      if (end != null &&
+          !bounds.any((rect) => rect.inflate(.75).contains(end))) {
+        visible.lineTo(end.dx, end.dy);
+      }
+    }
+    canvas.drawPath(visible, normalPaint);
   }
 
   void _drawLabel(Canvas canvas, PlacedRelationLabel label, Color color) {
@@ -241,7 +324,12 @@ class _RelationPainter extends CustomPainter {
     );
   }
 
-  void _drawReturn(Canvas canvas, RelationRecord record, Map<String, Rect> bounds) {
+  void _drawReturn(
+    Canvas canvas,
+    RelationRecord record,
+    Map<String, Rect> bounds,
+    Iterable<Rect> protectedBounds,
+  ) {
     final source = bounds[record.fromRef!.semanticId];
     final target = bounds[record.toRef!.semanticId];
     final position = _position(record);
@@ -259,13 +347,15 @@ class _RelationPainter extends CustomPainter {
       type: record.relationType!,
     );
     final color = RelationVisualTokens.colorFor(record.relationType!);
-    canvas.drawPath(
+    _drawSoftPath(
+      canvas,
       geometry.path,
       Paint()
-        ..color = color
+        ..color = color.withValues(alpha: .88)
         ..style = PaintingStyle.stroke
         ..strokeWidth = RelationVisualTokens.strokeNormal
         ..strokeCap = StrokeCap.round,
+      protectedBounds,
     );
     RelationLabelVisual.paint(
       canvas,
@@ -273,8 +363,15 @@ class _RelationPainter extends CustomPainter {
       center: geometry.labelCenter,
       color: color,
     );
-    // 箭头最后绘制，永远压在胶囊之上。
-    canvas.drawPath(geometry.arrow, Paint()..color = color);
+    // 箭头最后绘制。若恰好经过高优先级元素则降透明，但方向仍可辨。
+    final arrowOccluded = protectedBounds.any(
+      (rect) => rect.overlaps(geometry.arrow.getBounds()),
+    );
+    canvas.drawPath(
+      geometry.arrow,
+      Paint()
+        ..color = color.withValues(alpha: arrowOccluded ? .48 : .96),
+    );
   }
 
   void _drawDebug(

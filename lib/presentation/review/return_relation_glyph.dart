@@ -31,37 +31,63 @@ abstract final class ReturnRelationGlyph {
     required Rect changedRect,
     required RelationType type,
   }) {
-    // 回头生/克语义方向固定：变爻 -> 原爻。
-    // 锚点必须是真实 24x6 爻象；U 形只占本行中央走廊，不跨行、不进正文。
-    final start = Offset(changedRect.center.dx, changedRect.bottom);
-    final end = Offset(originalRect.center.dx, originalRect.bottom);
-    final lowerAnchor = start.dy > end.dy ? start.dy : end.dy;
-    final labelHalfHeight = 8.0;
-    final maxHookY = rowRect.bottom - labelHalfHeight - 1.0;
-    final preferredHookY = lowerAnchor + 10.0;
+    // 语义方向永久冻结：变爻 -> 原动爻。
+    //
+    // V2 不再让箭头从下方“向上扎进”原爻，而是最后一段沿水平方向
+    // 指向原爻，让视觉方向与“变 -> 原”完全一致。
+    final originalIsLeft = originalRect.center.dx < changedRect.center.dx;
+    final direction = originalIsLeft ? -1.0 : 1.0;
+
+    final start = Offset(
+      originalIsLeft ? changedRect.left : changedRect.right,
+      changedRect.center.dy,
+    );
+    final end = Offset(
+      originalIsLeft ? originalRect.right : originalRect.left,
+      originalRect.center.dy,
+    );
+
+    final preferredHookY =
+        (start.dy > end.dy ? start.dy : end.dy) + 11.0;
+    final maxHookY = rowRect.bottom - 8.0;
     final hookY = preferredHookY.clamp(
-      lowerAnchor + 6.0,
-      maxHookY > lowerAnchor + 6.0 ? maxHookY : lowerAnchor + 6.0,
+      rowRect.top + 8.0,
+      maxHookY,
     ).toDouble();
-    const radius = 5.0;
-    final direction = end.dx < start.dx ? -1.0 : 1.0;
+
+    // 箭头前保留 8dp 水平进场，确保箭头尖明确朝向原爻。
+    final preEnd = Offset(end.dx - direction * 8.0, end.dy);
+    const radius = 4.0;
 
     final path = Path()
       ..moveTo(start.dx, start.dy)
       ..lineTo(start.dx, hookY - radius)
-      ..quadraticBezierTo(start.dx, hookY, start.dx + direction * radius, hookY)
-      ..lineTo(end.dx - direction * radius, hookY)
-      ..quadraticBezierTo(end.dx, hookY, end.dx, hookY - radius)
+      ..quadraticBezierTo(
+        start.dx,
+        hookY,
+        start.dx + direction * radius,
+        hookY,
+      )
+      ..lineTo(preEnd.dx - direction * radius, hookY)
+      ..quadraticBezierTo(
+        preEnd.dx,
+        hookY,
+        preEnd.dx,
+        hookY - radius,
+      )
+      ..lineTo(preEnd.dx, preEnd.dy)
       ..lineTo(end.dx, end.dy);
 
     final arrowTip = end;
-    final arrowBase = end + const Offset(0, 8);
+    final arrowBase = Offset(end.dx - direction * 8.0, end.dy);
     final arrow = Path()
       ..moveTo(arrowTip.dx, arrowTip.dy)
-      ..lineTo(arrowBase.dx - 4, arrowBase.dy)
-      ..lineTo(arrowBase.dx + 4, arrowBase.dy)
+      ..lineTo(arrowBase.dx, arrowBase.dy - 4.0)
+      ..lineTo(arrowBase.dx, arrowBase.dy + 4.0)
       ..close();
+
     final pathBounds = path.getBounds();
+    final horizontalMidX = (start.dx + preEnd.dx) / 2;
 
     return ReturnRelationGlyphGeometry(
       path: path,
@@ -69,11 +95,7 @@ abstract final class ReturnRelationGlyph {
       arrowTip: arrowTip,
       arrowBase: arrowBase,
       label: type == RelationType.huiTouSheng ? '回头生' : '回头克',
-      // 标签向变爻侧轻移，给原爻箭头留出明确呼吸区。
-      labelCenter: Offset(
-        (start.dx + end.dx) / 2 - direction * 4,
-        hookY,
-      ),
+      labelCenter: Offset(horizontalMidX, hookY),
       pathBounds: pathBounds,
       bounds: {pathBounds, arrow.getBounds()},
     );

@@ -25,6 +25,8 @@ abstract final class RelationVisualTokens {
   static const opacityFocused = 1.00;
   static const opacitySelected = 1.00;
   static const opacityDeemphasized = 0.20;
+  // 穿越正文/纳音/世应时仅降低该段透明度，不再把元素当硬障碍。
+  static const opacityOccluded = 0.28;
   static const backHookStroke = 1.80;
   static const backHookArrowSize = 5.00;
   static const safePadding = 5.0;

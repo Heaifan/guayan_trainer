@@ -11,11 +11,13 @@ class HexagramLineCell extends StatelessWidget {
     required this.text,
     this.naYin,
     this.naYinKey,
+    this.naYinObstacleKey,
     this.onNaYinTap,
     this.textContentKey,
     required this.yaoKind,
     this.yaoKey,
     this.shiYingKey,
+    this.shiYingObstacleKey,
     this.identity,
     this.shiYing,
     this.textWidth = 64,
@@ -36,12 +38,14 @@ class HexagramLineCell extends StatelessWidget {
   final String text;
   final String? naYin;
   final Key? naYinKey;
+  final Key? naYinObstacleKey;
   final VoidCallback? onNaYinTap;
   final Key? textContentKey;
   final ReviewLineIdentity? identity;
   final YaoKind? yaoKind;
   final Key? yaoKey;
   final Key? shiYingKey;
+  final Key? shiYingObstacleKey;
   final String? shiYing;
   final double textWidth;
   final TextStyle textStyle;
@@ -84,24 +88,27 @@ class HexagramLineCell extends StatelessWidget {
           ),
           if (naYin != null && naYin!.isNotEmpty) ...[
             const SizedBox(height: 2),
-            Semantics(
-              key: naYinKey,
-              label: '纳音：$naYin',
-              hint: '可点击查看备注',
-              button: true,
-              onTap: onNaYinTap,
-              child: Baseline(
-                baseline: 10,
-                baselineType: TextBaseline.alphabetic,
-                child: Text(
-                  naYin!,
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFF71838B),
-                    height: 1.2,
+            KeyedSubtree(
+              key: naYinObstacleKey,
+              child: Semantics(
+                key: naYinKey,
+                label: '纳音：$naYin',
+                hint: '可点击查看备注',
+                button: true,
+                onTap: onNaYinTap,
+                child: Baseline(
+                  baseline: 10,
+                  baselineType: TextBaseline.alphabetic,
+                  child: Text(
+                    naYin!,
+                    maxLines: 1,
+                    overflow: TextOverflow.clip,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF71838B),
+                      height: 1.2,
+                    ),
                   ),
                 ),
               ),
@@ -113,17 +120,20 @@ class HexagramLineCell extends StatelessWidget {
     final shiYingSlot = SizedBox(
       key: shiYingSlotKey,
       width: _shiYingWidth,
-      child: Baseline(
-        baseline: 21,
-        baselineType: TextBaseline.alphabetic,
-        child: Text(
-          shiYing ?? '',
-          key: shiYingKey,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFFB66F6F),
+      child: KeyedSubtree(
+        key: shiYingObstacleKey,
+        child: Baseline(
+          baseline: 21,
+          baselineType: TextBaseline.alphabetic,
+          child: Text(
+            shiYing ?? '',
+            key: shiYingKey,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFB66F6F),
+            ),
           ),
         ),
       ),

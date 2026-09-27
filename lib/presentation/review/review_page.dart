@@ -137,8 +137,12 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
       'hidden_slot_${position}_1': GlobalKey(),
       'main_hidden_slot_$position': GlobalKey(),
       'opposite_hidden_slot_$position': GlobalKey(),
-      // 禁止再把整块 114×44 主/变卦 Cell 当硬障碍：
-      // 六行叠加后会形成连续“墙”，普通生克从正文锚点根本出不来。
+      // V2：这些键不再是“硬障碍”，而是穿越时需要局部透明的
+      // 可读性保护区。整块 114×44 Cell 仍然禁止加入，避免形成假墙。
+      'main_nayin_obstacle_$position': GlobalKey(),
+      'changed_nayin_obstacle_$position': GlobalKey(),
+      'main_shi_ying_obstacle_$position': GlobalKey(),
+      'changed_shi_ying_obstacle_$position': GlobalKey(),
       'moving_marker_$position': GlobalKey(),
     },
   };
