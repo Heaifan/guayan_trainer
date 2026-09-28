@@ -1,5 +1,20 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-CANDIDATE-GATE-FIX3 — 2026-09-28
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `test/presentation/review/review_page_test.dart` | 将全卦关系 Demo 计数从历史 `12/10/2` 更新为当前 Domain 真值 `5/5/0`；不修改 Runtime |
+| `pubspec.yaml` | Process Counter `2.0.6+50 → 2.0.6+51` |
+| `.github/workflows/build-apk.yml` | 继续自动执行整页 + 关系门禁，全部通过后才允许产出 APK |
+
+- FIX2 CI: Analyze PASS；61 tests PASS / 1 stale-count FAIL
+- Candidate Tree Match: YES
+- Runtime semantics changed: NO
+- Source version: `2.0.6+51`
+- Android visible version: `2.0.6.51`
+- Last edited: 2026-09-29 00:12:00 +08:00
+
 ## GUAYAN-CANDIDATE-CONVERGENCE-FIX2 — 2026-09-28
 
 | 文件/目录 | 职责 |
@@ -12,8 +27,8 @@
 
 - Previous 2.0.6.49 APK: INVALID FOR VISUAL ACCEPTANCE（Candidate Tree Mismatch）
 - Candidate Tree Match: YES
-- Source version: `2.0.6+50`
-- Android visible version: `2.0.6.50`
+- Source version: `2.0.6+51`
+- Android visible version: `2.0.6.51`
 - Last edited: 2026-09-28 23:58:00 +08:00
 
 ## GUAYAN-CI-AUTO-APK-R1 — 2026-09-28
@@ -57,8 +72,8 @@
 
 - 规则冲突结论：通用纯逻辑 Dart <=150；已声明 5+100 的 R5 / POST-R3 / Gate A 范围继续执行更严格局部规则。
 - Historical recovery: `HISTORICAL PARTIAL`，禁止伪造旧 Version Event。
-- Current source version: `2.0.6+50`
-- Current Android visible version: `2.0.6.50`
+- Current source version: `2.0.6+51`
+- Current Android visible version: `2.0.6.51`
 - Last edited: 2026-09-28 23:58:00 +08:00
 
 ## GUAYAN-GOVERNANCE-VERSION-VISIBILITY-FIX — 2026-09-28

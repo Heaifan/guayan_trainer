@@ -2,13 +2,25 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+50（Android 显示 2.0.6.50）
+> **当前应用版本：** 2.0.6+51（Android 显示 2.0.6.51）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-09-28 · GUAYAN-CANDIDATE-GATE-FIX3
+
+> FIX2 已成功收敛最新 UI Candidate Tree，但 CI 在新增的审卦整页门禁发现一条历史硬编码计数已过期：测试仍期待 `12/10/2`，而当前冻结作用权语义下 Demo Case 的真实有效可绘制关系为 `5/5/0`。本轮不改变 Runtime 关系语义，仅让整页验收断言回到当前 Domain 真值，并继续自动构建。真实修复迭代：`2.0.6+50 → 2.0.6+51`。
+
+### Gate 证据
+
+- FIX2 Analyze：PASS
+- FIX2 Bézier / Router / Overlay / Return / Anchor：PASS
+- FIX2 Review Page：61 PASS / 1 FAIL（过期 Demo 计数断言）
+- Domain 真值：两个动爻作为普通生克 Source，共 5 条有效生克；Demo 未持久化 changedBranch，不伪造回头关系，因此特殊 0 条。
+- 本轮要求：整页门禁 PASS 后方可 Build APK / Upload Artifact。
 
 ## 2026-09-28 · GUAYAN-CANDIDATE-CONVERGENCE-FIX2
 

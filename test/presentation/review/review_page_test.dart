@@ -615,9 +615,12 @@ void main() {
       expect(find.text('全卦关系'), findsOneWidget);
       expect(find.textContaining('当前聚焦：'), findsNothing);
       expect(find.byKey(const Key('focused_state_summary')), findsNothing);
-      expect(find.text('全部 12'), findsOneWidget);
-      expect(find.text('生克 10'), findsOneWidget);
-      expect(find.text('特殊 2'), findsOneWidget);
+      // Demo Case 当前有效关系由 Domain 作用权结算：
+      // 两个动爻作为普通生克 Source，共 5 条；演示档案未持久化 changedBranch，
+      // 因而不伪造回头生/克，特殊关系为 0。
+      expect(find.text('全部 5'), findsOneWidget);
+      expect(find.text('生克 5'), findsOneWidget);
+      expect(find.text('特殊 0'), findsOneWidget);
     });
 
     testWidgets('卦盘行不再承担关系过滤入口', (tester) async {
