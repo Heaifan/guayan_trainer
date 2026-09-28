@@ -10,6 +10,28 @@
 
 ---
 
+## 2026-09-28 · GUAYAN-GOVERNANCE-ADOPTION-R1
+
+> 在既有 AGENTS、Gate A、5+100、Golden SHA、memory 与 Knowledge Audit 体系上补齐过程版本、验收身份、事件账本和统计工具；不复制 XYE 的 K/EXP/Incident 编号体系。本条为 GOVERNANCE，不额外推进 Process Counter。
+
+### 治理冻结
+
+- Flutter 源版本：`MAJOR.MINOR.PATCH+COUNTER`
+- Android 可见版本：`MAJOR.MINOR.PATCH.COUNTER`
+- FEATURE / FIX / PERF：每个独立可验证事件 Counter +1
+- GOVERNANCE / DOCS：默认不计数
+- Acceptance：Visible Version + Commit SHA
+- 历史事件：`HISTORICAL PARTIAL`，禁止补造
+- 规则优先级：局部严格 Gate 高于根通用规则
+
+### 新增
+
+| 路径 | 说明 |
+| --- | --- |
+| `docs/governance/` | 版本、验收、Ledger |
+| `tool/governance/` | audit / next / metrics / selftest |
+| `memory/MEMORY.md` | durable governance 索引 |
+
 ## 2026-09-28 · GUAYAN-GOVERNANCE-VERSION-VISIBILITY-FIX
 
 > 修复 Flutter `+buildNumber` 仅进入 Android versionCode、安装后版本号不可见的问题。本轮属于真实 FIX：`2.0.6+47 → 2.0.6+48`。Android versionName 改为 `<flutter.versionName>.<flutter.versionCode>`，因此当前 APK/安装信息显示 `2.0.6.48`。

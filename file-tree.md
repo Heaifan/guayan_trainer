@@ -1,5 +1,21 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-GOVERNANCE-ADOPTION-R1 — 2026-09-28
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `AGENTS.md` | 冻结规则优先级、可见过程版本、验收身份与 Git 安全纪律 |
+| `docs/governance/` | 卦眼过程版本、验收契约和 Version Event Ledger 的正式入口 |
+| `tool/governance/` | 版本审计、下一版本计算、自检与摩擦统计；5 个直接文件且均 <=100 行 |
+| `memory/MEMORY.md` | durable governance 索引，不复制 XYE 编号体系 |
+| `CHANGELOG.md` | 记录治理采用；GOVERNANCE 本身不额外推进 Process Counter |
+
+- 规则冲突结论：通用纯逻辑 Dart <=150；已声明 5+100 的 R5 / POST-R3 / Gate A 范围继续执行更严格局部规则。
+- Historical recovery: `HISTORICAL PARTIAL`，禁止伪造旧 Version Event。
+- Current source version: `2.0.6+48`
+- Current Android visible version: `2.0.6.48`
+- Last edited: 2026-09-28 13:33:00 +08:00
+
 ## GUAYAN-GOVERNANCE-VERSION-VISIBILITY-FIX — 2026-09-28
 
 | 文件/目录 | 职责 |
