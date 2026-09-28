@@ -2,3 +2,4 @@
 Date	SourceVersion	VisibleVersion	Commit	Type	Domain	Task	ParentVisible	CounterAdvanced
 2026-09-28	2.0.6+47	2.0.6.47	b801715390b6f08026a6a4ea400a2fa35dca99f0	BASELINE	Governance	Pre-adoption baseline	-	NO
 2026-09-28	2.0.6+48	2.0.6.48	d3d828f0bb0fa7fa0a2de2311535d6a22bd68e45	FIX	Build	Expose process counter in Android versionName	2.0.6.47	YES
+2026-09-28	2.0.6+49	2.0.6.49	9fd8ba3ef6e669a54d147917ed18cd347949d0ec	FIX	Review/Relation/UI	Render relation arrows with broad Bezier curves	2.0.6.48	YES
