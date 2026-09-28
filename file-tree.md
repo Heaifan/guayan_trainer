@@ -1,5 +1,17 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-CI-AUTO-APK-R1 — 2026-09-28
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `.github/workflows/build-apk.yml` | `guayan-fix` 每次 Push 自动执行 analyze、关系 UI 定向测试、Release APK 构建与 Artifact 上传；同时保留手动触发入口 |
+| `file-tree.md` | 记录 APK 自动构建链职责；本轮为 CI/GOVERNANCE，不改变 App Runtime 版本 |
+
+- Trigger: Push to `guayan-fix` / manual dispatch
+- Artifact: `guayan-apk-2.0.6.49`
+- Source version remains: `2.0.6+49`
+- Last edited: 2026-09-28 22:44:00 +08:00
+
 ## GUAYAN-R5-RELATION-BEZIER-FIX1 — 2026-09-28
 
 | 文件/目录 | 职责 |
