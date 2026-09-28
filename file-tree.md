@@ -1,5 +1,22 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-RELATION-BEZIER-FIX1 — 2026-09-28
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/routing/relation_bezier_path.dart` | 将候选路线转为宽幅三次 Bézier Path，并对真实曲线采样做避障复核 |
+| `lib/presentation/review/routing/relation_route_candidates.dart` | 维护正交候选点、归一化与路线长度；从 Router 拆出以继续满足 R5 5+100 |
+| `lib/presentation/review/relation_orthogonal_router.dart` | 继续负责锚点候选、成本排序与 NoRoute；绘制 Path 委托 Bézier builder |
+| `lib/presentation/review/relation_label_placer.dart` | 沿真实 Bézier Path 的位置/切线放置关系标签 |
+| `test/presentation/review/routing/relation_bezier_path_test.dart` | 直达关系非直线弧度与曲线采样回归 |
+| `test/presentation/review/relation_orthogonal_router_test.dart` | 保留路由、避障、NoRoute 与确定性契约，移除旧“禁止 cubic”断言 |
+
+- Source version: `2.0.6+49`
+- Android visible version: `2.0.6.49`
+- AUTOMATED: PENDING（当前连接环境无 Dart / Flutter 执行器）
+- VISUAL: PENDING（等待 APK / 真机曲率验收）
+- Last edited: 2026-09-28 13:57:00 +08:00
+
 ## GUAYAN-GOVERNANCE-ADOPTION-R1 — 2026-09-28
 
 | 文件/目录 | 职责 |
@@ -12,9 +29,9 @@
 
 - 规则冲突结论：通用纯逻辑 Dart <=150；已声明 5+100 的 R5 / POST-R3 / Gate A 范围继续执行更严格局部规则。
 - Historical recovery: `HISTORICAL PARTIAL`，禁止伪造旧 Version Event。
-- Current source version: `2.0.6+48`
-- Current Android visible version: `2.0.6.48`
-- Last edited: 2026-09-28 13:33:00 +08:00
+- Current source version: `2.0.6+49`
+- Current Android visible version: `2.0.6.49`
+- Last edited: 2026-09-28 13:57:00 +08:00
 
 ## GUAYAN-GOVERNANCE-VERSION-VISIBILITY-FIX — 2026-09-28
 
@@ -36,7 +53,7 @@
 | `lib/presentation/review/relation_render_plan.dart` | 以真实 Bounds、稳定 Relation ID 和四种关系生成确定性绘制计划 |
 | `lib/presentation/review/relation_geometry.dart` | 每个关系节点的 8 Anchor 与相对方向候选 |
 | `lib/presentation/review/relation_obstacle_map.dart` | 所有注册 Bounds 的安全边距、碰撞与路径判定 |
-| `lib/presentation/review/relation_orthogonal_router.dart` | 无非法 fallback 的圆角正交候选路由；无合法路径返回 NoRoute |
+| `lib/presentation/review/relation_orthogonal_router.dart` | 保留正交候选选路、成本与 NoRoute 契约；最终绘制委托宽幅 Bézier Path |
 | `lib/presentation/review/relation_label_placer.dart` | 基于真实 TextPainter Bounds 的关系标签避障 |
 | `lib/presentation/review/return_relation_glyph.dart` | 回生/回克同位局部回钩 |
 | `lib/presentation/review/relation_route_cache.dart` | Layout/关系输入不变时复用 RelationRenderPlan |

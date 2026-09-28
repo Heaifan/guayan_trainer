@@ -37,7 +37,7 @@ abstract final class RelationLabelPlacer {
     )..layout();
     final size = Size(painter.width + 12, RelationVisualTokens.relationLabelHeight);
     final occupied = [...placedLabels];
-    for (final center in _candidateCenters(route.points)) {
+    for (final center in _candidateCenters(route)) {
       final raw = Rect.fromCenter(center: center, width: size.width, height: size.height);
       final safe = raw.inflate(RelationVisualTokens.safePadding);
       if (obstacles.obstacles.any((obstacle) => obstacle.bounds.overlaps(safe))) {
@@ -54,18 +54,21 @@ abstract final class RelationLabelPlacer {
     return null;
   }
 
-  static Iterable<Offset> _candidateCenters(List<Offset> points) sync* {
-    for (var i = 0; i < points.length - 1; i++) {
-      final start = points[i];
-      final end = points[i + 1];
-      final midpoint = Offset((start.dx + end.dx) / 2, (start.dy + end.dy) / 2);
-      final delta = end - start;
-      final length = delta.distance;
-      if (length == 0) continue;
-      final normal = Offset(-delta.dy / length, delta.dx / length);
-      yield midpoint + normal * 12;
-      yield midpoint - normal * 12;
-      yield midpoint;
+  static Iterable<Offset> _candidateCenters(RelationRoute route) sync* {
+    final metrics = route.path.computeMetrics().toList();
+    if (metrics.isEmpty) return;
+    final metric = metrics.first;
+    for (final fraction in const [.50, .35, .65, .20, .80]) {
+      final tangent = metric.getTangentForOffset(metric.length * fraction);
+      if (tangent == null || tangent.vector.distance == 0) continue;
+      final vector = tangent.vector;
+      final normal = Offset(
+        -vector.dy / vector.distance,
+        vector.dx / vector.distance,
+      );
+      yield tangent.position + normal * 12;
+      yield tangent.position - normal * 12;
+      yield tangent.position;
     }
   }
 }

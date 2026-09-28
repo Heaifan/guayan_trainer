@@ -2,13 +2,38 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+48（Android 显示 2.0.6.48）
+> **当前应用版本：** 2.0.6+49（Android 显示 2.0.6.49）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-09-28 · GUAYAN-R5-RELATION-BEZIER-FIX1
+
+> 将审卦普通生/克关系线从小圆角正交折线改为宽幅三次 Bézier 曲线。锚点选择、候选路由、成本与 NoRoute 契约保持不变；最终绘制几何改为连续曲线，箭头继续跟随 Path 末端切线。本轮属于真实 `FIX`：`2.0.6+48 → 2.0.6+49`。
+
+### 修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `lib/presentation/review/routing/relation_bezier_path.dart` | 生成宽幅三次 Bézier Path；直达关系也保持可见弧度，并采样真实曲线用于避障验证 |
+| `lib/presentation/review/routing/relation_route_candidates.dart` | 承接候选点、归一化与长度计算，保持 R5 5+100 文件边界 |
+| `lib/presentation/review/relation_orthogonal_router.dart` | 保留既有选路语义，最终 Path 改由 Bézier builder 生成 |
+| `lib/presentation/review/relation_label_placer.dart` | 标签候选位置改为采样实际曲线及其切线法向 |
+| `test/presentation/review/routing/relation_bezier_path_test.dart` | 新增直达关系必须存在明显弧度与曲线采样回归 |
+
+### 验证状态
+
+- AUTOMATED：PENDING。当前 GitHub 连接环境无 Dart / Flutter 执行器，未伪报测试 PASS。
+- VISUAL：PENDING。需 APK / 真机确认曲率是否达到产品目标，未宣布 FINAL ACCEPTED。
+
+### 版本身份
+
+- Source: `2.0.6+49`
+- Android visible: `2.0.6.49`
+- Event: `FIX`
 
 ## 2026-09-28 · GUAYAN-GOVERNANCE-ADOPTION-R1
 

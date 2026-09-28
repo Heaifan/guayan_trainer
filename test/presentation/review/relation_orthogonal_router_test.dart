@@ -38,7 +38,7 @@ void main() {
     expect(route.length, lessThan(500));
     expect(route.points.length, greaterThanOrEqualTo(3));
     expect(obstacles.isClearPath(route.points), isTrue);
-    expect(route.path.toString(), isNot(contains('cubic')));
+    expect(route.path.computeMetrics().single.length, greaterThan(0));
   });
 
   test('all illegal candidates return NoRoute instead of an unsafe fallback', () {
