@@ -2,13 +2,31 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.0+41（pubspec.yaml）
+> **当前应用版本：** 2.0.6+48（Android 显示 2.0.6.48）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-09-28 · GUAYAN-GOVERNANCE-VERSION-VISIBILITY-FIX
+
+> 修复 Flutter `+buildNumber` 仅进入 Android versionCode、安装后版本号不可见的问题。本轮属于真实 FIX：`2.0.6+47 → 2.0.6+48`。Android versionName 改为 `<flutter.versionName>.<flutter.versionCode>`，因此当前 APK/安装信息显示 `2.0.6.48`。
+
+### 修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `pubspec.yaml` | Process counter +47 → +48 |
+| `android/app/build.gradle.kts` | Android 可见版本改为 `2.0.6.48` 形式 |
+| `file-tree.md` | 同步版本链职责 |
+
+### 版本身份
+
+- Source: `2.0.6+48`
+- Android visible: `2.0.6.48`
+- Event: `FIX`
 
 ## 2026-09-17 · R5-G2-C2 SYSTEM Knowledge Catalog V1 分类治理
 

@@ -1,5 +1,18 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-GOVERNANCE-VERSION-VISIBILITY-FIX — 2026-09-28
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `pubspec.yaml` | Flutter 版本源；本轮真实 FIX 将 process counter 从 +47 推进为 +48 |
+| `android/app/build.gradle.kts` | Android versionName 显式组合 Flutter versionName + versionCode，使安装后可见为 2.0.6.48 |
+| `CHANGELOG.md` | 记录版本可见性修复与当前版本 |
+| `file-tree.md` | 记录本次版本链职责变更 |
+
+- Source version: `2.0.6+48`
+- Android visible version: `2.0.6.48`
+- Last edited: 2026-09-28 13:33:00 +08:00
+
 ## GUAYAN-R5-RELATION-REBUILD-R1 — 2026-09-19
 
 | 文件/目录 | 职责 |
