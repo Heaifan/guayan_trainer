@@ -40,6 +40,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Read app version
+        run: |
+          VISIBLE_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | tr '+' '.')
+          echo "APP_VERSION=$VISIBLE_VERSION" >> "$GITHUB_ENV"
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
@@ -52,6 +57,8 @@ jobs:
           test/presentation/review/relation_overlay_test.dart
           test/presentation/review/relation_visual_protocol_test.dart
           test/presentation/review/return_relation_glyph_test.dart
+          test/presentation/review/hexagram_line_cell_anchor_test.dart
+          test/presentation/review/review_page_test.dart
 
       - name: Build release APK
         run: flutter build apk --release
@@ -59,7 +66,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: guayan-apk-2.0.6.49
+          name: guayan-apk-${{ env.APP_VERSION }}
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14

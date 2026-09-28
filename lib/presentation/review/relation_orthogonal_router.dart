@@ -4,6 +4,7 @@ import 'relation_geometry.dart';
 import 'relation_obstacle_map.dart';
 import 'routing/relation_bezier_path.dart';
 import 'routing/relation_route_candidates.dart';
+import 'routing/relation_route_scoring.dart';
 
 class RelationRouteResult {
   const RelationRouteResult.route(this.route);
@@ -34,7 +35,8 @@ class RelationRoute {
 }
 
 abstract final class RelationOrthogonalRouter {
-  static const _bendPenalty = 28.0;
+  static const _bendPenalty = 10.0;
+  static const _crossingPenalty = 8.0;
 
   static RelationRouteResult route({
     required RelationAnchors source,
@@ -43,25 +45,27 @@ abstract final class RelationOrthogonalRouter {
     required Rect viewport,
   }) {
     final candidates = <RelationRoute>[];
-    for (final pair in AnchorPairCandidates.forNodes(source, target)) {
+    for (final pair in AnchorPairCandidates.ordinary(source, target)) {
       for (final points in RelationRouteCandidates.forPair(pair, viewport)) {
-        if (!obstacles.isClearPath(points)) continue;
-        final path = RelationBezierPath.build(points, viewport);
-        if (!obstacles.isClearPath(RelationBezierPath.sample(path))) continue;
         final length = RelationRouteCandidates.length(points);
         final bends = points.length > 2 ? points.length - 2 : 0;
-        candidates.add(RelationRoute(
-          sourceAnchor: pair.source,
-          targetAnchor: pair.target,
-          points: points,
-          path: path,
-          length: length,
-          bendCount: bends,
-          cost: length +
-              bends * _bendPenalty +
-              _anchorDirectionPenalty(pair.source.name) +
-              _anchorDirectionPenalty(pair.target.name),
-        ));
+        final crossings = obstacles.intersectionCount(points);
+        final directionCost =
+            RelationRouteScoring.endpointDirectionPenalty(pair, points);
+        candidates.add(
+          RelationRoute(
+            sourceAnchor: pair.source,
+            targetAnchor: pair.target,
+            points: points,
+            path: RelationBezierPath.build(points, viewport),
+            length: length,
+            bendCount: bends,
+            cost: length +
+                bends * _bendPenalty +
+                crossings * _crossingPenalty +
+                directionCost,
+          ),
+        );
       }
     }
     if (candidates.isEmpty) return const RelationRouteResult.noRoute();
@@ -72,17 +76,11 @@ abstract final class RelationOrthogonalRouter {
   static int _compareRoutes(RelationRoute a, RelationRoute b) {
     final cost = a.cost.compareTo(b.cost);
     if (cost != 0) return cost;
-    final anchors = a.sourceAnchor.name.index.compareTo(b.sourceAnchor.name.index);
+    final bends = a.bendCount.compareTo(b.bendCount);
+    if (bends != 0) return bends;
+    final anchors =
+        a.sourceAnchor.name.index.compareTo(b.sourceAnchor.name.index);
     if (anchors != 0) return anchors;
     return a.targetAnchor.name.index.compareTo(b.targetAnchor.name.index);
   }
-
-  static double _anchorDirectionPenalty(RelationAnchorName name) => switch (name) {
-    RelationAnchorName.n || RelationAnchorName.s => 0,
-    RelationAnchorName.nw ||
-    RelationAnchorName.ne ||
-    RelationAnchorName.sw ||
-    RelationAnchorName.se => 6,
-    RelationAnchorName.w || RelationAnchorName.e => 12,
-  };
 }

@@ -1,22 +1,13 @@
 import 'package:flutter/painting.dart';
 
+export 'routing/relation_label_model.dart';
+
+import 'relation_label_visual.dart';
 import 'relation_obstacle_map.dart';
 import 'relation_orthogonal_router.dart';
 import 'relation_visual_tokens.dart';
-
-class PlacedRelationLabel {
-  const PlacedRelationLabel({
-    required this.text,
-    required this.bounds,
-    required this.center,
-    required this.route,
-  });
-
-  final String text;
-  final Rect bounds;
-  final Offset center;
-  final RelationRoute route;
-}
+import 'routing/relation_label_candidates.dart';
+import 'routing/relation_label_model.dart';
 
 abstract final class RelationLabelPlacer {
   static PlacedRelationLabel? place({
@@ -25,50 +16,80 @@ abstract final class RelationLabelPlacer {
     required RelationObstacleMap obstacles,
     Iterable<Rect> placedLabels = const [],
   }) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: const TextStyle(
-          fontSize: RelationVisualTokens.relationLabelFontSize,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    final size = Size(painter.width + 12, RelationVisualTokens.relationLabelHeight);
+    final size = RelationLabelVisual.sizeFor(text);
     final occupied = [...placedLabels];
-    for (final center in _candidateCenters(route)) {
-      final raw = Rect.fromCenter(center: center, width: size.width, height: size.height);
-      final safe = raw.inflate(RelationVisualTokens.safePadding);
-      if (obstacles.obstacles.any((obstacle) => obstacle.bounds.overlaps(safe))) {
-        continue;
-      }
-      if (occupied.any((label) => label.overlaps(safe))) continue;
-      return PlacedRelationLabel(
-        text: text,
-        bounds: safe,
+    final guards = [
+      Rect.fromCircle(
+        center: route.points.first,
+        radius: RelationVisualTokens.relationLabelArrowClearance,
+      ),
+      Rect.fromCircle(
+        center: route.points.last,
+        radius: RelationVisualTokens.relationLabelArrowClearance,
+      ),
+    ];
+    final candidates = RelationLabelCandidates.centers(route).toList();
+    final strict = _find(
+      candidates, size, guards, obstacles, occupied,
+      padding: RelationVisualTokens.safePadding,
+      deflateObstacles: false,
+    );
+    if (strict != null) return _placed(text, route, strict.$1, strict.$2);
+
+    final relaxed = _find(
+      candidates, size, guards, obstacles, occupied,
+      padding: 1,
+      deflateObstacles: true,
+    );
+    if (relaxed != null) return _placed(text, route, relaxed.$1, relaxed.$2);
+
+    final center = RelationLabelCandidates.fallbackCenter(route);
+    final bounds = Rect.fromCenter(
+      center: center,
+      width: size.width,
+      height: size.height,
+    );
+    return _placed(text, route, center, bounds);
+  }
+
+  static (Offset, Rect)? _find(
+    Iterable<Offset> candidates,
+    Size size,
+    List<Rect> guards,
+    RelationObstacleMap obstacles,
+    List<Rect> occupied, {
+    required double padding,
+    required bool deflateObstacles,
+  }) {
+    for (final center in candidates) {
+      final raw = Rect.fromCenter(
         center: center,
-        route: route,
+        width: size.width,
+        height: size.height,
       );
+      final bounds = raw.inflate(padding);
+      if (guards.any((guard) => guard.overlaps(bounds))) continue;
+      final blocked = obstacles.obstacles.any((obstacle) {
+        final rect = deflateObstacles
+            ? obstacle.bounds.deflate(RelationVisualTokens.safePadding)
+            : obstacle.bounds;
+        return rect.overlaps(bounds);
+      });
+      if (blocked || occupied.any((label) => label.overlaps(bounds))) continue;
+      return (center, bounds);
     }
     return null;
   }
 
-  static Iterable<Offset> _candidateCenters(RelationRoute route) sync* {
-    final metrics = route.path.computeMetrics().toList();
-    if (metrics.isEmpty) return;
-    final metric = metrics.first;
-    for (final fraction in const [.50, .35, .65, .20, .80]) {
-      final tangent = metric.getTangentForOffset(metric.length * fraction);
-      if (tangent == null || tangent.vector.distance == 0) continue;
-      final vector = tangent.vector;
-      final normal = Offset(
-        -vector.dy / vector.distance,
-        vector.dx / vector.distance,
+  static PlacedRelationLabel _placed(
+    String text,
+    RelationRoute route,
+    Offset center,
+    Rect bounds,
+  ) => PlacedRelationLabel(
+        text: text,
+        bounds: bounds,
+        center: center,
+        route: route,
       );
-      yield tangent.position + normal * 12;
-      yield tangent.position - normal * 12;
-      yield tangent.position;
-    }
-  }
 }

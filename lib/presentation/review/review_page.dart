@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../domain/hexagram_case.dart';
 import '../../domain/rules/evidence/derived_evidence.dart';
 import '../../domain/rules/engine/rule_trace.dart';
-import '../../domain/relation_endpoint.dart';
 import '../../domain/shensha/shensha_note_store.dart';
 import '../../services/relation_annotation_store.dart';
 import 'review_case_adapter.dart';
@@ -115,10 +114,6 @@ class _ReviewWorkbench extends StatefulWidget {
 }
 
 class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
-  int? _selectedPosition;
-
-  int? get _effectiveFocusedPosition =>
-      _selectedPosition ?? widget.state.focusedLine;
   String? _selectedRelationId;
   String _relationFilter = '全部';
   late final _anchorKeys = <String, GlobalKey>{
@@ -127,6 +122,10 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
     'month': GlobalKey(),
     'day': GlobalKey(),
     'hour': GlobalKey(),
+  };
+  late final _returnAnchorKeys = <String, GlobalKey>{
+    for (var i = 1; i <= 6; i++) 'yao:original:$i': GlobalKey(),
+    for (var i = 1; i <= 6; i++) 'yao:changed:$i': GlobalKey(),
   };
   late final _rowKeys = <int, GlobalKey>{
     for (var position = 1; position <= 6; position++) position: GlobalKey(),
@@ -138,19 +137,15 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
       'hidden_slot_${position}_1': GlobalKey(),
       'main_hidden_slot_$position': GlobalKey(),
       'opposite_hidden_slot_$position': GlobalKey(),
-      'main_line_cell_$position': GlobalKey(),
+      // V2：这些键不再是“硬障碍”，而是穿越时需要局部透明的
+      // 可读性保护区。整块 114×44 Cell 仍然禁止加入，避免形成假墙。
+      'main_nayin_obstacle_$position': GlobalKey(),
+      'changed_nayin_obstacle_$position': GlobalKey(),
+      'main_shi_ying_obstacle_$position': GlobalKey(),
+      'changed_shi_ying_obstacle_$position': GlobalKey(),
       'moving_marker_$position': GlobalKey(),
-      'changed_line_cell_$position': GlobalKey(),
     },
   };
-
-  void _onLineTap(int position) {
-    if (_selectedPosition == position) {
-      setState(() => _selectedPosition = null);
-      return;
-    }
-    setState(() => _selectedPosition = position);
-  }
 
   Future<void> _onShenShaTap(ReviewShenShaItem item) async {
     final id = item.id;
@@ -272,9 +267,10 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                             const SizedBox(height: 6),
                             ReviewHexagramResultTable(
                               state: widget.state,
-                              selectedPosition: _effectiveFocusedPosition,
-                              onLineTap: _onLineTap,
+                              selectedPosition: null,
+                              onLineTap: null,
                               anchorKeys: _anchorKeys,
+                              returnAnchorKeys: _returnAnchorKeys,
                               rowKeys: _rowKeys,
                               obstacleKeys: _obstacleKeys,
                             ),
@@ -283,23 +279,18 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                         RelationOverlay(
                           records: widget.state.relationRecords,
                           anchorKeys: _anchorKeys,
+                          returnAnchorKeys: _returnAnchorKeys,
                           rowKeys: _rowKeys,
                           obstacleKeys: _obstacleKeys,
                           selectedId: _selectedRelationId,
                           category: _relationFilter,
-                          focus: _effectiveFocusedPosition == null
-                              ? null
-                              : YaoEndpoint(
-                                  LineScope.original,
-                                  _effectiveFocusedPosition!,
-                                ),
+                          focus: null,
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     ReviewRelationToolbar(
                       state: widget.state,
-                      focusedPosition: _effectiveFocusedPosition,
                       selectedFilter: _relationFilter,
                       onFilterChanged: (filter) =>
                           setState(() => _relationFilter = filter),

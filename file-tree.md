@@ -1,5 +1,21 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-CANDIDATE-CONVERGENCE-FIX2 — 2026-09-28
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `feat/return-relation-svg-r1 @ f189ed0c` | 9/24–9/27 最新审卦 UI/关系视觉基线，17 个提交正式回并 `guayan-fix` |
+| `lib/presentation/review/relation_orthogonal_router.dart` | 保留 V2 L/R 锚点、软避障、加权最短路径；绘制 Path 委托 Bézier |
+| `lib/presentation/review/routing/` | 候选路线、方向评分、Bézier Path、曲线标签候选与模型，严格 5+100 |
+| `.github/workflows/build-apk.yml` | Push 后自动 Analyze、关系 UI 测试、Release APK、按可见版本命名 Artifact |
+| `pubspec.yaml` | Process Counter 推进至 `2.0.6+50` |
+
+- Previous 2.0.6.49 APK: INVALID FOR VISUAL ACCEPTANCE（Candidate Tree Mismatch）
+- Candidate Tree Match: YES
+- Source version: `2.0.6+50`
+- Android visible version: `2.0.6.50`
+- Last edited: 2026-09-28 23:58:00 +08:00
+
 ## GUAYAN-CI-AUTO-APK-R1 — 2026-09-28
 
 | 文件/目录 | 职责 |
@@ -8,8 +24,8 @@
 | `file-tree.md` | 记录 APK 自动构建链职责；本轮为 CI/GOVERNANCE，不改变 App Runtime 版本 |
 
 - Trigger: Push to `guayan-fix` / manual dispatch
-- Artifact: `guayan-apk-2.0.6.49`
-- Source version remains: `2.0.6+49`
+- Artifact: `guayan-apk-<visible-version>`
+- Source version: `2.0.6+50`
 - Last edited: 2026-09-28 22:44:00 +08:00
 
 ## GUAYAN-R5-RELATION-BEZIER-FIX1 — 2026-09-28
@@ -41,9 +57,9 @@
 
 - 规则冲突结论：通用纯逻辑 Dart <=150；已声明 5+100 的 R5 / POST-R3 / Gate A 范围继续执行更严格局部规则。
 - Historical recovery: `HISTORICAL PARTIAL`，禁止伪造旧 Version Event。
-- Current source version: `2.0.6+49`
-- Current Android visible version: `2.0.6.49`
-- Last edited: 2026-09-28 13:57:00 +08:00
+- Current source version: `2.0.6+50`
+- Current Android visible version: `2.0.6.50`
+- Last edited: 2026-09-28 23:58:00 +08:00
 
 ## GUAYAN-GOVERNANCE-VERSION-VISIBILITY-FIX — 2026-09-28
 

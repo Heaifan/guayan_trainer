@@ -2,15 +2,16 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import '../relation_geometry.dart';
+import 'relation_route_scoring.dart';
 
 abstract final class RelationRouteCandidates {
   static Iterable<List<Offset>> forPair(
     AnchorPair pair,
     Rect viewport,
   ) sync* {
-    for (final points in _raw(pair, viewport)) {
-      final normalized = _normalize(points);
-      if (normalized.length >= 2) yield normalized;
+    for (final raw in _raw(pair, viewport)) {
+      final points = _normalize(raw);
+      if (points.length >= 2) yield points;
     }
   }
 
@@ -26,41 +27,45 @@ abstract final class RelationRouteCandidates {
     AnchorPair pair,
     Rect viewport,
   ) sync* {
-    final source = pair.source.point;
-    final target = pair.target.point;
-    yield [source, Offset(target.dx, source.dy), target];
-    yield [source, Offset(source.dx, target.dy), target];
-    final left = math.max(
-      viewport.left + 12,
-      math.min(source.dx, target.dx) - 20,
-    );
-    final right = math.min(
-      viewport.right - 12,
-      math.max(source.dx, target.dx) + 20,
-    );
-    yield [source, Offset(left, source.dy), Offset(left, target.dy), target];
-    yield [source, Offset(right, source.dy), Offset(right, target.dy), target];
-    final top = math.max(
-      viewport.top + 12,
-      math.min(source.dy, target.dy) - 20,
-    );
-    final bottom = math.min(
-      viewport.bottom - 12,
-      math.max(source.dy, target.dy) + 20,
-    );
-    yield [source, Offset(source.dx, top), Offset(target.dx, top), target];
-    yield [source, Offset(source.dx, bottom), Offset(target.dx, bottom), target];
+    final s = pair.source.point;
+    final t = pair.target.point;
+    yield [s, t];
+    yield [s, Offset(t.dx, s.dy), t];
+    yield [s, Offset(s.dx, t.dy), t];
+
+    final sourceNormal = RelationRouteScoring.outward(pair.source.name);
+    final targetNormal = RelationRouteScoring.outward(pair.target.name);
+    const stub = 10.0;
+    final sourceStub = _clamp(s + sourceNormal * stub, viewport);
+    final targetStub = _clamp(t + targetNormal * stub, viewport);
+    yield [s, sourceStub, targetStub, t];
+
+    for (final offset in const [14.0, 28.0]) {
+      final leftX =
+          math.max(viewport.left + 4, math.min(s.dx, t.dx) - offset);
+      final rightX =
+          math.min(viewport.right - 4, math.max(s.dx, t.dx) + offset);
+      yield [s, Offset(leftX, s.dy), Offset(leftX, t.dy), t];
+      yield [s, Offset(rightX, s.dy), Offset(rightX, t.dy), t];
+    }
   }
+
+  static Offset _clamp(Offset point, Rect viewport) => Offset(
+        point.dx.clamp(viewport.left + 1, viewport.right - 1).toDouble(),
+        point.dy.clamp(viewport.top + 1, viewport.bottom - 1).toDouble(),
+      );
 
   static List<Offset> _normalize(List<Offset> points) {
     final result = <Offset>[];
     for (final point in points) {
-      if (result.isEmpty || result.last != point) result.add(point);
+      if (result.isEmpty || (result.last - point).distance > 0.01) {
+        result.add(point);
+      }
       if (result.length >= 3 &&
           _sameDirection(
             result[result.length - 3],
             result[result.length - 2],
-            point,
+            result.last,
           )) {
         result.removeAt(result.length - 2);
       }
@@ -68,7 +73,9 @@ abstract final class RelationRouteCandidates {
     return result;
   }
 
-  static bool _sameDirection(Offset a, Offset b, Offset c) =>
-      (b.dx - a.dx) * (c.dy - b.dy) ==
-      (b.dy - a.dy) * (c.dx - b.dx);
+  static bool _sameDirection(Offset a, Offset b, Offset c) {
+    final ab = b - a;
+    final bc = c - b;
+    return (ab.dx * bc.dy - ab.dy * bc.dx).abs() < 0.001;
+  }
 }

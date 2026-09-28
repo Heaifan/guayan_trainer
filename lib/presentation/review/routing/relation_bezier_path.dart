@@ -22,18 +22,6 @@ abstract final class RelationBezierPath {
     return path;
   }
 
-  static List<Offset> sample(Path path, {double step = 6}) {
-    final result = <Offset>[];
-    for (final metric in path.computeMetrics()) {
-      final count = math.max(2, (metric.length / step).ceil());
-      for (var i = 0; i <= count; i++) {
-        final tangent = metric.getTangentForOffset(metric.length * i / count);
-        if (tangent != null) result.add(tangent.position);
-      }
-    }
-    return result;
-  }
-
   static void _appendDirectBow(
     Path path,
     Offset start,
@@ -48,14 +36,14 @@ abstract final class RelationBezierPath {
     final inward = viewport.center - midpoint;
     final sign =
         normal.dx * inward.dx + normal.dy * inward.dy >= 0 ? 1.0 : -1.0;
-    final bow = math.min(48.0, math.max(14.0, distance * .18));
-    final c1 = _clamp(start + delta * .33 + normal * bow * sign, viewport);
-    final c2 = _clamp(start + delta * .67 + normal * bow * sign, viewport);
+    final bow = math.min(52.0, math.max(16.0, distance * .22));
+    final c1 = _clamp(start + delta * .32 + normal * bow * sign, viewport);
+    final c2 = _clamp(start + delta * .68 + normal * bow * sign, viewport);
     path.cubicTo(c1.dx, c1.dy, c2.dx, c2.dy, end.dx, end.dy);
   }
 
   static Offset _clamp(Offset point, Rect viewport) => Offset(
-    point.dx.clamp(viewport.left + 4, viewport.right - 4).toDouble(),
-    point.dy.clamp(viewport.top + 4, viewport.bottom - 4).toDouble(),
-  );
+        point.dx.clamp(viewport.left + 4, viewport.right - 4).toDouble(),
+        point.dy.clamp(viewport.top + 4, viewport.bottom - 4).toDouble(),
+      );
 }

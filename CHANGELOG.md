@@ -2,13 +2,33 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+49（Android 显示 2.0.6.49）
+> **当前应用版本：** 2.0.6+50（Android 显示 2.0.6.50）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-09-28 · GUAYAN-CANDIDATE-CONVERGENCE-FIX2
+
+> 修复错误 Candidate Tree：上一轮 2.0.6.49 从 `guayan-fix` 构建，但 9/24–9/27 已验收的 17 个审卦 UI/关系提交仍停留在 `feat/return-relation-svg-r1`，导致 APK 视觉回退到旧界面。本轮把该分支完整收敛回 `guayan-fix`，并在最新 UI 基线上重新接入宽幅 Bézier 普通生克关系线。属于真实 FIX：`2.0.6+49 → 2.0.6+50`。
+
+### Candidate Tree
+
+- Merge base: `b801715390b6f08026a6a4ea400a2fa35dca99f0`
+- Latest UI head: `f189ed0cd6dc4a97d1e8790d62ba2328660bc5c8`
+- Old wrong candidate head: `db9b2f563d798140ce394f95309de8e1e97bb755`
+- Previous `2.0.6.49` APK: **INVALID FOR VISUAL ACCEPTANCE**
+- New candidate: latest UI + governance + version visibility + Bézier renderer + auto APK
+
+### 治理状态
+
+- PRODUCT REGRESSION：待 CI / 真机
+- UNRESOLVED UNKNOWN：真机视觉曲率
+- GATE STATUS：待 CI
+- CANDIDATE TREE MATCH：YES
+- COMMIT ELIGIBILITY：待 CI 收口
 
 ## 2026-09-28 · GUAYAN-R5-RELATION-BEZIER-FIX1
 

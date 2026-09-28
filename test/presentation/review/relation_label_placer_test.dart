@@ -5,6 +5,7 @@ import 'package:guayan_trainer/presentation/review/relation_geometry.dart';
 import 'package:guayan_trainer/presentation/review/relation_label_placer.dart';
 import 'package:guayan_trainer/presentation/review/relation_obstacle_map.dart';
 import 'package:guayan_trainer/presentation/review/relation_orthogonal_router.dart';
+import 'package:guayan_trainer/presentation/review/relation_visual_tokens.dart';
 
 void main() {
   test('label uses measured text bounds and avoids obstacles and prior labels', () {
@@ -32,5 +33,56 @@ void main() {
     expect(placed.bounds.height, greaterThan(16));
     expect(placed.bounds.overlaps(const Rect.fromLTWH(40, 75, 30, 18)), isFalse);
     expect(placed.bounds.overlaps(const Rect.fromLTWH(120, 100, 35, 24)), isFalse);
+
+    final sourceGuard = Rect.fromCircle(
+      center: route.points.first,
+      radius: RelationVisualTokens.relationLabelArrowClearance,
+    );
+    final targetGuard = Rect.fromCircle(
+      center: route.points.last,
+      radius: RelationVisualTokens.relationLabelArrowClearance,
+    );
+    expect(placed.bounds.overlaps(sourceGuard), isFalse);
+    expect(placed.bounds.overlaps(targetGuard), isFalse);
+  });
+
+  test('crowded corridor still keeps a capsule instead of deleting relation', () {
+    final path = Path()
+      ..moveTo(200, 120)
+      ..lineTo(220, 120)
+      ..lineTo(220, 40)
+      ..lineTo(200, 40);
+    final route = RelationRoute(
+      sourceAnchor: const RelationAnchor(
+        name: RelationAnchorName.e,
+        point: Offset(200, 120),
+      ),
+      targetAnchor: const RelationAnchor(
+        name: RelationAnchorName.e,
+        point: Offset(200, 40),
+      ),
+      points: const [
+        Offset(200, 120),
+        Offset(220, 120),
+        Offset(220, 40),
+        Offset(200, 40),
+      ],
+      path: path,
+      length: 120,
+      bendCount: 2,
+      cost: 176,
+    );
+
+    final placed = RelationLabelPlacer.place(
+      route: route,
+      text: '生',
+      obstacles: RelationObstacleMap.fromBounds({
+        'left-text': const Rect.fromLTWH(136, 60, 64, 16),
+        'right-yao': const Rect.fromLTWH(226, 60, 24, 6),
+      }),
+    );
+
+    expect(placed, isNotNull);
+    expect(placed!.text, '生');
   });
 }
