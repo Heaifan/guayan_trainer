@@ -108,7 +108,7 @@ class _RelationFilterPanel extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(width: 6),
             itemBuilder: (_, index) {
               if (_stateLabels.isNotEmpty && index == 0) {
-                return _pill('状态 ${_stateLabels.join(' · ')}',
+                return _pill("状态 ${_stateLabels.join(' · ')}",
                   const Color(0xFF536575), const Color(0xFFF1F4F8));
               }
               final i = index - (_stateLabels.isEmpty ? 0 : 1);
