@@ -70,6 +70,8 @@ void main() {
     await pumpDemo(tester);
     expect(find.textContaining('全卦关系'), findsOneWidget);
 
+    await tester.ensureVisible(find.byKey(const Key('review_line_3')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('review_line_3')));
     await tester.pumpAndSettle();
     expect(find.text('当前聚焦：三爻'), findsOneWidget);
@@ -633,7 +635,7 @@ void main() {
     testWidgets('首次打开直接展示全卦关系，不进入单爻聚焦模式', (tester) async {
       await pumpDemo(tester);
 
-      expect(find.text('全卦关系'), findsOneWidget);
+      expect(find.textContaining('全卦关系'), findsOneWidget);
       expect(find.textContaining('当前聚焦：'), findsNothing);
       expect(find.byKey(const Key('focused_state_summary')), findsNothing);
       // Demo Case 当前有效关系由 Domain 作用权结算：
@@ -644,12 +646,17 @@ void main() {
       expect(find.text('特殊 0'), findsOneWidget);
     });
 
-    testWidgets('卦盘行不再承担关系过滤入口', (tester) async {
+    testWidgets('卦盘行恢复为关系聚焦入口', (tester) async {
       await pumpDemo(tester);
 
-      expect(find.text('全卦关系'), findsOneWidget);
-      expect(find.textContaining('当前聚焦：'), findsNothing);
-      expect(find.byType(InkWell), findsWidgets);
+      await tester.ensureVisible(find.byKey(const Key('review_line_4')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('review_line_4')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('当前聚焦：四爻'), findsOneWidget);
+      final overlay = tester.widget<RelationOverlay>(find.byType(RelationOverlay));
+      expect((overlay.focus! as YaoEndpoint).position, 4);
       expect(find.byKey(const Key('line_detail_sheet')), findsNothing);
     });
   });
