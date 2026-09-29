@@ -48,13 +48,13 @@ class RelationObstacleMap {
     return false;
   }
   double _routingWeight(String id) {
-    if (id.contains('hidden')) return 180;
-    if (id.contains('six_spirit')) return 120;
-    if (id.contains('nayin')) return 100;
-    if (id.contains('shi_ying')) return 90;
-    if (id.contains('moving_marker')) return 80;
-    if (id.startsWith('yao_glyph:')) return 70;
-    return 90;
+    if (id.contains('hidden')) return 900;
+    if (id.contains('six_spirit')) return 500;
+    if (id.contains('nayin')) return 450;
+    if (id.contains('shi_ying')) return 400;
+    if (id.contains('moving_marker')) return 350;
+    if (id.startsWith('yao_glyph:')) return 300;
+    return 400;
   }
 }
 bool _intersectsRect(Offset start, Offset end, Rect rect) {
