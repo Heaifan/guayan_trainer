@@ -6,8 +6,7 @@ import 'relation_route_scoring.dart';
 
 abstract final class RelationRouteCandidates {
   static Iterable<List<Offset>> forPair(
-    AnchorPair pair,
-    Rect viewport,
+    AnchorPair pair, Rect viewport,
   ) sync* {
     for (final raw in _raw(pair, viewport)) {
       final points = _normalize(raw);
@@ -24,11 +23,9 @@ abstract final class RelationRouteCandidates {
   }
 
   static Iterable<List<Offset>> _raw(
-    AnchorPair pair,
-    Rect viewport,
+    AnchorPair pair, Rect viewport,
   ) sync* {
-    final s = pair.source.point;
-    final t = pair.target.point;
+    final s = pair.source.point, t = pair.target.point;
     yield [s, t];
     yield [s, Offset(t.dx, s.dy), t];
     yield [s, Offset(s.dx, t.dy), t];
@@ -40,7 +37,7 @@ abstract final class RelationRouteCandidates {
     final targetStub = _clamp(t + targetNormal * stub, viewport);
     yield [s, sourceStub, targetStub, t];
 
-    for (final offset in const [14.0, 28.0]) {
+    for (final offset in const [14.0, 28.0, 44.0, 64.0]) {
       final leftX =
           math.max(viewport.left + 4, math.min(s.dx, t.dx) - offset);
       final rightX =
@@ -50,22 +47,20 @@ abstract final class RelationRouteCandidates {
     }
   }
 
-  static Offset _clamp(Offset point, Rect viewport) => Offset(
-        point.dx.clamp(viewport.left + 1, viewport.right - 1).toDouble(),
-        point.dy.clamp(viewport.top + 1, viewport.bottom - 1).toDouble(),
-      );
+  static Offset _clamp(Offset p, Rect viewport) => Offset(
+    p.dx.clamp(viewport.left + 1, viewport.right - 1).toDouble(),
+    p.dy.clamp(viewport.top + 1, viewport.bottom - 1).toDouble(),
+  );
 
   static List<Offset> _normalize(List<Offset> points) {
     final result = <Offset>[];
     for (final point in points) {
-      if (result.isEmpty || (result.last - point).distance > 0.01) {
+      if (result.isEmpty || (result.last - point).distance > .01) {
         result.add(point);
       }
       if (result.length >= 3 &&
           _sameDirection(
-            result[result.length - 3],
-            result[result.length - 2],
-            result.last,
+            result[result.length - 3], result[result.length - 2], result.last,
           )) {
         result.removeAt(result.length - 2);
       }
@@ -74,8 +69,7 @@ abstract final class RelationRouteCandidates {
   }
 
   static bool _sameDirection(Offset a, Offset b, Offset c) {
-    final ab = b - a;
-    final bc = c - b;
-    return (ab.dx * bc.dy - ab.dy * bc.dx).abs() < 0.001;
+    final ab = b - a, bc = c - b;
+    return (ab.dx * bc.dy - ab.dy * bc.dx).abs() < .001;
   }
 }

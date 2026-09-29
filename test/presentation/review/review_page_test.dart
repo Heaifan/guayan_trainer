@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/domain/hexagram_case.dart';
 import 'package:guayan_trainer/domain/calendar_snapshot.dart';
 import 'package:guayan_trainer/domain/line_state.dart';
+import 'package:guayan_trainer/domain/relation_endpoint.dart';
 import 'package:guayan_trainer/domain/relation_type.dart';
 import 'package:guayan_trainer/domain/rule_execution_context.dart';
 import 'package:guayan_trainer/presentation/review/review_case_adapter.dart';
@@ -20,6 +21,7 @@ import 'package:guayan_trainer/presentation/review/review_demo_data.dart';
 import 'package:guayan_trainer/presentation/review/review_page.dart';
 import 'package:guayan_trainer/presentation/review/review_page_state.dart';
 import 'package:guayan_trainer/presentation/review/widgets/review_shensha_card.dart';
+import 'package:guayan_trainer/presentation/review/widgets/relation_overlay.dart';
 import 'package:guayan_trainer/presentation/shared/moving_marker.dart';
 import 'package:guayan_trainer/presentation/shared/yao_glyph.dart';
 
@@ -62,6 +64,25 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
+
+
+  testWidgets('点击爻位进入当前爻关系，再点一次返回全卦', (tester) async {
+    await pumpDemo(tester);
+    expect(find.textContaining('全卦关系'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('review_line_3')));
+    await tester.pumpAndSettle();
+    expect(find.text('当前聚焦：三爻'), findsOneWidget);
+    final focused = tester.widget<RelationOverlay>(find.byType(RelationOverlay));
+    expect(focused.focus, isA<YaoEndpoint>());
+    expect((focused.focus! as YaoEndpoint).position, 3);
+
+    await tester.tap(find.byKey(const Key('review_line_3')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('全卦关系'), findsOneWidget);
+    final all = tester.widget<RelationOverlay>(find.byType(RelationOverlay));
+    expect(all.focus, isNull);
+  });
 
   group('Test A · 神煞网格', () {
     testWidgets('P0 · 19 项同屏且神煞卡固定高度', (tester) async {

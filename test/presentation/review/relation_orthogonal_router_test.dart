@@ -4,8 +4,34 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/presentation/review/relation_geometry.dart';
 import 'package:guayan_trainer/presentation/review/relation_obstacle_map.dart';
 import 'package:guayan_trainer/presentation/review/relation_orthogonal_router.dart';
+import 'package:guayan_trainer/presentation/review/routing/relation_bezier_path.dart';
 
 void main() {
+
+  test('hidden-area penalty beats preferred side when clear space exists', () {
+    final source = RelationAnchors.fromRect(
+      const Rect.fromLTWH(100, 180, 60, 20),
+    );
+    final target = RelationAnchors.fromRect(
+      const Rect.fromLTWH(100, 20, 60, 20),
+    );
+    final obstacles = RelationObstacleMap.fromBounds({
+      'legacy_hidden_slot_3_0': const Rect.fromLTWH(40, 55, 70, 110),
+    });
+    final route = RelationOrthogonalRouter.route(
+      source: source,
+      target: target,
+      obstacles: obstacles,
+      viewport: const Rect.fromLTWH(0, 0, 260, 220),
+      preferredHorizontalSide: -1,
+    ).route!;
+
+    expect(
+      obstacles.isClearPath(RelationBezierPath.sample(route.path)),
+      isTrue,
+    );
+  });
+
 
   test('direct route can prefer either screen side without changing anchors', () {
     final source = RelationAnchors.fromRect(

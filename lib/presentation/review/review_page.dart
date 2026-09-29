@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/hexagram_case.dart';
+import '../../domain/relation_endpoint.dart';
 import '../../domain/rules/evidence/derived_evidence.dart';
 import '../../domain/rules/engine/rule_trace.dart';
 import '../../domain/shensha/shensha_note_store.dart';
@@ -114,6 +115,7 @@ class _ReviewWorkbench extends StatefulWidget {
 }
 
 class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
+  int? _focusedPosition;
   String? _selectedRelationId;
   String _relationFilter = '全部';
   late final _anchorKeys = <String, GlobalKey>{
@@ -135,6 +137,8 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
       'six_spirit_slot_$position': GlobalKey(),
       'hidden_slot_${position}_0': GlobalKey(),
       'hidden_slot_${position}_1': GlobalKey(),
+      'legacy_hidden_slot_${position}_0': GlobalKey(),
+      'legacy_hidden_slot_${position}_1': GlobalKey(),
       'main_hidden_slot_$position': GlobalKey(),
       'opposite_hidden_slot_$position': GlobalKey(),
       // V2：这些键不再是“硬障碍”，而是穿越时需要局部透明的
@@ -146,6 +150,13 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
       'moving_marker_$position': GlobalKey(),
     },
   };
+
+  void _onLineTap(int position) {
+    setState(() {
+      _focusedPosition = _focusedPosition == position ? null : position;
+      _selectedRelationId = null;
+    });
+  }
 
   Future<void> _onShenShaTap(ReviewShenShaItem item) async {
     final id = item.id;
@@ -267,8 +278,8 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                             const SizedBox(height: 6),
                             ReviewHexagramResultTable(
                               state: widget.state,
-                              selectedPosition: null,
-                              onLineTap: null,
+                              selectedPosition: _focusedPosition,
+                              onLineTap: _onLineTap,
                               anchorKeys: _anchorKeys,
                               returnAnchorKeys: _returnAnchorKeys,
                               rowKeys: _rowKeys,
@@ -284,13 +295,19 @@ class _ReviewWorkbenchState extends State<_ReviewWorkbench> {
                           obstacleKeys: _obstacleKeys,
                           selectedId: _selectedRelationId,
                           category: _relationFilter,
-                          focus: null,
+                          focus: _focusedPosition == null
+                              ? null
+                              : YaoEndpoint(
+                                  LineScope.original,
+                                  _focusedPosition!,
+                                ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     ReviewRelationToolbar(
                       state: widget.state,
+                      focusedPosition: _focusedPosition,
                       selectedFilter: _relationFilter,
                       onFilterChanged: (filter) =>
                           setState(() => _relationFilter = filter),

@@ -13,8 +13,8 @@ abstract final class RelationVisualTokens {
   static const relationLabelRadius = 6.0;
   static const relationLabelHorizontalPadding = 6.0;
   static const relationLabelBorderWidth = 0.7;
-  static const relationLabelFillOpacity = 0.10;
-  static const relationLabelBorderOpacity = 0.28;
+  static const relationLabelFillOpacity = 0.18;
+  static const relationLabelBorderOpacity = 0.55;
   static const relationLabelArrowClearance = 10.0;
   static const stateLabelFontSize = 8.0;
   static const stateLabelHeight = 14.0;

@@ -5,7 +5,6 @@ import 'relation_visual_tokens.dart';
 
 class RelationObstacle {
   const RelationObstacle({required this.id, required this.bounds});
-
   final String id;
   final Rect bounds;
 }
@@ -13,9 +12,7 @@ class RelationObstacle {
 class RelationObstacleMap {
   RelationObstacleMap(Iterable<RelationObstacle> obstacles)
       : obstacles = List.unmodifiable(obstacles),
-        _byId = {
-          for (final obstacle in obstacles) obstacle.id: obstacle,
-        };
+        _byId = {for (final obstacle in obstacles) obstacle.id: obstacle};
 
   factory RelationObstacleMap.fromBounds(Map<String, Rect> bounds) =>
       RelationObstacleMap([
@@ -31,8 +28,6 @@ class RelationObstacleMap {
 
   RelationObstacle? obstacleFor(String id) => _byId[id];
 
-  /// 旧硬避障能力继续保留给标签与测试使用；普通关系 Router V2 不再把
-  /// “穿过元素”视为非法。
   bool isClearSegment(Offset start, Offset end) => obstacles.every(
     (obstacle) => !_intersectsRect(start, end, obstacle.bounds),
   );
@@ -44,20 +39,37 @@ class RelationObstacleMap {
     return true;
   }
 
-  /// 返回一条折线穿越了多少个保护元素。每个元素最多计一次。
-  int intersectionCount(List<Offset> points) {
-    var count = 0;
-    for (final obstacle in obstacles) {
-      var hit = false;
-      for (var i = 0; i < points.length - 1; i++) {
-        if (_intersectsRect(points[i], points[i + 1], obstacle.bounds)) {
-          hit = true;
-          break;
-        }
-      }
-      if (hit) count++;
+  int intersectionCount(List<Offset> points) =>
+      _hits(points).length;
+
+  double routingPenalty(List<Offset> points) {
+    var total = 0.0;
+    for (final obstacle in _hits(points)) {
+      total += _routingWeight(obstacle.id);
     }
-    return count;
+    return total;
+  }
+
+  List<RelationObstacle> _hits(List<Offset> points) => [
+    for (final obstacle in obstacles)
+      if (_pathHits(points, obstacle.bounds)) obstacle,
+  ];
+
+  bool _pathHits(List<Offset> points, Rect bounds) {
+    for (var i = 0; i < points.length - 1; i++) {
+      if (_intersectsRect(points[i], points[i + 1], bounds)) return true;
+    }
+    return false;
+  }
+
+  double _routingWeight(String id) {
+    if (id.contains('hidden')) return 180;
+    if (id.contains('six_spirit')) return 120;
+    if (id.contains('nayin')) return 100;
+    if (id.contains('shi_ying')) return 90;
+    if (id.contains('moving_marker')) return 80;
+    if (id.startsWith('yao_glyph:')) return 70;
+    return 90;
   }
 }
 
@@ -73,22 +85,19 @@ bool _intersectsRect(Offset start, Offset end, Rect rect) {
 }
 
 bool _segmentsIntersect(Offset a, Offset b, Offset c, Offset d) {
-  final abC = _cross(b - a, c - a);
-  final abD = _cross(b - a, d - a);
-  final cdA = _cross(d - c, a - c);
-  final cdB = _cross(d - c, b - c);
-  const epsilon = 0.0001;
-  return abC.abs() <= epsilon && _onSegment(a, b, c) ||
-      abD.abs() <= epsilon && _onSegment(a, b, d) ||
-      cdA.abs() <= epsilon && _onSegment(c, d, a) ||
-      cdB.abs() <= epsilon && _onSegment(c, d, b) ||
+  final abC = _cross(b - a, c - a), abD = _cross(b - a, d - a);
+  final cdA = _cross(d - c, a - c), cdB = _cross(d - c, b - c);
+  const e = 0.0001;
+  return abC.abs() <= e && _onSegment(a, b, c) ||
+      abD.abs() <= e && _onSegment(a, b, d) ||
+      cdA.abs() <= e && _onSegment(c, d, a) ||
+      cdB.abs() <= e && _onSegment(c, d, b) ||
       (abC > 0) != (abD > 0) && (cdA > 0) != (cdB > 0);
 }
 
 double _cross(Offset a, Offset b) => a.dx * b.dy - a.dy * b.dx;
-
-bool _onSegment(Offset a, Offset b, Offset point) =>
-    point.dx >= math.min(a.dx, b.dx) - 0.0001 &&
-    point.dx <= math.max(a.dx, b.dx) + 0.0001 &&
-    point.dy >= math.min(a.dy, b.dy) - 0.0001 &&
-    point.dy <= math.max(a.dy, b.dy) + 0.0001;
+bool _onSegment(Offset a, Offset b, Offset p) =>
+    p.dx >= math.min(a.dx, b.dx) - .0001 &&
+    p.dx <= math.max(a.dx, b.dx) + .0001 &&
+    p.dy >= math.min(a.dy, b.dy) - .0001 &&
+    p.dy <= math.max(a.dy, b.dy) + .0001;

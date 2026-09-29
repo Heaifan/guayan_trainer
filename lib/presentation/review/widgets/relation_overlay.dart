@@ -169,7 +169,7 @@ class _RelationPainter extends CustomPainter {
       final active = selectedId == record.id;
       final color = RelationVisualTokens.colorFor(record.relationType!);
       final paint = Paint()
-        ..color = color.withValues(alpha: active ? 1 : .82)
+        ..color = color.withValues(alpha: active ? 1 : .94)
         ..style = PaintingStyle.stroke
         ..strokeWidth = active
             ? RelationVisualTokens.strokeFocused
@@ -267,7 +267,7 @@ class _RelationPainter extends CustomPainter {
     canvas.drawPath(
       arrow,
       Paint()
-        ..color = color.withValues(alpha: overlapsProtected ? .48 : .96),
+        ..color = color.withValues(alpha: overlapsProtected ? .18 : .98),
     );
   }
 
@@ -381,7 +381,7 @@ class _RelationPainter extends CustomPainter {
     canvas.drawPath(
       geometry.arrow,
       Paint()
-        ..color = color.withValues(alpha: arrowOccluded ? .48 : .96),
+        ..color = color.withValues(alpha: arrowOccluded ? .18 : .98),
     );
   }
 

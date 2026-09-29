@@ -83,6 +83,8 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 _hiddenStyle,
                 _spiritBaseline,
                 width: BoardColumnLayout.primaryHiddenWidth,
+                obstacleKey:
+                    obstacleKeys['legacy_hidden_slot_${line.position}_0'],
               ),
             if (line.hiddenSpirit2 != null)
               _leftText(
@@ -91,6 +93,8 @@ class ReviewHexagramLineRow extends StatelessWidget {
                 _hiddenStyle,
                 _spiritBaseline,
                 width: BoardColumnLayout.oppositeHiddenWidth,
+                obstacleKey:
+                    obstacleKeys['legacy_hidden_slot_${line.position}_1'],
               ),
           ],
           for (var i = 0; i < line.hiddenSpiritFacts.length && i < 2; i++)

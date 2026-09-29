@@ -1,5 +1,21 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-RELATION-VISUAL-FIX3 — 2026-09-29
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `review_page.dart` / `review_relation_toolbar.dart` | 恢复点击爻位聚焦、再次点击回全卦；Overlay/Toolbar 同步过滤 |
+| `review_hexagram_line_row.dart` | 补齐 legacy 伏藏文本障碍 Bounds |
+| `relation_obstacle_map.dart` | 按伏藏、六神、纳音、世应等可读性重要度计算路由成本 |
+| `relation_orthogonal_router.dart` / `routing/relation_route_candidates.dart` | 空白区优先、扩展外侧候选；透明穿越仅兜底 |
+| `relation_overlay.dart` / `relation_visual_tokens.dart` | 非遮挡段提高可见度；遮挡箭头降透明；小标签增强对比 |
+| `test/presentation/review/**` | 单爻聚焦往返与伏藏避让回归 |
+| `pubspec.yaml` | Process Counter `2.0.6+52 → 2.0.6+53` |
+
+- AUTOMATED: PENDING
+- VISUAL: PENDING
+- Last edited: 2026-09-29 20:50:00 +08:00
+
 ## GUAYAN-R5-RELATION-VISUAL-FIX2 — 2026-09-29
 
 | 文件/目录 | 职责 |

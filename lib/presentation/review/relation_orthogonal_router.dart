@@ -15,28 +15,21 @@ class RelationRouteResult {
 
 class RelationRoute {
   RelationRoute({
-    required this.sourceAnchor,
-    required this.targetAnchor,
-    required List<Offset> points,
-    required this.path,
-    required this.length,
-    required this.bendCount,
-    required this.cost,
+    required this.sourceAnchor, required this.targetAnchor,
+    required List<Offset> points, required this.path,
+    required this.length, required this.bendCount, required this.cost,
     this.horizontalSide = 0,
   }) : points = List.unmodifiable(points);
   final RelationAnchor sourceAnchor;
   final RelationAnchor targetAnchor;
   final List<Offset> points;
   final Path path;
-  final double length;
+  final double length, cost, horizontalSide;
   final int bendCount;
-  final double cost;
-  final double horizontalSide;
 }
 
 abstract final class RelationOrthogonalRouter {
   static const _bendPenalty = 10.0;
-  static const _crossingPenalty = 8.0;
   static const _sidePreferencePenalty = 4.0;
 
   static RelationRouteResult route({
@@ -56,25 +49,19 @@ abstract final class RelationOrthogonalRouter {
           );
           final length = RelationRouteCandidates.length(points);
           final bends = points.length > 2 ? points.length - 2 : 0;
-          final crossings =
-              obstacles.intersectionCount(RelationBezierPath.sample(path));
+          final routePoints = RelationBezierPath.sample(path);
+          final avoidance = obstacles.routingPenalty(routePoints);
           final direction =
               RelationRouteScoring.endpointDirectionPenalty(pair, points);
           final sideCost = preferredHorizontalSide != 0 &&
-                  side != 0 &&
-                  side != preferredHorizontalSide
-              ? _sidePreferencePenalty
-              : 0.0;
+                  side != 0 && side != preferredHorizontalSide
+              ? _sidePreferencePenalty : 0.0;
           candidates.add(RelationRoute(
-            sourceAnchor: pair.source,
-            targetAnchor: pair.target,
-            points: points,
-            path: path,
-            length: length,
-            bendCount: bends,
+            sourceAnchor: pair.source, targetAnchor: pair.target,
+            points: points, path: path, length: length, bendCount: bends,
             horizontalSide: side,
             cost: length + bends * _bendPenalty +
-                crossings * _crossingPenalty + direction + sideCost,
+                avoidance + direction + sideCost,
           ));
         }
       }
