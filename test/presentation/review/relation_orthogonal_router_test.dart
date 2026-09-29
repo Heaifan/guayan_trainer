@@ -6,6 +6,34 @@ import 'package:guayan_trainer/presentation/review/relation_obstacle_map.dart';
 import 'package:guayan_trainer/presentation/review/relation_orthogonal_router.dart';
 
 void main() {
+
+  test('direct route can prefer either screen side without changing anchors', () {
+    final source = RelationAnchors.fromRect(
+      const Rect.fromLTWH(80, 170, 60, 20),
+    );
+    final target = RelationAnchors.fromRect(
+      const Rect.fromLTWH(80, 20, 60, 20),
+    );
+    final left = RelationOrthogonalRouter.route(
+      source: source,
+      target: target,
+      obstacles: RelationObstacleMap(const []),
+      viewport: const Rect.fromLTWH(0, 0, 220, 220),
+      preferredHorizontalSide: -1,
+    ).route!;
+    final right = RelationOrthogonalRouter.route(
+      source: source,
+      target: target,
+      obstacles: RelationObstacleMap(const []),
+      viewport: const Rect.fromLTWH(0, 0, 220, 220),
+      preferredHorizontalSide: 1,
+    ).route!;
+    expect(left.horizontalSide, -1);
+    expect(right.horizontalSide, 1);
+    expect(left.sourceAnchor.name, right.sourceAnchor.name);
+    expect(left.targetAnchor.name, right.targetAnchor.name);
+  });
+
   test('ordinary relations only use left/right text anchors', () {
     final source = RelationAnchors.fromRect(
       const Rect.fromLTWH(100, 200, 60, 24),

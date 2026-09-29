@@ -8,10 +8,10 @@ abstract final class RelationVisualTokens {
   static const arrowSize = 4.5;
   static const arrowSizeFocused = 5.5;
   static const anchorRadius = 2.20;
-  static const relationLabelFontSize = 8.0;
-  static const relationLabelHeight = 14.0;
-  static const relationLabelRadius = 7.0;
-  static const relationLabelHorizontalPadding = 8.0;
+  static const relationLabelFontSize = 7.0;
+  static const relationLabelHeight = 12.0;
+  static const relationLabelRadius = 6.0;
+  static const relationLabelHorizontalPadding = 6.0;
   static const relationLabelBorderWidth = 0.7;
   static const relationLabelFillOpacity = 0.10;
   static const relationLabelBorderOpacity = 0.28;
@@ -26,7 +26,8 @@ abstract final class RelationVisualTokens {
   static const opacitySelected = 1.00;
   static const opacityDeemphasized = 0.20;
   // 穿越正文/纳音/世应时仅降低该段透明度，不再把元素当硬障碍。
-  static const opacityOccluded = 0.28;
+  static const opacityOccluded = 0.08;
+  static const occlusionPadding = 1.25;
   static const backHookStroke = 1.80;
   static const backHookArrowSize = 5.00;
   static const safePadding = 5.0;

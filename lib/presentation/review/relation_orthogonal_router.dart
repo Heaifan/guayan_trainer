@@ -9,7 +9,6 @@ import 'routing/relation_route_scoring.dart';
 class RelationRouteResult {
   const RelationRouteResult.route(this.route);
   const RelationRouteResult.noRoute() : route = null;
-
   final RelationRoute? route;
   bool get isNoRoute => route == null;
 }
@@ -23,8 +22,8 @@ class RelationRoute {
     required this.length,
     required this.bendCount,
     required this.cost,
+    this.horizontalSide = 0,
   }) : points = List.unmodifiable(points);
-
   final RelationAnchor sourceAnchor;
   final RelationAnchor targetAnchor;
   final List<Offset> points;
@@ -32,40 +31,52 @@ class RelationRoute {
   final double length;
   final int bendCount;
   final double cost;
+  final double horizontalSide;
 }
 
 abstract final class RelationOrthogonalRouter {
   static const _bendPenalty = 10.0;
   static const _crossingPenalty = 8.0;
+  static const _sidePreferencePenalty = 4.0;
 
   static RelationRouteResult route({
     required RelationAnchors source,
     required RelationAnchors target,
     required RelationObstacleMap obstacles,
     required Rect viewport,
+    double preferredHorizontalSide = 0,
   }) {
     final candidates = <RelationRoute>[];
     for (final pair in AnchorPairCandidates.ordinary(source, target)) {
       for (final points in RelationRouteCandidates.forPair(pair, viewport)) {
-        final length = RelationRouteCandidates.length(points);
-        final bends = points.length > 2 ? points.length - 2 : 0;
-        final crossings = obstacles.intersectionCount(points);
-        final directionCost =
-            RelationRouteScoring.endpointDirectionPenalty(pair, points);
-        candidates.add(
-          RelationRoute(
+        final sides = points.length == 2 ? const [-1.0, 1.0] : const [0.0];
+        for (final side in sides) {
+          final path = RelationBezierPath.build(
+            points, viewport, directHorizontalSide: side == 0 ? -1 : side,
+          );
+          final length = RelationRouteCandidates.length(points);
+          final bends = points.length > 2 ? points.length - 2 : 0;
+          final crossings =
+              obstacles.intersectionCount(RelationBezierPath.sample(path));
+          final direction =
+              RelationRouteScoring.endpointDirectionPenalty(pair, points);
+          final sideCost = preferredHorizontalSide != 0 &&
+                  side != 0 &&
+                  side != preferredHorizontalSide
+              ? _sidePreferencePenalty
+              : 0.0;
+          candidates.add(RelationRoute(
             sourceAnchor: pair.source,
             targetAnchor: pair.target,
             points: points,
-            path: RelationBezierPath.build(points, viewport),
+            path: path,
             length: length,
             bendCount: bends,
-            cost: length +
-                bends * _bendPenalty +
-                crossings * _crossingPenalty +
-                directionCost,
-          ),
-        );
+            horizontalSide: side,
+            cost: length + bends * _bendPenalty +
+                crossings * _crossingPenalty + direction + sideCost,
+          ));
+        }
       }
     }
     if (candidates.isEmpty) return const RelationRouteResult.noRoute();

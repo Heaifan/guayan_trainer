@@ -2,13 +2,35 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+51（Android 显示 2.0.6.51）
+> **当前应用版本：** 2.0.6+52（Android 显示 2.0.6.52）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-09-29 · GUAYAN-R5-RELATION-VISUAL-FIX2
+
+> 修复实机暴露的三类关系视觉回归：普通生/克直达 Bézier 不再固定向 Viewport 中心偏折，而是生成屏幕左/右双候选并按拥挤度与平衡偏好选路；穿越正文/纳音/世应/关系标签时按真实线宽扩大保护区并降至 8% 透明；关系标签整体缩小，且无安全位置时允许隐藏标签但绝不删除关系线。本轮真实 FIX：`2.0.6+51 → 2.0.6+52`。
+
+### 修改
+
+| 路径 | 说明 |
+| --- | --- |
+| `relation_bezier_path.dart` / `relation_orthogonal_router.dart` | 左右双候选、屏幕空间方向稳定、真实曲线路径参与遮挡成本 |
+| `relation_render_plan.dart` | 多关系左右负载平衡；标签不可放置时保留关系 |
+| `relation_visual_tokens.dart` / `relation_overlay.dart` | 标签缩至 7/12dp；遮挡段 8% 透明；按线宽扩展保护区；关系标签纳入保护区域 |
+| `relation_label_placer.dart` | 删除强制 fallback 覆盖，拥挤时返回 null |
+| `test/presentation/review/**` | 左右弯、反向源、标签抑制、视觉 Token 与关系保留回归 |
+
+### 验证状态
+
+- AUTOMATED：PENDING，由 `guayan-fix` Push CI 执行 Analyze + Relation UI Gate + Release APK。
+- VISUAL：PENDING，APK 需确认左右分流、标签密度与穿字透明效果。
+- Source: `2.0.6+52`
+- Android visible: `2.0.6.52`
+- Event: `FIX`
 
 ## 2026-09-28 · GUAYAN-CANDIDATE-GATE-FIX3
 

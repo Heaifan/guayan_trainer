@@ -7,6 +7,35 @@ import 'package:guayan_trainer/domain/relations/relation_record.dart';
 import 'package:guayan_trainer/presentation/review/widgets/relation_overlay.dart';
 
 void main() {
+
+  test('unsafe label suppression never deletes the routed relation', () {
+    final record = RelationRecord.relation(
+      id: 'ke-no-safe-label',
+      sourceKind: RelationSourceKind.fact,
+      relationType: RelationType.ke,
+      fromRef: YaoEndpoint(LineScope.original, 2),
+      toRef: YaoEndpoint(LineScope.original, 5),
+      title: '克',
+    );
+    final anchors = const {
+      'yao:original:2': Rect.fromLTWH(136, 170, 64, 16),
+      'yao:original:5': Rect.fromLTWH(136, 30, 64, 16),
+    };
+    final plan = RelationOverlay.planForBounds(
+      records: [record],
+      bounds: {
+        ...anchors,
+        'full-board': const Rect.fromLTWH(0, 0, 402, 270),
+      },
+      anchorBounds: anchors,
+      viewportSize: const Size(402, 270),
+    );
+    expect(plan.routes, hasLength(1));
+    expect(plan.records.single.id, record.id);
+    expect(plan.labels, hasLength(1));
+    expect(plan.labels.single, isNull);
+  });
+
   test('first frame with missing RenderBox bounds produces no route plan', () {
     final record = RelationRecord.relation(
       id: 'ke',

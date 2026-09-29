@@ -43,13 +43,7 @@ abstract final class RelationLabelPlacer {
     );
     if (relaxed != null) return _placed(text, route, relaxed.$1, relaxed.$2);
 
-    final center = RelationLabelCandidates.fallbackCenter(route);
-    final bounds = Rect.fromCenter(
-      center: center,
-      width: size.width,
-      height: size.height,
-    );
-    return _placed(text, route, center, bounds);
+    return null;
   }
 
   static (Offset, Rect)? _find(

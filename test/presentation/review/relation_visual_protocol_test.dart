@@ -43,6 +43,10 @@ void main() {
     expect(RelationVisualTokens.anchorRadius, 2.20);
     expect(RelationVisualTokens.opacityAll, 1.00);
     expect(RelationVisualTokens.opacityFocused, 1.00);
+    expect(RelationVisualTokens.relationLabelFontSize, 7.0);
+    expect(RelationVisualTokens.relationLabelHeight, 12.0);
+    expect(RelationVisualTokens.opacityOccluded, 0.08);
+    expect(RelationVisualTokens.occlusionPadding, 1.25);
   });
 
   test('back relations use the compact hook protocol', () {

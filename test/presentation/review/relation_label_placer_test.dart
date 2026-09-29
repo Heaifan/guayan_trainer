@@ -30,7 +30,7 @@ void main() {
     expect(placed, isNotNull);
     expect(placed!.text, '克');
     expect(placed.bounds.width, greaterThan(12));
-    expect(placed.bounds.height, greaterThan(16));
+    expect(placed.bounds.height, greaterThanOrEqualTo(12));
     expect(placed.bounds.overlaps(const Rect.fromLTWH(40, 75, 30, 18)), isFalse);
     expect(placed.bounds.overlaps(const Rect.fromLTWH(120, 100, 35, 24)), isFalse);
 
@@ -46,7 +46,7 @@ void main() {
     expect(placed.bounds.overlaps(targetGuard), isFalse);
   });
 
-  test('crowded corridor still keeps a capsule instead of deleting relation', () {
+  test('fully blocked board suppresses label instead of forcing overlap', () {
     final path = Path()
       ..moveTo(200, 120)
       ..lineTo(220, 120)
@@ -72,17 +72,13 @@ void main() {
       bendCount: 2,
       cost: 176,
     );
-
     final placed = RelationLabelPlacer.place(
       route: route,
       text: '生',
       obstacles: RelationObstacleMap.fromBounds({
-        'left-text': const Rect.fromLTWH(136, 60, 64, 16),
-        'right-yao': const Rect.fromLTWH(226, 60, 24, 6),
+        'board': const Rect.fromLTWH(0, 0, 400, 200),
       }),
     );
-
-    expect(placed, isNotNull);
-    expect(placed!.text, '生');
+    expect(placed, isNull);
   });
 }

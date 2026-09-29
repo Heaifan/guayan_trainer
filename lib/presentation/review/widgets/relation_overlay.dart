@@ -159,6 +159,11 @@ class _RelationPainter extends CustomPainter {
       viewportSize: size,
       )
     );
+    final protectedBounds = <Rect>[
+      ...obstacleBounds.values,
+      for (final label in plan.labels)
+        if (label != null) label.bounds,
+    ];
     for (var i = 0; i < plan.routes.length; i++) {
       final record = plan.records[i];
       final active = selectedId == record.id;
@@ -175,15 +180,16 @@ class _RelationPainter extends CustomPainter {
         canvas,
         plan.routes[i].path,
         paint,
-        obstacleBounds.values,
+        protectedBounds,
       );
       // 标签先画、箭头最后画：文字胶囊不能盖住箭头。
-      _drawLabel(canvas, plan.labels[i], color);
+      final label = plan.labels[i];
+      if (label != null) _drawLabel(canvas, label, color);
       _drawArrow(
         canvas,
         plan.routes[i].path,
         color,
-        obstacleBounds.values,
+        protectedBounds,
       );
     }
     for (final record in records.where(_isReturn)) {
@@ -191,7 +197,7 @@ class _RelationPainter extends CustomPainter {
         canvas,
         record,
         returnAnchorBounds,
-        obstacleBounds.values,
+        protectedBounds,
       );
     }
     if (debugMode) _drawDebug(canvas, size, anchorBounds, obstacleBounds, plan);
@@ -273,7 +279,12 @@ class _RelationPainter extends CustomPainter {
     Paint normalPaint,
     Iterable<Rect> protectedBounds,
   ) {
-    final bounds = protectedBounds.toList(growable: false);
+    final bounds = [
+      for (final rect in protectedBounds)
+        rect.inflate(
+          normalPaint.strokeWidth / 2 + RelationVisualTokens.occlusionPadding,
+        ),
+    ];
     final dimPaint = Paint()
       ..color = normalPaint.color.withValues(
         alpha: normalPaint.color.a * RelationVisualTokens.opacityOccluded,
@@ -294,7 +305,7 @@ class _RelationPainter extends CustomPainter {
         );
         if (tangent == null) continue;
         final point = tangent.position;
-        final occluded = bounds.any((rect) => rect.inflate(.75).contains(point));
+        final occluded = bounds.any((rect) => rect.contains(point));
         if (occluded) {
           drawing = false;
           continue;
@@ -308,7 +319,7 @@ class _RelationPainter extends CustomPainter {
       }
       final end = metric.getTangentForOffset(metric.length)?.position;
       if (end != null &&
-          !bounds.any((rect) => rect.inflate(.75).contains(end))) {
+          !bounds.any((rect) => rect.contains(end))) {
         visible.lineTo(end.dx, end.dy);
       }
     }
@@ -398,7 +409,10 @@ class _RelationPainter extends CustomPainter {
           route.targetAnchor.point,
       ],
       routeSegments: [for (final route in plan.routes) route.points],
-      labelBounds: [for (final label in plan.labels) label.bounds],
+      labelBounds: [
+        for (final label in plan.labels)
+          if (label != null) label.bounds,
+      ],
     );
     final nodePaint = Paint()
       ..color = const Color(0xFF1565C0).withValues(alpha: .35)

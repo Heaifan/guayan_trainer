@@ -3,30 +3,41 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guayan_trainer/presentation/review/routing/relation_bezier_path.dart';
 
-void main() {
-  test('direct relation keeps a visible cubic bow instead of a straight chord', () {
-    final path = RelationBezierPath.build(
-      const [Offset(20, 60), Offset(180, 60)],
-      const Rect.fromLTWH(0, 0, 220, 140),
-    );
-    final metric = path.computeMetrics().single;
-    final midpoint = metric.getTangentForOffset(metric.length / 2)!.position;
+Offset midpoint(Path path) {
+  final metric = path.computeMetrics().single;
+  return metric.getTangentForOffset(metric.length / 2)!.position;
+}
 
-    expect((midpoint.dy - 60).abs(), greaterThan(10));
-    expect(metric.length, greaterThan(160));
+void main() {
+  const viewport = Rect.fromLTWH(0, 0, 220, 220);
+  const vertical = [Offset(110, 190), Offset(110, 30)];
+
+  test('direct relation keeps a visible cubic bow', () {
+    final path = RelationBezierPath.build(vertical, viewport);
+    expect((midpoint(path).dx - 110).abs(), greaterThan(10));
+    expect(path.computeMetrics().single.length, greaterThan(160));
   });
 
-  test('multi-point relation remains a continuous paintable path', () {
-    final path = RelationBezierPath.build(
-      const [
-        Offset(20, 100),
-        Offset(60, 100),
-        Offset(140, 40),
-        Offset(180, 40),
-      ],
-      const Rect.fromLTWH(0, 0, 220, 140),
+  test('direct bows support real screen-space left and right', () {
+    final left = RelationBezierPath.build(
+      vertical, viewport, directHorizontalSide: -1,
     );
+    final right = RelationBezierPath.build(
+      vertical, viewport, directHorizontalSide: 1,
+    );
+    expect(midpoint(left).dx, lessThan(110));
+    expect(midpoint(right).dx, greaterThan(110));
+  });
 
-    expect(path.computeMetrics().single.length, greaterThan(0));
+  test('screen-side meaning survives reversed source direction', () {
+    const reversed = [Offset(110, 30), Offset(110, 190)];
+    final left = RelationBezierPath.build(
+      reversed, viewport, directHorizontalSide: -1,
+    );
+    final right = RelationBezierPath.build(
+      reversed, viewport, directHorizontalSide: 1,
+    );
+    expect(midpoint(left).dx, lessThan(110));
+    expect(midpoint(right).dx, greaterThan(110));
   });
 }

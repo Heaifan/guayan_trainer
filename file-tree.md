@@ -1,5 +1,24 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-RELATION-VISUAL-FIX2 — 2026-09-29
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/presentation/review/routing/relation_bezier_path.dart` | 直达 Bézier 支持屏幕空间左/右弯，反转 Source/Target 后方向语义不翻转 |
+| `lib/presentation/review/relation_orthogonal_router.dart` | 对左右曲线均生成候选，以真实曲线穿越数计成本，并接受软侧向偏好 |
+| `lib/presentation/review/relation_render_plan.dart` | 依据已选路线数量动态平衡左右侧；标签失败不再删掉关系 |
+| `lib/presentation/review/relation_visual_tokens.dart` | 普通关系标签 7dp/12dp；遮挡段透明度 0.08；新增线宽保护边距 |
+| `lib/presentation/review/widgets/relation_overlay.dart` | 正文与标签保护区局部透明绘制，遮挡判定计入真实 Stroke Width |
+| `lib/presentation/review/relation_label_placer.dart` | 删除不安全强制 fallback；无安全位置则隐藏标签 |
+| `test/presentation/review/**` | 左右弯、反向源、标签抑制、路线保留及视觉 Token 回归 |
+| `pubspec.yaml` | Process Counter `2.0.6+51 → 2.0.6+52` |
+
+- AUTOMATED: PENDING（Push 后由 GitHub Actions 验证）
+- VISUAL: PENDING（等待 2.0.6.52 APK 实机验收）
+- Source version: `2.0.6+52`
+- Android visible version: `2.0.6.52`
+- Last edited: 2026-09-29 09:19:00 +08:00
+
 ## GUAYAN-CANDIDATE-GATE-FIX3 — 2026-09-28
 
 | 文件/目录 | 职责 |
