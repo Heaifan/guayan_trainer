@@ -2,13 +2,31 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+53（Android 显示 2.0.6.53）
+> **当前应用版本：** 2.0.6+54（Android 显示 2.0.6.54）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-10-01 · GUAYAN-P0-DOMAIN-TRUTH-FIX
+
+> 修复双伏藏旁伏六亲基准错误，并锁死审卦显示事实与关系计算事实的一致性。旁伏继续取对宫纳甲干支，但六亲统一以主卦所属宫为“我”；审卦关系结算改为消费与当前排盘显示相同的 canonical CastChart 投影。新增“山天大畜→地山谦”Golden Case 与同五行禁止生克守门。本轮真实 FIX：`2.0.6+53 → 2.0.6+54`。
+
+### 冻结事实
+
+- 艮宫旁伏：兑宫干支 `丁巳/丁卯/丁丑/丁亥/丁酉/丁未`，六亲按艮土判定。
+- Golden Case：山天大畜 → 地山谦，主卦纳甲 `甲子/甲寅/甲辰/丙戌/丙子/丙寅`。
+- 同五行组合（如子水/亥水）不得生成普通“生/克”关系。
+- 持久化 Case 不被改写；仅审卦投影统一到当前 canonical 排盘事实，防止旧/脏 branch 与画面关系漂移。
+
+### 验证状态
+
+- Source: `2.0.6+54`
+- Android visible: `2.0.6.54`
+- AUTOMATED: PENDING（Analyze + Relation UI + Domain Truth Gate + APK）
+- VISUAL: PENDING（真机复核旁伏六亲与关系语义）
 
 ## 2026-09-29 · GUAYAN-R5-RELATION-VISUAL-FIX3
 

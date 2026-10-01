@@ -1,5 +1,20 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-P0-DOMAIN-TRUTH-FIX — 2026-10-01
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `lib/domain/casting/double_fucang_engine.dart` | 旁伏取对宫纳甲，但六亲改为以主卦宫五行为基准 |
+| `lib/presentation/review/review_case_adapter.dart` | 审卦显示、状态判断、关系结算统一消费 canonical CastChart 投影 |
+| `test/domain/casting/double_fucang_engine_test.dart` | 艮宫→兑宫旁伏六亲 Golden Case |
+| `test/presentation/review/review_domain_truth_golden_test.dart` | 山天大畜→地山谦四层真值 + 同五行禁止生克守门 |
+| `.github/workflows/build-apk.yml` | 将 Domain Truth Gate 纳入每次 APK 构建 |
+| `pubspec.yaml` | Process Counter `2.0.6+53 → 2.0.6+54` |
+
+- AUTOMATED: PENDING
+- VISUAL: PENDING
+- Last edited: 2026-10-01 13:51:00 +08:00
+
 ## GUAYAN-R5-RELATION-VISUAL-FIX3 — 2026-09-29
 
 | 文件/目录 | 职责 |
