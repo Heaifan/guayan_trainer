@@ -395,7 +395,7 @@ void main() {
       );
 
       expect(state.lunarDateTime, '丙午年八月初七 · 亥时');
-      expect(state.yearPillar, '年柱丙午');
+      expect(state.yearPillar, '丙午年');
       expect(state.hourPillar, '乙亥时');
     });
 
