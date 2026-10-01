@@ -337,8 +337,8 @@ void main() {
           ruleContext: base.ruleContext,
           calendar: const CalendarSnapshot(monthBranch: '寅', dayGanZhi: '甲子'),
         ),
+        profile: ReviewDemoData.profile(),
       );
-
       final shengKe = filterReviewRelations(state, '生克');
       final chongHe = filterReviewRelations(state, '冲合');
       final monthDay = filterReviewRelations(state, '月日');

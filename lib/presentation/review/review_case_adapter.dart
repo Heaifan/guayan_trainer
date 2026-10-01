@@ -159,9 +159,9 @@ class ReviewCaseAdapter {
         ),
     ];
 
-    // 审卦显示与关系计算必须消费同一份 canonical 排盘事实。
-    // 持久化 Case 不在此修改；这里只消除旧/脏 branch 与当前排盘显示的漂移。
-    final resolution = resolveRelationResult(canonicalCase);
+    // 无传统快照时，显示与关系消费同一 canonical 排盘事实；
+    // 传统 Profile 是冻结显示快照，关系继续读取其配套持久化事实。
+    final resolution = resolveRelationResult(profile == null ? canonicalCase : hexagramCase);
     final relations = [
       for (final entry in resolution.effective) entry.relation,
     ];
