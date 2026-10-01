@@ -7,3 +7,4 @@ Date	SourceVersion	VisibleVersion	Commit	Type	Domain	Task	ParentVisible	CounterA
 2026-09-29	2.0.6+51	2.0.6.51	f9d95bcbcea1d20f7d90b6d3b05c9145effd98c0	FIX	Review/Relation/UI	Repair stale whole-board gate and produce validated APK	2.0.6.50	YES
 2026-09-29	2.0.6+52	2.0.6.52	054fb66b74a855fd72b51fdd76bc6ce3f135f850	FIX	Review/Relation/UI	Balance Bezier side routing, compact labels, and protect occluded board content	2.0.6.51	YES
 2026-09-29	2.0.6+53	2.0.6.53	6734859d1fe138fb94986e9af0f0c8a1eed944c5	FIX	Review/Relation/UI	Restore line focus and prioritize protected-zone avoidance	2.0.6.52	YES
+2026-10-01	2.0.6+54	2.0.6.54	76d6ea8eb4b7728c5741ca0f41c1ef89f0fcb3ab	FIX	Domain/Review	Fix opposite-fucang relative basis and lock review relations to canonical display facts	2.0.6.53	YES
