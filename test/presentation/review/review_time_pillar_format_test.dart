@@ -16,7 +16,7 @@ void main() {
         yearGanZhi: '丙午',
         hourGanZhi: '乙巳',
       ),
-      lines: const [
+      lines: [
         LineState(position: 1, movementType: MovementType.shaoYang),
         LineState(position: 2, movementType: MovementType.shaoYang),
         LineState(position: 3, movementType: MovementType.shaoYang),
