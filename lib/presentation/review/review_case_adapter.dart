@@ -142,9 +142,8 @@ class ReviewCaseAdapter {
     final changedProfile = chart.changed == null
         ? null
         : HexagramPalaceProfile.fromHexagram(chart.changed!);
-    final judgement = ElementJudgementBuilder.build(
-      _canonicalJudgementCase(hexagramCase, chart),
-    );
+    final canonicalCase = _canonicalJudgementCase(hexagramCase, chart);
+    final judgement = ElementJudgementBuilder.build(canonicalCase);
     final lines = <ReviewLineView>[
       for (final line in hexagramCase.lines)
         _toLineView(
@@ -160,8 +159,9 @@ class ReviewCaseAdapter {
         ),
     ];
 
-    // 关系一律来自 Domain 计算（Stable Relation Identity），禁止 UI 重算。
-    final resolution = resolveRelationResult(hexagramCase);
+    // 审卦显示与关系计算必须消费同一份 canonical 排盘事实。
+    // 持久化 Case 不在此修改；这里只消除旧/脏 branch 与当前排盘显示的漂移。
+    final resolution = resolveRelationResult(canonicalCase);
     final relations = [
       for (final entry in resolution.effective) entry.relation,
     ];
@@ -278,7 +278,9 @@ class ReviewCaseAdapter {
             position: line.position,
             movementType: line.movementType,
             branch: chart.lineAt(line.position).branch.label,
-            changedBranch: chart.lineAt(line.position).changedBranch?.label,
+            changedBranch: line.movementType.isMoving
+                ? chart.lineAt(line.position).changedBranch?.label
+                : null,
           ),
       ],
     );

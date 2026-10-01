@@ -3,6 +3,19 @@ import 'package:guayan_trainer/domain/casting/bagua.dart';
 import 'package:guayan_trainer/domain/casting/double_fucang_engine.dart';
 
 void main() {
+
+  test('艮宫旁伏干支取兑宫但六亲仍以艮土为基准', () {
+    final result = DoubleFucangEngine.calculate(Bagua.gen);
+
+    expect(result.oppositePalace, Bagua.dui);
+    expect(
+      result.opposite.reversed.map(
+        (line) => '${line.relative.shortLabel}${line.ganZhi}',
+      ),
+      ['兄丁未', '孙丁酉', '财丁亥', '兄丁丑', '官丁卯', '父丁巳'],
+    );
+  });
+
   test('巽宫双伏藏与参考图逐爻一致', () {
     final result = DoubleFucangEngine.calculate(Bagua.xun);
 
