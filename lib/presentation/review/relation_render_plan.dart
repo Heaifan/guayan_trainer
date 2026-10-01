@@ -7,6 +7,7 @@ import 'relation_geometry.dart';
 import 'relation_label_placer.dart';
 import 'relation_obstacle_map.dart';
 import 'relation_orthogonal_router.dart';
+
 class RelationRenderPlan {
   const RelationRenderPlan({
     required this.routes, required this.records, required this.labels,
@@ -28,10 +29,9 @@ abstract final class RelationRenderPlanner {
     required Size viewportSize,
   }) {
     final obstacleMap = RelationObstacleMap.fromBounds(bounds);
-    final routes = <RelationRoute>[];
-    final routedRecords = <RelationRecord>[];
+    final routes = <RelationRoute>[], routedRecords = <RelationRecord>[];
     final labels = <PlacedRelationLabel?>[];
-    final missing = <String>[];
+    final missing = <String>[], sourceSides = <String, double>{};
     final ordered = records.toList()..sort((a, b) => a.id.compareTo(b.id));
     final ordinary = ordered.where((r) =>
       r.relationType != RelationType.huiTouSheng &&
@@ -39,6 +39,7 @@ abstract final class RelationRenderPlanner {
     ).toList();
     var anchored = 0, left = 0, right = 0;
     for (final record in ordinary) {
+      final sourceId = record.fromRef?.semanticId ?? record.id;
       final source = anchorBounds[record.fromRef?.semanticId];
       final target = anchorBounds[record.toRef?.semanticId];
       if (source == null || target == null) {
@@ -46,13 +47,14 @@ abstract final class RelationRenderPlanner {
         continue;
       }
       anchored++;
+      final priorSide = sourceSides[sourceId];
+      final preferred = priorSide == null ? (left <= right ? -1.0 : 1.0) : -priorSide;
       final obstacles = _withoutEndpoints(obstacleMap, record);
       final route = RelationOrthogonalRouter.route(
         source: RelationAnchors.fromRect(source),
         target: RelationAnchors.fromRect(target),
-        obstacles: obstacles,
-        viewport: Offset.zero & viewportSize,
-        preferredHorizontalSide: left <= right ? -1 : 1,
+        obstacles: obstacles, viewport: Offset.zero & viewportSize,
+        preferredHorizontalSide: preferred,
       ).route;
       if (route == null) continue;
       final label = RelationLabelPlacer.place(
@@ -63,19 +65,18 @@ abstract final class RelationRenderPlanner {
       routes.add(route);
       routedRecords.add(record);
       labels.add(label);
+      sourceSides[sourceId] = route.horizontalSide == 0 ? preferred : route.horizontalSide;
       if (route.horizontalSide < 0) left++;
       if (route.horizontalSide > 0) right++;
     }
     return RelationRenderPlan(
-      routes: List.unmodifiable(routes),
-      records: List.unmodifiable(routedRecords),
-      labels: List.unmodifiable(labels),
-      obstacleCount: obstacleMap.obstacles.length,
-      inputCount: ordinary.length,
-      anchoredCount: anchored,
+      routes: List.unmodifiable(routes), records: List.unmodifiable(routedRecords),
+      labels: List.unmodifiable(labels), obstacleCount: obstacleMap.obstacles.length,
+      inputCount: ordinary.length, anchoredCount: anchored,
       missingAnchorRecordIds: List.unmodifiable(missing),
     );
   }
+
   static RelationObstacleMap _withoutEndpoints(
     RelationObstacleMap map, RelationRecord record,
   ) {

@@ -30,7 +30,7 @@ class RelationRoute {
 
 abstract final class RelationOrthogonalRouter {
   static const _bendPenalty = 10.0;
-  static const _sidePreferencePenalty = 4.0;
+  static const _sidePreferencePenalty = 14.0;
 
   static RelationRouteResult route({
     required RelationAnchors source,
@@ -42,7 +42,9 @@ abstract final class RelationOrthogonalRouter {
     final candidates = <RelationRoute>[];
     for (final pair in AnchorPairCandidates.ordinary(source, target)) {
       for (final points in RelationRouteCandidates.forPair(pair, viewport)) {
-        final sides = points.length == 2 ? const [-1.0, 1.0] : const [0.0];
+        final sides = points.length == 2
+            ? const [-1.0, 1.0]
+            : [_routeSide(points)];
         for (final side in sides) {
           final path = RelationBezierPath.build(
             points, viewport, directHorizontalSide: side == 0 ? -1 : side,
@@ -69,6 +71,16 @@ abstract final class RelationOrthogonalRouter {
     if (candidates.isEmpty) return const RelationRouteResult.noRoute();
     candidates.sort(_compareRoutes);
     return RelationRouteResult.route(candidates.first);
+  }
+
+  static double _routeSide(List<Offset> points) {
+    if (points.length < 3) return 0;
+    final directX = (points.first.dx + points.last.dx) / 2;
+    final interior = points.sublist(1, points.length - 1);
+    final interiorX =
+        interior.map((p) => p.dx).reduce((a, b) => a + b) / interior.length;
+    final delta = interiorX - directX;
+    return delta.abs() < .5 ? 0 : delta.sign;
   }
 
   static int _compareRoutes(RelationRoute a, RelationRoute b) {

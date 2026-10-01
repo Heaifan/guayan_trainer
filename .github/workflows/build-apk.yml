@@ -56,6 +56,7 @@ jobs:
           test/presentation/review/relation_label_placer_test.dart
           test/presentation/review/relation_overlay_test.dart
           test/presentation/review/relation_visual_protocol_test.dart
+          test/presentation/review/relation_visual_binding_test.dart
           test/presentation/review/return_relation_glyph_test.dart
           test/presentation/review/hexagram_line_cell_anchor_test.dart
           test/presentation/review/review_page_test.dart
