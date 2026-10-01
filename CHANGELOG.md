@@ -2,13 +2,33 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+55（Android 显示 2.0.6.55）
+> **当前应用版本：** 2.0.6+56（Android 显示 2.0.6.56）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-10-01 · GUAYAN-R5-RELATION-VISUAL-FIX5
+
+> 继续冻结 Domain 真值，只收口关系标签可读性与四柱标题格式。普通生/克路由在评分阶段预留“可放标签”的路径空间，若短路线无法容纳标签会主动选择有空白的绕行候选；标签仍只能沿自己的 Route 前后搜索。四柱统一为“丙午年 / 丁酉月 / 丁未日 / 乙巳时”。
+
+### 冻结规则
+
+- 普通关系 Route 评分必须考虑标签真实尺寸与既有标签占位；无可用标签位置的候选追加高成本。
+- 标签候选以 4dp 步长从曲线中点向两端搜索，始终落在所属 Path 上，不恢复法线漂移。
+- 同源关系左右分叉规则继续保留；伏藏/纳音/世应避让优先级不回退。
+- 年柱展示采用“干支 + 年”，与月/日/时列统一；不再显示“年柱丙午”。
+- 排盘、旁伏、生克与回头生克 Domain 本轮不修改。
+
+### 验证状态
+
+- Source: `2.0.6+56`
+- Android visible: `2.0.6.56`
+- Built Candidate: `cb85597e66e7671f5b7dcb3e63faca0c316a4471`
+- AUTOMATED: PASS（Analyze + Relation UI + Visual Binding + Domain Truth + Pillar Format + APK）
+- VISUAL: PENDING（实机确认两个“克”标签是否稳定出现并贴线）
 
 ## 2026-10-01 · GUAYAN-R5-RELATION-VISUAL-FIX4
 

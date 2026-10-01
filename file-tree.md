@@ -1,5 +1,24 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-RELATION-VISUAL-FIX5 — 2026-10-01
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `review_case_adapter.dart` | 年柱格式统一为“干支 + 年”，真实卦例显示 `丙午年` |
+| `routing/relation_label_candidates.dart` | 4dp 密集扫描所属 Path 的可用标签位置 |
+| `routing/relation_label_route_score.dart` | 路由阶段计算标签可放置性；无空间候选施加高成本 |
+| `relation_orthogonal_router.dart` | 将标签空间成本纳入路径总评分 |
+| `relation_render_plan.dart` | 把真实标签尺寸与已放标签 Bounds 传入 Router |
+| `test/presentation/review/relation_visual_binding_test.dart` | 空白绕行时标签必须成功落位 |
+| `test/presentation/review/review_time_pillar_format_test.dart` | 锁定丙午年 / 丁酉月 / 丁未日 / 乙巳时 |
+| `pubspec.yaml` | Process Counter `2.0.6+55 → 2.0.6+56` |
+
+- Domain Truth: FROZEN
+- AUTOMATED: PASS
+- VISUAL: PENDING
+- Built Candidate: `cb85597e66e7671f5b7dcb3e63faca0c316a4471`
+- Last edited: 2026-10-01 16:45:00 +08:00
+
 ## GUAYAN-R5-RELATION-VISUAL-FIX4 — 2026-10-01
 
 | 文件/目录 | 职责 |
