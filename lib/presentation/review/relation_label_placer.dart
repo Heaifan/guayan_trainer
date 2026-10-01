@@ -28,7 +28,7 @@ abstract final class RelationLabelPlacer {
         radius: RelationVisualTokens.relationLabelArrowClearance,
       ),
     ];
-    final candidates = RelationLabelCandidates.centers(route).toList();
+    final candidates = RelationLabelCandidates.centers(route.path).toList();
     final strict = _find(
       candidates, size, guards, obstacles, occupied,
       padding: RelationVisualTokens.safePadding,

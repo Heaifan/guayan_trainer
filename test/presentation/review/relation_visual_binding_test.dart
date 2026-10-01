@@ -22,6 +22,28 @@ void main() {
     }
   });
 
+  test('有空白绕行空间时，路由为标签选择可放置路径', () {
+    final record = RelationRecord.relation(
+      id: 'ke-label-clearance', sourceKind: RelationSourceKind.fact,
+      relationType: RelationType.ke,
+      fromRef: YaoEndpoint(LineScope.original, 2),
+      toRef: YaoEndpoint(LineScope.original, 4), title: '克',
+    );
+    const anchors = {
+      'yao:original:2': Rect.fromLTWH(140, 170, 64, 16),
+      'yao:original:4': Rect.fromLTWH(140, 70, 64, 16),
+    };
+    final plan = RelationRenderPlanner.build(
+      records: [record],
+      bounds: const {
+        'main_nayin_obstacle_3': Rect.fromLTWH(118, 100, 80, 28),
+      },
+      anchorBounds: anchors, viewportSize: const Size(402, 270),
+    );
+    expect(plan.routes, hasLength(1));
+    expect(plan.labels.single, isNotNull);
+  });
+
   test('同一来源的多条关系优先向相反两侧分叉', () {
     final plan = _twoSiblingRoutes();
     expect(plan.routes, hasLength(2));

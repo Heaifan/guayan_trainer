@@ -430,7 +430,7 @@ class ReviewCaseAdapter {
         CalendarPillars.yearGanZhi(
           LunarCalendar.dateFor(hexagramCase.createdAt),
         );
-    if (label.isNotEmpty) return '年柱$label';
+    if (label.isNotEmpty) return '$label年';
     return null;
   }
 

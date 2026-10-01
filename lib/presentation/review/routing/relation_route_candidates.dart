@@ -14,6 +14,16 @@ abstract final class RelationRouteCandidates {
     }
   }
 
+  static double sideOf(List<Offset> points) {
+    if (points.length < 3) return 0;
+    final directX = (points.first.dx + points.last.dx) / 2;
+    final interior = points.sublist(1, points.length - 1);
+    final interiorX =
+        interior.map((p) => p.dx).reduce((a, b) => a + b) / interior.length;
+    final delta = interiorX - directX;
+    return delta.abs() < .5 ? 0 : delta.sign;
+  }
+
   static double length(List<Offset> points) {
     var total = 0.0;
     for (var i = 0; i < points.length - 1; i++) {

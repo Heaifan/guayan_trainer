@@ -62,6 +62,7 @@ jobs:
           test/presentation/review/review_page_test.dart
           test/domain/casting/double_fucang_engine_test.dart
           test/presentation/review/review_domain_truth_golden_test.dart
+          test/presentation/review/review_time_pillar_format_test.dart
 
       - name: Build release APK
         run: flutter build apk --release
