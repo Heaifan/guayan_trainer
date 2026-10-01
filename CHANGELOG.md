@@ -2,13 +2,31 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+54（Android 显示 2.0.6.54）
+> **当前应用版本：** 2.0.6+55（Android 显示 2.0.6.55）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-10-01 · GUAYAN-R5-RELATION-VISUAL-FIX4
+
+> Domain 真值保持冻结，本轮只修关系可读性：普通“生/克”标签不再沿法线漂移 14/20px，而是只能沿所属 Bézier 曲线前后找安全位置；同一 Source 的多条普通关系优先选择相反侧路线，先分叉再抵达各自 Target。真实 FIX：`2.0.6+54 → 2.0.6+55`。
+
+### 冻结规则
+
+- 标签中心必须落在所属 Route 上；禁止为了找空位横向漂到邻线。
+- 标签位置受正文/纳音/世应/既有标签避让约束，只能沿本 Route 前后移动。
+- 同一 Source 的第二条普通关系优先选择第一条的反侧；障碍成本仍高于分流偏好。
+- 不修改排盘、旁伏、普通生克与回头生克 Domain 事实。
+
+### 验证状态
+
+- Source: `2.0.6+55`
+- Android visible: `2.0.6.55`
+- AUTOMATED: PENDING（Analyze + Relation UI Gate + Visual Binding Gate + APK）
+- VISUAL: PENDING（实机确认两个“克”能沿线唯一归属）
 
 ## 2026-10-01 · GUAYAN-P0-DOMAIN-TRUTH-FIX
 

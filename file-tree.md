@@ -1,5 +1,21 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-RELATION-VISUAL-FIX4 — 2026-10-01
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `routing/relation_label_candidates.dart` | 标签候选只允许位于所属 Bézier 路径本体，禁止法线漂移 |
+| `relation_render_plan.dart` | 记录同源路线已用侧向，后续同源关系优先反侧分叉 |
+| `relation_orthogonal_router.dart` | 多折线路也识别屏幕左右侧；侧向偏好只做软约束 |
+| `test/presentation/review/relation_visual_binding_test.dart` | 标签贴线 + 同源反侧分叉自动门禁 |
+| `.github/workflows/build-apk.yml` | Visual Binding Gate 纳入 APK 构建 |
+| `pubspec.yaml` | Process Counter `2.0.6+54 → 2.0.6+55` |
+
+- Domain Truth: FROZEN
+- AUTOMATED: PENDING
+- VISUAL: PENDING
+- Last edited: 2026-10-01 15:30:00 +08:00
+
 ## GUAYAN-P0-DOMAIN-TRUTH-FIX — 2026-10-01
 
 | 文件/目录 | 职责 |
