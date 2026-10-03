@@ -10,3 +10,4 @@ Date	SourceVersion	VisibleVersion	Commit	Type	Domain	Task	ParentVisible	CounterA
 2026-10-01	2.0.6+54	2.0.6.54	76d6ea8eb4b7728c5741ca0f41c1ef89f0fcb3ab	FIX	Domain/Review	Fix opposite-fucang relative basis and lock review relations to canonical display facts	2.0.6.53	YES
 2026-10-01	2.0.6+55	2.0.6.55	7863aa15756cbb94f64a24e7fd3eeda2dda8dedf	FIX	Review/Relation/UI	Bind Sheng-Ke labels to their own routes and split sibling routes by side	2.0.6.54	YES
 2026-10-01	2.0.6+56	2.0.6.56	cb85597e66e7671f5b7dcb3e63faca0c316a4471	FIX	Review/Relation/UI	Reserve route space for Sheng-Ke labels and normalize pillar suffixes	2.0.6.55	YES
+2026-10-03	2.0.6+57	2.0.6.57	e4f8c3021ca728d025f7738e5b05f9301dc7422d	FIX	Review/Relation/UI	Compact relation labels and separate crowded route corridors	2.0.6.56	YES

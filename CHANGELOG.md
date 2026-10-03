@@ -2,13 +2,36 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+56（Android 显示 2.0.6.56）
+> **当前应用版本：** 2.0.6+57（Android 显示 2.0.6.57）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-10-03 · GUAYAN-R5-RELATION-VISUAL-FIX6
+
+> 针对全卦关系密集时“生/克/回头生克”标签过大、线路挤成一团的问题，继续冻结 Domain 真值，只优化关系视觉层。标签整体缩小，同时 Router 对已占用走廊施加软分流成本，并补充更外侧候选车道。
+
+### 冻结规则
+
+- 关系标签字体 7dp → 6dp，高度 12dp → 10dp，水平留白 6dp → 4dp；胶囊同步缩小。
+- 标签仍必须绑定自身 Path，不恢复漂浮标签。
+- 已占用路线只作为软成本，不得压过伏藏、纳音、世应等高优先级避让。
+- 车道候选扩展到 14/26/38/52/68/86dp，优先利用两侧空白，减少中央长期共线。
+- 排盘、生克、回头生克 Domain 判定本轮不修改。
+
+### 验证状态
+
+- Source: `2.0.6+57`
+- Android visible: `2.0.6.57`
+- Built Candidate: `e4f8c3021ca728d025f7738e5b05f9301dc7422d`
+- GitHub Actions: PASS
+- Analyze: PASS
+- Relation UI tests: PASS
+- Release APK: PASS
+- VISUAL: PENDING（实机确认密集关系场景的标签尺寸与分流效果）
 
 ## 2026-10-01 · GUAYAN-R5-RELATION-VISUAL-FIX5
 

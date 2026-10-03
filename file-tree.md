@@ -1,5 +1,24 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-RELATION-VISUAL-FIX6 — 2026-10-03
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `relation_visual_tokens.dart` | 缩小关系标签字体、胶囊高度、水平留白与箭头净空 |
+| `routing/relation_route_separation_score.dart` | 对既有路线附近的新候选施加软分流成本 |
+| `relation_orthogonal_router.dart` | 将已占用走廊成本并入总路由评分 |
+| `relation_render_plan.dart` | 按绘制顺序把既有 Path 传给后续 Router |
+| `routing/relation_route_candidates.dart` | 扩展左右候选车道，增加外侧空白利用 |
+| `relation_visual_protocol_test.dart` | 锁定紧凑标签视觉参数 |
+| `relation_visual_binding_test.dart` | 锁定已占用走廊的软分流行为 |
+| `pubspec.yaml` | Process Counter `2.0.6+56 → 2.0.6+57` |
+
+- Domain Truth: FROZEN
+- AUTOMATED: PASS
+- VISUAL: PENDING
+- Built Candidate: `e4f8c3021ca728d025f7738e5b05f9301dc7422d`
+- Last edited: 2026-10-03 10:45:00 +08:00
+
 ## GUAYAN-R5-RELATION-VISUAL-FIX5 — 2026-10-01
 
 | 文件/目录 | 职责 |
