@@ -5,6 +5,7 @@ import 'relation_obstacle_map.dart';
 import 'routing/relation_bezier_path.dart';
 import 'routing/relation_label_route_score.dart';
 import 'routing/relation_route_candidates.dart';
+import 'routing/relation_route_separation_score.dart';
 import 'routing/relation_route_scoring.dart';
 
 class RelationRouteResult {
@@ -41,6 +42,7 @@ abstract final class RelationOrthogonalRouter {
     double preferredHorizontalSide = 0,
     Size? labelSize,
     Iterable<Rect> occupiedLabels = const [],
+    Iterable<Path> occupiedPaths = const [],
   }) {
     final candidates = <RelationRoute>[];
     for (final pair in AnchorPairCandidates.ordinary(source, target)) {
@@ -62,6 +64,10 @@ abstract final class RelationOrthogonalRouter {
             path: path, labelSize: labelSize, obstacles: obstacles,
             occupiedLabels: occupiedLabels,
           );
+          final separationCost = RelationRouteSeparationScore.penalty(
+            path: path,
+            occupiedPaths: occupiedPaths,
+          );
           final sideCost = preferredHorizontalSide != 0 &&
                   side != 0 && side != preferredHorizontalSide
               ? _sidePreferencePenalty : 0.0;
@@ -70,7 +76,7 @@ abstract final class RelationOrthogonalRouter {
             points: points, path: path, length: length, bendCount: bends,
             horizontalSide: side,
             cost: length + bends * _bendPenalty +
-                avoidance + direction + sideCost + labelCost,
+                avoidance + direction + sideCost + labelCost + separationCost,
           ));
         }
       }

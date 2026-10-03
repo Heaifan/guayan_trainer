@@ -7,6 +7,7 @@ import 'package:guayan_trainer/domain/relation_type.dart';
 import 'package:guayan_trainer/domain/relations/relation_record.dart';
 import 'package:guayan_trainer/presentation/review/relation_render_plan.dart';
 import 'package:guayan_trainer/presentation/review/routing/relation_bezier_path.dart';
+import 'package:guayan_trainer/presentation/review/routing/relation_route_separation_score.dart';
 
 void main() {
   test('普通生克标签中心始终贴在所属曲线上', () {
@@ -48,6 +49,28 @@ void main() {
     final plan = _twoSiblingRoutes();
     expect(plan.routes, hasLength(2));
     expect(plan.routes.map((route) => route.horizontalSide).toSet(), {-1.0, 1.0});
+  });
+
+  test('已占用走廊对重叠路线施加更高分流成本', () {
+    final occupied = Path()
+      ..moveTo(20, 40)
+      ..lineTo(180, 40);
+    final overlap = Path()
+      ..moveTo(20, 40)
+      ..lineTo(180, 40);
+    final separated = Path()
+      ..moveTo(20, 72)
+      ..lineTo(180, 72);
+    final overlapCost = RelationRouteSeparationScore.penalty(
+      path: overlap,
+      occupiedPaths: [occupied],
+    );
+    final separatedCost = RelationRouteSeparationScore.penalty(
+      path: separated,
+      occupiedPaths: [occupied],
+    );
+    expect(overlapCost, greaterThan(separatedCost));
+    expect(separatedCost, 0);
   });
 }
 

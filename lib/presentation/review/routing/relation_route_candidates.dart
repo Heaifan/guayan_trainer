@@ -47,7 +47,7 @@ abstract final class RelationRouteCandidates {
     final targetStub = _clamp(t + targetNormal * stub, viewport);
     yield [s, sourceStub, targetStub, t];
 
-    for (final offset in const [14.0, 28.0, 44.0, 64.0]) {
+    for (final offset in const [14.0, 26.0, 38.0, 52.0, 68.0, 86.0]) {
       final leftX =
           math.max(viewport.left + 4, math.min(s.dx, t.dx) - offset);
       final rightX =

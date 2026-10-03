@@ -55,6 +55,7 @@ abstract final class RelationRenderPlanner {
         viewport: Offset.zero & viewportSize, preferredHorizontalSide: preferred,
         labelSize: RelationLabelVisual.sizeFor(record.relationType!.displayName),
         occupiedLabels: occupied,
+        occupiedPaths: [for (final item in routes) item.path],
       ).route;
       if (route == null) continue;
       final label = RelationLabelPlacer.place(
