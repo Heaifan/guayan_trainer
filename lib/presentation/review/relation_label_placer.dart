@@ -31,14 +31,14 @@ abstract final class RelationLabelPlacer {
     final candidates = RelationLabelCandidates.centers(route.path).toList();
     final strict = _find(
       candidates, size, guards, obstacles, occupied,
-      padding: RelationVisualTokens.safePadding,
+      padding: RelationVisualTokens.relationLabelSafePadding,
       deflateObstacles: false,
     );
     if (strict != null) return _placed(text, route, strict.$1, strict.$2);
 
     final relaxed = _find(
       candidates, size, guards, obstacles, occupied,
-      padding: 1,
+      padding: 0.5,
       deflateObstacles: true,
     );
     if (relaxed != null) return _placed(text, route, relaxed.$1, relaxed.$2);
