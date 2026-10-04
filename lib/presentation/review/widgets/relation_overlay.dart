@@ -182,15 +182,10 @@ class _RelationPainter extends CustomPainter {
         paint,
         protectedBounds,
       );
-      // 标签先画、箭头最后画：文字胶囊不能盖住箭头。
+      // 标签保留文字但不再绘制胶囊；箭头最后画并保持完整语义色。
       final label = plan.labels[i];
       if (label != null) _drawLabel(canvas, label, color);
-      _drawArrow(
-        canvas,
-        plan.routes[i].path,
-        color,
-        protectedBounds,
-      );
+      _drawArrow(canvas, plan.routes[i].path, color);
     }
     for (final record in records.where(_isReturn)) {
       _drawReturn(
@@ -240,7 +235,6 @@ class _RelationPainter extends CustomPainter {
     Canvas canvas,
     Path path,
     Color color,
-    Iterable<Rect> protectedBounds,
   ) {
     final metrics = path.computeMetrics().toList();
     if (metrics.isEmpty) return;
@@ -261,29 +255,29 @@ class _RelationPainter extends CustomPainter {
         tip.dy - math.sin(angle + .55) * arrowSize,
       )
       ..close();
-    final overlapsProtected = protectedBounds.any(
-      (rect) => rect.overlaps(arrow.getBounds()),
-    );
     canvas.drawPath(
       arrow,
-      Paint()
-        ..color = color.withValues(alpha: overlapsProtected ? .18 : .98),
+      Paint()..color = color.withValues(alpha: .98),
     );
   }
 
-  /// 关系线允许穿过卦盘元素。先整条画一层低透明底线，再把未覆盖元素
-  /// 的区段恢复正常透明度，因此“穿字”不会遮住正文，也不会把关系删掉。
+  /// 关系线允许穿过卦盘元素。遮挡区只降低线自身 Alpha，不叠白色遮罩；
+  /// 核心区低透明、边缘羽化、离开保护区后恢复原色。
   void _drawSoftPath(
     Canvas canvas,
     Path path,
     Paint normalPaint,
     Iterable<Rect> protectedBounds,
   ) {
-    final bounds = [
+    final coreBounds = [
       for (final rect in protectedBounds)
         rect.inflate(
           normalPaint.strokeWidth / 2 + RelationVisualTokens.occlusionPadding,
         ),
+    ];
+    final featherBounds = [
+      for (final rect in coreBounds)
+        rect.inflate(RelationVisualTokens.occlusionFeather),
     ];
     final dimPaint = Paint()
       ..color = normalPaint.color.withValues(
@@ -293,10 +287,41 @@ class _RelationPainter extends CustomPainter {
       ..strokeWidth = normalPaint.strokeWidth
       ..strokeCap = normalPaint.strokeCap
       ..strokeJoin = normalPaint.strokeJoin;
-    canvas.drawPath(path, dimPaint);
+    final featherPaint = Paint()
+      ..color = normalPaint.color.withValues(
+        alpha:
+            normalPaint.color.a * RelationVisualTokens.opacityOcclusionFeather,
+      )
+      ..style = normalPaint.style
+      ..strokeWidth = normalPaint.strokeWidth
+      ..strokeCap = normalPaint.strokeCap
+      ..strokeJoin = normalPaint.strokeJoin;
 
-    final visible = Path();
-    const step = 1.75;
+    canvas.drawPath(path, dimPaint);
+    canvas.drawPath(
+      _sampleVisiblePath(
+        path,
+        (point) =>
+            !coreBounds.any((rect) => rect.contains(point)) &&
+            featherBounds.any((rect) => rect.contains(point)),
+      ),
+      featherPaint,
+    );
+    canvas.drawPath(
+      _sampleVisiblePath(
+        path,
+        (point) => !featherBounds.any((rect) => rect.contains(point)),
+      ),
+      normalPaint,
+    );
+  }
+
+  Path _sampleVisiblePath(
+    Path path,
+    bool Function(Offset point) visible,
+  ) {
+    final result = Path();
+    const step = 1.5;
     for (final metric in path.computeMetrics()) {
       var drawing = false;
       for (var distance = 0.0; distance <= metric.length; distance += step) {
@@ -305,25 +330,27 @@ class _RelationPainter extends CustomPainter {
         );
         if (tangent == null) continue;
         final point = tangent.position;
-        final occluded = bounds.any((rect) => rect.contains(point));
-        if (occluded) {
+        if (!visible(point)) {
           drawing = false;
           continue;
         }
-        if (!drawing) {
-          visible.moveTo(point.dx, point.dy);
-          drawing = true;
+        if (drawing) {
+          result.lineTo(point.dx, point.dy);
         } else {
-          visible.lineTo(point.dx, point.dy);
+          result.moveTo(point.dx, point.dy);
+          drawing = true;
         }
       }
       final end = metric.getTangentForOffset(metric.length)?.position;
-      if (end != null &&
-          !bounds.any((rect) => rect.contains(end))) {
-        visible.lineTo(end.dx, end.dy);
+      if (end != null && visible(end)) {
+        if (drawing) {
+          result.lineTo(end.dx, end.dy);
+        } else {
+          result.moveTo(end.dx, end.dy);
+        }
       }
     }
-    canvas.drawPath(visible, normalPaint);
+    return result;
   }
 
   void _drawLabel(Canvas canvas, PlacedRelationLabel label, Color color) {
@@ -374,14 +401,10 @@ class _RelationPainter extends CustomPainter {
       center: geometry.labelCenter,
       color: color,
     );
-    // 箭头最后绘制。若恰好经过高优先级元素则降透明，但方向仍可辨。
-    final arrowOccluded = protectedBounds.any(
-      (rect) => rect.overlaps(geometry.arrow.getBounds()),
-    );
+    // 箭头承担生/克快速识别，不受正文透明避让影响，只保持原语义色。
     canvas.drawPath(
       geometry.arrow,
-      Paint()
-        ..color = color.withValues(alpha: arrowOccluded ? .18 : .98),
+      Paint()..color = color.withValues(alpha: .98),
     );
   }
 
