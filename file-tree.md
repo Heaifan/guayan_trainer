@@ -1,5 +1,23 @@
 # GUAYAN Trainer file tree
 
+## GUAYAN-R5-RELATION-VISUAL-FIX7 — 2026-10-04
+
+| 文件/目录 | 职责 |
+| --- | --- |
+| `relation_visual_tokens.dart` | 关闭胶囊视觉；关系标签缩至 5dp；定义 Alpha 核心/羽化参数 |
+| `relation_label_visual.dart` | 标签仅绘制红/绿文字，不再绘制底色与边框 |
+| `relation_label_placer.dart` | 无胶囊标签的安全留白收敛到 1.5dp |
+| `widgets/relation_overlay.dart` | 白色遮罩改为原色 Alpha 羽化；箭头保持完整红/绿语义色 |
+| `relation_visual_protocol_test.dart` | 锁定无胶囊、5dp 标签与 Alpha 羽化协议 |
+| `relation_label_placer_test.dart` | 锁定紧凑文本标签 Bounds |
+| `pubspec.yaml` | Process Counter `2.0.6+57 → 2.0.6+58` |
+
+- Domain Truth: FROZEN
+- AUTOMATED: PENDING
+- VISUAL: PENDING
+- Built Candidate: `f148c3f463e50e81949c012f5db1af3cfe23703b`
+- Last edited: 2026-10-04 12:39:00 +08:00
+
 ## GUAYAN-R5-RELATION-VISUAL-FIX6 — 2026-10-03
 
 | 文件/目录 | 职责 |
