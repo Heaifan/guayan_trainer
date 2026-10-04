@@ -29,8 +29,10 @@ void main() {
 
     expect(placed, isNotNull);
     expect(placed!.text, '克');
-    expect(placed.bounds.width, greaterThan(12));
-    expect(placed.bounds.height, greaterThanOrEqualTo(12));
+    expect(placed.bounds.width, greaterThan(0));
+    expect(placed.bounds.width, lessThan(12));
+    expect(placed.bounds.height, greaterThan(0));
+    expect(placed.bounds.height, lessThan(12));
     expect(placed.bounds.overlaps(const Rect.fromLTWH(40, 75, 30, 18)), isFalse);
     expect(placed.bounds.overlaps(const Rect.fromLTWH(120, 100, 35, 24)), isFalse);
 
