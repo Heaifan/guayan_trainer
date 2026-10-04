@@ -2,13 +2,34 @@
 
 > **仓库：** https://github.com/Heaifan/guayan_trainer.git
 > **归档分支：** `feat/guayan-2.0`
-> **当前应用版本：** 2.0.6+57（Android 显示 2.0.6.57）
+> **当前应用版本：** 2.0.6+58（Android 显示 2.0.6.58）
 > **最近历史正式发布：** v0.1.14（2026-09-15）
 > **当前 R5 开发基线：** R5-G2-D0 SYSTEM KNOWLEDGE RULE CENTER MVP
 > **本文件创建：** 2026-08-27
 > **完整文件树与历史：** 见 [file-tree.md](file-tree.md)
 
 ---
+
+## 2026-10-04 · GUAYAN-R5-RELATION-VISUAL-FIX7
+
+> 保留全卦关系文字标签，但移除胶囊底色/边框并继续缩小字号；关系线穿越卦盘元素时不再使用白色遮罩，而改为仅衰减线条 Alpha，并增加窄羽化过渡。箭头继续以红/绿承担“克/生”快速识别，箭头尖不再因遮挡区被严重淡化。
+
+### 冻结规则
+
+- 标签文字继续保留：普通关系显示“生/克”，回头关系显示“回头生/回头克”。
+- 胶囊背景、边框、圆角全部关闭；标签字体 6dp → 5dp，高度 10dp → 7dp，水平留白 4dp → 0dp，字重 600 → 500。
+- 标签自身安全留白收敛到 1.5dp，避免无胶囊后仍占用过大视觉空洞。
+- 遮挡只修改原关系色的 Alpha：核心区 8%，羽化区 42%，离开保护区恢复原透明度；禁止叠加白色遮罩或改变色相。
+- 箭头继续使用绿色=生、红色=克，并保持约 98% Alpha；正文透明避让只作用线身，不再削弱箭头语义。
+- 排盘、普通生克、回头生克 Domain Truth 本轮不修改。
+
+### 验证状态
+
+- Source: `2.0.6+58`
+- Android visible: `2.0.6.58`
+- Built Candidate: `f148c3f463e50e81949c012f5db1af3cfe23703b`
+- AUTOMATED: PENDING（Analyze + Relation UI Gate + Release APK）
+- VISUAL: PENDING（实机确认无胶囊标签、5dp 字号与 Alpha 羽化效果）
 
 ## 2026-10-03 · GUAYAN-R5-RELATION-VISUAL-FIX6
 
